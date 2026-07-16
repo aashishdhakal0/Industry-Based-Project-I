@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block title %}That link has expired — {{ site_name }}{% endblock %}
+
+{% block content %}
+<div class="nstp-card">
+  <p class="nstp-status-icon" aria-hidden="true">⌛</p>
+  <h1>That link has expired</h1>
+  <p class="nstp-lede">
+    Confirmation links only work for 2 days, and this one is older than that.
+    Nothing has gone wrong — you just need a fresh one.
+  </p>
+
+  <a class="nstp-btn-primary d-inline-block text-center"
+     href="{% url 'authentication:register' %}">Send me a new link</a>
+</div>
+{% endblock %}

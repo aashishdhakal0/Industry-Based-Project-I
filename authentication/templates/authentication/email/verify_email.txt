@@ -1,0 +1,17 @@
+Hello {{ first_name }},
+
+Thanks for signing up to {{ site_name }}.
+
+To finish setting up your account, open this link:
+
+{{ verify_url }}
+
+The link works for the next 2 days. If it stops working, you can ask for a new
+one from the sign-up page.
+
+If you didn't sign up, you can safely ignore this email. The account can't be
+used until someone opens the link above, and the link stops working in 2 days.
+
+--
+{{ site_name }}
+Built for AUSDAIS PTY LTD

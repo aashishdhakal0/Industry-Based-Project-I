@@ -1,0 +1,163 @@
+/* NSTP — a thin layer over Bootstrap.
+ *
+ * Our users are non-technical adults, so the visual job is calm and legible,
+ * not clever: generous space, one obvious action per screen, text large enough
+ * to read without leaning in. Everything here is a restraint on Bootstrap's
+ * defaults rather than a new design system.
+ */
+
+:root {
+  --nstp-ink: #14213d;
+  --nstp-ink-soft: #4a5568;
+  --nstp-accent: #1b4965;
+  --nstp-accent-strong: #14384e;
+  --nstp-page: #f7f8fa;
+  --nstp-line: #e2e6ec;
+}
+
+.nstp-body {
+  background: var(--nstp-page);
+  color: var(--nstp-ink);
+  font-size: 1.0625rem;         /* ~17px — a nudge up from Bootstrap's 16 */
+  line-height: 1.65;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.nstp-skip {
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+  z-index: 10;
+  padding: 0.5rem 0.75rem;
+  background: #fff;
+  border-radius: 0.375rem;
+}
+
+.nstp-header {
+  background: #fff;
+  border-bottom: 1px solid var(--nstp-line);
+  padding: 1rem 0;
+}
+
+.nstp-wordmark {
+  color: var(--nstp-accent);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+}
+
+.nstp-main {
+  flex: 1 0 auto;
+  padding: 3rem 1rem;
+}
+
+.nstp-footer {
+  border-top: 1px solid var(--nstp-line);
+  color: var(--nstp-ink-soft);
+  font-size: 0.9375rem;
+  padding: 1.5rem 0;
+}
+
+/* The single centred column every auth screen sits in. */
+.nstp-card {
+  background: #fff;
+  border: 1px solid var(--nstp-line);
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 2px rgba(20, 33, 61, 0.04), 0 8px 24px rgba(20, 33, 61, 0.06);
+  margin: 0 auto;
+  max-width: 34rem;
+  padding: 2.5rem;
+}
+
+.nstp-card h1 {
+  font-size: 1.75rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.5rem;
+}
+
+/* The one sentence under the heading that says what to do. */
+.nstp-lede {
+  color: var(--nstp-ink-soft);
+  margin-bottom: 2rem;
+}
+
+.nstp-card label {
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+}
+
+.nstp-card .form-control {
+  border-color: #cfd6e0;
+  font-size: 1.0625rem;
+  padding: 0.625rem 0.875rem;
+}
+
+.nstp-card .form-control:focus {
+  border-color: var(--nstp-accent);
+  box-shadow: 0 0 0 0.2rem rgba(27, 73, 101, 0.15);
+}
+
+/* Help text sits above the input: read the rule, then type. Underneath, it
+ * only ever gets read after the user has already guessed wrong. */
+.nstp-hint {
+  color: var(--nstp-ink-soft);
+  display: block;
+  font-size: 0.9375rem;
+  margin-bottom: 0.5rem;
+}
+
+.nstp-btn-primary {
+  background: var(--nstp-accent);
+  border: none;
+  border-radius: 0.5rem;
+  color: #fff;
+  font-size: 1.0625rem;
+  font-weight: 500;
+  padding: 0.75rem 1.25rem;
+  width: 100%;
+}
+
+.nstp-btn-primary:hover,
+.nstp-btn-primary:focus {
+  background: var(--nstp-accent-strong);
+  color: #fff;
+}
+
+/* Errors are announced as a group at the top, then marked per-field. */
+.nstp-errors {
+  background: #fdf2f2;
+  border: 1px solid #f5c6c6;
+  border-radius: 0.5rem;
+  color: #8a1f1f;
+  margin-bottom: 1.5rem;
+  padding: 1rem 1.25rem;
+}
+
+.nstp-errors ul {
+  margin: 0.5rem 0 0;
+  padding-left: 1.25rem;
+}
+
+.nstp-field-error {
+  color: #8a1f1f;
+  display: block;
+  font-size: 0.9375rem;
+  margin-top: 0.375rem;
+}
+
+.nstp-meta {
+  color: var(--nstp-ink-soft);
+  font-size: 0.9375rem;
+  margin-top: 1.5rem;
+  text-align: center;
+}
+
+/* The confirmation screens are a single statement plus a single action. */
+.nstp-status-icon {
+  font-size: 2.5rem;
+  line-height: 1;
+  margin-bottom: 1rem;
+}

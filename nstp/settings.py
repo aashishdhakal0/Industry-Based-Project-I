@@ -59,6 +59,16 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = "nstp.urls"
 
+
+# --- Branding --------------------------------------------------------------
+#
+# The single source of truth for the platform's name. Templates read it as
+# {{ site_name }} via nstp.context_processors.site; Python reads
+# settings.SITE_NAME. Never hard-code the name anywhere else — changing it
+# should mean editing this line and nothing else.
+
+SITE_NAME = config("SITE_NAME", default="Cybaroo")
+
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
@@ -70,6 +80,8 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                # Puts SITE_NAME in every template as {{ site_name }}.
+                "nstp.context_processors.site",
             ],
         },
     },
@@ -148,10 +160,19 @@ STATICFILES_DIRS = [BASE_DIR / "static"]
 MEDIA_URL = "media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
+# WhiteNoise's manifest storage hashes every static file and then *refuses* to
+# resolve one that isn't in the manifest, so it only works after collectstatic.
+# That is exactly what we want in production and exactly wrong everywhere else:
+# under runserver, and in tests (which force DEBUG=False), it turns a missing
+# manifest into a 500 on any page that calls {% static %}.
 STORAGES = {
     "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
     "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"
+        "BACKEND": (
+            "django.contrib.staticfiles.storage.StaticFilesStorage"
+            if DEBUG
+            else "whitenoise.storage.CompressedManifestStaticFilesStorage"
+        )
     },
 }
 
