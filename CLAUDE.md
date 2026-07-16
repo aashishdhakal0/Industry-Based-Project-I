@@ -129,14 +129,32 @@ QuizResult 1─* WrongAnswer *─1 Question
 
 ## State (2026-07-16)
 
-Done: repo restructured into `nstp_project/`, git `main`, `.venv` on 3.13,
-all deps installed + imports verified, `settings.py` fully wired, `.env` +
+**Environment:** repo restructured into `nstp_project/`, `.venv` on 3.13, all
+deps installed + imports verified, `settings.py` fully wired, `.env` +
 `.env.example`, spec saved to `docs/`. `manage.py check` clean.
 
-**Not started:** all 12 models (files are empty stubs), all views, all templates.
+**Database — migrated.** All 12 models are written and applied to PostgreSQL 18
+(`nstp_db`, via the least-privilege `nstp` role, which has CREATE). All 25
+migrations green. `AUTH_USER_MODEL = "authentication.User"` was set *before* the
+first `migrate` — the near-irreversible step is done and correct, so the risk in
+row 1 of the build-plan risk register is now retired. `db.sqlite3` deleted; local
+dev is Postgres-only.
 
-**Next:** Sprint 1 task 1 — create `authentication.User` and **uncomment
-`AUTH_USER_MODEL` in settings.py before the first `migrate`**.
+**Admin — registered.** All 12 models plus `Group` and `otp_totp.TOTPDevice` are
+in the admin, verified by driving every changelist and add form (14/14 → 200) and
+by creating a user through the add form end-to-end. `authentication/admin.py`
+rebuilds Django's stock `UserAdmin` around `email` — the stock one hardcodes
+`username`, which our model drops, so it cannot simply be subclassed.
 
-**Repo:** github.com/aashishdhakal0/Industry-Based-Project-I — remote not yet
-configured locally; branch is `main`, spec calls for `BN304-Development`.
+**Superuser:** `dhakalaashish75@gmail.com` (ADMINISTRATOR, verified). Password is
+Aashish's own; hash confirmed `pbkdf2_sha256` @ 1,000,000 iterations.
+
+**Not started:** all views, all templates, all content.
+
+**Next:** Sprint 1.2 — registration + email verification.
+
+**Repo:** github.com/aashishdhakal0/Industry-Based-Project-I — remote **is**
+configured; `BN304-Development` is pushed and tracks `origin`, currently at
+`79040d6`. `main` untouched at `4d68b51`. Push needs a PAT (osxkeychain);
+read is anonymous because **the repo is public** — so nothing secret may ever
+land in a commit. `.env` has never been committed; verified absent from history.

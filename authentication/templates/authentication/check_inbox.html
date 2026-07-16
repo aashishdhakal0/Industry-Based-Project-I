@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}Check your inbox — {{ site_name }}{% endblock %}
+
+{% block content %}
+<div class="cy-card cy-card--narrow">
+  <div class="cy-status-icon cy-status-icon--wait" aria-hidden="true">
+    <svg class="cy-i"><use href="#i-mail"/></svg>
+  </div>
+
+  <h1>Check your inbox</h1>
+
+  <p class="cy-lede">
+    {% if email %}
+      We've sent a link to <strong>{{ email }}</strong>. Open it to finish
+      setting up your account.
+    {% else %}
+      We've sent you a link. Open it to finish setting up your account.
+    {% endif %}
+  </p>
+
+  <p>
+    The link works for the next 2 days. If it hasn't arrived in a few minutes,
+    have a look in your junk or spam folder.
+  </p>
+</div>
+{% endblock %}

@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block title %}That link didn't work — {{ site_name }}{% endblock %}
+
+{% block content %}
+<div class="cy-card cy-card--narrow">
+  <div class="cy-status-icon cy-status-icon--warn" aria-hidden="true">
+    <svg class="cy-i"><use href="#i-unlink"/></svg>
+  </div>
+
+  <h1>That link didn't work</h1>
+  <p class="cy-lede">
+    The link may have been cut in half by your email program, or copied across
+    incompletely. Try opening it from the original email once more.
+  </p>
+
+  <a class="cy-btn cy-btn--ghost cy-btn--block"
+     href="{% url 'authentication:register' %}">Start again</a>
+</div>
+{% endblock %}

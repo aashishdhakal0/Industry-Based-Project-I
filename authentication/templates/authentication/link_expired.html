@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block title %}That link has expired — {{ site_name }}{% endblock %}
+
+{% block content %}
+<div class="cy-card cy-card--narrow">
+  <div class="cy-status-icon cy-status-icon--warn" aria-hidden="true">
+    <svg class="cy-i"><use href="#i-clock"/></svg>
+  </div>
+
+  <h1>That link has expired</h1>
+  <p class="cy-lede">
+    Confirmation links only work for 2 days, and this one is older than that.
+    Nothing has gone wrong — you just need a fresh one.
+  </p>
+
+  <a class="cy-btn cy-btn--primary cy-btn--block"
+     href="{% url 'authentication:register' %}">Send me a new link</a>
+</div>
+{% endblock %}

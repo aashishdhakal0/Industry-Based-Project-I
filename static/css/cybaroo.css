@@ -1,0 +1,1529 @@
+/* ==========================================================================
+   Cybaroo — the platform's visual system
+   ==========================================================================
+
+   Layered over Bootstrap 5.3 (running in data-bs-theme="dark"). Bootstrap
+   keeps the grid and utilities; everything with identity is here.
+
+   The brief, and how it's answered:
+
+   - Near-black base, violet primary, cyan secondary, violet->cyan gradients on
+     the hero, key buttons and highlights.
+   - Premium means restraint plus depth, not more effects. Accents appear where
+     a decision is being asked for; everything else is surface and space.
+   - Our users are non-technical Australians. Gamified and calm, never busy or
+     intimidating. No fake hacker jargon, no threat language.
+
+   ONE HARD-WON RULE, DO NOT UNDO IT:
+
+     Never put white text on the violet->cyan gradient. It measures 1.81:1 at
+     the cyan end — cyan is simply too luminous, and no tuning of the endpoints
+     rescues it. The gradient carries DARK ink (--cy-ink), which measures
+     6.15:1 at its worst end. This is why the primary button looks like a
+     bright chip rather than the more familiar white-on-purple.
+
+   Naming: cy- prefix, BEM-ish (block__element--modifier).
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Fonts — vendored locally; a CDN would be blocked by our CSP.
+   -------------------------------------------------------------------------- */
+
+@font-face {
+  font-family: "Space Grotesk";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("../fonts/space-grotesk-latin-400-normal.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Space Grotesk";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("../fonts/space-grotesk-latin-500-normal.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Space Grotesk";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("../fonts/space-grotesk-latin-700-normal.woff2") format("woff2");
+}
+@font-face {
+  font-family: "JetBrains Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("../fonts/jetbrains-mono-latin-400-normal.woff2") format("woff2");
+}
+@font-face {
+  font-family: "JetBrains Mono";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("../fonts/jetbrains-mono-latin-700-normal.woff2") format("woff2");
+}
+
+
+/* ==========================================================================
+   Tokens — change the system here, never at the call site
+   ========================================================================== */
+
+:root {
+  /* --- Surfaces. Near-black, faintly violet rather than neutral grey, so the
+     accent feels native to the page instead of stuck on top of it. --------- */
+  --cy-bg: #0b0b12;
+  --cy-surface: #12121c;
+  --cy-surface-2: #191926;
+  --cy-surface-3: #212131;
+  --cy-border: #2a2a3d;
+  --cy-border-lift: #3a3a52;
+
+  /* --- Text. Ratios measured against --cy-surface-2, the lightest surface
+     these sit on — the worst case, not the flattering one. ---------------- */
+  --cy-text: #f0f0f7;      /* 15.8:1 — AAA */
+  --cy-text-2: #a9aec6;    /*  7.6:1 — AAA */
+  --cy-text-3: #868cab;    /*  5.0:1 — AA. Form hints use this: it's the text
+                              telling a non-technical user what makes a good
+                              password, so it doesn't get to be decorative. */
+
+  /* --- Accents ---------------------------------------------------------- */
+  --cy-violet: #9b7bf8;        /* the primary. 6.2:1 as text on base */
+  --cy-violet-soft: #b39dfb;
+  --cy-violet-deep: #6d28d9;   /* fills and glows only — too dark for text */
+  --cy-cyan: #22d3ee;          /* 10.9:1 as text on base */
+  --cy-cyan-soft: #67e8f9;
+
+  /* Ink for anything sitting ON an accent fill. See the rule at the top. */
+  --cy-ink: #0b0b12;
+
+  --cy-grad: linear-gradient(115deg, var(--cy-violet), var(--cy-cyan));
+  --cy-grad-soft: linear-gradient(115deg, rgba(155, 123, 248, 0.18), rgba(34, 211, 238, 0.14));
+
+  --cy-glow-violet: rgba(155, 123, 248, 0.4);
+  --cy-glow-violet-soft: rgba(155, 123, 248, 0.14);
+  --cy-glow-cyan: rgba(34, 211, 238, 0.34);
+
+  /* Supporting hues. Each has exactly one job. */
+  --cy-flame: #ff9d4d;     /* streaks */
+  --cy-gold: #ffc94b;      /* achievements */
+  --cy-danger: #ff8080;    /* errors */
+
+  --cy-font: "Space Grotesk", "Segoe UI", system-ui, -apple-system, sans-serif;
+  /* Mono is for numbers that change. Tabular figures stop a points counter
+     shifting the layout as it ticks 990 -> 1,000. */
+  --cy-font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+
+  --cy-r-sm: 8px;
+  --cy-r: 12px;
+  --cy-r-lg: 18px;
+  --cy-r-xl: 26px;
+  --cy-r-pill: 999px;
+
+  --cy-shadow: 0 1px 2px rgba(0, 0, 0, 0.5), 0 14px 40px rgba(0, 0, 0, 0.42);
+  --cy-shadow-lift: 0 2px 6px rgba(0, 0, 0, 0.5), 0 28px 70px rgba(0, 0, 0, 0.6);
+  --cy-shadow-float: 0 24px 60px rgba(0, 0, 0, 0.62), 0 0 0 1px rgba(255, 255, 255, 0.04);
+
+  /* One easing everywhere. Decelerating: quick to start, settles gently. */
+  --cy-ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --cy-fast: 140ms;
+  --cy-slow: 320ms;
+
+  /* Type scale. Fluid, and deliberately dramatic at the top end — the hero
+     should feel like a statement, not a paragraph in bold. */
+  --cy-t-hero: clamp(2.6rem, 6vw, 4.75rem);
+  --cy-t-h2: clamp(1.9rem, 3.4vw, 2.7rem);
+  --cy-t-h3: 1.15rem;
+  --cy-t-body: 1.0625rem;
+
+  /* Section rhythm. Generous, and the same everywhere so the page breathes
+     evenly rather than lurching. */
+  --cy-section-y: clamp(4.5rem, 9vw, 8rem);
+}
+
+
+/* ==========================================================================
+   Base
+   ========================================================================== */
+
+body.cy-body {
+  background: var(--cy-bg);
+  color: var(--cy-text);
+  font-family: var(--cy-font);
+  font-size: var(--cy-t-body);
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+.cy-body h1,
+.cy-body h2,
+.cy-body h3 {
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.12;
+}
+
+.cy-body a {
+  color: var(--cy-cyan);
+  text-decoration-color: rgba(34, 211, 238, 0.35);
+  text-underline-offset: 0.2em;
+  transition: color var(--cy-fast) var(--cy-ease);
+}
+.cy-body a:hover {
+  color: var(--cy-cyan-soft);
+}
+
+/* One focus style, everywhere, never removed. Keyboard users are on the same
+   journey as everyone else. */
+.cy-body :focus-visible {
+  outline: 2px solid var(--cy-violet);
+  outline-offset: 3px;
+  border-radius: var(--cy-r-sm);
+}
+
+.cy-skip {
+  position: absolute;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 30;
+  background: var(--cy-surface-2);
+  border: 1px solid var(--cy-violet);
+  border-radius: var(--cy-r-sm);
+  color: var(--cy-text);
+  padding: 0.6rem 1rem;
+}
+
+/* --- Icons ---------------------------------------------------------------
+   Every icon is a <use> into the sprite in _icons.html. They inherit
+   currentColor, so an icon takes the colour of whatever it sits in. */
+
+.cy-i {
+  display: inline-block;
+  flex: none;
+  height: 1.25em;
+  vertical-align: -0.2em;
+  width: 1.25em;
+}
+.cy-i--lg { height: 1.6em; width: 1.6em; }
+
+
+/* ==========================================================================
+   Shell
+   ========================================================================== */
+
+.cy-nav {
+  background: rgba(11, 11, 18, 0.72);
+  backdrop-filter: blur(14px) saturate(140%);
+  border-bottom: 1px solid var(--cy-border);
+  padding: 0.85rem 0;
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+
+.cy-nav__inner {
+  align-items: center;
+  display: flex;
+  gap: 2rem;
+  justify-content: space-between;
+}
+
+.cy-nav__links {
+  align-items: center;
+  display: flex;
+  gap: 1.75rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.cy-nav__link {
+  color: var(--cy-text-2);
+  font-size: 0.95rem;
+  text-decoration: none;
+  transition: color var(--cy-fast) var(--cy-ease);
+}
+.cy-nav__link:hover {
+  color: var(--cy-text);
+}
+
+.cy-nav__actions {
+  align-items: center;
+  display: flex;
+  gap: 0.75rem;
+}
+
+.cy-wordmark {
+  align-items: center;
+  color: var(--cy-text);
+  display: inline-flex;
+  font-size: 1.15rem;
+  font-weight: 700;
+  gap: 0.6rem;
+  letter-spacing: -0.04em;
+  text-decoration: none;
+}
+.cy-wordmark:hover { color: var(--cy-text); }
+
+/* The mark: a gradient tile with a cut-out ring. Reads at 16px, and it's the
+   gradient in miniature — the identity in one glyph. */
+.cy-mark {
+  background: var(--cy-grad);
+  border-radius: 9px;
+  box-shadow: 0 0 0 1px rgba(155, 123, 248, 0.4), 0 0 18px var(--cy-glow-violet-soft);
+  display: grid;
+  height: 28px;
+  place-items: center;
+  width: 28px;
+}
+.cy-mark::after {
+  border: 2.5px solid var(--cy-ink);
+  border-radius: 50%;
+  content: "";
+  height: 11px;
+  width: 11px;
+}
+
+.cy-main {
+  flex: 1 0 auto;
+}
+
+/* Auth and dashboard screens sit in a padded container; the landing page
+   manages its own full-bleed sections. */
+.cy-main--padded {
+  padding: 3.5rem 1rem 4.5rem;
+}
+
+.cy-footer {
+  border-top: 1px solid var(--cy-border);
+  color: var(--cy-text-3);
+  font-size: 0.9rem;
+  padding: 2.5rem 0;
+}
+
+.cy-footer__inner {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem 2rem;
+  justify-content: space-between;
+}
+
+/* Deliberately NOT .cy-nav__links — that one hides below 900px, which is
+   precisely where the footer becomes the only navigation there is. */
+.cy-footer__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+
+/* ==========================================================================
+   Sections — the page's rhythm
+   ==========================================================================
+   Alternating bands stop the page reading as one endless scroll. Three
+   treatments: base (dark), raised (a step lighter), and bloom (dark with an
+   accent wash). Alternate them; never run two of the same together.
+   ========================================================================== */
+
+.cy-band {
+  padding: var(--cy-section-y) 0;
+  position: relative;
+}
+
+.cy-band--raised {
+  background: var(--cy-surface);
+  border-block: 1px solid var(--cy-border);
+}
+
+/* The seam between bands. A hairline that fades in from the edges and glows
+   faintly at centre, so a section change reads as deliberate rather than as
+   two divs meeting. Cheap, and it's most of what "designed" means here. */
+.cy-band--raised::before,
+.cy-band--raised::after {
+  background: linear-gradient(90deg, transparent, var(--cy-glow-violet), transparent);
+  content: "";
+  height: 1px;
+  left: 15%;
+  position: absolute;
+  right: 15%;
+}
+.cy-band--raised::before { top: -1px; }
+.cy-band--raised::after { bottom: -1px; }
+
+.cy-band--bloom {
+  background:
+    radial-gradient(800px 400px at 20% 0%, var(--cy-glow-violet-soft), transparent 70%),
+    radial-gradient(700px 380px at 85% 100%, rgba(34, 211, 238, 0.08), transparent 70%);
+}
+
+.cy-wrap {
+  margin: 0 auto;
+  max-width: 72rem;
+  padding-inline: 1.25rem;
+}
+
+.cy-wrap--narrow {
+  max-width: 46rem;
+}
+
+.cy-section__head {
+  margin-bottom: 3rem;
+  max-width: 42rem;
+}
+
+.cy-section__title {
+  font-size: var(--cy-t-h2);
+  margin-bottom: 0.75rem;
+}
+
+.cy-section__lede {
+  color: var(--cy-text-2);
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+/* Small label above a section or hero. */
+.cy-eyebrow {
+  align-items: center;
+  background: var(--cy-surface-2);
+  border: 1px solid var(--cy-border-lift);
+  border-radius: var(--cy-r-pill);
+  color: var(--cy-text-2);
+  display: inline-flex;
+  font-size: 0.8rem;
+  gap: 0.5rem;
+  letter-spacing: 0.03em;
+  margin-bottom: 1.5rem;
+  padding: 0.35rem 0.9rem;
+}
+
+.cy-eyebrow__dot {
+  background: var(--cy-violet);
+  border-radius: 50%;
+  box-shadow: 0 0 9px var(--cy-violet);
+  height: 6px;
+  width: 6px;
+}
+
+/* The one phrase carrying the promise. Gradient, so it reads as emphasis
+   rather than as a link. */
+.cy-grad-text {
+  background: var(--cy-grad);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+
+/* ==========================================================================
+   Buttons
+   ========================================================================== */
+
+.cy-btn {
+  align-items: center;
+  border: 1px solid transparent;
+  border-radius: var(--cy-r);
+  cursor: pointer;
+  display: inline-flex;
+  font-family: var(--cy-font);
+  font-size: 1.0625rem;
+  font-weight: 500;
+  gap: 0.5rem;
+  justify-content: center;
+  padding: 0.85rem 1.6rem;
+  text-decoration: none;
+  transition:
+    transform var(--cy-fast) var(--cy-ease),
+    box-shadow var(--cy-slow) var(--cy-ease),
+    filter var(--cy-fast) var(--cy-ease);
+  white-space: nowrap;
+}
+
+.cy-btn--block { width: 100%; }
+.cy-btn--sm { font-size: 0.95rem; padding: 0.5rem 1rem; }
+
+/* The primary action. One per section — that rule IS the design.
+   Dark ink, not white: see the rule at the top of this file. */
+.cy-btn--primary {
+  background: var(--cy-grad);
+  box-shadow: 0 0 0 1px rgba(155, 123, 248, 0.45), 0 8px 26px var(--cy-glow-violet-soft);
+  color: var(--cy-ink);
+  font-weight: 700;
+}
+.cy-btn--primary:hover {
+  box-shadow: 0 0 0 1px var(--cy-violet), 0 14px 44px var(--cy-glow-violet);
+  color: var(--cy-ink);
+  filter: brightness(1.07);
+  transform: translateY(-2px);
+}
+.cy-btn--primary:active { transform: translateY(0); }
+
+.cy-btn--ghost {
+  background: var(--cy-surface-2);
+  border-color: var(--cy-border-lift);
+  color: var(--cy-text);
+}
+.cy-btn--ghost:hover {
+  border-color: var(--cy-violet);
+  color: var(--cy-text);
+  transform: translateY(-2px);
+}
+
+.cy-btn--quiet {
+  color: var(--cy-text-2);
+  padding-inline: 0.5rem;
+}
+.cy-btn--quiet:hover { color: var(--cy-text); }
+
+
+/* ==========================================================================
+   Cards, forms — the auth screens
+   ========================================================================== */
+
+.cy-card {
+  background: linear-gradient(180deg, var(--cy-surface-2), var(--cy-surface));
+  border: 1px solid var(--cy-border);
+  border-radius: var(--cy-r-lg);
+  box-shadow: var(--cy-shadow);
+  padding: 2.75rem;
+  position: relative;
+}
+
+/* A hairline of accent along the top edge, fading out. The cheapest way to
+   make a dark panel feel lit rather than painted. */
+.cy-card::before {
+  background: linear-gradient(90deg, transparent, var(--cy-glow-violet), transparent);
+  content: "";
+  height: 1px;
+  left: 12%;
+  position: absolute;
+  right: 12%;
+  top: -1px;
+}
+
+.cy-card--narrow {
+  margin: 0 auto;
+  max-width: 33rem;
+}
+
+.cy-card h1 {
+  font-size: 1.85rem;
+  margin-bottom: 0.6rem;
+}
+
+.cy-lede {
+  color: var(--cy-text-2);
+  margin-bottom: 2.25rem;
+}
+
+.cy-field { margin-bottom: 1.4rem; }
+
+.cy-label {
+  color: var(--cy-text);
+  display: block;
+  font-weight: 500;
+  margin-bottom: 0.3rem;
+}
+
+/* Hint above the input: read the rule, then type. Below, it only gets read
+   after they've already guessed wrong. */
+.cy-hint {
+  color: var(--cy-text-3);
+  display: block;
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+
+.cy-body .form-control {
+  background: var(--cy-bg);
+  border: 1px solid var(--cy-border-lift);
+  border-radius: var(--cy-r);
+  color: var(--cy-text);
+  font-family: var(--cy-font);
+  font-size: 1.0625rem;
+  padding: 0.75rem 1rem;
+  transition: border-color var(--cy-fast) var(--cy-ease), box-shadow var(--cy-fast) var(--cy-ease);
+}
+.cy-body .form-control::placeholder { color: var(--cy-text-3); }
+.cy-body .form-control:focus {
+  background: var(--cy-bg);
+  border-color: var(--cy-violet);
+  box-shadow: 0 0 0 3px var(--cy-glow-violet-soft);
+  color: var(--cy-text);
+  outline: none;
+}
+
+.cy-field-error {
+  color: var(--cy-danger);
+  display: block;
+  font-size: 0.9rem;
+  margin-top: 0.4rem;
+}
+
+.cy-errors {
+  background: rgba(255, 128, 128, 0.09);
+  border: 1px solid rgba(255, 128, 128, 0.32);
+  border-radius: var(--cy-r);
+  color: #ffd0d0;
+  margin-bottom: 1.75rem;
+  padding: 1rem 1.25rem;
+}
+.cy-errors ul { margin: 0.5rem 0 0; padding-left: 1.2rem; }
+
+.cy-meta {
+  color: var(--cy-text-3);
+  font-size: 0.9rem;
+  margin-top: 1.75rem;
+  text-align: center;
+}
+
+/* The glyph on "check your inbox" / "you're all set". */
+.cy-status-icon {
+  align-items: center;
+  border-radius: 50%;
+  display: flex;
+  height: 74px;
+  justify-content: center;
+  margin-bottom: 1.4rem;
+  width: 74px;
+}
+.cy-status-icon .cy-i { height: 30px; width: 30px; }
+
+.cy-status-icon--good {
+  background: radial-gradient(circle at 50% 40%, rgba(155, 123, 248, 0.26), transparent 70%);
+  border: 1px solid rgba(155, 123, 248, 0.5);
+  box-shadow: 0 0 30px var(--cy-glow-violet-soft);
+  color: var(--cy-violet-soft);
+}
+
+.cy-status-icon--wait {
+  background: radial-gradient(circle at 50% 40%, rgba(34, 211, 238, 0.2), transparent 70%);
+  border: 1px solid rgba(34, 211, 238, 0.42);
+  color: var(--cy-cyan);
+}
+
+.cy-status-icon--warn {
+  background: radial-gradient(circle at 50% 40%, rgba(255, 157, 77, 0.2), transparent 70%);
+  border: 1px solid rgba(255, 157, 77, 0.44);
+  color: var(--cy-flame);
+}
+
+
+/* ==========================================================================
+   Hero
+   ========================================================================== */
+
+.cy-hero {
+  overflow: hidden;
+  padding: clamp(3rem, 7vw, 6rem) 0 clamp(4rem, 8vw, 7rem);
+  position: relative;
+}
+
+/* Two wide, dim washes plus a faint grid. Together they give the hero depth
+   without anything you'd consciously notice. */
+.cy-hero::before {
+  background:
+    radial-gradient(900px 520px at 15% -5%, rgba(155, 123, 248, 0.16), transparent 70%),
+    radial-gradient(820px 480px at 95% 15%, rgba(34, 211, 238, 0.1), transparent 70%);
+  content: "";
+  inset: 0;
+  position: absolute;
+  z-index: 0;
+}
+.cy-hero::after {
+  background-image:
+    linear-gradient(var(--cy-border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--cy-border) 1px, transparent 1px);
+  background-size: 62px 62px;
+  content: "";
+  inset: 0;
+  -webkit-mask-image: radial-gradient(900px 460px at 30% 20%, #000, transparent 75%);
+  mask-image: radial-gradient(900px 460px at 30% 20%, #000, transparent 75%);
+  opacity: 0.5;
+  position: absolute;
+  z-index: 0;
+}
+
+.cy-hero__grid {
+  align-items: center;
+  display: grid;
+  gap: clamp(2rem, 5vw, 4.5rem);
+  grid-template-columns: 1.02fr 0.98fr;
+  position: relative;
+  z-index: 1;
+}
+
+.cy-hero__title {
+  font-size: var(--cy-t-hero);
+  letter-spacing: -0.045em;
+  margin-bottom: 1.35rem;
+}
+
+.cy-hero__sub {
+  color: var(--cy-text-2);
+  font-size: clamp(1.05rem, 1.6vw, 1.25rem);
+  margin-bottom: 2.25rem;
+  max-width: 33rem;
+}
+
+.cy-hero__actions {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.cy-hero__note {
+  align-items: center;
+  color: var(--cy-text-3);
+  display: flex;
+  flex-wrap: wrap;
+  font-size: 0.9rem;
+  gap: 0.5rem 1.25rem;
+  margin: 1.75rem 0 0;
+}
+
+.cy-hero__note-item {
+  align-items: center;
+  display: inline-flex;
+  gap: 0.4rem;
+}
+
+
+/* --- The hero scene ------------------------------------------------------
+   Floating gamified UI over a violet->cyan bloom. Every piece is a real
+   component from the system rather than a picture of one, so it can never
+   drift out of date with the product. Pure CSS: nothing to load, nothing for
+   CSP to block, sharp at any size. */
+
+.cy-scene {
+  aspect-ratio: 1 / 0.92;
+  position: relative;
+  width: 100%;
+}
+
+/* The bloom the cards float over. */
+.cy-scene__bloom {
+  background: var(--cy-grad);
+  border-radius: 50%;
+  filter: blur(58px);
+  inset: 16% 12%;
+  opacity: 0.3;
+  position: absolute;
+}
+
+.cy-scene__ring {
+  border: 1px solid rgba(155, 123, 248, 0.16);
+  border-radius: 50%;
+  inset: 6%;
+  position: absolute;
+}
+.cy-scene__ring--2 { inset: 20%; border-color: rgba(34, 211, 238, 0.14); }
+
+/* Two nested motions, deliberately on separate elements so their transforms
+   compose instead of overwriting each other:
+     .cy-drift  — parallax, driven by scroll position
+     .cy-float  — the idle bob, driven by time
+   One element can't run both, because the second `transform` would win. */
+.cy-drift {
+  position: absolute;
+}
+
+.cy-float {
+  animation: cy-float 7s ease-in-out infinite;
+  animation-delay: var(--cy-delay, 0s);
+}
+
+/* Each floating panel gets real depth: a dark shadow beneath and a hairline
+   of light on top, so it reads as a physical card lit from above. */
+.cy-panel {
+  backdrop-filter: blur(10px);
+  background: linear-gradient(165deg, rgba(33, 33, 49, 0.95), rgba(18, 18, 28, 0.92));
+  border: 1px solid var(--cy-border-lift);
+  border-radius: var(--cy-r-lg);
+  box-shadow: var(--cy-shadow-float);
+  padding: 1rem 1.15rem;
+}
+
+/* Positions are hand-placed rather than a grid: the overlap is the point —
+   it's what makes the scene read as stacked depth.
+
+   --cy-shift is the parallax distance. Nearer panels move further, which is
+   what sells depth: the streak chip is "closest" to the reader, the module
+   card sits furthest back. */
+.cy-scene__card   { left: 2%;  top: 6%;     width: 74%; --cy-delay: 0s;     --cy-shift: -14px; }
+.cy-scene__level  { right: 0;  top: 30%;                --cy-delay: -2.4s;  --cy-shift: 26px; }
+.cy-scene__xp     { left: 8%;  bottom: 12%; width: 76%; --cy-delay: -4.1s;  --cy-shift: 40px; }
+.cy-scene__streak { right: 4%; bottom: 2%;              --cy-delay: -1.2s;  --cy-shift: 58px; }
+
+@keyframes cy-float {
+  0%, 100% { transform: translateY(-7px); }
+  50%      { transform: translateY(7px); }
+}
+
+@keyframes cy-drift {
+  to { transform: translateY(var(--cy-shift, 0)); }
+}
+
+
+/* ==========================================================================
+   Gamification
+   ==========================================================================
+   Reusable platform-wide. Sprint 2 uses the module cards, Sprint 3 the
+   progress bar, Sprint 4 the rest. Built as one system now rather than five
+   sprints of drift.
+   ========================================================================== */
+
+/* --- Points / XP --------------------------------------------------------- */
+
+.cy-stat {
+  align-items: center;
+  background: var(--cy-surface-2);
+  border: 1px solid var(--cy-border);
+  border-radius: var(--cy-r-pill);
+  display: inline-flex;
+  gap: 0.5rem;
+  padding: 0.4rem 0.9rem;
+}
+
+.cy-stat__icon { color: var(--cy-text-3); }
+
+.cy-stat__value {
+  color: var(--cy-text);
+  font-family: var(--cy-font-mono);
+  font-feature-settings: "tnum";   /* tabular: digits don't shift the layout */
+  font-weight: 700;
+}
+
+.cy-stat__label {
+  color: var(--cy-text-3);
+  font-size: 0.85rem;
+}
+
+.cy-stat--points .cy-stat__value { color: var(--cy-violet-soft); }
+.cy-stat--points .cy-stat__icon { color: var(--cy-violet); }
+
+
+/* --- Level badge --------------------------------------------------------- */
+
+/* The ring is a conic-gradient driven by --cy-level-progress (0-100), so
+   progress to the next level is visible without a second component. */
+.cy-level {
+  --cy-level-progress: 0;
+  align-items: center;
+  aspect-ratio: 1;
+  background:
+    conic-gradient(
+      var(--cy-violet) calc(var(--cy-level-progress) * 1%),
+      var(--cy-surface-3) 0
+    );
+  border-radius: 50%;
+  display: inline-grid;
+  padding: 3px;
+  place-items: center;
+  width: 62px;
+}
+.cy-level--lg { width: 78px; }
+
+.cy-level__inner {
+  align-items: center;
+  background: var(--cy-surface);
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  justify-content: center;
+  width: 100%;
+}
+
+.cy-level__label {
+  color: var(--cy-text-3);
+  font-size: 0.55rem;
+  letter-spacing: 0.09em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.cy-level__value {
+  color: var(--cy-text);
+  font-family: var(--cy-font-mono);
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1.15;
+}
+.cy-level--lg .cy-level__value { font-size: 1.6rem; }
+
+
+/* --- Progress bar -------------------------------------------------------- */
+
+.cy-progress {
+  background: var(--cy-surface-3);
+  border-radius: var(--cy-r-pill);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.5);
+  height: 10px;
+  overflow: hidden;
+  position: relative;
+  width: 100%;
+}
+
+/* Width comes from --cy-value (e.g. style="--cy-value: 65%"), so a template
+   sets one number and the animation is the CSS's problem. */
+.cy-progress__fill {
+  animation: cy-fill 1.2s var(--cy-ease) both;
+  animation-delay: var(--cy-delay, 0s);
+  background: var(--cy-grad);
+  border-radius: var(--cy-r-pill);
+  box-shadow: 0 0 16px var(--cy-glow-violet);
+  height: 100%;
+  position: relative;
+  width: var(--cy-value, 0%);
+}
+
+/* One slow highlight travelling the filled portion. Alive, not busy. */
+.cy-progress__fill::after {
+  animation: cy-sheen 3s ease-in-out infinite;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.45), transparent);
+  content: "";
+  inset: 0;
+  position: absolute;
+  transform: translateX(-100%);
+}
+
+@keyframes cy-fill { from { width: 0; } }
+
+@keyframes cy-sheen {
+  0%        { transform: translateX(-100%); }
+  60%, 100% { transform: translateX(100%); }
+}
+
+.cy-progress-row {
+  align-items: center;
+  display: flex;
+  gap: 0.75rem;
+}
+
+.cy-progress-row__value {
+  color: var(--cy-text-2);
+  font-family: var(--cy-font-mono);
+  font-feature-settings: "tnum";
+  font-size: 0.85rem;
+  min-width: 3.2rem;
+  text-align: right;
+}
+
+
+/* --- Streak -------------------------------------------------------------- */
+
+.cy-streak {
+  align-items: center;
+  background: linear-gradient(135deg, rgba(255, 157, 77, 0.16), rgba(255, 201, 75, 0.05));
+  border: 1px solid rgba(255, 157, 77, 0.36);
+  border-radius: var(--cy-r-pill);
+  display: inline-flex;
+  gap: 0.5rem;
+  padding: 0.4rem 0.9rem;
+}
+
+.cy-streak__flame {
+  animation: cy-flicker 3.4s ease-in-out infinite;
+  color: var(--cy-flame);
+  transform-origin: 50% 85%;
+}
+
+.cy-streak__value {
+  color: var(--cy-gold);
+  font-family: var(--cy-font-mono);
+  font-feature-settings: "tnum";
+  font-weight: 700;
+}
+
+.cy-streak__label {
+  color: var(--cy-text-3);
+  font-size: 0.85rem;
+}
+
+/* Barely there. A flame that dances is a distraction on a page you're reading. */
+@keyframes cy-flicker {
+  0%, 100% { transform: scale(1) rotate(0deg); }
+  50%      { transform: scale(1.08) rotate(-2deg); }
+}
+
+
+/* --- Achievement badges -------------------------------------------------- */
+
+.cy-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.15rem;
+}
+
+.cy-badge {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  text-align: center;
+  width: 88px;
+}
+
+.cy-badge__medal {
+  align-items: center;
+  border-radius: 22px;
+  display: flex;
+  height: 66px;
+  justify-content: center;
+  position: relative;
+  transition: transform var(--cy-slow) var(--cy-ease), box-shadow var(--cy-slow) var(--cy-ease);
+  width: 66px;
+}
+.cy-badge__medal .cy-i { height: 26px; width: 26px; }
+
+.cy-badge--earned .cy-badge__medal {
+  background: var(--cy-grad-soft);
+  border: 1px solid rgba(155, 123, 248, 0.55);
+  box-shadow: 0 0 24px var(--cy-glow-violet-soft);
+  color: var(--cy-violet-soft);
+}
+.cy-badge--earned:hover .cy-badge__medal {
+  box-shadow: 0 0 34px var(--cy-glow-violet);
+  transform: translateY(-4px) scale(1.05);
+}
+
+.cy-badge--gold .cy-badge__medal {
+  background: linear-gradient(150deg, rgba(255, 201, 75, 0.2), rgba(255, 157, 77, 0.08));
+  border-color: rgba(255, 201, 75, 0.6);
+  box-shadow: 0 0 24px rgba(255, 201, 75, 0.18);
+  color: var(--cy-gold);
+}
+
+.cy-badge--locked .cy-badge__medal {
+  background: var(--cy-surface-2);
+  border: 1px dashed var(--cy-border-lift);
+  color: var(--cy-text-3);
+  opacity: 0.6;
+}
+
+.cy-badge__name {
+  color: var(--cy-text-2);
+  font-size: 0.78rem;
+  line-height: 1.3;
+}
+.cy-badge--locked .cy-badge__name { color: var(--cy-text-3); }
+
+
+/* ==========================================================================
+   Module / mission tiles
+   ========================================================================== */
+
+.cy-map {
+  display: grid;
+  gap: 1.35rem;
+  grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr));
+}
+
+.cy-module {
+  background: linear-gradient(180deg, var(--cy-surface-2), var(--cy-surface));
+  border: 1px solid var(--cy-border);
+  border-radius: var(--cy-r-lg);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+  transition:
+    transform var(--cy-slow) var(--cy-ease),
+    border-color var(--cy-slow) var(--cy-ease),
+    box-shadow var(--cy-slow) var(--cy-ease);
+}
+
+/* The coloured header band is what makes these read as mission tiles rather
+   than text boxes. Each module carries its own hue via --cy-tile-a/b, so the
+   six are distinguishable at a glance without a legend. */
+.cy-module__banner {
+  background: linear-gradient(115deg, var(--cy-tile-a, #9b7bf8), var(--cy-tile-b, #22d3ee));
+  height: 76px;
+  position: relative;
+}
+
+/* A dark scrim over the band: the icon and number sit on it, and unscrimmed
+   they'd be illegible on the lighter end of every gradient. */
+.cy-module__banner::after {
+  background: linear-gradient(180deg, rgba(11, 11, 18, 0.15), rgba(11, 11, 18, 0.75));
+  content: "";
+  inset: 0;
+  position: absolute;
+}
+
+.cy-module__banner-inner {
+  align-items: center;
+  display: flex;
+  inset: 0;
+  justify-content: space-between;
+  padding: 0 1.25rem;
+  position: absolute;
+  z-index: 1;
+}
+
+.cy-module__glyph {
+  color: #fff;
+  opacity: 0.95;
+}
+.cy-module__glyph .cy-i { height: 30px; width: 30px; }
+
+.cy-module__body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1.35rem;
+}
+
+.cy-module__index {
+  color: rgba(255, 255, 255, 0.85);
+  font-family: var(--cy-font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+}
+
+.cy-module__title {
+  font-size: var(--cy-t-h3);
+  font-weight: 700;
+}
+
+.cy-module__desc {
+  color: var(--cy-text-2);
+  font-size: 0.92rem;
+  margin: 0;
+}
+
+/* Unlocked: lifts toward you. It invites the click. */
+.cy-module--unlocked:hover {
+  border-color: rgba(155, 123, 248, 0.6);
+  box-shadow: var(--cy-shadow-lift), 0 0 0 1px var(--cy-glow-violet-soft);
+  transform: translateY(-5px);
+}
+
+/* Locked: desaturated, dimmed, and it does not move on hover. The absence of
+   response IS the message — no tooltip needed to say "not yet". */
+.cy-module--locked .cy-module__banner {
+  filter: grayscale(0.85);
+  opacity: 0.5;
+}
+.cy-module--locked .cy-module__title { color: var(--cy-text-2); }
+
+.cy-module--complete { border-color: rgba(155, 123, 248, 0.4); }
+
+.cy-chip {
+  align-items: center;
+  border-radius: var(--cy-r-pill);
+  display: inline-flex;
+  font-size: 0.75rem;
+  font-weight: 500;
+  gap: 0.3rem;
+  padding: 0.25rem 0.7rem;
+}
+.cy-chip .cy-i { height: 0.95em; width: 0.95em; }
+
+.cy-chip--locked {
+  background: rgba(11, 11, 18, 0.6);
+  color: var(--cy-text-2);
+}
+
+.cy-chip--complete {
+  background: rgba(155, 123, 248, 0.16);
+  border: 1px solid rgba(155, 123, 248, 0.45);
+  color: var(--cy-violet-soft);
+}
+
+.cy-chip--active {
+  background: rgba(34, 211, 238, 0.12);
+  border: 1px solid rgba(34, 211, 238, 0.4);
+  color: var(--cy-cyan);
+}
+
+
+/* ==========================================================================
+   Stats strip
+   ==========================================================================
+   Real, sourced figures. The tone problem: these numbers are alarming, and
+   alarm is exactly the wrong feeling for someone deciding whether they're
+   capable of this. So the strip is styled calm — no red, no warning icons, no
+   upward-trending arrows — and the section closes by saying none of it needs a
+   technical background. State the fact, then hand them the door.
+   ========================================================================== */
+
+.cy-stats {
+  display: grid;
+  gap: 1.25rem;
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+}
+
+.cy-stat-card {
+  background: linear-gradient(180deg, var(--cy-surface-2), var(--cy-surface));
+  border: 1px solid var(--cy-border);
+  border-radius: var(--cy-r-lg);
+  padding: 1.75rem;
+  position: relative;
+}
+.cy-stat-card::before {
+  background: linear-gradient(90deg, transparent, var(--cy-glow-violet), transparent);
+  content: "";
+  height: 1px;
+  left: 18%;
+  position: absolute;
+  right: 18%;
+  top: 0;
+}
+
+.cy-stat-card__value {
+  background: var(--cy-grad);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  display: block;
+  font-family: var(--cy-font-mono);
+  font-feature-settings: "tnum";
+  font-size: clamp(2rem, 3.4vw, 2.75rem);
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  line-height: 1.1;
+  margin-bottom: 0.4rem;
+}
+
+.cy-stat-card__label {
+  color: var(--cy-text);
+  display: block;
+  font-weight: 500;
+  margin-bottom: 0.2rem;
+}
+
+.cy-stat-card__note {
+  color: var(--cy-text-3);
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.cy-source {
+  color: var(--cy-text-3);
+  font-size: 0.85rem;
+  margin-top: 1.75rem;
+}
+.cy-source a { color: var(--cy-text-2); }
+.cy-source a:hover { color: var(--cy-cyan); }
+
+
+/* ==========================================================================
+   Prose — About and other text pages
+   ========================================================================== */
+
+.cy-prose {
+  color: var(--cy-text-2);
+  font-size: 1.0625rem;
+}
+
+.cy-prose h2 {
+  color: var(--cy-text);
+  font-size: 1.5rem;
+  margin: 3rem 0 0.85rem;
+}
+
+.cy-prose h2:first-child { margin-top: 0; }
+
+.cy-prose p { margin-bottom: 1.1rem; }
+
+.cy-prose strong { color: var(--cy-text); }
+
+.cy-page-head {
+  padding: clamp(3rem, 6vw, 5rem) 0 0;
+}
+
+.cy-page-head__title {
+  font-size: clamp(2.2rem, 4.5vw, 3.5rem);
+  letter-spacing: -0.04em;
+  margin-bottom: 1rem;
+}
+
+
+/* ==========================================================================
+   "How it works" steps
+   ========================================================================== */
+
+.cy-steps {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+}
+
+.cy-step {
+  background: linear-gradient(180deg, var(--cy-surface-2), var(--cy-surface));
+  border: 1px solid var(--cy-border);
+  border-radius: var(--cy-r-xl);
+  overflow: hidden;
+  padding: 2rem;
+  position: relative;
+  transition: transform var(--cy-slow) var(--cy-ease), border-color var(--cy-slow) var(--cy-ease);
+}
+.cy-step::before {
+  background: linear-gradient(90deg, transparent, var(--cy-glow-violet), transparent);
+  content: "";
+  height: 1px;
+  left: 15%;
+  position: absolute;
+  right: 15%;
+  top: 0;
+}
+.cy-step:hover {
+  border-color: var(--cy-border-lift);
+  transform: translateY(-4px);
+}
+
+.cy-step__icon {
+  align-items: center;
+  background: var(--cy-grad-soft);
+  border: 1px solid rgba(155, 123, 248, 0.32);
+  border-radius: 16px;
+  color: var(--cy-violet-soft);
+  display: flex;
+  height: 54px;
+  justify-content: center;
+  margin-bottom: 1.25rem;
+  width: 54px;
+}
+.cy-step__icon .cy-i { height: 24px; width: 24px; }
+
+.cy-step__num {
+  color: var(--cy-text-3);
+  font-family: var(--cy-font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  position: absolute;
+  right: 1.75rem;
+  top: 1.75rem;
+}
+
+.cy-step__title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.cy-step__text {
+  color: var(--cy-text-2);
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+
+/* ==========================================================================
+   Gamification showcase
+   ========================================================================== */
+
+.cy-showcase {
+  align-items: center;
+  display: grid;
+  gap: clamp(2rem, 5vw, 4rem);
+  grid-template-columns: 0.95fr 1.05fr;
+}
+
+.cy-showcase__panel {
+  background: linear-gradient(165deg, var(--cy-surface-2), var(--cy-surface));
+  border: 1px solid var(--cy-border);
+  border-radius: var(--cy-r-xl);
+  box-shadow: var(--cy-shadow);
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 2rem;
+  position: relative;
+}
+.cy-showcase__panel::before {
+  background: linear-gradient(90deg, transparent, var(--cy-glow-violet), transparent);
+  content: "";
+  height: 1px;
+  left: 10%;
+  position: absolute;
+  right: 10%;
+  top: -1px;
+}
+
+.cy-showcase__row {
+  align-items: center;
+  display: flex;
+  gap: 1.15rem;
+}
+
+.cy-showcase__list {
+  display: grid;
+  gap: 1.15rem;
+  list-style: none;
+  margin: 2rem 0 0;
+  padding: 0;
+}
+
+.cy-showcase__item {
+  align-items: flex-start;
+  color: var(--cy-text-2);
+  display: flex;
+  gap: 0.85rem;
+}
+
+.cy-showcase__tick {
+  color: var(--cy-violet);
+  flex: none;
+  margin-top: 0.2rem;
+}
+
+.cy-divider {
+  background: var(--cy-border);
+  border: 0;
+  height: 1px;
+  margin: 0;
+}
+
+
+/* ==========================================================================
+   Entrance
+   ========================================================================== */
+
+/* Staggered rise on load. Set --cy-delay per item so a grid arrives as a wave
+   rather than a slab. Used above the fold, where there's no scrolling to
+   trigger anything. */
+.cy-rise {
+  animation: cy-rise 0.6s var(--cy-ease) both;
+  animation-delay: var(--cy-delay, 0s);
+}
+
+@keyframes cy-rise {
+  from { opacity: 0; transform: translateY(16px); }
+}
+
+
+/* --- Scroll-driven reveal ------------------------------------------------
+   Sections fade and lift as they enter the viewport, using CSS scroll-driven
+   animations. No JavaScript: our CSP is script-src 'self', and this would
+   otherwise need an IntersectionObserver bundle vendored, served and
+   maintained to do what the browser now does natively.
+
+   THE CRITICAL BIT — read before touching this:
+
+   `.cy-reveal` has NO default styles. It is visible, full stop. The hiding
+   only ever happens INSIDE @supports. Write it the obvious way instead —
+   `.cy-reveal { opacity: 0 }` with an animation to bring it back — and every
+   browser without scroll-timeline support renders a permanently blank page.
+   That is roughly a third of real traffic, silently served nothing.
+
+   So: the animation is the enhancement, and being visible is the default.
+   Same reason it sits inside prefers-reduced-motion: no-preference — someone
+   who asked for stillness gets the content, not an empty screen. */
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .cy-reveal {
+      animation: cy-reveal linear both;
+      animation-timeline: view();
+      /* Starts as it enters, done by a third of the way up: the reader should
+         never be waiting on it. Motion you have to wait for is friction. */
+      animation-range: entry 4% cover 30%;
+    }
+  }
+}
+
+@keyframes cy-reveal {
+  from { opacity: 0; transform: translateY(26px); }
+  to   { opacity: 1; transform: none; }
+}
+
+
+/* --- Hero parallax -------------------------------------------------------
+   The floating panels drift at different rates as the page scrolls, which is
+   what makes the scene read as layered depth rather than four flat cards.
+   Same enhancement rules as above: no support, or reduced motion, and they
+   simply sit where they were placed. */
+
+@supports (animation-timeline: scroll()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .cy-drift {
+      animation: cy-drift linear both;
+      animation-timeline: scroll(root block);
+      animation-range: 0 90vh;
+    }
+  }
+}
+
+
+/* ==========================================================================
+   Motion preferences
+   ==========================================================================
+   Not a nicety. Vestibular disorders are real, the float/sheen/flicker loop
+   forever, and "accessibility is a requirement" is in our project rules.
+   Everything still WORKS here — it just arrives instead of animating.
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .cy-body *,
+  .cy-body *::before,
+  .cy-body *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+
+  .cy-progress__fill { width: var(--cy-value, 0%); }
+  .cy-progress__fill::after { display: none; }
+
+  .cy-btn:hover,
+  .cy-step:hover,
+  .cy-module--unlocked:hover,
+  .cy-badge--earned:hover .cy-badge__medal {
+    transform: none;
+  }
+
+  /* The hero scene keeps its depth and gradient; it simply stops drifting. */
+  .cy-float,
+  .cy-drift,
+  .cy-streak__flame {
+    animation: none;
+    transform: none;
+  }
+
+  /* Both of these must end VISIBLE, not merely un-animated. Content is never
+     the thing motion preferences take away. */
+  .cy-rise,
+  .cy-reveal {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}
+
+
+/* ==========================================================================
+   Responsive
+   ========================================================================== */
+
+@media (max-width: 900px) {
+  .cy-hero__grid,
+  .cy-showcase {
+    grid-template-columns: 1fr;
+  }
+  /* The scene goes below the words: on a phone the message lands first. */
+  .cy-hero__visual { order: 2; }
+  .cy-scene { margin: 0 auto; max-width: 28rem; }
+  .cy-nav__links { display: none; }
+}
+
+@media (max-width: 576px) {
+  .cy-card { padding: 1.75rem 1.35rem; }
+  .cy-card h1 { font-size: 1.55rem; }
+  .cy-main--padded { padding: 2rem 0.85rem 3rem; }
+  .cy-btn--block-sm { width: 100%; }
+  .cy-hero__actions .cy-btn { width: 100%; }
+  .cy-showcase__panel { padding: 1.35rem; }
+}

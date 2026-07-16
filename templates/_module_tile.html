@@ -1,0 +1,59 @@
+{% comment %}
+  One mission tile. Include it with:
+
+    {% include "_module_tile.html" with module=m state="locked" delay="0.06s" %}
+
+  state: "open" | "locked" | "complete" | "current"
+    open     — available, lifts on hover
+    current  — available and where you are now
+    locked   — dimmed, desaturated, does NOT respond to hover. The absence of
+               response is the message; the copy says how to unlock it.
+    complete — done, accent border
+
+  Optional: progress (0-100) and progress_label render a bar; omit for the
+  marketing pages where nobody has progress yet.
+{% endcomment %}
+<article class="cy-module cy-reveal
+                {% if state == 'locked' %}cy-module--locked{% else %}cy-module--unlocked{% endif %}
+                {% if state == 'complete' %}cy-module--complete{% endif %}"
+         style="--cy-delay: {{ delay|default:'0s' }}; --cy-tile-a: {{ module.tile_a }}; --cy-tile-b: {{ module.tile_b }};">
+
+  <div class="cy-module__banner">
+    <div class="cy-module__banner-inner">
+      <span class="cy-module__index">MODULE {{ module.index|stringformat:"02d" }}</span>
+      <span class="cy-module__glyph">
+        <svg class="cy-i" aria-hidden="true"><use href="#{{ module.icon }}"/></svg>
+      </span>
+    </div>
+  </div>
+
+  <div class="cy-module__body">
+    <div>
+      {% if state == 'complete' %}
+        <span class="cy-chip cy-chip--complete">
+          <svg class="cy-i" aria-hidden="true"><use href="#i-check"/></svg> Complete
+        </span>
+      {% elif state == 'current' %}
+        <span class="cy-chip cy-chip--active">In progress</span>
+      {% elif state == 'open' %}
+        <span class="cy-chip cy-chip--active">Start here</span>
+      {% else %}
+        <span class="cy-chip cy-chip--locked">
+          <svg class="cy-i" aria-hidden="true"><use href="#i-lock"/></svg> Locked
+        </span>
+      {% endif %}
+    </div>
+
+    <h3 class="cy-module__title">{{ module.title }}</h3>
+    <p class="cy-module__desc">{{ unlock_hint|default:module.subtitle }}</p>
+
+    {% if progress is not None %}
+      <div class="cy-progress-row">
+        <div class="cy-progress">
+          <div class="cy-progress__fill" style="--cy-value: {{ progress }}%; --cy-delay: {{ delay|default:'0s' }};"></div>
+        </div>
+        <span class="cy-progress-row__value">{{ progress_label }}</span>
+      </div>
+    {% endif %}
+  </div>
+</article>

@@ -1,0 +1,228 @@
+{% extends "base.html" %}
+
+{% comment %}
+  The component library, rendered. DEBUG-only — see nstp/urls.py.
+
+  It exists so the system can be reviewed as one thing before it scatters
+  across four sprints, and so a change can be eyeballed against every component
+  at once rather than hunted through the app.
+
+  All numbers here are hard-coded samples. Nothing touches the database.
+{% endcomment %}
+
+{% block title %}Component library — {{ site_name }}{% endblock %}
+{% block nav_links %}{% endblock %}
+{% block nav_actions %}{% endblock %}
+
+{% block content %}
+<div class="cy-wrap">
+
+  <h1 style="margin-bottom: 0.5rem;">Component library</h1>
+  <p class="cy-lede">
+    Every reusable piece of the {{ site_name }} system. Development only — this
+    page does not exist when DEBUG is off.
+  </p>
+
+  <!-- ============================================ -->
+  <h2 style="margin: 3rem 0 1rem; font-size: 1.2rem;">Colour</h2>
+  <div class="cy-card" style="margin-bottom: 1.25rem;">
+    <div style="display:flex; gap:0.75rem; flex-wrap:wrap;">
+      <div style="text-align:center;">
+        <div style="width:84px;height:58px;border-radius:10px;background:var(--cy-bg);border:1px solid var(--cy-border);"></div>
+        <span class="cy-hint">page</span>
+      </div>
+      <div style="text-align:center;">
+        <div style="width:84px;height:58px;border-radius:10px;background:var(--cy-surface-2);border:1px solid var(--cy-border);"></div>
+        <span class="cy-hint">surface</span>
+      </div>
+      <div style="text-align:center;">
+        <div style="width:84px;height:58px;border-radius:10px;background:var(--cy-violet);"></div>
+        <span class="cy-hint">violet</span>
+      </div>
+      <div style="text-align:center;">
+        <div style="width:84px;height:58px;border-radius:10px;background:var(--cy-cyan);"></div>
+        <span class="cy-hint">cyan</span>
+      </div>
+      <div style="text-align:center;">
+        <div style="width:84px;height:58px;border-radius:10px;background:var(--cy-grad);"></div>
+        <span class="cy-hint">gradient</span>
+      </div>
+      <div style="text-align:center;">
+        <div style="width:84px;height:58px;border-radius:10px;background:var(--cy-flame);"></div>
+        <span class="cy-hint">streak</span>
+      </div>
+      <div style="text-align:center;">
+        <div style="width:84px;height:58px;border-radius:10px;background:var(--cy-gold);"></div>
+        <span class="cy-hint">badge</span>
+      </div>
+      <div style="text-align:center;">
+        <div style="width:84px;height:58px;border-radius:10px;background:var(--cy-danger);"></div>
+        <span class="cy-hint">error</span>
+      </div>
+    </div>
+    <p class="cy-hint" style="margin: 1.25rem 0 0;">
+      The gradient always carries <strong>dark</strong> ink. White on it measures
+      1.81:1 at the cyan end — unusable, and no tuning fixes it.
+    </p>
+  </div>
+
+  <!-- ============================================ -->
+  <h2 style="margin: 3rem 0 1rem; font-size: 1.2rem;">Icons</h2>
+  <div class="cy-card" style="margin-bottom: 1.25rem;">
+    {% comment %}
+      Written out rather than looped: Django has no `split` filter, and adding
+      a custom templatetag to save 30 lines on a dev-only page is not a trade
+      worth making.
+    {% endcomment %}
+    <div style="display:flex; gap:1.5rem; flex-wrap:wrap; color: var(--cy-text-2);">
+      <div style="text-align:center; width:76px;"><svg class="cy-i cy-i--lg"><use href="#i-book"/></svg><span class="cy-hint" style="font-size:0.7rem;">book</span></div>
+      <div style="text-align:center; width:76px;"><svg class="cy-i cy-i--lg"><use href="#i-target"/></svg><span class="cy-hint" style="font-size:0.7rem;">target</span></div>
+      <div style="text-align:center; width:76px;"><svg class="cy-i cy-i--lg"><use href="#i-award"/></svg><span class="cy-hint" style="font-size:0.7rem;">award</span></div>
+      <div style="text-align:center; width:76px;"><svg class="cy-i cy-i--lg"><use href="#i-hex"/></svg><span class="cy-hint" style="font-size:0.7rem;">hex</span></div>
+      <div style="text-align:center; width:76px;"><svg class="cy-i cy-i--lg"><use href="#i-flame"/></svg><span class="cy-hint" style="font-size:0.7rem;">flame</span></div>
+      <div style="text-align:center; width:76px;"><svg class="cy-i cy-i--lg"><use href="#i-shield"/></svg><span class="cy-hint" style="font-size:0.7rem;">shield</span></div>
+      <div style="text-align:center; width:76px;"><svg class="cy-i cy-i--lg"><use href="#i-star"/></svg><span class="cy-hint" style="font-size:0.7rem;">star</span></div>
+      <div style="text-align:center; width:76px;"><svg class="cy-i cy-i--lg"><use href="#i-bolt"/></svg><span class="cy-hint" style="font-size:0.7rem;">bolt</span></div>
+      <div style="text-align:center; width:76px;"><svg class="cy-i cy-i--lg"><use href="#i-lock"/></svg><span class="cy-hint" style="font-size:0.7rem;">lock</span></div>
+      <div style="text-align:center; width:76px;"><svg class="cy-i cy-i--lg"><use href="#i-check"/></svg><span class="cy-hint" style="font-size:0.7rem;">check</span></div>
+      <div style="text-align:center; width:76px;"><svg class="cy-i cy-i--lg"><use href="#i-check-circle"/></svg><span class="cy-hint" style="font-size:0.7rem;">check-circle</span></div>
+      <div style="text-align:center; width:76px;"><svg class="cy-i cy-i--lg"><use href="#i-layers"/></svg><span class="cy-hint" style="font-size:0.7rem;">layers</span></div>
+      <div style="text-align:center; width:76px;"><svg class="cy-i cy-i--lg"><use href="#i-mail"/></svg><span class="cy-hint" style="font-size:0.7rem;">mail</span></div>
+      <div style="text-align:center; width:76px;"><svg class="cy-i cy-i--lg"><use href="#i-clock"/></svg><span class="cy-hint" style="font-size:0.7rem;">clock</span></div>
+      <div style="text-align:center; width:76px;"><svg class="cy-i cy-i--lg"><use href="#i-unlink"/></svg><span class="cy-hint" style="font-size:0.7rem;">unlink</span></div>
+      <div style="text-align:center; width:76px;"><svg class="cy-i cy-i--lg"><use href="#i-arrow-right"/></svg><span class="cy-hint" style="font-size:0.7rem;">arrow-right</span></div>
+    </div>
+    <p class="cy-hint" style="margin: 1.25rem 0 0;">
+      One family: 24px box, stroke only, 1.6 weight, round caps. They inherit
+      currentColor. No emoji anywhere on the platform.
+    </p>
+  </div>
+
+  <!-- ============================================ -->
+  <h2 style="margin: 3rem 0 1rem; font-size: 1.2rem;">Buttons</h2>
+  <div class="cy-card" style="margin-bottom: 1.25rem;">
+    <div style="display:flex; gap:1rem; flex-wrap:wrap; align-items:center;">
+      <button class="cy-btn cy-btn--primary">
+        Start module
+        <svg class="cy-i" aria-hidden="true"><use href="#i-arrow-right"/></svg>
+      </button>
+      <button class="cy-btn cy-btn--ghost">Maybe later</button>
+      <button class="cy-btn cy-btn--quiet">Log in</button>
+    </div>
+    <p class="cy-hint" style="margin: 1.5rem 0 0;">
+      One primary per section. The accent is scarce on purpose — if everything
+      glows, nothing tells you where to go next.
+    </p>
+  </div>
+
+  <!-- ============================================ -->
+  <h2 style="margin: 3rem 0 1rem; font-size: 1.2rem;">Progress</h2>
+  <div class="cy-card" style="margin-bottom: 1.25rem;">
+    <div class="cy-progress-row" style="margin-bottom: 1rem;">
+      <div class="cy-progress"><div class="cy-progress__fill" style="--cy-value: 25%;"></div></div>
+      <span class="cy-progress-row__value">25%</span>
+    </div>
+    <div class="cy-progress-row" style="margin-bottom: 1rem;">
+      <div class="cy-progress"><div class="cy-progress__fill" style="--cy-value: 60%;"></div></div>
+      <span class="cy-progress-row__value">60%</span>
+    </div>
+    <div class="cy-progress-row" style="margin-bottom: 1rem;">
+      <div class="cy-progress"><div class="cy-progress__fill" style="--cy-value: 100%;"></div></div>
+      <span class="cy-progress-row__value">100%</span>
+    </div>
+    <p class="cy-hint" style="margin: 1rem 0 0;">
+      Fills on load from --cy-value, then a slow sheen. Stagger a grid with
+      --cy-delay.
+    </p>
+  </div>
+
+  <!-- ============================================ -->
+  <h2 style="margin: 3rem 0 1rem; font-size: 1.2rem;">Points, level, streak</h2>
+  <div class="cy-card" style="margin-bottom: 1.25rem;">
+    <div style="display:flex; align-items:center; gap:1.25rem; flex-wrap:wrap;">
+      <div class="cy-level" style="--cy-level-progress: 68;">
+        <div class="cy-level__inner">
+          <span class="cy-level__label">Level</span>
+          <span class="cy-level__value">4</span>
+        </div>
+      </div>
+      <span class="cy-stat cy-stat--points">
+        <span class="cy-stat__icon"><svg class="cy-i" aria-hidden="true"><use href="#i-hex"/></svg></span>
+        <span class="cy-stat__value">1,240</span>
+        <span class="cy-stat__label">points</span>
+      </span>
+      <span class="cy-streak">
+        <span class="cy-streak__flame"><svg class="cy-i" aria-hidden="true"><use href="#i-flame"/></svg></span>
+        <span class="cy-streak__value">7</span>
+        <span class="cy-streak__label">day streak</span>
+      </span>
+      <span class="cy-stat">
+        <span class="cy-stat__icon"><svg class="cy-i" aria-hidden="true"><use href="#i-layers"/></svg></span>
+        <span class="cy-stat__value">3</span>
+        <span class="cy-stat__label">of 6 modules</span>
+      </span>
+    </div>
+    <p class="cy-hint" style="margin: 1.5rem 0 0;">
+      The ring around the level badge is progress to the next one — one
+      component, two facts. Numbers are mono with tabular figures, so a counter
+      ticking 990 → 1,000 doesn't shift the layout.
+    </p>
+  </div>
+
+  <!-- ============================================ -->
+  <h2 style="margin: 3rem 0 1rem; font-size: 1.2rem;">Achievements</h2>
+  <div class="cy-card" style="margin-bottom: 1.25rem;">
+    <div class="cy-badges">
+      <div class="cy-badge cy-badge--earned">
+        <div class="cy-badge__medal"><svg class="cy-i" aria-hidden="true"><use href="#i-target"/></svg></div>
+        <span class="cy-badge__name">First quiz passed</span>
+      </div>
+      <div class="cy-badge cy-badge--earned">
+        <div class="cy-badge__medal"><svg class="cy-i" aria-hidden="true"><use href="#i-book"/></svg></div>
+        <span class="cy-badge__name">Module 1 done</span>
+      </div>
+      <div class="cy-badge cy-badge--earned cy-badge--gold">
+        <div class="cy-badge__medal"><svg class="cy-i" aria-hidden="true"><use href="#i-flame"/></svg></div>
+        <span class="cy-badge__name">7 day streak</span>
+      </div>
+      <div class="cy-badge cy-badge--locked">
+        <div class="cy-badge__medal"><svg class="cy-i" aria-hidden="true"><use href="#i-shield"/></svg></div>
+        <span class="cy-badge__name">All modules done</span>
+      </div>
+      <div class="cy-badge cy-badge--locked">
+        <div class="cy-badge__medal"><svg class="cy-i" aria-hidden="true"><use href="#i-star"/></svg></div>
+        <span class="cy-badge__name">Perfect score</span>
+      </div>
+    </div>
+    <p class="cy-hint" style="margin: 1.5rem 0 0;">
+      Locked badges stay visible but greyed and dashed — you can see what's
+      ahead. Earned ones lift on hover; gold marks the rarer ones.
+    </p>
+  </div>
+
+  <!-- ============================================ -->
+  <h2 style="margin: 3rem 0 1rem; font-size: 1.2rem;">Mission tiles</h2>
+  {% comment %}
+    Rendered through _module_tile.html from the real placeholder_content data,
+    so this page shows the component as the app actually uses it — not a
+    hand-built lookalike that drifts the first time the partial changes.
+  {% endcomment %}
+  <div class="cy-map" style="margin-bottom: 1.25rem;">
+    {% for m in modules|slice:":3" %}
+      {% if forloop.counter == 1 %}
+        {% include "_module_tile.html" with module=m state="complete" progress=100 progress_label="4/4" unlock_hint="Passed with 90%. Revisit any time." %}
+      {% elif forloop.counter == 2 %}
+        {% include "_module_tile.html" with module=m state="current" progress=50 progress_label="2/4" %}
+      {% else %}
+        {% include "_module_tile.html" with module=m state="locked" unlock_hint="Finish the module before this one to unlock it." %}
+      {% endif %}
+    {% endfor %}
+  </div>
+  <p class="cy-hint" style="margin-bottom: 3rem;">
+    Hover an unlocked tile and it lifts. Hover the locked one and nothing
+    happens — the absence of response is the message, so no tooltip is needed.
+    The locked tile says <em>how</em> to unlock, not just that it's locked.
+  </p>
+
+</div>
+{% endblock %}
