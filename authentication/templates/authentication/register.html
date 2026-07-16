@@ -33,8 +33,10 @@
       <div class="mb-3">
         <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
 
-        {# Hint before the input: read the rule, then type. Underneath, it only
-           gets read after they've already guessed wrong. #}
+        {% comment %}
+          Hint before the input: read the rule, then type. Underneath, it only
+          gets read after they've already guessed wrong.
+        {% endcomment %}
         {% if field.help_text %}
           <span class="nstp-hint" id="{{ field.id_for_label }}_hint">{{ field.help_text }}</span>
         {% endif %}
