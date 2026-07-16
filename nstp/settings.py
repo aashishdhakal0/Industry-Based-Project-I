@@ -84,14 +84,10 @@ WSGI_APPLICATION = "nstp.wsgi.application"
 # plus `role` (Student/Instructor/Administrator) and `is_verified`. Stock
 # auth.User cannot do email-as-username or carry those fields.
 #
-# This MUST be uncommented at the same moment authentication.User is created,
-# and BEFORE the first migrate is ever run. Changing AUTH_USER_MODEL after the
-# initial migration is extremely painful to reverse.
-#
-# Left commented only so `manage.py check` stays green until the Sprint 1 model
-# lands. It is the FIRST task of Sprint 1.
-#
-# AUTH_USER_MODEL = "authentication.User"
+# Set before the first migrate, as required. Changing this after the initial
+# migration is extremely painful to reverse — do not touch it.
+
+AUTH_USER_MODEL = "authentication.User"
 
 
 # --- Database --------------------------------------------------------------
