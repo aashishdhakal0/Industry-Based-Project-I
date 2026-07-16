@@ -797,12 +797,447 @@ body.cy-body {
 }
 
 
+/* ==========================================================================
+   Page furniture — landing and dashboard
+   ========================================================================== */
+
+/* --- Section rhythm ------------------------------------------------------ */
+
+.cy-section {
+  margin: 0 auto;
+  max-width: 68rem;
+  padding: 4.5rem 0 0;
+}
+
+.cy-section__head {
+  margin-bottom: 2rem;
+  max-width: 40rem;
+}
+
+.cy-section__title {
+  font-size: 1.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.cy-section__lede {
+  color: var(--cy-text-2);
+  margin: 0;
+}
+
+/* A small caps label above a section or hero. */
+.cy-eyebrow {
+  align-items: center;
+  background: var(--cy-surface-2);
+  border: 1px solid var(--cy-border-lift);
+  border-radius: var(--cy-r-pill);
+  color: var(--cy-text-2);
+  display: inline-flex;
+  font-size: 0.8rem;
+  gap: 0.5rem;
+  letter-spacing: 0.04em;
+  margin-bottom: 1.5rem;
+  padding: 0.35rem 0.9rem;
+}
+
+.cy-eyebrow__dot {
+  background: var(--cy-accent);
+  border-radius: 50%;
+  box-shadow: 0 0 8px var(--cy-accent);
+  height: 6px;
+  width: 6px;
+}
+
+
+/* --- Landing hero -------------------------------------------------------- */
+
+.cy-hero {
+  align-items: center;
+  display: grid;
+  gap: 3rem;
+  grid-template-columns: 1.05fr 0.95fr;
+  margin: 0 auto;
+  max-width: 68rem;
+  padding: 2rem 0 1rem;
+}
+
+.cy-hero__title {
+  font-size: clamp(2.2rem, 5vw, 3.4rem);
+  letter-spacing: -0.04em;
+  margin-bottom: 1.1rem;
+}
+
+/* The one word that carries the promise. Gradient, not a flat accent — it
+   reads as emphasis rather than as a link. */
+.cy-hero__accent {
+  background: linear-gradient(100deg, var(--cy-accent), var(--cy-cyan));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.cy-hero__sub {
+  color: var(--cy-text-2);
+  font-size: 1.15rem;
+  margin-bottom: 2rem;
+  max-width: 34rem;
+}
+
+.cy-hero__actions {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.cy-hero__note {
+  color: var(--cy-text-3);
+  font-size: 0.9rem;
+  margin: 1.25rem 0 0;
+}
+
+
+/* --- The hero orb -------------------------------------------------------- */
+
+/* The visual hook, built entirely in CSS: concentric rings, a slow radar
+   sweep, and a floating core. No image to load, nothing for CSP to block,
+   and it scales to any screen without a second asset.
+
+   Deliberately abstract — a shield or padlock would say "security is scary".
+   This says "something calm is watching". */
+.cy-orb {
+  aspect-ratio: 1;
+  display: grid;
+  margin: 0 auto;
+  max-width: 24rem;
+  place-items: center;
+  position: relative;
+  width: 100%;
+}
+
+.cy-orb__ring {
+  border: 1px solid var(--cy-border-lift);
+  border-radius: 50%;
+  grid-area: 1 / 1;
+  position: relative;
+}
+
+.cy-orb__ring--1 { animation: cy-breathe 5s ease-in-out infinite; height: 100%; width: 100%; }
+.cy-orb__ring--2 { animation: cy-breathe 5s ease-in-out infinite 0.5s; border-color: rgba(0, 229, 160, 0.18); height: 74%; width: 74%; }
+.cy-orb__ring--3 { animation: cy-breathe 5s ease-in-out infinite 1s; border-color: rgba(0, 229, 160, 0.3); height: 50%; width: 50%; }
+
+/* The sweep: a conic gradient rotating behind the rings. */
+.cy-orb__sweep {
+  animation: cy-spin 7s linear infinite;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg 250deg,
+    var(--cy-glow-soft) 320deg,
+    var(--cy-glow) 352deg,
+    transparent 360deg
+  );
+  border-radius: 50%;
+  grid-area: 1 / 1;
+  height: 100%;
+  width: 100%;
+}
+
+.cy-orb__core {
+  align-items: center;
+  animation: cy-float 6s ease-in-out infinite;
+  background: linear-gradient(150deg, var(--cy-accent), var(--cy-accent-deep));
+  border-radius: 28px;
+  box-shadow:
+    0 0 0 1px rgba(0, 229, 160, 0.5),
+    0 0 40px var(--cy-glow),
+    0 20px 60px rgba(0, 0, 0, 0.55);
+  display: flex;
+  grid-area: 1 / 1;
+  height: 104px;
+  justify-content: center;
+  width: 104px;
+}
+
+.cy-orb__core::after {
+  border: 5px solid var(--cy-accent-ink);
+  border-radius: 50%;
+  content: "";
+  height: 38px;
+  width: 38px;
+}
+
+/* Three points of light orbiting the core at different radii and speeds.
+   Each dot sits on the end of an invisible arm that rotates. */
+.cy-orb__dot {
+  grid-area: 1 / 1;
+  height: 100%;
+  width: 100%;
+  position: relative;
+}
+.cy-orb__dot::after {
+  background: var(--cy-cyan);
+  border-radius: 50%;
+  box-shadow: 0 0 12px var(--cy-cyan);
+  content: "";
+  height: 7px;
+  left: 50%;
+  position: absolute;
+  top: 0;
+  width: 7px;
+}
+.cy-orb__dot--1 { animation: cy-spin 11s linear infinite; }
+.cy-orb__dot--2 { animation: cy-spin 15s linear infinite reverse; height: 74%; width: 74%; }
+.cy-orb__dot--2::after { background: var(--cy-accent); box-shadow: 0 0 12px var(--cy-accent); }
+.cy-orb__dot--3 { animation: cy-spin 19s linear infinite; height: 50%; width: 50%; }
+.cy-orb__dot--3::after { background: var(--cy-gold); box-shadow: 0 0 10px var(--cy-gold); height: 5px; width: 5px; }
+
+@keyframes cy-spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes cy-breathe {
+  0%, 100% { opacity: 0.55; transform: scale(1); }
+  50%      { opacity: 1;    transform: scale(1.03); }
+}
+
+@keyframes cy-float {
+  0%, 100% { transform: translateY(-6px); }
+  50%      { transform: translateY(6px); }
+}
+
+
+/* --- "How it works" steps ------------------------------------------------ */
+
+.cy-steps {
+  display: grid;
+  gap: 1.25rem;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+}
+
+.cy-step {
+  background: linear-gradient(180deg, var(--cy-surface-2), var(--cy-surface));
+  border: 1px solid var(--cy-border);
+  border-radius: var(--cy-r-lg);
+  padding: 1.75rem;
+  position: relative;
+  transition: transform var(--cy-slow) var(--cy-ease), border-color var(--cy-slow) var(--cy-ease);
+}
+.cy-step:hover {
+  border-color: var(--cy-border-lift);
+  transform: translateY(-3px);
+}
+
+.cy-step__icon {
+  align-items: center;
+  background: var(--cy-surface-3);
+  border: 1px solid var(--cy-border-lift);
+  border-radius: 14px;
+  display: flex;
+  font-size: 1.35rem;
+  height: 52px;
+  justify-content: center;
+  margin-bottom: 1.1rem;
+  width: 52px;
+}
+
+.cy-step__num {
+  color: var(--cy-text-3);
+  font-family: var(--cy-font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  position: absolute;
+  right: 1.5rem;
+  top: 1.5rem;
+}
+
+.cy-step__title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 0.4rem;
+}
+
+.cy-step__text {
+  color: var(--cy-text-2);
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+
+/* --- Gamification teaser panel ------------------------------------------- */
+
+.cy-teaser {
+  align-items: center;
+  background:
+    radial-gradient(600px 300px at 80% 0%, rgba(0, 229, 160, 0.07), transparent 70%),
+    linear-gradient(180deg, var(--cy-surface-2), var(--cy-surface));
+  border: 1px solid var(--cy-border);
+  border-radius: var(--cy-r-lg);
+  display: grid;
+  gap: 2.5rem;
+  grid-template-columns: 1fr 1fr;
+  padding: 2.5rem;
+}
+
+.cy-teaser__stack {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+
+
+/* --- Dashboard HUD ------------------------------------------------------- */
+
+.cy-hud {
+  background:
+    radial-gradient(700px 320px at 85% -20%, rgba(0, 229, 160, 0.09), transparent 70%),
+    linear-gradient(180deg, var(--cy-surface-2), var(--cy-surface));
+  border: 1px solid var(--cy-border);
+  border-radius: var(--cy-r-lg);
+  box-shadow: var(--cy-shadow);
+  padding: 2rem 2.25rem;
+  position: relative;
+}
+.cy-hud::before {
+  background: linear-gradient(90deg, transparent, var(--cy-glow), transparent);
+  content: "";
+  height: 1px;
+  left: 8%;
+  position: absolute;
+  right: 8%;
+  top: -1px;
+}
+
+.cy-hud__row {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  justify-content: space-between;
+}
+
+.cy-hud__identity {
+  align-items: center;
+  display: flex;
+  gap: 1.15rem;
+}
+
+.cy-hud__greet {
+  color: var(--cy-text-3);
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.cy-hud__name {
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  margin: 0;
+}
+
+.cy-hud__stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.cy-hud__next {
+  border-top: 1px solid var(--cy-border);
+  margin-top: 1.75rem;
+  padding-top: 1.5rem;
+}
+
+
+/* --- Continue card — the one obvious action ------------------------------ */
+
+.cy-continue {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  justify-content: space-between;
+}
+
+.cy-continue__body {
+  flex: 1 1 20rem;
+}
+
+.cy-continue__label {
+  color: var(--cy-accent);
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  margin-bottom: 0.3rem;
+  text-transform: uppercase;
+}
+
+.cy-continue__title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.75rem;
+}
+
+
+/* --- Mission map --------------------------------------------------------- */
+
+.cy-map {
+  display: grid;
+  gap: 1.25rem;
+  grid-template-columns: repeat(auto-fill, minmax(17.5rem, 1fr));
+}
+
+/* The node number doubles as the map marker. Accent when you can go there,
+   flat when you can't — the colour carries the state, not an icon alone. */
+.cy-node {
+  align-items: center;
+  background: var(--cy-surface-3);
+  border: 1px solid var(--cy-border-lift);
+  border-radius: 10px;
+  color: var(--cy-text-3);
+  display: inline-flex;
+  font-family: var(--cy-font-mono);
+  font-size: 0.85rem;
+  font-weight: 700;
+  height: 30px;
+  justify-content: center;
+  width: 30px;
+}
+
+.cy-node--done {
+  background: rgba(0, 229, 160, 0.14);
+  border-color: rgba(0, 229, 160, 0.45);
+  color: var(--cy-accent);
+}
+
+.cy-node--current {
+  background: rgba(0, 229, 160, 0.1);
+  border-color: var(--cy-accent);
+  box-shadow: 0 0 0 3px var(--cy-glow-soft);
+  color: var(--cy-accent);
+}
+
+
+/* --- Entrance ------------------------------------------------------------ */
+
+/* Staggered rise. Set --cy-delay per item so a grid arrives as a wave rather
+   than a slab. Purely decorative: with reduced motion the content is simply
+   already there. */
+.cy-rise {
+  animation: cy-rise 0.55s var(--cy-ease) both;
+  animation-delay: var(--cy-delay, 0s);
+}
+
+@keyframes cy-rise {
+  from { opacity: 0; transform: translateY(14px); }
+}
+
+
 /* --------------------------------------------------------------------------
    Motion preferences
    --------------------------------------------------------------------------
-   Not a nicety. Vestibular disorders are real, the sheen and flicker loop
-   forever, and "accessibility is a requirement" is in our project rules.
-   Everything above still *works* here — it just arrives instead of animating.
+   Not a nicety. Vestibular disorders are real, the sheen, sweep, orbit and
+   flicker loop forever, and "accessibility is a requirement" is in our
+   project rules. Everything above still *works* here — it just arrives
+   instead of animating.
    -------------------------------------------------------------------------- */
 
 @media (prefers-reduced-motion: reduce) {
@@ -820,9 +1255,33 @@ body.cy-body {
   .cy-progress__fill::after {
     display: none;
   }
+
   .cy-btn:hover,
   .cy-module--unlocked:hover,
+  .cy-step:hover,
   .cy-badge--earned:hover .cy-badge__medal {
+    transform: none;
+  }
+
+  /* The orb's sweep and orbiting dots loop forever — the single most likely
+     thing on the site to make someone motion-sick. The rings, glow and core
+     remain: it still reads as the same graphic, just still. */
+  .cy-orb__sweep,
+  .cy-orb__dot {
+    display: none;
+  }
+  .cy-orb__ring {
+    opacity: 1;
+    transform: none;
+  }
+  .cy-orb__core {
+    transform: none;
+  }
+
+  /* Entrance animations have already "finished" — content is simply present. */
+  .cy-rise {
+    animation: none;
+    opacity: 1;
     transform: none;
   }
 }
@@ -831,6 +1290,24 @@ body.cy-body {
 /* --------------------------------------------------------------------------
    Small screens
    -------------------------------------------------------------------------- */
+
+/* Two-column layouts stack before they get crushed. The orb goes below the
+   words: on a phone the message has to land first. */
+@media (max-width: 860px) {
+  .cy-hero,
+  .cy-teaser {
+    grid-template-columns: 1fr;
+  }
+  .cy-hero__visual {
+    order: -1;
+  }
+  .cy-orb {
+    max-width: 15rem;
+  }
+  .cy-teaser {
+    padding: 1.75rem;
+  }
+}
 
 @media (max-width: 576px) {
   .cy-card {
@@ -841,5 +1318,14 @@ body.cy-body {
   }
   .cy-main {
     padding: 2rem 0.85rem 3rem;
+  }
+  .cy-section {
+    padding-top: 3rem;
+  }
+  .cy-hud {
+    padding: 1.5rem 1.25rem;
+  }
+  .cy-btn--block-sm {
+    width: 100%;
   }
 }

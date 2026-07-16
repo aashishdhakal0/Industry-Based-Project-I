@@ -101,6 +101,18 @@ WSGI_APPLICATION = "nstp.wsgi.application"
 
 AUTH_USER_MODEL = "authentication.User"
 
+# TEMPORARY — replace in task 1.3 with the real login view.
+#
+# login_required sends anonymous users here. Django's default is
+# /accounts/login/, which does not exist and would 404. Pointing at the admin
+# login means the redirect works today (log in there, then /dashboard/ opens),
+# but it is the wrong destination for a student: a non-staff account gets told
+# it lacks permission rather than being signed in.
+#
+# The moment authentication:login exists, this becomes reverse_lazy("authentication:login").
+LOGIN_URL = "/admin/login/"
+LOGIN_REDIRECT_URL = "/dashboard/"
+
 
 # --- Database --------------------------------------------------------------
 #

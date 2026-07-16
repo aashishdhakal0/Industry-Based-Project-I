@@ -1,0 +1,244 @@
+{% extends "base.html" %}
+
+{% comment %}
+  The student's logged-in home, as a HUD.
+
+  EVERY NUMBER ON THIS PAGE IS A PLACEHOLDER. The level, points, streak,
+  progress and module states are hard-coded so the layout can be reviewed
+  before Sprint 4 wires them to ProgressRecord / QuizResult / UserProfile.
+
+  It is @login_required today (see nstp/urls.py) even though it holds no real
+  data — a dashboard that starts life unprotected tends to stay that way, and
+  CLAUDE.md is explicit that every view carries its own auth check.
+
+  Structure follows one rule: the learner should never have to decide what to
+  do next. The HUD says who they are, "Continue" says what to do, and the map
+  says where it sits in the journey. Everything else is reference.
+{% endcomment %}
+
+{% block title %}Your dashboard — {{ site_name }}{% endblock %}
+
+{% block content %}
+
+<!-- ============ HUD ============ -->
+<section class="cy-hud cy-rise" style="margin-bottom: 1.25rem;">
+  <div class="cy-hud__row">
+    <div class="cy-hud__identity">
+      <div class="cy-level" style="--cy-level-progress: 68;">
+        <div class="cy-level__inner">
+          <span class="cy-level__label">Level</span>
+          <span class="cy-level__value">4</span>
+        </div>
+      </div>
+      <div>
+        <p class="cy-hud__greet">Welcome back</p>
+        <p class="cy-hud__name">Meredith</p>
+      </div>
+    </div>
+
+    <div class="cy-hud__stats">
+      <span class="cy-stat cy-stat--points">
+        <span class="cy-stat__icon" aria-hidden="true">⬢</span>
+        <span class="cy-stat__value">1,240</span>
+        <span class="cy-stat__label">points</span>
+      </span>
+      <span class="cy-streak">
+        <span class="cy-streak__flame" aria-hidden="true">🔥</span>
+        <span class="cy-streak__value">7</span>
+        <span class="cy-streak__label">day streak</span>
+      </span>
+      <span class="cy-stat">
+        <span class="cy-stat__icon" aria-hidden="true">✔</span>
+        <span class="cy-stat__value">1</span>
+        <span class="cy-stat__label">of 6 modules</span>
+      </span>
+    </div>
+  </div>
+
+  <div class="cy-hud__next">
+    <div class="cy-progress-row">
+      <div class="cy-progress">
+        <div class="cy-progress__fill" style="--cy-value: 68%;"></div>
+      </div>
+      <span class="cy-progress-row__value">68%</span>
+    </div>
+    <span class="cy-hint" style="margin-top: 0.5rem;">760 points to level 5</span>
+  </div>
+</section>
+
+
+<!-- ============ THE ONE OBVIOUS ACTION ============ -->
+<section class="cy-card cy-rise" style="--cy-delay: 0.08s; margin-bottom: 2.5rem;">
+  <div class="cy-continue">
+    <div class="cy-continue__body">
+      <p class="cy-continue__label">Continue where you left off</p>
+      <p class="cy-continue__title">Module 2 · Lesson 3 — Why length beats complexity</p>
+      <div class="cy-progress-row" style="max-width: 26rem;">
+        <div class="cy-progress">
+          <div class="cy-progress__fill" style="--cy-value: 50%;"></div>
+        </div>
+        <span class="cy-progress-row__value">2/4</span>
+      </div>
+    </div>
+
+    {% comment %}
+      The only primary button on the page. Everything else is a ghost or a
+      card — so there is never a question about what to click.
+    {% endcomment %}
+    <a class="cy-btn cy-btn--primary cy-btn--block-sm" href="#">
+      Continue · 6 min left
+    </a>
+  </div>
+</section>
+
+
+<!-- ============ MISSION MAP ============ -->
+<section>
+  <div class="cy-section__head">
+    <h2 class="cy-section__title" style="font-size: 1.4rem;">Your modules</h2>
+    <p class="cy-section__lede">
+      Finish one to unlock the next. No need to decide where to go — the next
+      step is always the one that's open.
+    </p>
+  </div>
+
+  <div class="cy-map">
+
+    <article class="cy-module cy-module--unlocked cy-module--complete cy-rise" style="--cy-delay: 0.1s;">
+      <div class="cy-module__top">
+        <span class="cy-node cy-node--done">✓</span>
+        <span class="cy-chip cy-chip--complete">Complete</span>
+      </div>
+      <h3 class="cy-module__title">Spotting a scam email</h3>
+      <p class="cy-module__desc">Passed with 90%. Revisit any time.</p>
+      <div class="cy-progress-row">
+        <div class="cy-progress">
+          <div class="cy-progress__fill" style="--cy-value: 100%;"></div>
+        </div>
+        <span class="cy-progress-row__value">4/4</span>
+      </div>
+    </article>
+
+    <article class="cy-module cy-module--unlocked cy-rise" style="--cy-delay: 0.16s;">
+      <div class="cy-module__top">
+        <span class="cy-node cy-node--current">2</span>
+        <span class="cy-chip cy-chip--active">In progress</span>
+      </div>
+      <h3 class="cy-module__title">Strong passwords made easy</h3>
+      <p class="cy-module__desc">
+        A different password everywhere, without remembering a single one.
+      </p>
+      <div class="cy-progress-row">
+        <div class="cy-progress">
+          <div class="cy-progress__fill" style="--cy-value: 50%;"></div>
+        </div>
+        <span class="cy-progress-row__value">2/4</span>
+      </div>
+    </article>
+
+    {% comment %}
+      Locked cards say *how* to unlock, not merely that they're locked. And
+      they don't lift on hover — the absence of a response is the message, so
+      no tooltip is needed to explain it.
+    {% endcomment %}
+    <article class="cy-module cy-module--locked cy-rise" style="--cy-delay: 0.22s;">
+      <div class="cy-module__top">
+        <span class="cy-node">3</span>
+        <span class="cy-chip cy-chip--locked">🔒 Locked</span>
+      </div>
+      <h3 class="cy-module__title">Keeping devices updated</h3>
+      <p class="cy-module__desc">Finish module 2 to unlock this one.</p>
+      <div class="cy-progress-row">
+        <div class="cy-progress">
+          <div class="cy-progress__fill" style="--cy-value: 0%;"></div>
+        </div>
+        <span class="cy-progress-row__value">0/4</span>
+      </div>
+    </article>
+
+    <article class="cy-module cy-module--locked cy-rise" style="--cy-delay: 0.28s;">
+      <div class="cy-module__top">
+        <span class="cy-node">4</span>
+        <span class="cy-chip cy-chip--locked">🔒 Locked</span>
+      </div>
+      <h3 class="cy-module__title">Safe browsing and public wi-fi</h3>
+      <p class="cy-module__desc">Finish module 3 to unlock this one.</p>
+      <div class="cy-progress-row">
+        <div class="cy-progress">
+          <div class="cy-progress__fill" style="--cy-value: 0%;"></div>
+        </div>
+        <span class="cy-progress-row__value">0/4</span>
+      </div>
+    </article>
+
+    <article class="cy-module cy-module--locked cy-rise" style="--cy-delay: 0.34s;">
+      <div class="cy-module__top">
+        <span class="cy-node">5</span>
+        <span class="cy-chip cy-chip--locked">🔒 Locked</span>
+      </div>
+      <h3 class="cy-module__title">Protecting customer information</h3>
+      <p class="cy-module__desc">Finish module 4 to unlock this one.</p>
+      <div class="cy-progress-row">
+        <div class="cy-progress">
+          <div class="cy-progress__fill" style="--cy-value: 0%;"></div>
+        </div>
+        <span class="cy-progress-row__value">0/4</span>
+      </div>
+    </article>
+
+    <article class="cy-module cy-module--locked cy-rise" style="--cy-delay: 0.4s;">
+      <div class="cy-module__top">
+        <span class="cy-node">6</span>
+        <span class="cy-chip cy-chip--locked">🔒 Locked</span>
+      </div>
+      <h3 class="cy-module__title">If something goes wrong</h3>
+      <p class="cy-module__desc">Finish module 5 to unlock this one.</p>
+      <div class="cy-progress-row">
+        <div class="cy-progress">
+          <div class="cy-progress__fill" style="--cy-value: 0%;"></div>
+        </div>
+        <span class="cy-progress-row__value">0/4</span>
+      </div>
+    </article>
+  </div>
+</section>
+
+
+<!-- ============ ACHIEVEMENTS ============ -->
+<section class="cy-section" style="padding-top: 3rem;">
+  <div class="cy-section__head">
+    <h2 class="cy-section__title" style="font-size: 1.4rem;">Your badges</h2>
+    <p class="cy-section__lede">Three earned. Keep going — the rest are close.</p>
+  </div>
+
+  <div class="cy-card">
+    <div class="cy-badges">
+      <div class="cy-badge cy-badge--earned">
+        <div class="cy-badge__medal" aria-hidden="true">🎯</div>
+        <span class="cy-badge__name">First quiz passed</span>
+      </div>
+      <div class="cy-badge cy-badge--earned">
+        <div class="cy-badge__medal" aria-hidden="true">📚</div>
+        <span class="cy-badge__name">Module 1 done</span>
+      </div>
+      <div class="cy-badge cy-badge--earned">
+        <div class="cy-badge__medal" aria-hidden="true">🔥</div>
+        <span class="cy-badge__name">7 day streak</span>
+      </div>
+      <div class="cy-badge cy-badge--locked">
+        <div class="cy-badge__medal" aria-hidden="true">⭐</div>
+        <span class="cy-badge__name">Perfect score</span>
+      </div>
+      <div class="cy-badge cy-badge--locked">
+        <div class="cy-badge__medal" aria-hidden="true">🛡️</div>
+        <span class="cy-badge__name">All modules done</span>
+      </div>
+      <div class="cy-badge cy-badge--locked">
+        <div class="cy-badge__medal" aria-hidden="true">🏆</div>
+        <span class="cy-badge__name">Certified</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}
