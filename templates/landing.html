@@ -3,279 +3,487 @@
 {% comment %}
   The public homepage.
 
-  Copy rule for this page: a scam-wary small-business owner should understand
-  every sentence. No jargon, no threat language, no fake hacker atmosphere.
-  We're selling "you'll be fine, this is manageable", not "you're under attack".
+  Copy rule: a scam-wary small-business owner should understand every sentence.
+  No jargon, no threat language, no hacker atmosphere. We're saying "this is
+  manageable and you'll be fine", not "you're under attack".
 
-  The module titles and the teaser's numbers are placeholders. Sprint 2 wires
-  the modules to real data; Sprint 4 does the same for the stats.
+  Honesty rule: nothing here is a claim we can't back. No customer counts, no
+  testimonials, no logos, no invented statistics. The module titles and the
+  showcase figures are placeholders — Sprint 2 wires the modules to real data,
+  Sprint 4 the stats — and the sample numbers are presented as an illustration
+  of the system, never as someone's real record.
 
-  Nothing on this page is a claim we can't back: no invented customer counts,
-  no testimonials, no logos. The trust signal is the training itself.
+  Structure: alternating bands (bloom -> raised -> bloom -> raised -> base) so
+  the page has rhythm instead of one endless scroll. Every section ends in the
+  same single action.
 {% endcomment %}
 
 {% block title %}{{ site_name }} — plain-English cyber safety training{% endblock %}
 
-{% block header_actions %}
-  <a class="cy-btn cy-btn--ghost" href="{% url 'authentication:register' %}"
-     style="padding: 0.5rem 1rem; font-size: 0.95rem;">Get started</a>
-{% endblock %}
+{% comment %} The landing page manages its own full-bleed bands. {% endcomment %}
+{% block main_class %}{% endblock %}
 
 {% block content %}
 
-<!-- ============ HERO ============ -->
+<!-- ================= HERO ================= -->
 <section class="cy-hero">
-  <div class="cy-rise">
-    <span class="cy-eyebrow">
-      <span class="cy-eyebrow__dot" aria-hidden="true"></span>
-      Built in Melbourne for Australian organisations
-    </span>
+  <div class="cy-wrap cy-hero__grid">
 
-    <h1 class="cy-hero__title">
-      Spot the scam <span class="cy-hero__accent">before</span> it costs you.
-    </h1>
+    <div class="cy-rise">
+      <span class="cy-eyebrow">
+        <span class="cy-eyebrow__dot" aria-hidden="true"></span>
+        Built in Melbourne for Australian organisations
+      </span>
 
-    <p class="cy-hero__sub">
-      Most cyber attacks on Australian small businesses, councils and schools
-      start with one convincing email and one busy person. {{ site_name }} is
-      short, plain-English training that shows your team what to look for — no
-      technical background needed.
-    </p>
+      <h1 class="cy-hero__title">
+        Spot the scam <span class="cy-grad-text">before</span> it costs you.
+      </h1>
 
-    <div class="cy-hero__actions">
-      <a class="cy-btn cy-btn--primary" href="{% url 'authentication:register' %}">
-        Get started
-      </a>
-      <a class="cy-btn cy-btn--ghost" href="#how">See how it works</a>
+      <p class="cy-hero__sub">
+        Most attacks on Australian small businesses, councils and schools start
+        with one convincing email and one busy person. {{ site_name }} is short,
+        plain-English training that shows your team exactly what to look for.
+        No technical background needed.
+      </p>
+
+      <div class="cy-hero__actions">
+        <a class="cy-btn cy-btn--primary" href="{% url 'authentication:register' %}">
+          Get started
+          <svg class="cy-i" aria-hidden="true"><use href="#i-arrow-right"/></svg>
+        </a>
+        <a class="cy-btn cy-btn--ghost" href="#how">See how it works</a>
+      </div>
+
+      <p class="cy-hero__note">
+        <span class="cy-hero__note-item">
+          <svg class="cy-i" aria-hidden="true"><use href="#i-layers"/></svg>
+          Six short modules
+        </span>
+        <span class="cy-hero__note-item">
+          <svg class="cy-i" aria-hidden="true"><use href="#i-clock"/></svg>
+          About 10 minutes each
+        </span>
+        <span class="cy-hero__note-item">
+          <svg class="cy-i" aria-hidden="true"><use href="#i-award"/></svg>
+          Certificate when you finish
+        </span>
+      </p>
     </div>
 
-    <p class="cy-hero__note">
-      Six short modules · About 10 minutes each · Certificate when you finish
-    </p>
-  </div>
+    {% comment %}
+      The hero scene: real components from the design system, floating over a
+      violet->cyan bloom. Built from the actual classes rather than a picture
+      of them, so it can never drift out of date with the product.
 
-  {% comment %}
-    The visual hook, built in CSS: rings, a slow radar sweep, orbiting points
-    of light. Deliberately abstract — a padlock or a hooded figure would say
-    "this is frightening and technical", which is the exact belief we're
-    trying to undo.
-  {% endcomment %}
-  <div class="cy-hero__visual cy-rise" style="--cy-delay: 0.1s;" aria-hidden="true">
-    <div class="cy-orb">
-      <div class="cy-orb__sweep"></div>
-      <div class="cy-orb__ring cy-orb__ring--1"></div>
-      <div class="cy-orb__ring cy-orb__ring--2"></div>
-      <div class="cy-orb__ring cy-orb__ring--3"></div>
-      <div class="cy-orb__dot cy-orb__dot--1"></div>
-      <div class="cy-orb__dot cy-orb__dot--2"></div>
-      <div class="cy-orb__dot cy-orb__dot--3"></div>
-      <div class="cy-orb__core"></div>
-    </div>
-  </div>
-</section>
+      aria-hidden: it's decorative. Everything it says is already in the copy,
+      and a screen reader announcing "Level 4, 1,240 points" to a visitor who
+      hasn't signed up would be nonsense.
+    {% endcomment %}
+    <div class="cy-hero__visual cy-rise" style="--cy-delay: 0.12s;" aria-hidden="true">
+      <div class="cy-scene">
+        <div class="cy-scene__bloom"></div>
+        <div class="cy-scene__ring"></div>
+        <div class="cy-scene__ring cy-scene__ring--2"></div>
 
-
-<!-- ============ HOW IT WORKS ============ -->
-<section class="cy-section" id="how">
-  <div class="cy-section__head">
-    <h2 class="cy-section__title">How it works</h2>
-    <p class="cy-section__lede">
-      Three steps. You can finish a whole module on your lunch break.
-    </p>
-  </div>
-
-  <div class="cy-steps">
-    <article class="cy-step cy-rise">
-      <span class="cy-step__num">01</span>
-      <div class="cy-step__icon" aria-hidden="true">📖</div>
-      <h3 class="cy-step__title">Learn</h3>
-      <p class="cy-step__text">
-        Short lessons in plain English. Real examples of the scams that actually
-        turn up in Australian inboxes — not textbook theory.
-      </p>
-    </article>
-
-    <article class="cy-step cy-rise" style="--cy-delay: 0.08s;">
-      <span class="cy-step__num">02</span>
-      <div class="cy-step__icon" aria-hidden="true">🎯</div>
-      <h3 class="cy-step__title">Practise</h3>
-      <p class="cy-step__text">
-        Try it in a safe simulation and see what happens. Much better to make
-        the mistake here than in your real inbox.
-      </p>
-    </article>
-
-    <article class="cy-step cy-rise" style="--cy-delay: 0.16s;">
-      <span class="cy-step__num">03</span>
-      <div class="cy-step__icon" aria-hidden="true">🏆</div>
-      <h3 class="cy-step__title">Earn your certificate</h3>
-      <p class="cy-step__text">
-        Pass the quizzes and get a certificate you can share with your team,
-        your board, or your auditor.
-      </p>
-    </article>
-  </div>
-</section>
-
-
-<!-- ============ GAMIFICATION TEASER ============ -->
-<section class="cy-section">
-  <div class="cy-teaser cy-rise">
-    <div>
-      <h2 class="cy-section__title">Progress you can actually see</h2>
-      <p class="cy-section__lede" style="margin-bottom: 1.5rem;">
-        Every lesson earns points. Every quiz you pass moves you up a level.
-        Come back tomorrow and your streak grows. It's the difference between
-        training you endure and training you finish.
-      </p>
-      <a class="cy-btn cy-btn--ghost cy-btn--block-sm"
-         href="{% url 'authentication:register' %}">Start earning points</a>
-    </div>
-
-    {% comment %} Sample figures — Sprint 4 wires these to the real profile. {% endcomment %}
-    <div class="cy-teaser__stack" aria-hidden="true">
-      <div style="display: flex; align-items: center; gap: 1rem;">
-        <div class="cy-level" style="--cy-level-progress: 68;">
-          <div class="cy-level__inner">
-            <span class="cy-level__label">Level</span>
-            <span class="cy-level__value">4</span>
+        <!-- a glowing module tile -->
+        <div class="cy-float cy-scene__card">
+          <div class="cy-module cy-module--unlocked" style="--cy-tile-a:#9b7bf8; --cy-tile-b:#22d3ee;">
+            <div class="cy-module__banner">
+              <div class="cy-module__banner-inner">
+                <span class="cy-module__index">MODULE 01</span>
+                <span class="cy-module__glyph">
+                  <svg class="cy-i" aria-hidden="true"><use href="#i-mail"/></svg>
+                </span>
+              </div>
+            </div>
+            <div class="cy-module__body">
+              <h3 class="cy-module__title">Spotting a scam email</h3>
+              <div class="cy-progress-row">
+                <div class="cy-progress">
+                  <div class="cy-progress__fill" style="--cy-value: 75%; --cy-delay: 0.5s;"></div>
+                </div>
+                <span class="cy-progress-row__value">3/4</span>
+              </div>
+            </div>
           </div>
         </div>
-        <div style="display: flex; flex-direction: column; gap: 0.6rem;">
-          <span class="cy-stat cy-stat--points">
-            <span class="cy-stat__icon">⬢</span>
-            <span class="cy-stat__value">1,240</span>
-            <span class="cy-stat__label">points</span>
-          </span>
-          <span class="cy-streak">
-            <span class="cy-streak__flame">🔥</span>
-            <span class="cy-streak__value">7</span>
-            <span class="cy-streak__label">day streak</span>
-          </span>
+
+        <!-- level badge -->
+        <div class="cy-float cy-scene__level">
+          <div class="cy-panel">
+            <div class="cy-level cy-level--lg" style="--cy-level-progress: 68;">
+              <div class="cy-level__inner">
+                <span class="cy-level__label">Level</span>
+                <span class="cy-level__value">4</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- XP bar, mid-fill -->
+        <div class="cy-float cy-scene__xp">
+          <div class="cy-panel">
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:0.6rem;">
+              <span class="cy-stat__label">Points</span>
+              <span class="cy-stat__value" style="color: var(--cy-violet-soft);">1,240</span>
+            </div>
+            <div class="cy-progress">
+              <div class="cy-progress__fill" style="--cy-value: 68%; --cy-delay: 0.75s;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- streak -->
+        <div class="cy-float cy-scene__streak">
+          <div class="cy-panel" style="padding: 0.7rem 0.9rem;">
+            <span class="cy-streak" style="border:0; background:none; padding:0;">
+              <span class="cy-streak__flame">
+                <svg class="cy-i" aria-hidden="true"><use href="#i-flame"/></svg>
+              </span>
+              <span class="cy-streak__value">7</span>
+              <span class="cy-streak__label">day streak</span>
+            </span>
+          </div>
         </div>
       </div>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ================= HOW IT WORKS ================= -->
+<section class="cy-band cy-band--raised" id="how">
+  <div class="cy-wrap">
+    <div class="cy-section__head">
+      <h2 class="cy-section__title">How it works</h2>
+      <p class="cy-section__lede">
+        Three steps. You can finish a whole module on your lunch break.
+      </p>
+    </div>
+
+    <div class="cy-steps">
+      <article class="cy-step cy-rise">
+        <span class="cy-step__num">01</span>
+        <div class="cy-step__icon">
+          <svg class="cy-i" aria-hidden="true"><use href="#i-book"/></svg>
+        </div>
+        <h3 class="cy-step__title">Learn</h3>
+        <p class="cy-step__text">
+          Short lessons in plain English, built around the scams that actually
+          turn up in Australian inboxes — not textbook theory.
+        </p>
+      </article>
+
+      <article class="cy-step cy-rise" style="--cy-delay: 0.09s;">
+        <span class="cy-step__num">02</span>
+        <div class="cy-step__icon">
+          <svg class="cy-i" aria-hidden="true"><use href="#i-target"/></svg>
+        </div>
+        <h3 class="cy-step__title">Practise</h3>
+        <p class="cy-step__text">
+          Try it in a safe simulation and see what happens. Far better to make
+          the mistake here than in your real inbox.
+        </p>
+      </article>
+
+      <article class="cy-step cy-rise" style="--cy-delay: 0.18s;">
+        <span class="cy-step__num">03</span>
+        <div class="cy-step__icon">
+          <svg class="cy-i" aria-hidden="true"><use href="#i-award"/></svg>
+        </div>
+        <h3 class="cy-step__title">Earn your certificate</h3>
+        <p class="cy-step__text">
+          Pass the quizzes and get a certificate you can share with your team,
+          your board, or your auditor.
+        </p>
+      </article>
+    </div>
+  </div>
+</section>
+
+
+<!-- ================= REWARDS SHOWCASE ================= -->
+<section class="cy-band cy-band--bloom" id="rewards">
+  <div class="cy-wrap">
+    <div class="cy-showcase">
 
       <div>
-        <div class="cy-progress-row" style="margin-bottom: 0.5rem;">
-          <div class="cy-progress">
-            <div class="cy-progress__fill" style="--cy-value: 68%;"></div>
-          </div>
-          <span class="cy-progress-row__value">68%</span>
+        <span class="cy-eyebrow">
+          <span class="cy-eyebrow__dot" aria-hidden="true"></span>
+          Rewards
+        </span>
+        <h2 class="cy-section__title">Progress you can actually see</h2>
+        <p class="cy-section__lede">
+          Training people abandon is training that changed nothing. So every
+          lesson moves something visible.
+        </p>
+
+        <ul class="cy-showcase__list">
+          <li class="cy-showcase__item">
+            <span class="cy-showcase__tick">
+              <svg class="cy-i" aria-hidden="true"><use href="#i-check-circle"/></svg>
+            </span>
+            <span><strong>Points for every lesson.</strong> Ten a lesson, fifty for a
+            quiz you pass. They add up faster than you'd think.</span>
+          </li>
+          <li class="cy-showcase__item">
+            <span class="cy-showcase__tick">
+              <svg class="cy-i" aria-hidden="true"><use href="#i-check-circle"/></svg>
+            </span>
+            <span><strong>Levels that mean something.</strong> The ring fills as you go,
+            so you always know how close the next one is.</span>
+          </li>
+          <li class="cy-showcase__item">
+            <span class="cy-showcase__tick">
+              <svg class="cy-i" aria-hidden="true"><use href="#i-check-circle"/></svg>
+            </span>
+            <span><strong>Streaks for coming back.</strong> Ten minutes a day beats three
+            hours once — and your streak keeps score.</span>
+          </li>
+          <li class="cy-showcase__item">
+            <span class="cy-showcase__tick">
+              <svg class="cy-i" aria-hidden="true"><use href="#i-check-circle"/></svg>
+            </span>
+            <span><strong>Badges worth earning.</strong> You can see the locked ones, so
+            you always know what's next.</span>
+          </li>
+        </ul>
+
+        <div style="margin-top: 2.25rem;">
+          <a class="cy-btn cy-btn--primary cy-btn--block-sm" href="{% url 'authentication:register' %}">
+            Start earning points
+            <svg class="cy-i" aria-hidden="true"><use href="#i-arrow-right"/></svg>
+          </a>
         </div>
-        <span class="cy-hint">760 points to level 5</span>
       </div>
 
-      <div class="cy-badges">
-        <div class="cy-badge cy-badge--earned">
-          <div class="cy-badge__medal">🎯</div>
-          <span class="cy-badge__name">First quiz passed</span>
+      {% comment %}
+        Sample figures illustrating the system — not anyone's real record.
+        Sprint 4 wires the live versions to UserProfile.
+      {% endcomment %}
+      <div class="cy-showcase__panel cy-rise" style="--cy-delay: 0.1s;" aria-hidden="true">
+        <div class="cy-showcase__row">
+          <div class="cy-level cy-level--lg" style="--cy-level-progress: 68;">
+            <div class="cy-level__inner">
+              <span class="cy-level__label">Level</span>
+              <span class="cy-level__value">4</span>
+            </div>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:0.6rem;">
+            <span class="cy-stat cy-stat--points">
+              <span class="cy-stat__icon">
+                <svg class="cy-i" aria-hidden="true"><use href="#i-hex"/></svg>
+              </span>
+              <span class="cy-stat__value">1,240</span>
+              <span class="cy-stat__label">points</span>
+            </span>
+            <span class="cy-streak">
+              <span class="cy-streak__flame">
+                <svg class="cy-i" aria-hidden="true"><use href="#i-flame"/></svg>
+              </span>
+              <span class="cy-streak__value">7</span>
+              <span class="cy-streak__label">day streak</span>
+            </span>
+          </div>
         </div>
-        <div class="cy-badge cy-badge--earned">
-          <div class="cy-badge__medal">🔥</div>
-          <span class="cy-badge__name">7 day streak</span>
+
+        <div>
+          <div class="cy-progress-row" style="margin-bottom: 0.5rem;">
+            <div class="cy-progress">
+              <div class="cy-progress__fill" style="--cy-value: 68%;"></div>
+            </div>
+            <span class="cy-progress-row__value">68%</span>
+          </div>
+          <span class="cy-hint">760 points to level 5</span>
         </div>
-        <div class="cy-badge cy-badge--locked">
-          <div class="cy-badge__medal">🛡️</div>
-          <span class="cy-badge__name">All modules done</span>
+
+        <hr class="cy-divider">
+
+        <div class="cy-badges">
+          <div class="cy-badge cy-badge--earned">
+            <div class="cy-badge__medal">
+              <svg class="cy-i" aria-hidden="true"><use href="#i-target"/></svg>
+            </div>
+            <span class="cy-badge__name">First quiz passed</span>
+          </div>
+          <div class="cy-badge cy-badge--earned">
+            <div class="cy-badge__medal">
+              <svg class="cy-i" aria-hidden="true"><use href="#i-book"/></svg>
+            </div>
+            <span class="cy-badge__name">Module 1 done</span>
+          </div>
+          <div class="cy-badge cy-badge--earned cy-badge--gold">
+            <div class="cy-badge__medal">
+              <svg class="cy-i" aria-hidden="true"><use href="#i-flame"/></svg>
+            </div>
+            <span class="cy-badge__name">7 day streak</span>
+          </div>
+          <div class="cy-badge cy-badge--locked">
+            <div class="cy-badge__medal">
+              <svg class="cy-i" aria-hidden="true"><use href="#i-shield"/></svg>
+            </div>
+            <span class="cy-badge__name">All modules done</span>
+          </div>
         </div>
       </div>
+
     </div>
   </div>
 </section>
 
 
-<!-- ============ MODULES ============ -->
-<section class="cy-section">
-  <div class="cy-section__head">
-    <h2 class="cy-section__title">What you'll cover</h2>
-    <p class="cy-section__lede">
-      Six modules, in order. Each one builds on the last, so you always know
-      what to do next.
-    </p>
-  </div>
-
-  {% comment %} Placeholder titles — Sprint 2 replaces this with real Modules. {% endcomment %}
-  <div class="cy-map">
-    <article class="cy-module cy-module--unlocked cy-rise">
-      <div class="cy-module__top">
-        <span class="cy-node cy-node--current">1</span>
-        <span class="cy-chip cy-chip--active">Start here</span>
-      </div>
-      <h3 class="cy-module__title">Spotting a scam email</h3>
-      <p class="cy-module__desc">
-        The tells that give a fake away — and the one habit that catches most
-        of them.
+<!-- ================= MODULES ================= -->
+<section class="cy-band cy-band--raised" id="modules">
+  <div class="cy-wrap">
+    <div class="cy-section__head">
+      <h2 class="cy-section__title">What you'll cover</h2>
+      <p class="cy-section__lede">
+        Six modules, in order. Each builds on the last, so you always know what
+        to do next — and you're never staring at a menu wondering where to start.
       </p>
-    </article>
+    </div>
 
-    <article class="cy-module cy-module--unlocked cy-rise" style="--cy-delay: 0.06s;">
-      <div class="cy-module__top">
-        <span class="cy-node">2</span>
-        <span class="cy-chip cy-chip--locked">🔒 Locked</span>
-      </div>
-      <h3 class="cy-module__title">Strong passwords made easy</h3>
-      <p class="cy-module__desc">
-        A different password everywhere, without remembering a single one.
-      </p>
-    </article>
+    {% comment %}
+      Placeholder titles and hues — Sprint 2 replaces these with real Modules.
+      Each tile carries its own --cy-tile-a/b so the six are distinguishable at
+      a glance without needing a legend.
+    {% endcomment %}
+    <div class="cy-map">
 
-    <article class="cy-module cy-module--unlocked cy-rise" style="--cy-delay: 0.12s;">
-      <div class="cy-module__top">
-        <span class="cy-node">3</span>
-        <span class="cy-chip cy-chip--locked">🔒 Locked</span>
-      </div>
-      <h3 class="cy-module__title">Keeping devices updated</h3>
-      <p class="cy-module__desc">
-        Why "remind me tomorrow" is the most expensive button on your phone.
-      </p>
-    </article>
+      <article class="cy-module cy-module--unlocked cy-rise" style="--cy-tile-a:#9b7bf8; --cy-tile-b:#22d3ee;">
+        <div class="cy-module__banner">
+          <div class="cy-module__banner-inner">
+            <span class="cy-module__index">MODULE 01</span>
+            <span class="cy-module__glyph"><svg class="cy-i" aria-hidden="true"><use href="#i-mail"/></svg></span>
+          </div>
+        </div>
+        <div class="cy-module__body">
+          <div><span class="cy-chip cy-chip--active">Start here</span></div>
+          <h3 class="cy-module__title">Spotting a scam email</h3>
+          <p class="cy-module__desc">
+            The tells that give a fake away — and the one habit that catches most
+            of them.
+          </p>
+        </div>
+      </article>
 
-    <article class="cy-module cy-module--unlocked cy-rise" style="--cy-delay: 0.18s;">
-      <div class="cy-module__top">
-        <span class="cy-node">4</span>
-        <span class="cy-chip cy-chip--locked">🔒 Locked</span>
-      </div>
-      <h3 class="cy-module__title">Safe browsing and public wi-fi</h3>
-      <p class="cy-module__desc">
-        What's safe to do at the café, and what can wait until you're back.
-      </p>
-    </article>
+      <article class="cy-module cy-module--locked cy-rise" style="--cy-delay:0.06s; --cy-tile-a:#7c5cf0; --cy-tile-b:#4fb8f5;">
+        <div class="cy-module__banner">
+          <div class="cy-module__banner-inner">
+            <span class="cy-module__index">MODULE 02</span>
+            <span class="cy-module__glyph"><svg class="cy-i" aria-hidden="true"><use href="#i-lock"/></svg></span>
+          </div>
+        </div>
+        <div class="cy-module__body">
+          <div>
+            <span class="cy-chip cy-chip--locked">
+              <svg class="cy-i" aria-hidden="true"><use href="#i-lock"/></svg> Locked
+            </span>
+          </div>
+          <h3 class="cy-module__title">Strong passwords made easy</h3>
+          <p class="cy-module__desc">
+            A different password everywhere, without remembering a single one.
+          </p>
+        </div>
+      </article>
 
-    <article class="cy-module cy-module--unlocked cy-rise" style="--cy-delay: 0.24s;">
-      <div class="cy-module__top">
-        <span class="cy-node">5</span>
-        <span class="cy-chip cy-chip--locked">🔒 Locked</span>
-      </div>
-      <h3 class="cy-module__title">Protecting customer information</h3>
-      <p class="cy-module__desc">
-        What you're responsible for, in plain English, and how to hold up your
-        end.
-      </p>
-    </article>
+      <article class="cy-module cy-module--locked cy-rise" style="--cy-delay:0.12s; --cy-tile-a:#a86af0; --cy-tile-b:#22d3ee;">
+        <div class="cy-module__banner">
+          <div class="cy-module__banner-inner">
+            <span class="cy-module__index">MODULE 03</span>
+            <span class="cy-module__glyph"><svg class="cy-i" aria-hidden="true"><use href="#i-bolt"/></svg></span>
+          </div>
+        </div>
+        <div class="cy-module__body">
+          <div>
+            <span class="cy-chip cy-chip--locked">
+              <svg class="cy-i" aria-hidden="true"><use href="#i-lock"/></svg> Locked
+            </span>
+          </div>
+          <h3 class="cy-module__title">Keeping devices updated</h3>
+          <p class="cy-module__desc">
+            Why "remind me tomorrow" is the most expensive button on your phone.
+          </p>
+        </div>
+      </article>
 
-    <article class="cy-module cy-module--unlocked cy-rise" style="--cy-delay: 0.3s;">
-      <div class="cy-module__top">
-        <span class="cy-node">6</span>
-        <span class="cy-chip cy-chip--locked">🔒 Locked</span>
-      </div>
-      <h3 class="cy-module__title">If something goes wrong</h3>
-      <p class="cy-module__desc">
-        Who to call, what to do first, and how to limit the damage calmly.
-      </p>
-    </article>
+      <article class="cy-module cy-module--locked cy-rise" style="--cy-delay:0.18s; --cy-tile-a:#6d7bf5; --cy-tile-b:#35d6f0;">
+        <div class="cy-module__banner">
+          <div class="cy-module__banner-inner">
+            <span class="cy-module__index">MODULE 04</span>
+            <span class="cy-module__glyph"><svg class="cy-i" aria-hidden="true"><use href="#i-target"/></svg></span>
+          </div>
+        </div>
+        <div class="cy-module__body">
+          <div>
+            <span class="cy-chip cy-chip--locked">
+              <svg class="cy-i" aria-hidden="true"><use href="#i-lock"/></svg> Locked
+            </span>
+          </div>
+          <h3 class="cy-module__title">Safe browsing and public wi-fi</h3>
+          <p class="cy-module__desc">
+            What's safe to do at the café, and what can wait until you're back.
+          </p>
+        </div>
+      </article>
+
+      <article class="cy-module cy-module--locked cy-rise" style="--cy-delay:0.24s; --cy-tile-a:#b45cf0; --cy-tile-b:#5b8df5;">
+        <div class="cy-module__banner">
+          <div class="cy-module__banner-inner">
+            <span class="cy-module__index">MODULE 05</span>
+            <span class="cy-module__glyph"><svg class="cy-i" aria-hidden="true"><use href="#i-shield"/></svg></span>
+          </div>
+        </div>
+        <div class="cy-module__body">
+          <div>
+            <span class="cy-chip cy-chip--locked">
+              <svg class="cy-i" aria-hidden="true"><use href="#i-lock"/></svg> Locked
+            </span>
+          </div>
+          <h3 class="cy-module__title">Protecting customer information</h3>
+          <p class="cy-module__desc">
+            What you're responsible for, in plain English, and how to hold up
+            your end.
+          </p>
+        </div>
+      </article>
+
+      <article class="cy-module cy-module--locked cy-rise" style="--cy-delay:0.3s; --cy-tile-a:#8b5cf6; --cy-tile-b:#67e8f9;">
+        <div class="cy-module__banner">
+          <div class="cy-module__banner-inner">
+            <span class="cy-module__index">MODULE 06</span>
+            <span class="cy-module__glyph"><svg class="cy-i" aria-hidden="true"><use href="#i-clock"/></svg></span>
+          </div>
+        </div>
+        <div class="cy-module__body">
+          <div>
+            <span class="cy-chip cy-chip--locked">
+              <svg class="cy-i" aria-hidden="true"><use href="#i-lock"/></svg> Locked
+            </span>
+          </div>
+          <h3 class="cy-module__title">If something goes wrong</h3>
+          <p class="cy-module__desc">
+            Who to call, what to do first, and how to limit the damage calmly.
+          </p>
+        </div>
+      </article>
+
+    </div>
   </div>
 </section>
 
 
-<!-- ============ CLOSE ============ -->
-<section class="cy-section" style="padding-bottom: 1rem;">
-  <div class="cy-card" style="text-align: center;">
+<!-- ================= CLOSE ================= -->
+<section class="cy-band">
+  <div class="cy-wrap cy-wrap--narrow" style="text-align: center;">
     <h2 class="cy-section__title">Ready when you are</h2>
-    <p class="cy-section__lede" style="margin: 0 auto 1.75rem;">
+    <p class="cy-section__lede" style="margin: 0 auto 2.25rem;">
       Start with module one. It takes about ten minutes.
     </p>
     <a class="cy-btn cy-btn--primary" href="{% url 'authentication:register' %}">
       Get started
+      <svg class="cy-i" aria-hidden="true"><use href="#i-arrow-right"/></svg>
     </a>
   </div>
 </section>

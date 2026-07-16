@@ -98,6 +98,67 @@ def test_dashboard_renders_clean(client):
     assert_renders_clean(client.get(reverse("dashboard")).content.decode(), "dashboard")
 
 
+# --------------------------------------------------------------------------
+# Styleguide
+# --------------------------------------------------------------------------
+
+
+def render_styleguide():
+    """Render the styleguide template directly.
+
+    It can't be fetched by URL in tests: the route is registered only when
+    settings.DEBUG is true, and the test runner forces it false — so the
+    styleguide 404s here by design. Rendering the template is what actually
+    matters anyway; it shipped once with an invented `split` filter that raised
+    on every render, and no test noticed because no test rendered it.
+    """
+    from django.template.loader import render_to_string
+    from django.test import RequestFactory
+
+    request = RequestFactory().get("/styleguide/")
+    return render_to_string("styleguide.html", request=request)
+
+
+@pytest.mark.django_db
+def test_styleguide_template_renders():
+    assert "Component library" in render_styleguide()
+
+
+@pytest.mark.django_db
+def test_styleguide_renders_clean():
+    assert_renders_clean(render_styleguide(), "styleguide")
+
+
+# --------------------------------------------------------------------------
+# No emoji anywhere
+# --------------------------------------------------------------------------
+
+
+@pytest.mark.django_db
+def test_no_emoji_in_any_rendered_screen(client):
+    """Icons are one SVG family; emoji render differently on every platform and
+    would break the visual system the moment a user opened it on Windows."""
+    import re
+
+    user = User.objects.create_user(email="student@example.com", password="x" * 14)
+
+    pages = {
+        "landing": client.get(reverse("landing")).content.decode(),
+        "register": client.get(reverse("authentication:register")).content.decode(),
+        "styleguide": render_styleguide(),
+    }
+    client.force_login(user)
+    pages["dashboard"] = client.get(reverse("dashboard")).content.decode()
+
+    # Pictographs, emoticons, transport/map, dingbats, misc symbols.
+    emoji = re.compile(
+        "[\U0001F300-\U0001FAFF\U00002600-\U000027BF\U0001F1E6-\U0001F1FF⬀-⯿️]"
+    )
+    for name, html in pages.items():
+        found = emoji.findall(html)
+        assert not found, f"{name}: emoji found {set(found)} — use an icon from _icons.html"
+
+
 @pytest.mark.django_db
 def test_dashboard_offers_exactly_one_primary_action(client):
     """One obvious action per screen is the rule the whole design rests on.

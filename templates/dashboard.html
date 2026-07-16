@@ -11,234 +11,289 @@
   data — a dashboard that starts life unprotected tends to stay that way, and
   CLAUDE.md is explicit that every view carries its own auth check.
 
-  Structure follows one rule: the learner should never have to decide what to
-  do next. The HUD says who they are, "Continue" says what to do, and the map
-  says where it sits in the journey. Everything else is reference.
+  One rule drives the layout: the learner should never have to decide what to
+  do next. The HUD says who they are, "Continue" says what to do, the map says
+  where it sits. Everything else is reference.
 {% endcomment %}
 
 {% block title %}Your dashboard — {{ site_name }}{% endblock %}
 
+{% comment %} Logged in: the marketing nav would be noise. {% endcomment %}
+{% block nav_links %}{% endblock %}
+{% block nav_actions %}
+  <a class="cy-btn cy-btn--quiet cy-btn--sm" href="{% url 'landing' %}">Log out</a>
+{% endblock %}
+
 {% block content %}
+<div class="cy-wrap">
 
-<!-- ============ HUD ============ -->
-<section class="cy-hud cy-rise" style="margin-bottom: 1.25rem;">
-  <div class="cy-hud__row">
-    <div class="cy-hud__identity">
-      <div class="cy-level" style="--cy-level-progress: 68;">
-        <div class="cy-level__inner">
-          <span class="cy-level__label">Level</span>
-          <span class="cy-level__value">4</span>
+  <!-- ============ HUD ============ -->
+  <section class="cy-showcase__panel cy-rise" style="margin-bottom: 1.25rem;">
+    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1.5rem;">
+      <div style="display:flex; align-items:center; gap:1.15rem;">
+        <div class="cy-level cy-level--lg" style="--cy-level-progress: 68;">
+          <div class="cy-level__inner">
+            <span class="cy-level__label">Level</span>
+            <span class="cy-level__value">4</span>
+          </div>
+        </div>
+        <div>
+          <p style="color: var(--cy-text-3); font-size: 0.9rem; margin: 0;">Welcome back</p>
+          <p style="font-size: 1.5rem; font-weight: 700; letter-spacing: -0.025em; margin: 0;">Meredith</p>
         </div>
       </div>
-      <div>
-        <p class="cy-hud__greet">Welcome back</p>
-        <p class="cy-hud__name">Meredith</p>
+
+      <div style="display:flex; flex-wrap:wrap; gap:0.75rem;">
+        <span class="cy-stat cy-stat--points">
+          <span class="cy-stat__icon">
+            <svg class="cy-i" aria-hidden="true"><use href="#i-hex"/></svg>
+          </span>
+          <span class="cy-stat__value">1,240</span>
+          <span class="cy-stat__label">points</span>
+        </span>
+        <span class="cy-streak">
+          <span class="cy-streak__flame">
+            <svg class="cy-i" aria-hidden="true"><use href="#i-flame"/></svg>
+          </span>
+          <span class="cy-streak__value">7</span>
+          <span class="cy-streak__label">day streak</span>
+        </span>
+        <span class="cy-stat">
+          <span class="cy-stat__icon">
+            <svg class="cy-i" aria-hidden="true"><use href="#i-layers"/></svg>
+          </span>
+          <span class="cy-stat__value">1</span>
+          <span class="cy-stat__label">of 6 modules</span>
+        </span>
       </div>
     </div>
 
-    <div class="cy-hud__stats">
-      <span class="cy-stat cy-stat--points">
-        <span class="cy-stat__icon" aria-hidden="true">⬢</span>
-        <span class="cy-stat__value">1,240</span>
-        <span class="cy-stat__label">points</span>
-      </span>
-      <span class="cy-streak">
-        <span class="cy-streak__flame" aria-hidden="true">🔥</span>
-        <span class="cy-streak__value">7</span>
-        <span class="cy-streak__label">day streak</span>
-      </span>
-      <span class="cy-stat">
-        <span class="cy-stat__icon" aria-hidden="true">✔</span>
-        <span class="cy-stat__value">1</span>
-        <span class="cy-stat__label">of 6 modules</span>
-      </span>
-    </div>
-  </div>
+    <hr class="cy-divider">
 
-  <div class="cy-hud__next">
-    <div class="cy-progress-row">
-      <div class="cy-progress">
-        <div class="cy-progress__fill" style="--cy-value: 68%;"></div>
-      </div>
-      <span class="cy-progress-row__value">68%</span>
-    </div>
-    <span class="cy-hint" style="margin-top: 0.5rem;">760 points to level 5</span>
-  </div>
-</section>
-
-
-<!-- ============ THE ONE OBVIOUS ACTION ============ -->
-<section class="cy-card cy-rise" style="--cy-delay: 0.08s; margin-bottom: 2.5rem;">
-  <div class="cy-continue">
-    <div class="cy-continue__body">
-      <p class="cy-continue__label">Continue where you left off</p>
-      <p class="cy-continue__title">Module 2 · Lesson 3 — Why length beats complexity</p>
-      <div class="cy-progress-row" style="max-width: 26rem;">
-        <div class="cy-progress">
-          <div class="cy-progress__fill" style="--cy-value: 50%;"></div>
-        </div>
-        <span class="cy-progress-row__value">2/4</span>
-      </div>
-    </div>
-
-    {% comment %}
-      The only primary button on the page. Everything else is a ghost or a
-      card — so there is never a question about what to click.
-    {% endcomment %}
-    <a class="cy-btn cy-btn--primary cy-btn--block-sm" href="#">
-      Continue · 6 min left
-    </a>
-  </div>
-</section>
-
-
-<!-- ============ MISSION MAP ============ -->
-<section>
-  <div class="cy-section__head">
-    <h2 class="cy-section__title" style="font-size: 1.4rem;">Your modules</h2>
-    <p class="cy-section__lede">
-      Finish one to unlock the next. No need to decide where to go — the next
-      step is always the one that's open.
-    </p>
-  </div>
-
-  <div class="cy-map">
-
-    <article class="cy-module cy-module--unlocked cy-module--complete cy-rise" style="--cy-delay: 0.1s;">
-      <div class="cy-module__top">
-        <span class="cy-node cy-node--done">✓</span>
-        <span class="cy-chip cy-chip--complete">Complete</span>
-      </div>
-      <h3 class="cy-module__title">Spotting a scam email</h3>
-      <p class="cy-module__desc">Passed with 90%. Revisit any time.</p>
+    <div>
       <div class="cy-progress-row">
         <div class="cy-progress">
-          <div class="cy-progress__fill" style="--cy-value: 100%;"></div>
+          <div class="cy-progress__fill" style="--cy-value: 68%;"></div>
         </div>
-        <span class="cy-progress-row__value">4/4</span>
+        <span class="cy-progress-row__value">68%</span>
       </div>
-    </article>
+      <span class="cy-hint" style="margin-top: 0.5rem;">760 points to level 5</span>
+    </div>
+  </section>
 
-    <article class="cy-module cy-module--unlocked cy-rise" style="--cy-delay: 0.16s;">
-      <div class="cy-module__top">
-        <span class="cy-node cy-node--current">2</span>
-        <span class="cy-chip cy-chip--active">In progress</span>
+
+  <!-- ============ THE ONE OBVIOUS ACTION ============ -->
+  <section class="cy-card cy-rise" style="--cy-delay: 0.08s; margin-bottom: 3rem;">
+    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1.5rem;">
+      <div style="flex: 1 1 20rem;">
+        <p style="color: var(--cy-violet-soft); font-size: 0.78rem; font-weight: 500; letter-spacing: 0.1em; margin-bottom: 0.3rem; text-transform: uppercase;">
+          Continue where you left off
+        </p>
+        <p style="font-size: 1.25rem; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 0.75rem;">
+          Module 2 · Lesson 3 — Why length beats complexity
+        </p>
+        <div class="cy-progress-row" style="max-width: 26rem;">
+          <div class="cy-progress">
+            <div class="cy-progress__fill" style="--cy-value: 50%;"></div>
+          </div>
+          <span class="cy-progress-row__value">2/4</span>
+        </div>
       </div>
-      <h3 class="cy-module__title">Strong passwords made easy</h3>
-      <p class="cy-module__desc">
-        A different password everywhere, without remembering a single one.
+
+      {% comment %}
+        The only primary button on the page. Everything else is a ghost or a
+        tile — so there is never a question about what to click.
+      {% endcomment %}
+      <a class="cy-btn cy-btn--primary cy-btn--block-sm" href="#">
+        Continue · 6 min left
+        <svg class="cy-i" aria-hidden="true"><use href="#i-arrow-right"/></svg>
+      </a>
+    </div>
+  </section>
+
+
+  <!-- ============ MISSION MAP ============ -->
+  <section>
+    <div class="cy-section__head" style="margin-bottom: 1.75rem;">
+      <h2 class="cy-section__title" style="font-size: 1.5rem;">Your modules</h2>
+      <p class="cy-section__lede" style="font-size: 1rem;">
+        Finish one to unlock the next. The next step is always the one that's open.
       </p>
-      <div class="cy-progress-row">
-        <div class="cy-progress">
-          <div class="cy-progress__fill" style="--cy-value: 50%;"></div>
+    </div>
+
+    <div class="cy-map">
+
+      <article class="cy-module cy-module--unlocked cy-module--complete cy-rise"
+               style="--cy-delay:0.1s; --cy-tile-a:#9b7bf8; --cy-tile-b:#22d3ee;">
+        <div class="cy-module__banner">
+          <div class="cy-module__banner-inner">
+            <span class="cy-module__index">MODULE 01</span>
+            <span class="cy-module__glyph"><svg class="cy-i" aria-hidden="true"><use href="#i-mail"/></svg></span>
+          </div>
         </div>
-        <span class="cy-progress-row__value">2/4</span>
-      </div>
-    </article>
-
-    {% comment %}
-      Locked cards say *how* to unlock, not merely that they're locked. And
-      they don't lift on hover — the absence of a response is the message, so
-      no tooltip is needed to explain it.
-    {% endcomment %}
-    <article class="cy-module cy-module--locked cy-rise" style="--cy-delay: 0.22s;">
-      <div class="cy-module__top">
-        <span class="cy-node">3</span>
-        <span class="cy-chip cy-chip--locked">🔒 Locked</span>
-      </div>
-      <h3 class="cy-module__title">Keeping devices updated</h3>
-      <p class="cy-module__desc">Finish module 2 to unlock this one.</p>
-      <div class="cy-progress-row">
-        <div class="cy-progress">
-          <div class="cy-progress__fill" style="--cy-value: 0%;"></div>
+        <div class="cy-module__body">
+          <div>
+            <span class="cy-chip cy-chip--complete">
+              <svg class="cy-i" aria-hidden="true"><use href="#i-check"/></svg> Complete
+            </span>
+          </div>
+          <h3 class="cy-module__title">Spotting a scam email</h3>
+          <p class="cy-module__desc">Passed with 90%. Revisit any time.</p>
+          <div class="cy-progress-row">
+            <div class="cy-progress">
+              <div class="cy-progress__fill" style="--cy-value: 100%; --cy-delay: 0.3s;"></div>
+            </div>
+            <span class="cy-progress-row__value">4/4</span>
+          </div>
         </div>
-        <span class="cy-progress-row__value">0/4</span>
-      </div>
-    </article>
+      </article>
 
-    <article class="cy-module cy-module--locked cy-rise" style="--cy-delay: 0.28s;">
-      <div class="cy-module__top">
-        <span class="cy-node">4</span>
-        <span class="cy-chip cy-chip--locked">🔒 Locked</span>
-      </div>
-      <h3 class="cy-module__title">Safe browsing and public wi-fi</h3>
-      <p class="cy-module__desc">Finish module 3 to unlock this one.</p>
-      <div class="cy-progress-row">
-        <div class="cy-progress">
-          <div class="cy-progress__fill" style="--cy-value: 0%;"></div>
+      <article class="cy-module cy-module--unlocked cy-rise"
+               style="--cy-delay:0.16s; --cy-tile-a:#7c5cf0; --cy-tile-b:#4fb8f5;">
+        <div class="cy-module__banner">
+          <div class="cy-module__banner-inner">
+            <span class="cy-module__index">MODULE 02</span>
+            <span class="cy-module__glyph"><svg class="cy-i" aria-hidden="true"><use href="#i-lock"/></svg></span>
+          </div>
         </div>
-        <span class="cy-progress-row__value">0/4</span>
-      </div>
-    </article>
-
-    <article class="cy-module cy-module--locked cy-rise" style="--cy-delay: 0.34s;">
-      <div class="cy-module__top">
-        <span class="cy-node">5</span>
-        <span class="cy-chip cy-chip--locked">🔒 Locked</span>
-      </div>
-      <h3 class="cy-module__title">Protecting customer information</h3>
-      <p class="cy-module__desc">Finish module 4 to unlock this one.</p>
-      <div class="cy-progress-row">
-        <div class="cy-progress">
-          <div class="cy-progress__fill" style="--cy-value: 0%;"></div>
+        <div class="cy-module__body">
+          <div><span class="cy-chip cy-chip--active">In progress</span></div>
+          <h3 class="cy-module__title">Strong passwords made easy</h3>
+          <p class="cy-module__desc">
+            A different password everywhere, without remembering a single one.
+          </p>
+          <div class="cy-progress-row">
+            <div class="cy-progress">
+              <div class="cy-progress__fill" style="--cy-value: 50%; --cy-delay: 0.4s;"></div>
+            </div>
+            <span class="cy-progress-row__value">2/4</span>
+          </div>
         </div>
-        <span class="cy-progress-row__value">0/4</span>
-      </div>
-    </article>
+      </article>
 
-    <article class="cy-module cy-module--locked cy-rise" style="--cy-delay: 0.4s;">
-      <div class="cy-module__top">
-        <span class="cy-node">6</span>
-        <span class="cy-chip cy-chip--locked">🔒 Locked</span>
-      </div>
-      <h3 class="cy-module__title">If something goes wrong</h3>
-      <p class="cy-module__desc">Finish module 5 to unlock this one.</p>
-      <div class="cy-progress-row">
-        <div class="cy-progress">
-          <div class="cy-progress__fill" style="--cy-value: 0%;"></div>
+      {% comment %}
+        Locked tiles say *how* to unlock, not merely that they're locked. And
+        they don't lift on hover — the absence of a response is the message, so
+        no tooltip is needed to explain it.
+      {% endcomment %}
+      <article class="cy-module cy-module--locked cy-rise"
+               style="--cy-delay:0.22s; --cy-tile-a:#a86af0; --cy-tile-b:#22d3ee;">
+        <div class="cy-module__banner">
+          <div class="cy-module__banner-inner">
+            <span class="cy-module__index">MODULE 03</span>
+            <span class="cy-module__glyph"><svg class="cy-i" aria-hidden="true"><use href="#i-bolt"/></svg></span>
+          </div>
         </div>
-        <span class="cy-progress-row__value">0/4</span>
-      </div>
-    </article>
-  </div>
-</section>
+        <div class="cy-module__body">
+          <div>
+            <span class="cy-chip cy-chip--locked">
+              <svg class="cy-i" aria-hidden="true"><use href="#i-lock"/></svg> Locked
+            </span>
+          </div>
+          <h3 class="cy-module__title">Keeping devices updated</h3>
+          <p class="cy-module__desc">Finish module 2 to unlock this one.</p>
+        </div>
+      </article>
+
+      <article class="cy-module cy-module--locked cy-rise"
+               style="--cy-delay:0.28s; --cy-tile-a:#6d7bf5; --cy-tile-b:#35d6f0;">
+        <div class="cy-module__banner">
+          <div class="cy-module__banner-inner">
+            <span class="cy-module__index">MODULE 04</span>
+            <span class="cy-module__glyph"><svg class="cy-i" aria-hidden="true"><use href="#i-target"/></svg></span>
+          </div>
+        </div>
+        <div class="cy-module__body">
+          <div>
+            <span class="cy-chip cy-chip--locked">
+              <svg class="cy-i" aria-hidden="true"><use href="#i-lock"/></svg> Locked
+            </span>
+          </div>
+          <h3 class="cy-module__title">Safe browsing and public wi-fi</h3>
+          <p class="cy-module__desc">Finish module 3 to unlock this one.</p>
+        </div>
+      </article>
+
+      <article class="cy-module cy-module--locked cy-rise"
+               style="--cy-delay:0.34s; --cy-tile-a:#b45cf0; --cy-tile-b:#5b8df5;">
+        <div class="cy-module__banner">
+          <div class="cy-module__banner-inner">
+            <span class="cy-module__index">MODULE 05</span>
+            <span class="cy-module__glyph"><svg class="cy-i" aria-hidden="true"><use href="#i-shield"/></svg></span>
+          </div>
+        </div>
+        <div class="cy-module__body">
+          <div>
+            <span class="cy-chip cy-chip--locked">
+              <svg class="cy-i" aria-hidden="true"><use href="#i-lock"/></svg> Locked
+            </span>
+          </div>
+          <h3 class="cy-module__title">Protecting customer information</h3>
+          <p class="cy-module__desc">Finish module 4 to unlock this one.</p>
+        </div>
+      </article>
+
+      <article class="cy-module cy-module--locked cy-rise"
+               style="--cy-delay:0.4s; --cy-tile-a:#8b5cf6; --cy-tile-b:#67e8f9;">
+        <div class="cy-module__banner">
+          <div class="cy-module__banner-inner">
+            <span class="cy-module__index">MODULE 06</span>
+            <span class="cy-module__glyph"><svg class="cy-i" aria-hidden="true"><use href="#i-clock"/></svg></span>
+          </div>
+        </div>
+        <div class="cy-module__body">
+          <div>
+            <span class="cy-chip cy-chip--locked">
+              <svg class="cy-i" aria-hidden="true"><use href="#i-lock"/></svg> Locked
+            </span>
+          </div>
+          <h3 class="cy-module__title">If something goes wrong</h3>
+          <p class="cy-module__desc">Finish module 5 to unlock this one.</p>
+        </div>
+      </article>
+
+    </div>
+  </section>
 
 
-<!-- ============ ACHIEVEMENTS ============ -->
-<section class="cy-section" style="padding-top: 3rem;">
-  <div class="cy-section__head">
-    <h2 class="cy-section__title" style="font-size: 1.4rem;">Your badges</h2>
-    <p class="cy-section__lede">Three earned. Keep going — the rest are close.</p>
-  </div>
+  <!-- ============ BADGES ============ -->
+  <section style="margin-top: 3.5rem;">
+    <div class="cy-section__head" style="margin-bottom: 1.75rem;">
+      <h2 class="cy-section__title" style="font-size: 1.5rem;">Your badges</h2>
+      <p class="cy-section__lede" style="font-size: 1rem;">
+        Three earned. The rest are closer than you'd think.
+      </p>
+    </div>
 
-  <div class="cy-card">
-    <div class="cy-badges">
-      <div class="cy-badge cy-badge--earned">
-        <div class="cy-badge__medal" aria-hidden="true">🎯</div>
-        <span class="cy-badge__name">First quiz passed</span>
-      </div>
-      <div class="cy-badge cy-badge--earned">
-        <div class="cy-badge__medal" aria-hidden="true">📚</div>
-        <span class="cy-badge__name">Module 1 done</span>
-      </div>
-      <div class="cy-badge cy-badge--earned">
-        <div class="cy-badge__medal" aria-hidden="true">🔥</div>
-        <span class="cy-badge__name">7 day streak</span>
-      </div>
-      <div class="cy-badge cy-badge--locked">
-        <div class="cy-badge__medal" aria-hidden="true">⭐</div>
-        <span class="cy-badge__name">Perfect score</span>
-      </div>
-      <div class="cy-badge cy-badge--locked">
-        <div class="cy-badge__medal" aria-hidden="true">🛡️</div>
-        <span class="cy-badge__name">All modules done</span>
-      </div>
-      <div class="cy-badge cy-badge--locked">
-        <div class="cy-badge__medal" aria-hidden="true">🏆</div>
-        <span class="cy-badge__name">Certified</span>
+    <div class="cy-card">
+      <div class="cy-badges">
+        <div class="cy-badge cy-badge--earned">
+          <div class="cy-badge__medal"><svg class="cy-i" aria-hidden="true"><use href="#i-target"/></svg></div>
+          <span class="cy-badge__name">First quiz passed</span>
+        </div>
+        <div class="cy-badge cy-badge--earned">
+          <div class="cy-badge__medal"><svg class="cy-i" aria-hidden="true"><use href="#i-book"/></svg></div>
+          <span class="cy-badge__name">Module 1 done</span>
+        </div>
+        <div class="cy-badge cy-badge--earned cy-badge--gold">
+          <div class="cy-badge__medal"><svg class="cy-i" aria-hidden="true"><use href="#i-flame"/></svg></div>
+          <span class="cy-badge__name">7 day streak</span>
+        </div>
+        <div class="cy-badge cy-badge--locked">
+          <div class="cy-badge__medal"><svg class="cy-i" aria-hidden="true"><use href="#i-star"/></svg></div>
+          <span class="cy-badge__name">Perfect score</span>
+        </div>
+        <div class="cy-badge cy-badge--locked">
+          <div class="cy-badge__medal"><svg class="cy-i" aria-hidden="true"><use href="#i-shield"/></svg></div>
+          <span class="cy-badge__name">All modules done</span>
+        </div>
+        <div class="cy-badge cy-badge--locked">
+          <div class="cy-badge__medal"><svg class="cy-i" aria-hidden="true"><use href="#i-award"/></svg></div>
+          <span class="cy-badge__name">Certified</span>
+        </div>
       </div>
     </div>
-  </div>
-</section>
+  </section>
 
+</div>
 {% endblock %}

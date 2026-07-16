@@ -22,33 +22,57 @@
   <link rel="stylesheet" href="{% static 'css/cybaroo.css' %}">
 </head>
 <body class="cy-body">
+  {% include "_icons.html" %}
+
   <a class="cy-skip visually-hidden-focusable" href="#main">Skip to main content</a>
 
-  <header class="cy-header">
-    <div class="container cy-header__inner">
+  <nav class="cy-nav" aria-label="Main">
+    <div class="cy-wrap cy-nav__inner">
       <a class="cy-wordmark" href="{% url 'landing' %}">
         <span class="cy-mark" aria-hidden="true"></span>
         {{ site_name }}
       </a>
-      {% block header_actions %}{% endblock %}
-    </div>
-  </header>
 
-  <main id="main" class="container cy-main">
+      {% comment %}
+        Links collapse away below 900px rather than becoming a burger menu: a
+        burger needs JavaScript, and on a page this short the footer already
+        carries the same links. Less to break, nothing to vendor.
+      {% endcomment %}
+      <ul class="cy-nav__links">
+        {% block nav_links %}
+          <li><a class="cy-nav__link" href="{% url 'landing' %}#how">How it works</a></li>
+          <li><a class="cy-nav__link" href="{% url 'landing' %}#rewards">Rewards</a></li>
+          <li><a class="cy-nav__link" href="{% url 'landing' %}#modules">Modules</a></li>
+        {% endblock %}
+      </ul>
+
+      <div class="cy-nav__actions">
+        {% block nav_actions %}
+          <a class="cy-btn cy-btn--quiet cy-btn--sm" href="{% url 'authentication:register' %}">Log in</a>
+          <a class="cy-btn cy-btn--primary cy-btn--sm" href="{% url 'authentication:register' %}">Get started</a>
+        {% endblock %}
+      </div>
+    </div>
+  </nav>
+
+  <main id="main" class="cy-main {% block main_class %}cy-main--padded{% endblock %}">
     {% if messages %}
-      {% for message in messages %}
-        <div class="alert alert-{{ message.tags|default:'info' }}" role="status">
-          {{ message }}
-        </div>
-      {% endfor %}
+      <div class="cy-wrap">
+        {% for message in messages %}
+          <div class="alert alert-{{ message.tags|default:'info' }}" role="status">
+            {{ message }}
+          </div>
+        {% endfor %}
+      </div>
     {% endif %}
 
     {% block content %}{% endblock %}
   </main>
 
   <footer class="cy-footer">
-    <div class="container">
+    <div class="cy-wrap cy-footer__inner">
       <p class="mb-0">{{ site_name }} — built for AUSDAIS PTY LTD</p>
+      <p class="mb-0">Made in Melbourne</p>
     </div>
   </footer>
 </body>
