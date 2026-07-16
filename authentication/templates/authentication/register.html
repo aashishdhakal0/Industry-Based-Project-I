@@ -3,15 +3,18 @@
 {% block title %}Create your account — {{ site_name }}{% endblock %}
 
 {% block content %}
-<div class="nstp-card">
+<div class="cy-card cy-card--narrow">
   <h1>Create your account</h1>
-  <p class="nstp-lede">
+  <p class="cy-lede">
     It takes a minute. We'll email you a link to confirm it's you.
   </p>
 
   {% if form.errors %}
-    {# Announced as one group so a screen reader hears the whole story at once. #}
-    <div class="nstp-errors" role="alert">
+    {% comment %}
+      Announced as one group so a screen reader hears the whole story at once,
+      rather than discovering errors field by field on the way down.
+    {% endcomment %}
+    <div class="cy-errors" role="alert">
       <strong>Please check the following:</strong>
       <ul>
         {% for field in form %}
@@ -30,29 +33,31 @@
     {% csrf_token %}
 
     {% for field in form %}
-      <div class="mb-3">
-        <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+      <div class="cy-field">
+        <label for="{{ field.id_for_label }}" class="cy-label">{{ field.label }}</label>
 
         {% comment %}
           Hint before the input: read the rule, then type. Underneath, it only
           gets read after they've already guessed wrong.
         {% endcomment %}
         {% if field.help_text %}
-          <span class="nstp-hint" id="{{ field.id_for_label }}_hint">{{ field.help_text }}</span>
+          <span class="cy-hint">{{ field.help_text }}</span>
         {% endif %}
 
         {{ field }}
 
         {% for error in field.errors %}
-          <span class="nstp-field-error">{{ error }}</span>
+          <span class="cy-field-error">{{ error }}</span>
         {% endfor %}
       </div>
     {% endfor %}
 
-    <button type="submit" class="nstp-btn-primary">Create account</button>
+    <button type="submit" class="cy-btn cy-btn--primary cy-btn--block">
+      Create account
+    </button>
   </form>
 
-  <p class="nstp-meta">
+  <p class="cy-meta">
     Already have an account? <a href="{% url 'authentication:register' %}">Log in</a>
   </p>
 </div>

@@ -3,14 +3,15 @@
 {% block title %}Check your inbox — {{ site_name }}{% endblock %}
 
 {% block content %}
-<div class="nstp-card">
-  <p class="nstp-status-icon" aria-hidden="true">📬</p>
+<div class="cy-card cy-card--narrow">
+  <div class="cy-status-icon cy-status-icon--wait" aria-hidden="true">📬</div>
+
   <h1>Check your inbox</h1>
 
-  <p class="nstp-lede">
+  <p class="cy-lede">
     {% if email %}
-      We've sent a link to <strong>{{ email }}</strong>. Open it to finish setting
-      up your account.
+      We've sent a link to <strong>{{ email }}</strong>. Open it to finish
+      setting up your account.
     {% else %}
       We've sent you a link. Open it to finish setting up your account.
     {% endif %}
