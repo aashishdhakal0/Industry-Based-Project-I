@@ -1,41 +1,55 @@
 # NSTP — pinned dependencies
-# Runtime: Python 3.12 + Django 5.2 LTS + PostgreSQL 18
+# Runtime: Python 3.13 + Django 5.2 LTS + PostgreSQL 18
 #
-# DEVIATION FROM SPEC: spec names Django 6.0. We target Django 5.2 LTS instead.
-# Rationale (verified 2026-07-16):
-#   - Django 6.0 is NOT an LTS. Mainstream support ends 2026-08; extended 2027-04.
-#     Django 5.2 LTS is supported to 2028-04 — past this project's lifetime.
-#   - django-tinymce 5.0.0 declares support only through Django 5.2 (no 6.0 classifier).
-#   - django-ratelimit 4.1.0 (last released 2023-07) is unverified against Django 6.0.
-# PostgreSQL 18 matches the spec and is supported (Django 5.2 supports PostgreSQL 14+).
-# Revisit Django 6.0 when TinyMCE + ratelimit declare support, or at the 6.2 LTS.
+# ---------------------------------------------------------------------------
+# DEVIATIONS FROM docs/project-overview.md (all verified 2026-07-16)
+# ---------------------------------------------------------------------------
+# 1. Django 5.2 LTS, not 6.0.6 (spec).
+#    - 6.0 is NOT an LTS: mainstream support ends 2026-08, extended 2027-04.
+#      5.2 LTS is supported to 2028-04 — beyond this project's lifetime.
+#    - django-tinymce 5.0.0 declares support only through Django 5.2.
+#    - django-ratelimit 4.1.0 (released 2023-07) is unverified on Django 6.0.
+# 2. Python 3.13, not 3.12.4 (spec). 3.13 is what is installed locally and is
+#    supported by Django 5.2 and by PythonAnywhere. Standardised both ends.
+# 3. psycopg 3, not psycopg2-binary (spec). Django docs mark psycopg2 support as
+#    likely to be deprecated and removed; psycopg 3 is recommended for new work.
+# PostgreSQL 18 matches the spec and is supported (Django 5.2 supports PG 14+).
+# ---------------------------------------------------------------------------
 
 # --- Core ---
 Django==5.2.16
 
-# --- Database (PostgreSQL 18; psycopg 3 — psycopg2 is deprecation-track) ---
+# --- Database (PostgreSQL 18) ---
 psycopg[binary]==3.2.9
 
 # --- Auth / MFA ---
-# django-otp does NOT bundle QR generation; the qrcode extra is required for a
-# user-facing TOTP setup flow (admin-only auto-QR otherwise).
+# NOTE: contrary to the spec, django-otp does NOT bundle QR code display.
+# Auto-QR exists only in the Django admin. A user-facing TOTP setup flow must
+# render the QR itself from TOTPDevice.config_url — hence the qrcode dep.
 django-otp==1.7.0
 qrcode[pil]==8.2
 
 # --- Security ---
 django-ratelimit==4.1.0
+django-csp==4.0
 
 # --- Content authoring ---
 django-tinymce==5.0.0
-
-# --- PDF (certificates) ---
-# ReportLab is a canvas/Platypus API — it does NOT render HTML to PDF.
-reportlab==5.0.0
 Pillow==11.3.0
+
+# --- PDF certificates ---
+# NOTE: the spec says "ReportLab's FPDF class". No such class exists in
+# ReportLab — FPDF is an unrelated library. Use reportlab.platypus
+# (SimpleDocTemplate) or reportlab.pdfgen.canvas.Canvas.
+reportlab==5.0.0
+
+# --- Config ---
+python-decouple==3.8
 
 # --- Static files / deployment ---
 whitenoise==6.12.0
-gunicorn==23.0.0
 
-# --- Config ---
-python-dotenv==1.1.1
+# --- Testing ---
+pytest==8.4.1
+pytest-django==4.11.1
+coverage==7.10.1
