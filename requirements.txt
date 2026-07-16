@@ -1,0 +1,41 @@
+# NSTP — pinned dependencies
+# Runtime: Python 3.12 + Django 5.2 LTS + PostgreSQL 18
+#
+# DEVIATION FROM SPEC: spec names Django 6.0. We target Django 5.2 LTS instead.
+# Rationale (verified 2026-07-16):
+#   - Django 6.0 is NOT an LTS. Mainstream support ends 2026-08; extended 2027-04.
+#     Django 5.2 LTS is supported to 2028-04 — past this project's lifetime.
+#   - django-tinymce 5.0.0 declares support only through Django 5.2 (no 6.0 classifier).
+#   - django-ratelimit 4.1.0 (last released 2023-07) is unverified against Django 6.0.
+# PostgreSQL 18 matches the spec and is supported (Django 5.2 supports PostgreSQL 14+).
+# Revisit Django 6.0 when TinyMCE + ratelimit declare support, or at the 6.2 LTS.
+
+# --- Core ---
+Django==5.2.16
+
+# --- Database (PostgreSQL 18; psycopg 3 — psycopg2 is deprecation-track) ---
+psycopg[binary]==3.2.9
+
+# --- Auth / MFA ---
+# django-otp does NOT bundle QR generation; the qrcode extra is required for a
+# user-facing TOTP setup flow (admin-only auto-QR otherwise).
+django-otp==1.7.0
+qrcode[pil]==8.2
+
+# --- Security ---
+django-ratelimit==4.1.0
+
+# --- Content authoring ---
+django-tinymce==5.0.0
+
+# --- PDF (certificates) ---
+# ReportLab is a canvas/Platypus API — it does NOT render HTML to PDF.
+reportlab==5.0.0
+Pillow==11.3.0
+
+# --- Static files / deployment ---
+whitenoise==6.12.0
+gunicorn==23.0.0
+
+# --- Config ---
+python-dotenv==1.1.1
