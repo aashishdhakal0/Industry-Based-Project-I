@@ -56,12 +56,101 @@ def test_landing_page_uses_site_name_not_a_hardcoded_brand(client, settings):
 
 
 @pytest.mark.django_db
-def test_landing_page_makes_no_external_requests(client):
-    """CSP is default-src 'self'. Anything off-host is blocked by the browser,
-    so a CDN reference here would render as a silently broken page."""
+def test_landing_page_loads_no_external_resources(client):
+    """CSP is default-src 'self'. Anything the page *fetches* from another host
+    is blocked by the browser, so a CDN reference would render as a silently
+    broken page.
+
+    This checks resource loads, not links. An <a href> to an external site is
+    navigation — CSP has no opinion on it, and the ASD citation on this page is
+    exactly that. An earlier version of this test banned every "https://" in
+    the markup, which would have made citing a source impossible: the strictest
+    assertion is not always the right one.
+    """
+    import re
+
     html = client.get(reverse("landing")).content.decode()
-    for marker in ["http://", "https://"]:
-        assert marker not in html, f"landing page references an external URL ({marker})"
+
+    offenders = []
+    # src="..." on any element, href on <link> (stylesheets), and url() in CSS.
+    offenders += re.findall(r'src="(https?://[^"]+)"', html)
+    offenders += re.findall(r'<link[^>]+href="(https?://[^"]+)"', html)
+    offenders += re.findall(r"url\((https?://[^)]+)\)", html)
+
+    assert not offenders, (
+        f"landing page loads external resources, which CSP will block: {offenders}"
+    )
+
+
+@pytest.mark.django_db
+def test_landing_page_cites_its_source_for_every_statistic(client):
+    """The stats are real ASD figures. A number on a marketing page without a
+    source and a reporting period is a claim we can't back — and these get
+        stale annually, so the period has to be visible, not implied."""
+    html = client.get(reverse("landing")).content.decode()
+
+    assert "84,700" in html
+    assert "ASD Annual Cyber Threat Report" in html
+    assert "2024–25" in html
+    assert "cyber.gov.au" in html, "the figures must link to the source"
+
+
+# --------------------------------------------------------------------------
+# About and Modules
+# --------------------------------------------------------------------------
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize("name", ["about", "modules"])
+def test_public_pages_render(client, name):
+    assert client.get(reverse(name)).status_code == 200
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize("name", ["about", "modules"])
+def test_public_pages_render_clean(client, name):
+    assert_renders_clean(client.get(reverse(name)).content.decode(), name)
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize("name", ["landing", "about", "modules"])
+def test_every_public_page_carries_the_site_nav(client, name):
+    html = client.get(reverse(name)).content.decode()
+    for target in ["landing", "about", "modules"]:
+        assert reverse(target) in html, f"{name} is missing a nav link to {target}"
+
+
+@pytest.mark.django_db
+def test_module_names_come_from_one_source(client):
+    """The six titles appear on the landing page, the modules page, the
+    dashboard and the styleguide. They're defined once in
+    nstp/placeholder_content.py precisely so four copies can't drift apart —
+    this fails if someone hard-codes them back into a template."""
+    from django.utils.html import escape
+
+    from nstp.placeholder_content import MODULES
+
+    landing = client.get(reverse("landing")).content.decode()
+    modules = client.get(reverse("modules")).content.decode()
+
+    # escape(), because two titles contain "&" and Django autoescapes it to
+    # "&amp;" — which is the template engine protecting us, not a bug. Asserting
+    # on the raw string would be asserting that autoescaping is off.
+    for m in MODULES:
+        title = escape(m["title"])
+        assert title in landing, f"{m['title']} missing from the landing page"
+        assert title in modules, f"{m['title']} missing from the modules page"
+        assert escape(m["subtitle"]) in modules, f"{m['title']} has no subtitle"
+
+
+@pytest.mark.django_db
+def test_modules_page_shows_the_sequential_lock_honestly(client):
+    """Only module one is open. Showing six unlocked tiles would misrepresent
+    how the platform actually behaves."""
+    html = client.get(reverse("modules")).content.decode()
+
+    assert html.count("cy-module--locked") == 5
+    assert html.count("cy-chip--locked") == 5
 
 
 # --------------------------------------------------------------------------

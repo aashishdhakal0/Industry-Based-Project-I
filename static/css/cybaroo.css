@@ -310,8 +310,19 @@ body.cy-body {
   align-items: center;
   display: flex;
   flex-wrap: wrap;
-  gap: 1rem;
+  gap: 1rem 2rem;
   justify-content: space-between;
+}
+
+/* Deliberately NOT .cy-nav__links — that one hides below 900px, which is
+   precisely where the footer becomes the only navigation there is. */
+.cy-footer__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
 }
 
 
@@ -332,6 +343,21 @@ body.cy-body {
   background: var(--cy-surface);
   border-block: 1px solid var(--cy-border);
 }
+
+/* The seam between bands. A hairline that fades in from the edges and glows
+   faintly at centre, so a section change reads as deliberate rather than as
+   two divs meeting. Cheap, and it's most of what "designed" means here. */
+.cy-band--raised::before,
+.cy-band--raised::after {
+  background: linear-gradient(90deg, transparent, var(--cy-glow-violet), transparent);
+  content: "";
+  height: 1px;
+  left: 15%;
+  position: absolute;
+  right: 15%;
+}
+.cy-band--raised::before { top: -1px; }
+.cy-band--raised::after { bottom: -1px; }
 
 .cy-band--bloom {
   background:
@@ -703,10 +729,18 @@ body.cy-body {
 }
 .cy-scene__ring--2 { inset: 20%; border-color: rgba(34, 211, 238, 0.14); }
 
+/* Two nested motions, deliberately on separate elements so their transforms
+   compose instead of overwriting each other:
+     .cy-drift  — parallax, driven by scroll position
+     .cy-float  — the idle bob, driven by time
+   One element can't run both, because the second `transform` would win. */
+.cy-drift {
+  position: absolute;
+}
+
 .cy-float {
   animation: cy-float 7s ease-in-out infinite;
   animation-delay: var(--cy-delay, 0s);
-  position: absolute;
 }
 
 /* Each floating panel gets real depth: a dark shadow beneath and a hairline
@@ -721,15 +755,23 @@ body.cy-body {
 }
 
 /* Positions are hand-placed rather than a grid: the overlap is the point —
-   it's what makes the scene read as stacked depth. */
-.cy-scene__card   { left: 2%;  top: 6%;   width: 74%; --cy-delay: 0s; }
-.cy-scene__level  { right: 0;  top: 30%;  --cy-delay: -2.4s; }
-.cy-scene__xp     { left: 8%;  bottom: 12%; width: 76%; --cy-delay: -4.1s; }
-.cy-scene__streak { right: 4%; bottom: 2%; --cy-delay: -1.2s; }
+   it's what makes the scene read as stacked depth.
+
+   --cy-shift is the parallax distance. Nearer panels move further, which is
+   what sells depth: the streak chip is "closest" to the reader, the module
+   card sits furthest back. */
+.cy-scene__card   { left: 2%;  top: 6%;     width: 74%; --cy-delay: 0s;     --cy-shift: -14px; }
+.cy-scene__level  { right: 0;  top: 30%;                --cy-delay: -2.4s;  --cy-shift: 26px; }
+.cy-scene__xp     { left: 8%;  bottom: 12%; width: 76%; --cy-delay: -4.1s;  --cy-shift: 40px; }
+.cy-scene__streak { right: 4%; bottom: 2%;              --cy-delay: -1.2s;  --cy-shift: 58px; }
 
 @keyframes cy-float {
   0%, 100% { transform: translateY(-7px); }
   50%      { transform: translateY(7px); }
+}
+
+@keyframes cy-drift {
+  to { transform: translateY(var(--cy-shift, 0)); }
 }
 
 
@@ -1108,6 +1150,108 @@ body.cy-body {
 
 
 /* ==========================================================================
+   Stats strip
+   ==========================================================================
+   Real, sourced figures. The tone problem: these numbers are alarming, and
+   alarm is exactly the wrong feeling for someone deciding whether they're
+   capable of this. So the strip is styled calm — no red, no warning icons, no
+   upward-trending arrows — and the section closes by saying none of it needs a
+   technical background. State the fact, then hand them the door.
+   ========================================================================== */
+
+.cy-stats {
+  display: grid;
+  gap: 1.25rem;
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+}
+
+.cy-stat-card {
+  background: linear-gradient(180deg, var(--cy-surface-2), var(--cy-surface));
+  border: 1px solid var(--cy-border);
+  border-radius: var(--cy-r-lg);
+  padding: 1.75rem;
+  position: relative;
+}
+.cy-stat-card::before {
+  background: linear-gradient(90deg, transparent, var(--cy-glow-violet), transparent);
+  content: "";
+  height: 1px;
+  left: 18%;
+  position: absolute;
+  right: 18%;
+  top: 0;
+}
+
+.cy-stat-card__value {
+  background: var(--cy-grad);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  display: block;
+  font-family: var(--cy-font-mono);
+  font-feature-settings: "tnum";
+  font-size: clamp(2rem, 3.4vw, 2.75rem);
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  line-height: 1.1;
+  margin-bottom: 0.4rem;
+}
+
+.cy-stat-card__label {
+  color: var(--cy-text);
+  display: block;
+  font-weight: 500;
+  margin-bottom: 0.2rem;
+}
+
+.cy-stat-card__note {
+  color: var(--cy-text-3);
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.cy-source {
+  color: var(--cy-text-3);
+  font-size: 0.85rem;
+  margin-top: 1.75rem;
+}
+.cy-source a { color: var(--cy-text-2); }
+.cy-source a:hover { color: var(--cy-cyan); }
+
+
+/* ==========================================================================
+   Prose — About and other text pages
+   ========================================================================== */
+
+.cy-prose {
+  color: var(--cy-text-2);
+  font-size: 1.0625rem;
+}
+
+.cy-prose h2 {
+  color: var(--cy-text);
+  font-size: 1.5rem;
+  margin: 3rem 0 0.85rem;
+}
+
+.cy-prose h2:first-child { margin-top: 0; }
+
+.cy-prose p { margin-bottom: 1.1rem; }
+
+.cy-prose strong { color: var(--cy-text); }
+
+.cy-page-head {
+  padding: clamp(3rem, 6vw, 5rem) 0 0;
+}
+
+.cy-page-head__title {
+  font-size: clamp(2.2rem, 4.5vw, 3.5rem);
+  letter-spacing: -0.04em;
+  margin-bottom: 1rem;
+}
+
+
+/* ==========================================================================
    "How it works" steps
    ========================================================================== */
 
@@ -1248,9 +1392,9 @@ body.cy-body {
    Entrance
    ========================================================================== */
 
-/* Staggered rise. Set --cy-delay per item so a grid arrives as a wave rather
-   than a slab. Purely decorative: with reduced motion the content is simply
-   already there. */
+/* Staggered rise on load. Set --cy-delay per item so a grid arrives as a wave
+   rather than a slab. Used above the fold, where there's no scrolling to
+   trigger anything. */
 .cy-rise {
   animation: cy-rise 0.6s var(--cy-ease) both;
   animation-delay: var(--cy-delay, 0s);
@@ -1258,6 +1402,59 @@ body.cy-body {
 
 @keyframes cy-rise {
   from { opacity: 0; transform: translateY(16px); }
+}
+
+
+/* --- Scroll-driven reveal ------------------------------------------------
+   Sections fade and lift as they enter the viewport, using CSS scroll-driven
+   animations. No JavaScript: our CSP is script-src 'self', and this would
+   otherwise need an IntersectionObserver bundle vendored, served and
+   maintained to do what the browser now does natively.
+
+   THE CRITICAL BIT — read before touching this:
+
+   `.cy-reveal` has NO default styles. It is visible, full stop. The hiding
+   only ever happens INSIDE @supports. Write it the obvious way instead —
+   `.cy-reveal { opacity: 0 }` with an animation to bring it back — and every
+   browser without scroll-timeline support renders a permanently blank page.
+   That is roughly a third of real traffic, silently served nothing.
+
+   So: the animation is the enhancement, and being visible is the default.
+   Same reason it sits inside prefers-reduced-motion: no-preference — someone
+   who asked for stillness gets the content, not an empty screen. */
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .cy-reveal {
+      animation: cy-reveal linear both;
+      animation-timeline: view();
+      /* Starts as it enters, done by a third of the way up: the reader should
+         never be waiting on it. Motion you have to wait for is friction. */
+      animation-range: entry 4% cover 30%;
+    }
+  }
+}
+
+@keyframes cy-reveal {
+  from { opacity: 0; transform: translateY(26px); }
+  to   { opacity: 1; transform: none; }
+}
+
+
+/* --- Hero parallax -------------------------------------------------------
+   The floating panels drift at different rates as the page scrolls, which is
+   what makes the scene read as layered depth rather than four flat cards.
+   Same enhancement rules as above: no support, or reduced motion, and they
+   simply sit where they were placed. */
+
+@supports (animation-timeline: scroll()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .cy-drift {
+      animation: cy-drift linear both;
+      animation-timeline: scroll(root block);
+      animation-range: 0 90vh;
+    }
+  }
 }
 
 
@@ -1290,12 +1487,16 @@ body.cy-body {
 
   /* The hero scene keeps its depth and gradient; it simply stops drifting. */
   .cy-float,
+  .cy-drift,
   .cy-streak__flame {
     animation: none;
     transform: none;
   }
 
-  .cy-rise {
+  /* Both of these must end VISIBLE, not merely un-animated. Content is never
+     the thing motion preferences take away. */
+  .cy-rise,
+  .cy-reveal {
     animation: none;
     opacity: 1;
     transform: none;

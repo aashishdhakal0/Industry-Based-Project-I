@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+
+{% comment %}
+  Modules — the six, previewed.
+
+  Titles come from nstp/placeholder_content.py, which Sprint 2 replaces with
+  real Module rows. Defining them in one place is the point: they appear here,
+  on the landing page, on the dashboard and in the styleguide, and four
+  hard-coded copies would have drifted apart within a sprint.
+
+  Only module one shows as open. That mirrors the real sequential lock rather
+  than flattering the visitor with six available tiles — and it's the honest
+  preview of how the platform actually behaves.
+{% endcomment %}
+
+{% block title %}The six modules — {{ site_name }}{% endblock %}
+{% block main_class %}{% endblock %}
+
+{% block content %}
+
+<section class="cy-page-head">
+  <div class="cy-wrap">
+    <span class="cy-eyebrow">
+      <span class="cy-eyebrow__dot" aria-hidden="true"></span>
+      Modules
+    </span>
+    <h1 class="cy-page-head__title">
+      Six modules. <span class="cy-grad-text">One at a time.</span>
+    </h1>
+    <p class="cy-section__lede" style="max-width: 42rem;">
+      Each one builds on the last, so you always know what to do next. About ten
+      minutes a lesson, four lessons a module, and a short quiz to finish.
+      Nothing assumes you've done the one before it — except the one before it.
+    </p>
+  </div>
+</section>
+
+<section class="cy-band">
+  <div class="cy-wrap">
+    <div class="cy-map">
+      {% for m in modules %}
+        {% if forloop.first %}
+          {% include "_module_tile.html" with module=m state="open" delay="0s" %}
+        {% else %}
+          {% include "_module_tile.html" with module=m state="locked" %}
+        {% endif %}
+      {% endfor %}
+    </div>
+
+    <p class="cy-source" style="margin-top: 2rem;">
+      Modules unlock in order. Finish one to open the next — it's the only rule.
+    </p>
+  </div>
+</section>
+
+<section class="cy-band cy-band--raised">
+  <div class="cy-wrap">
+    <div class="cy-section__head">
+      <h2 class="cy-section__title">What every module gives you</h2>
+      <p class="cy-section__lede">The same shape each time, so there are no surprises.</p>
+    </div>
+
+    <div class="cy-steps">
+      <article class="cy-step cy-reveal">
+        <span class="cy-step__num">01</span>
+        <div class="cy-step__icon">
+          <svg class="cy-i" aria-hidden="true"><use href="#i-book"/></svg>
+        </div>
+        <h3 class="cy-step__title">Four short lessons</h3>
+        <p class="cy-step__text">
+          About ten minutes each, in plain English, with examples from real
+          Australian workplaces.
+        </p>
+      </article>
+
+      <article class="cy-step cy-reveal" style="--cy-delay: 0.09s;">
+        <span class="cy-step__num">02</span>
+        <div class="cy-step__icon">
+          <svg class="cy-i" aria-hidden="true"><use href="#i-target"/></svg>
+        </div>
+        <h3 class="cy-step__title">A safe simulation</h3>
+        <p class="cy-step__text">
+          Try the decision yourself and watch what happens. Nothing you do here
+          can go wrong for real.
+        </p>
+      </article>
+
+      <article class="cy-step cy-reveal" style="--cy-delay: 0.18s;">
+        <span class="cy-step__num">03</span>
+        <div class="cy-step__icon">
+          <svg class="cy-i" aria-hidden="true"><use href="#i-check-circle"/></svg>
+        </div>
+        <h3 class="cy-step__title">A quiz, and a plan</h3>
+        <p class="cy-step__text">
+          Ten questions. Get one wrong and we'll tell you why, and exactly which
+          lesson to revisit.
+        </p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="cy-band">
+  <div class="cy-wrap cy-wrap--narrow" style="text-align: center;">
+    <h2 class="cy-section__title">Ready when you are</h2>
+    <p class="cy-section__lede" style="margin: 0 auto 2.25rem;">
+      Start with Network Security Fundamentals. It takes about ten minutes.
+    </p>
+    <a class="cy-btn cy-btn--primary" href="{% url 'authentication:register' %}">
+      Get started
+      <svg class="cy-i" aria-hidden="true"><use href="#i-arrow-right"/></svg>
+    </a>
+  </div>
+</section>
+
+{% endblock %}

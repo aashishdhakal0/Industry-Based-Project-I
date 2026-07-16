@@ -202,64 +202,21 @@
 
   <!-- ============================================ -->
   <h2 style="margin: 3rem 0 1rem; font-size: 1.2rem;">Mission tiles</h2>
+  {% comment %}
+    Rendered through _module_tile.html from the real placeholder_content data,
+    so this page shows the component as the app actually uses it — not a
+    hand-built lookalike that drifts the first time the partial changes.
+  {% endcomment %}
   <div class="cy-map" style="margin-bottom: 1.25rem;">
-    <article class="cy-module cy-module--unlocked cy-module--complete" style="--cy-tile-a:#9b7bf8; --cy-tile-b:#22d3ee;">
-      <div class="cy-module__banner">
-        <div class="cy-module__banner-inner">
-          <span class="cy-module__index">MODULE 01</span>
-          <span class="cy-module__glyph"><svg class="cy-i" aria-hidden="true"><use href="#i-mail"/></svg></span>
-        </div>
-      </div>
-      <div class="cy-module__body">
-        <div>
-          <span class="cy-chip cy-chip--complete">
-            <svg class="cy-i" aria-hidden="true"><use href="#i-check"/></svg> Complete
-          </span>
-        </div>
-        <h3 class="cy-module__title">Spotting a scam email</h3>
-        <p class="cy-module__desc">Passed with 90%. Revisit any time.</p>
-        <div class="cy-progress-row">
-          <div class="cy-progress"><div class="cy-progress__fill" style="--cy-value: 100%;"></div></div>
-          <span class="cy-progress-row__value">4/4</span>
-        </div>
-      </div>
-    </article>
-
-    <article class="cy-module cy-module--unlocked" style="--cy-tile-a:#7c5cf0; --cy-tile-b:#4fb8f5;">
-      <div class="cy-module__banner">
-        <div class="cy-module__banner-inner">
-          <span class="cy-module__index">MODULE 02</span>
-          <span class="cy-module__glyph"><svg class="cy-i" aria-hidden="true"><use href="#i-lock"/></svg></span>
-        </div>
-      </div>
-      <div class="cy-module__body">
-        <div><span class="cy-chip cy-chip--active">In progress</span></div>
-        <h3 class="cy-module__title">Strong passwords made easy</h3>
-        <p class="cy-module__desc">A different password everywhere, without remembering one.</p>
-        <div class="cy-progress-row">
-          <div class="cy-progress"><div class="cy-progress__fill" style="--cy-value: 50%;"></div></div>
-          <span class="cy-progress-row__value">2/4</span>
-        </div>
-      </div>
-    </article>
-
-    <article class="cy-module cy-module--locked" style="--cy-tile-a:#a86af0; --cy-tile-b:#22d3ee;">
-      <div class="cy-module__banner">
-        <div class="cy-module__banner-inner">
-          <span class="cy-module__index">MODULE 03</span>
-          <span class="cy-module__glyph"><svg class="cy-i" aria-hidden="true"><use href="#i-bolt"/></svg></span>
-        </div>
-      </div>
-      <div class="cy-module__body">
-        <div>
-          <span class="cy-chip cy-chip--locked">
-            <svg class="cy-i" aria-hidden="true"><use href="#i-lock"/></svg> Locked
-          </span>
-        </div>
-        <h3 class="cy-module__title">Keeping devices updated</h3>
-        <p class="cy-module__desc">Finish module 2 to unlock this one.</p>
-      </div>
-    </article>
+    {% for m in modules|slice:":3" %}
+      {% if forloop.counter == 1 %}
+        {% include "_module_tile.html" with module=m state="complete" progress=100 progress_label="4/4" unlock_hint="Passed with 90%. Revisit any time." %}
+      {% elif forloop.counter == 2 %}
+        {% include "_module_tile.html" with module=m state="current" progress=50 progress_label="2/4" %}
+      {% else %}
+        {% include "_module_tile.html" with module=m state="locked" unlock_hint="Finish the module before this one to unlock it." %}
+      {% endif %}
+    {% endfor %}
   </div>
   <p class="cy-hint" style="margin-bottom: 3rem;">
     Hover an unlocked tile and it lifts. Hover the locked one and nothing

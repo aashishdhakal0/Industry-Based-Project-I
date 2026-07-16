@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% comment %}
+  About — what Cybaroo is and who it's for.
+
+  Honesty rule, same as the landing page: no invented history, no customer
+  counts, no testimonials, no claims we can't back. Everything here is either
+  true of the product as built, or a description of what it does.
+
+  The Adaptive Feedback Engine gets real space here, because it is the actual
+  differentiator and this is the one page where someone is asking "why this
+  and not the free thing my IT provider sent me".
+{% endcomment %}
+
+{% block title %}About — {{ site_name }}{% endblock %}
+{% block main_class %}{% endblock %}
+
+{% block content %}
+
+<section class="cy-page-head">
+  <div class="cy-wrap cy-wrap--narrow">
+    <span class="cy-eyebrow">
+      <span class="cy-eyebrow__dot" aria-hidden="true"></span>
+      About
+    </span>
+    <h1 class="cy-page-head__title">
+      Cyber training that treats you like <span class="cy-grad-text">an adult</span>,
+      not an IT department.
+    </h1>
+    <p class="cy-section__lede">
+      {{ site_name }} teaches Australian small businesses, councils and schools
+      how to stay safe online — in plain English, without assuming you know what
+      a firewall is.
+    </p>
+  </div>
+</section>
+
+<section class="cy-band">
+  <div class="cy-wrap cy-wrap--narrow cy-prose cy-reveal">
+    <h2>Who it's for</h2>
+    <p>
+      The people who end up responsible for cyber security without ever choosing
+      to be. The office manager who handles the invoices. The council officer
+      with the shared inbox. The school administrator whose password opens more
+      doors than anyone realises.
+    </p>
+    <p>
+      None of them are technical. All of them are targets — and most existing
+      training is written as though they've already got a security background,
+      which is why it doesn't stick.
+    </p>
+
+    <h2>What makes it different</h2>
+    <p>
+      Most training tells you that you scored 55% and leaves you there. Knowing
+      you failed isn't the same as knowing <strong>what to do next</strong>.
+    </p>
+    <p>
+      {{ site_name }} looks at every question you got wrong, works out which
+      lesson covers the thing you actually misunderstood, and builds you a
+      personal study plan from it. Not a score — a short, specific list of what
+      to revisit and roughly how long it'll take. That's the whole point of the
+      platform.
+    </p>
+
+    <h2>How we keep it simple</h2>
+    <p>
+      Every screen has one obvious next action. Lessons are about ten minutes.
+      Modules unlock in order, so you're never staring at a menu wondering where
+      to start. There's no jargon, and where a technical term is genuinely
+      unavoidable, we explain it in the sentence where it first appears.
+    </p>
+    <p>
+      You practise in safe simulations, where a wrong click costs nothing and
+      teaches something. Far better to make the mistake here than in your real
+      inbox.
+    </p>
+
+    <h2>Who's behind it</h2>
+    <p>
+      {{ site_name }} is built for <strong>AUSDAIS PTY LTD</strong>, based in
+      Bundoora, Melbourne. It's made in Australia, for Australian organisations,
+      using examples that reflect what actually turns up in Australian inboxes.
+    </p>
+  </div>
+</section>
+
+<section class="cy-band cy-band--raised">
+  <div class="cy-wrap cy-wrap--narrow" style="text-align: center;">
+    <h2 class="cy-section__title">Start with module one</h2>
+    <p class="cy-section__lede" style="margin: 0 auto 2.25rem;">
+      It takes about ten minutes, and you'll know something you didn't this
+      morning.
+    </p>
+    <a class="cy-btn cy-btn--primary" href="{% url 'authentication:register' %}">
+      Get started
+      <svg class="cy-i" aria-hidden="true"><use href="#i-arrow-right"/></svg>
+    </a>
+  </div>
+</section>
+
+{% endblock %}

@@ -34,15 +34,20 @@
       </a>
 
       {% comment %}
+        Real site navigation — pages, not anchors. "How it works" and "Rewards"
+        remain as sections you reach by scrolling the home page; they were
+        never destinations, and putting them here made the nav a table of
+        contents for one page rather than a map of the site.
+
         Links collapse away below 900px rather than becoming a burger menu: a
-        burger needs JavaScript, and on a page this short the footer already
-        carries the same links. Less to break, nothing to vendor.
+        burger needs JavaScript, our CSP is script-src 'self', and the footer
+        already carries the same links. Less to break, nothing to vendor.
       {% endcomment %}
       <ul class="cy-nav__links">
         {% block nav_links %}
-          <li><a class="cy-nav__link" href="{% url 'landing' %}#how">How it works</a></li>
-          <li><a class="cy-nav__link" href="{% url 'landing' %}#rewards">Rewards</a></li>
-          <li><a class="cy-nav__link" href="{% url 'landing' %}#modules">Modules</a></li>
+          <li><a class="cy-nav__link" href="{% url 'landing' %}">Home</a></li>
+          <li><a class="cy-nav__link" href="{% url 'about' %}">About</a></li>
+          <li><a class="cy-nav__link" href="{% url 'modules' %}">Modules</a></li>
         {% endblock %}
       </ul>
 
@@ -72,6 +77,16 @@
   <footer class="cy-footer">
     <div class="cy-wrap cy-footer__inner">
       <p class="mb-0">{{ site_name }} — built for AUSDAIS PTY LTD</p>
+      {% comment %}
+        The footer carries the nav too: below 900px the header links are
+        hidden, and this is where they go instead of a burger menu.
+      {% endcomment %}
+      <ul class="cy-footer__links">
+        <li><a class="cy-nav__link" href="{% url 'landing' %}">Home</a></li>
+        <li><a class="cy-nav__link" href="{% url 'about' %}">About</a></li>
+        <li><a class="cy-nav__link" href="{% url 'modules' %}">Modules</a></li>
+        <li><a class="cy-nav__link" href="{% url 'authentication:register' %}">Get started</a></li>
+      </ul>
       <p class="mb-0">Made in Melbourne</p>
     </div>
   </footer>
