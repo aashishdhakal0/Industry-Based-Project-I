@@ -235,28 +235,81 @@ def test_input_borders_meet_wcag_non_text_contrast():
         )
 
 
-def test_the_gradient_never_carries_white_text():
-    """The button label is dark ink on a bright gradient, which looks unusual
-    and is the only thing that works: white measures 1.81:1 at the cyan end.
-
-    Both ends must clear AA against the ink, with room to spare — AA is the
-    floor for body text, not the target for a 17px label on a saturated fill.
-    """
+def _gradient_stops(token_name):
     import re
 
-    grad = _token("--cy-grad")
-    ends = re.findall(r"#[0-9a-fA-F]{6}", grad)
-    assert len(ends) == 2, f"expected two gradient stops, got {ends}"
+    stops = re.findall(r"#[0-9a-fA-F]{6}", _token(token_name))
+    assert len(stops) == 2, f"expected two stops in {token_name}, got {stops}"
+    return stops
 
-    ink = _token("--cy-ink")
-    for end in ends:
-        ratio = _contrast(ink, end)
+
+def test_cta_gradient_carries_white_text_legibly():
+    """The primary button is WHITE on the deep gradient (--cy-grad-cta).
+
+    This took three attempts, and the test exists so the next person doesn't
+    repeat them:
+      bright fill + white ink -> 1.81:1. Cyan is far too luminous.
+      bright fill + dark ink  -> 7.21:1 on paper, still read as muddy.
+      deep fill + white ink   -> 7.10:1, and reads sharp. This is what ships.
+    """
+    for stop in _gradient_stops("--cy-grad-cta"):
+        ratio = _contrast("#ffffff", stop)
         assert ratio >= 4.5, (
-            f"dark ink on {end} is {ratio:.2f}:1 — the CTA label fails AA. "
-            f"Brighten the gradient; do not switch the label to white."
+            f"white on {stop} is {ratio:.2f}:1 — the CTA label fails AA. "
+            f"Deepen the gradient rather than switching the label to dark ink; "
+            f"dark-on-bright has been tried twice and reads muddy."
         )
-        # And white must remain the wrong answer, so nobody "fixes" it back.
-        assert _contrast("#ffffff", end) < 4.5 or _contrast(ink, end) >= 7.0
+
+
+def test_display_gradient_stays_legible_as_text_on_the_dark_page():
+    """--cy-grad is the opposite job: bright, because it's text ON the near-
+    black page (the hero word, the big stat numbers). If someone 'unifies' the
+    two gradients, one of these two tests fails — which is the point."""
+    bg = _token("--cy-bg")
+    for stop in _gradient_stops("--cy-grad"):
+        ratio = _contrast(stop, bg)
+        assert ratio >= 4.5, (
+            f"{stop} as text on {bg} is {ratio:.2f}:1. --cy-grad must stay "
+            f"bright; it is not the button fill."
+        )
+
+
+def test_the_two_gradients_have_not_been_merged():
+    """They look redundant and they are not. --cy-grad is light (text on dark),
+    --cy-grad-cta is dark (fill under white text). Same hues, inverted."""
+    assert _token("--cy-grad") != _token("--cy-grad-cta")
+
+
+def test_every_vendored_font_referenced_in_css_exists_on_disk():
+    """A missing @font-face src fails silently — the browser just falls back to
+    Georgia and the identity quietly evaporates."""
+    import pathlib
+    import re
+
+    css = pathlib.Path("static/css/cybaroo.css").read_text()
+    for ref in re.findall(r'url\("\.\./fonts/([^"]+)"\)', css):
+        assert (pathlib.Path("static/fonts") / ref).exists(), (
+            f"cybaroo.css references fonts/{ref}, which is not vendored"
+        )
+
+
+def test_no_retired_typeface_is_still_in_use():
+    """Space Grotesk was replaced because it reads as the AI-era default. Its
+    files are gone, so any surviving *use* of it would silently fall back.
+
+    Checks usage, not mentions: the comment explaining why it was dropped is
+    the most useful sentence in that part of the file, and an assertion that
+    forbids naming the thing you replaced would delete your own reasoning.
+    """
+    import pathlib
+    import re
+
+    css = pathlib.Path("static/css/cybaroo.css").read_text()
+    # Strip comments first — what's left is the code that actually runs.
+    code = re.sub(r"/\*.*?\*/", "", css, flags=re.S)
+
+    assert "Space Grotesk" not in code, "Space Grotesk is still referenced in live CSS"
+    assert not list(pathlib.Path("static/fonts").glob("space-grotesk*"))
 
 
 # --------------------------------------------------------------------------

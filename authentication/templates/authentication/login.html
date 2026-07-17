@@ -1,11 +1,20 @@
-{% extends "base.html" %}
+{% extends "authentication/_auth_base.html" %}
 
 {% block title %}Log in — {{ site_name }}{% endblock %}
 
-{% block content %}
-<div class="cy-card cy-card--narrow">
+{% block auth_content %}
+<div class="cy-card cy-auth-single cy-rise">
+  {% comment %}
+    A mark above the heading. Without it the card opens on a bare word and the
+    top edge feels unfinished — this is the one screen with nothing else on it,
+    so it has to carry itself.
+  {% endcomment %}
+  <span class="cy-auth-mark" aria-hidden="true">
+    <svg class="cy-i"><use href="#i-shield"/></svg>
+  </span>
+
   <h1>Welcome back</h1>
-  <p class="cy-lede">Log in to pick up where you left off.</p>
+  <p class="cy-lede">Pick up where you left off.</p>
 
   {% if form.non_field_errors %}
     <div class="cy-errors" role="alert">

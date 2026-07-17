@@ -13,9 +13,17 @@
   and linked to the source. The gamification figures are illustrations of the
   system, never presented as someone's record.
 
-  Structure: alternating bands (hero -> raised -> base -> raised -> bloom ->
-  base) so the page has rhythm instead of one endless scroll. "How it works"
-  and "Rewards" live here as scroll-to sections; the nav is for real pages.
+  Order: hero -> stats -> MODULES -> how it works -> rewards -> close.
+
+  Modules sits third, one screen after the numbers, deliberately. The pitch is
+  "here's why it matters" then immediately "here's exactly what you'd do" —
+  a visitor shouldn't have to scroll past the reward mechanics to find out what
+  they'd actually be learning. Rewards is a reason to keep going, which is a
+  later question than what am I signing up for.
+
+  Bands alternate (base -> raised -> bloom -> base -> raised -> base) so the
+  page has rhythm rather than one endless scroll. "How it works" and "Rewards"
+  live here as scroll-to sections; the nav is for real pages.
 {% endcomment %}
 
 {% block title %}{{ site_name }} — plain-English cyber safety training{% endblock %}
@@ -87,7 +95,7 @@
         <div class="cy-scene__ring"></div>
         <div class="cy-scene__ring cy-scene__ring--2"></div>
 
-        <!-- module tile, furthest back -->
+        <!-- the module card: centred, floating -->
         <div class="cy-drift cy-scene__card">
           <div class="cy-float">
             <div class="cy-module cy-module--unlocked" style="--cy-tile-a:#9b7bf8; --cy-tile-b:#22d3ee;">
@@ -113,61 +121,26 @@
         </div>
 
         {% comment %}
-          Hex rank badge, not a circle-with-a-number: a hexagon reads as an
-          insignia you earned, and it echoes the points icon. The ring around
-          it is progress to the next level.
+          The level badge orbits the card. Three nested elements, and each one
+          is load-bearing:
+            .cy-orbit       spins the track
+            .cy-orbit__slot rides at the top of it (static transform only)
+            .cy-orbit__body spins back at the same rate, so the badge stays
+                            upright the whole way round
+          One element can't orbit AND stay level — the second transform would
+          win. With reduced motion the whole thing stops and the badge simply
+          rests at the top of its track.
         {% endcomment %}
-        <div class="cy-drift cy-scene__level">
-          <div class="cy-float">
-            <div class="cy-hex-wrap" style="--cy-level-progress: 68;">
-              <div class="cy-hex">
-                <div class="cy-hex__inner">
-                  <span class="cy-hex__label">Level</span>
-                  <span class="cy-hex__value">4</span>
+        <div class="cy-orbit">
+          <div class="cy-orbit__slot">
+            <div class="cy-orbit__body">
+              <div class="cy-hex-wrap" style="--cy-level-progress: 68; --cy-hex-size: 88px;">
+                <div class="cy-hex">
+                  <div class="cy-hex__inner">
+                    <span class="cy-hex__label">Level</span>
+                    <span class="cy-hex__value">4</span>
+                  </div>
                 </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {% comment %}
-          The reward, at the moment it lands. A points panel states a number;
-          this says something just happened — which is the actual promise.
-        {% endcomment %}
-        <div class="cy-drift cy-scene__xp">
-          <div class="cy-float">
-            <div class="cy-xp-toast">
-              <span class="cy-xp-toast__badge">
-                <svg class="cy-i" aria-hidden="true"><use href="#i-bolt"/></svg>
-              </span>
-              <span class="cy-xp-toast__value">+50 XP</span>
-              <span class="cy-xp-toast__text">Quiz passed</span>
-            </div>
-          </div>
-        </div>
-
-        {% comment %}
-          Seven lit squares instead of the numeral 7. Same fact, felt rather
-          than read — you can see the week you turned up.
-        {% endcomment %}
-        <div class="cy-drift cy-scene__streak">
-          <div class="cy-float">
-            <div class="cy-streak-tile">
-              <div class="cy-streak-tile__top">
-                <span class="cy-streak-tile__flame">
-                  <svg class="cy-i" aria-hidden="true"><use href="#i-flame"/></svg>
-                </span>
-                <span class="cy-streak-tile__value">7</span>
-                <span class="cy-streak-tile__label">day streak</span>
-              </div>
-              <div class="cy-week">
-                <span class="cy-week__day cy-week__day--on"></span>
-                <span class="cy-week__day cy-week__day--on"></span>
-                <span class="cy-week__day cy-week__day--on"></span>
-                <span class="cy-week__day cy-week__day--on"></span>
-                <span class="cy-week__day cy-week__day--on"></span>
-                <span class="cy-week__day cy-week__day--on"></span>
-                <span class="cy-week__day cy-week__day--on"></span>
               </div>
             </div>
           </div>
@@ -244,6 +217,42 @@
       Source: <a href="{{ threat_stats.source_url }}" rel="noopener">{{ threat_stats.source }}</a>,
       covering {{ threat_stats.period }}.
     </p>
+  </div>
+</section>
+
+
+<!-- ================= MODULES ================= -->
+<section class="cy-band cy-band--bloom" id="modules">
+  <div class="cy-wrap">
+    <div class="cy-section__head">
+      <h2 class="cy-section__title">What you'll cover</h2>
+      <p class="cy-section__lede">
+        Six modules, in order. Each builds on the last, so you always know what
+        to do next — and you're never staring at a menu wondering where to start.
+      </p>
+    </div>
+
+    {% comment %}
+      Titles come from nstp/placeholder_content.py — one source, so the landing
+      page, the modules page, the dashboard and the styleguide can't drift.
+      Sprint 2 swaps it for real Module rows.
+    {% endcomment %}
+    <div class="cy-map">
+      {% for m in modules %}
+        {% if forloop.first %}
+          {% include "_module_tile.html" with module=m state="open" delay="0s" %}
+        {% else %}
+          {% include "_module_tile.html" with module=m state="locked" %}
+        {% endif %}
+      {% endfor %}
+    </div>
+
+    <div style="margin-top: 2.5rem;">
+      <a class="cy-btn cy-btn--ghost" href="{% url 'modules' %}">
+        More about the modules
+        <svg class="cy-i" aria-hidden="true"><use href="#i-arrow-right"/></svg>
+      </a>
+    </div>
   </div>
 </section>
 
@@ -424,42 +433,6 @@
         </div>
       </div>
 
-    </div>
-  </div>
-</section>
-
-
-<!-- ================= MODULES ================= -->
-<section class="cy-band cy-band--bloom" id="modules">
-  <div class="cy-wrap">
-    <div class="cy-section__head">
-      <h2 class="cy-section__title">What you'll cover</h2>
-      <p class="cy-section__lede">
-        Six modules, in order. Each builds on the last, so you always know what
-        to do next — and you're never staring at a menu wondering where to start.
-      </p>
-    </div>
-
-    {% comment %}
-      Titles come from nstp/placeholder_content.py — one source, so the landing
-      page, the modules page, the dashboard and the styleguide can't drift.
-      Sprint 2 swaps it for real Module rows.
-    {% endcomment %}
-    <div class="cy-map">
-      {% for m in modules %}
-        {% if forloop.first %}
-          {% include "_module_tile.html" with module=m state="open" delay="0s" %}
-        {% else %}
-          {% include "_module_tile.html" with module=m state="locked" %}
-        {% endif %}
-      {% endfor %}
-    </div>
-
-    <div style="margin-top: 2.5rem;">
-      <a class="cy-btn cy-btn--ghost" href="{% url 'modules' %}">
-        More about the modules
-        <svg class="cy-i" aria-hidden="true"><use href="#i-arrow-right"/></svg>
-      </a>
     </div>
   </div>
 </section>

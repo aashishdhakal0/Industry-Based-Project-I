@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "authentication/_auth_base.html" %}
 
 {% comment %}
   The 429. Task 1.5 asks for "a friendly page, not a stack trace" — and the
@@ -9,7 +9,7 @@
 
 {% block title %}Too many attempts — {{ site_name }}{% endblock %}
 
-{% block content %}
+{% block auth_content %}
 <div class="cy-card cy-card--narrow">
   <div class="cy-status-icon cy-status-icon--warn" aria-hidden="true">
     <svg class="cy-i"><use href="#i-clock"/></svg>

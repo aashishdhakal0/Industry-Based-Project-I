@@ -14,13 +14,26 @@
    - Our users are non-technical Australians. Gamified and calm, never busy or
      intimidating. No fake hacker jargon, no threat language.
 
-   ONE HARD-WON RULE, DO NOT UNDO IT:
+   THE GRADIENT RULE — there are TWO gradients, and they are not swappable:
 
-     Never put white text on the violet->cyan gradient. It measures 1.81:1 at
-     the cyan end — cyan is simply too luminous, and no tuning of the endpoints
-     rescues it. The gradient carries DARK ink (--cy-ink), which measures
-     6.15:1 at its worst end. This is why the primary button looks like a
-     bright chip rather than the more familiar white-on-purple.
+     --cy-grad      BRIGHT. Text on the near-black page (the hero word, the big
+                    stat numbers). Text on dark wants to be light.
+     --cy-grad-cta  DEEP. A fill underneath WHITE text (the primary button).
+                    A fill under light text wants to be dark.
+
+   They are the same violet and cyan, inverted, because they do opposite jobs.
+   Making one gradient serve both is what produced two rounds of an unreadable
+   button:
+
+     - bright fill + white ink -> 1.81:1 at the cyan end. Cyan is far too
+       luminous; no tuning of the endpoints rescues it.
+     - bright fill + dark ink  -> 7.21:1, technically AAA, and it STILL read as
+       muddy. A dark label on a saturated bright field is legible-but-heavy.
+     - deep fill + white ink   -> 7.10:1 at the worst end, and it reads sharp.
+       This is what ships.
+
+   If you are about to simplify these into one gradient, the above is the
+   experiment you are about to repeat.
 
    Naming: cy- prefix, BEM-ish (block__element--modifier).
    ========================================================================== */
@@ -29,26 +42,67 @@
    Fonts — vendored locally; a CDN would be blocked by our CSP.
    -------------------------------------------------------------------------- */
 
+/* Fraunces — the voice.
+ *
+ * A soft serif with an optical-size axis and, genuinely, a "wonk" axis for how
+ * far its quirks are turned up. It has drawn character: flared stems, an
+ * unmistakable g, slightly odd proportions that look like decisions rather
+ * than defaults.
+ *
+ * Chosen against the obvious. Every AI-era product ships a geometric sans —
+ * Space Grotesk (what we had), Inter, Manrope — and they have converged into
+ * one indistinguishable voice. A warm serif on a dark technical interface is
+ * the opposite move, and it says the right thing to our audience: a council
+ * officer or school administrator should meet something that reads
+ * trustworthy and human, not like a penetration-testing tool. */
 @font-face {
-  font-family: "Space Grotesk";
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url("../fonts/space-grotesk-latin-400-normal.woff2") format("woff2");
-}
-@font-face {
-  font-family: "Space Grotesk";
+  font-family: "Fraunces";
   font-style: normal;
   font-weight: 500;
   font-display: swap;
-  src: url("../fonts/space-grotesk-latin-500-normal.woff2") format("woff2");
+  src: url("../fonts/fraunces-latin-500-normal.woff2") format("woff2");
 }
 @font-face {
-  font-family: "Space Grotesk";
+  font-family: "Fraunces";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("../fonts/fraunces-latin-600-normal.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Fraunces";
   font-style: normal;
   font-weight: 700;
   font-display: swap;
-  src: url("../fonts/space-grotesk-latin-700-normal.woff2") format("woff2");
+  src: url("../fonts/fraunces-latin-700-normal.woff2") format("woff2");
+}
+
+/* Instrument Sans — the body.
+ *
+ * Quiet on purpose: Fraunces carries the personality, so this only has to be
+ * excellent at being read. Slightly narrow, warm, a little humanist at the
+ * terminals. New enough (2023) not to be everywhere yet, which is most of why
+ * it isn't Inter. */
+@font-face {
+  font-family: "Instrument Sans";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("../fonts/instrument-sans-latin-400-normal.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Instrument Sans";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("../fonts/instrument-sans-latin-500-normal.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Instrument Sans";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("../fonts/instrument-sans-latin-600-normal.woff2") format("woff2");
 }
 @font-face {
   font-family: "JetBrains Mono";
@@ -88,11 +142,18 @@
   --cy-field-line: #666699;
   --cy-field-bg: #08080f;
 
-  /* --- Text. Ratios measured against --cy-surface-2, the lightest surface
-     these sit on — the worst case, not the flattering one. ---------------- */
-  --cy-text: #f0f0f7;      /* 15.8:1 — AAA */
-  --cy-text-2: #a9aec6;    /*  7.6:1 — AAA */
-  --cy-text-3: #868cab;    /*  5.0:1 — AA. Form hints use this: it's the text
+  /* --- Text.
+     Warm, deliberately. These were blue-greys sampled off the background —
+     mathematically tidy and completely characterless, the tell of a palette
+     generated rather than chosen. Warming them puts a faint ivory against the
+     violet-black, which is what makes a dark interface feel lit rather than
+     switched off. It is a small move and it does most of the work.
+
+     Ratios measured against --cy-surface-2, the lightest surface these ever
+     sit on — the worst case, not the flattering one. --------------------- */
+  --cy-text: #f4efe9;      /* 15.2:1 — AAA. Ivory, not white. */
+  --cy-text-2: #b5aeb8;    /*  8.0:1 — AAA */
+  --cy-text-3: #948b9d;    /*  5.3:1 — AA. Form hints use this: it's the text
                               telling a non-technical user what makes a good
                               password, so it doesn't get to be decorative. */
 
@@ -118,6 +179,17 @@
   /* Decorative only — never carries text, so it can stay saturated. */
   --cy-grad-deep: linear-gradient(115deg, var(--cy-violet), var(--cy-cyan));
 
+  /* THE CTA GRADIENT — deep, and it carries WHITE.
+     Two gradients exist because they have opposite jobs. --cy-grad is bright
+     because it is *text* on a near-black page, and text on dark wants to be
+     light. This one is a *fill under text*, so it wants to be dark.
+     Trying to make one gradient do both is what produced two rounds of a
+     muddy button: bright fill + dark ink measured 7.21:1 and still read badly,
+     because a dark label on a saturated bright field is legible-but-heavy.
+     Deep fill + white label measures 7.10:1 at its worst end and reads sharp.
+     Same violet, same cyan, same identity — inverted. */
+  --cy-grad-cta: linear-gradient(115deg, #6d28d9, #155e75);
+
   --cy-glow-violet: rgba(155, 123, 248, 0.4);
   --cy-glow-violet-soft: rgba(155, 123, 248, 0.14);
   --cy-glow-cyan: rgba(34, 211, 238, 0.34);
@@ -127,7 +199,11 @@
   --cy-gold: #ffc94b;      /* achievements */
   --cy-danger: #ff8080;    /* errors */
 
-  --cy-font: "Space Grotesk", "Segoe UI", system-ui, -apple-system, sans-serif;
+  /* Fraunces speaks; Instrument Sans is read. Headings, the wordmark and the
+     big numbers get the display face — nothing else, or the character stops
+     being character and becomes noise. */
+  --cy-font-display: "Fraunces", Georgia, "Times New Roman", serif;
+  --cy-font: "Instrument Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
   /* Mono is for numbers that change. Tabular figures stop a points counter
      shifting the layout as it ticks 990 -> 1,000. */
   --cy-font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
@@ -181,12 +257,16 @@ body.cy-body {
   overflow-x: hidden;
 }
 
+/* Serifs carry their own rhythm — the tight negative tracking that a geometric
+   sans needs at display size closes a serif up and makes it look cramped.
+   -0.015em, not -0.03em, and a little more leading. */
 .cy-body h1,
 .cy-body h2,
 .cy-body h3 {
-  font-weight: 700;
-  letter-spacing: -0.03em;
-  line-height: 1.12;
+  font-family: var(--cy-font-display);
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  line-height: 1.16;
 }
 
 .cy-body a {
@@ -473,17 +553,23 @@ body.cy-body {
 .cy-btn--sm { font-size: 0.95rem; padding: 0.5rem 1rem; }
 
 /* The primary action. One per section — that rule IS the design.
-   Dark ink, not white: see the rule at the top of this file. */
+   Deep gradient, WHITE label: 7.10:1 at the worst end. See --cy-grad-cta.
+
+   The 1px violet border is not decoration. The fill measures 2.76:1 against
+   the page, and WCAG 1.4.11 wants 3:1 for the button's own edge — the border
+   at 7.21:1 is what makes the shape findable. */
 .cy-btn--primary {
-  background: var(--cy-grad);
-  box-shadow: 0 0 0 1px rgba(155, 123, 248, 0.45), 0 8px 26px var(--cy-glow-violet-soft);
-  color: var(--cy-ink);
-  font-weight: 700;
+  background: var(--cy-grad-cta);
+  border-color: rgba(167, 139, 250, 0.75);
+  box-shadow: 0 8px 26px var(--cy-glow-violet-soft);
+  color: #fff;
+  font-weight: 600;
 }
 .cy-btn--primary:hover {
-  box-shadow: 0 0 0 1px var(--cy-violet), 0 14px 44px var(--cy-glow-violet);
-  color: var(--cy-ink);
-  filter: brightness(1.07);
+  border-color: var(--cy-violet-soft);
+  box-shadow: 0 14px 44px var(--cy-glow-violet);
+  color: #fff;
+  filter: brightness(1.15);
   transform: translateY(-2px);
 }
 .cy-btn--primary:active { transform: translateY(0); }
@@ -749,11 +835,17 @@ body.cy-body {
    drift out of date with the product. Pure CSS: nothing to load, nothing for
    CSP to block, sharp at any size. */
 
+/* Everything stacks in one grid cell and centres, so the card and the orbit
+   share a centre point without a single magic offset. Absolute percentages
+   would need re-tuning every time the card's content changed height. */
 .cy-scene {
-  aspect-ratio: 1 / 0.92;
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
   position: relative;
   width: 100%;
 }
+.cy-scene > * { grid-area: 1 / 1; }
 
 /* The bloom the cards float over. */
 .cy-scene__bloom {
@@ -798,16 +890,50 @@ body.cy-body {
   padding: 1rem 1.15rem;
 }
 
-/* Positions are hand-placed rather than a grid: the overlap is the point —
-   it's what makes the scene read as stacked depth.
+.cy-scene__card {
+  --cy-shift: -14px;
+  width: 80%;
+  z-index: 2;
+}
 
-   --cy-shift is the parallax distance. Nearer panels move further, which is
-   what sells depth: the streak tile is "closest" to the reader, the module
-   card sits furthest back. */
-.cy-scene__card   { left: 0;    top: 2%;    width: 78%; --cy-delay: 0s;     --cy-shift: -14px; }
-.cy-scene__level  { right: 1%;  top: 26%;               --cy-delay: -2.4s;  --cy-shift: 24px; }
-.cy-scene__xp     { right: 6%;  top: 56%;               --cy-delay: -4.1s;  --cy-shift: 40px; }
-.cy-scene__streak { left: 4%;   bottom: 0;              --cy-delay: -1.2s;  --cy-shift: 58px; }
+
+/* --- Orbit ---------------------------------------------------------------
+   The level badge circles the module card, slowly.
+
+   Two counter-rotating animations, on two elements, for one reason: a single
+   element cannot both orbit and stay upright, because one `transform` would
+   overwrite the other. So the track spins, the slot rides it at the top, and
+   the body spins back at exactly the same rate — which cancels the rotation
+   for the badge alone. The badge travels a circle without ever tipping over.
+
+   The slot's translateX(-50%) is a static transform on an element that is
+   never animated. Put it on an animated element and the animation eats it, and
+   the badge jumps half its width sideways. */
+
+.cy-orbit {
+  animation: cy-spin 28s linear infinite;
+  aspect-ratio: 1;
+  pointer-events: none;
+  position: relative;
+  width: 96%;
+  z-index: 3;
+}
+
+.cy-orbit__slot {
+  left: 50%;
+  position: absolute;
+  top: 0;
+  transform: translateX(-50%);
+}
+
+.cy-orbit__body {
+  animation: cy-orbit-upright 28s linear infinite;
+}
+
+@keyframes cy-orbit-upright {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(-360deg); }
+}
 
 
 /* --- Hex level badge -----------------------------------------------------
@@ -909,117 +1035,6 @@ body.cy-body {
 }
 
 .cy-hex-wrap > * { grid-area: 1 / 1; }
-
-
-/* --- XP toast ------------------------------------------------------------
-   The thing a game shows you the instant you earn something. It's the single
-   most legible way to say "this rewards you" without a paragraph — and it
-   tells a story the scattered widgets didn't: something just happened. */
-
-.cy-xp-toast {
-  align-items: center;
-  backdrop-filter: blur(10px);
-  background: linear-gradient(165deg, rgba(35, 35, 58, 0.96), rgba(16, 16, 25, 0.94));
-  border: 1px solid rgba(167, 139, 250, 0.55);
-  border-radius: var(--cy-r-pill);
-  box-shadow: 0 0 28px var(--cy-glow-violet-soft), var(--cy-shadow-float);
-  display: inline-flex;
-  gap: 0.6rem;
-  padding: 0.6rem 1rem 0.6rem 0.7rem;
-  white-space: nowrap;
-}
-
-.cy-xp-toast__badge {
-  align-items: center;
-  background: var(--cy-grad);
-  border-radius: 50%;
-  color: var(--cy-ink);
-  display: flex;
-  height: 26px;
-  justify-content: center;
-  width: 26px;
-}
-.cy-xp-toast__badge .cy-i { height: 15px; width: 15px; }
-
-.cy-xp-toast__value {
-  background: var(--cy-grad);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  font-family: var(--cy-font-mono);
-  font-weight: 700;
-}
-
-.cy-xp-toast__text {
-  color: var(--cy-text-2);
-  font-size: 0.85rem;
-}
-
-
-/* --- Streak tile ---------------------------------------------------------
-   A number beside a flame says "7". Seven lit squares say "you turned up every
-   day this week" — the same fact, felt rather than read. */
-
-.cy-streak-tile {
-  backdrop-filter: blur(10px);
-  background: linear-gradient(165deg, rgba(35, 35, 58, 0.96), rgba(16, 16, 25, 0.94));
-  border: 1px solid rgba(255, 157, 77, 0.4);
-  border-radius: var(--cy-r-lg);
-  box-shadow: 0 0 26px rgba(255, 157, 77, 0.12), var(--cy-shadow-float);
-  padding: 0.85rem 1rem;
-}
-
-.cy-streak-tile__top {
-  align-items: center;
-  display: flex;
-  gap: 0.5rem;
-  margin-bottom: 0.6rem;
-}
-
-.cy-streak-tile__flame {
-  animation: cy-flicker 3.4s ease-in-out infinite;
-  color: var(--cy-flame);
-  transform-origin: 50% 85%;
-}
-
-.cy-streak-tile__value {
-  color: var(--cy-gold);
-  font-family: var(--cy-font-mono);
-  font-size: 1.15rem;
-  font-weight: 700;
-  line-height: 1;
-}
-
-.cy-streak-tile__label {
-  color: var(--cy-text-3);
-  font-size: 0.8rem;
-}
-
-.cy-week {
-  display: flex;
-  gap: 4px;
-}
-
-.cy-week__day {
-  background: var(--cy-surface-3);
-  border-radius: 3px;
-  height: 9px;
-  width: 9px;
-}
-
-.cy-week__day--on {
-  background: linear-gradient(180deg, var(--cy-gold), var(--cy-flame));
-  box-shadow: 0 0 7px rgba(255, 157, 77, 0.7);
-}
-
-@keyframes cy-float {
-  0%, 100% { transform: translateY(-7px); }
-  50%      { transform: translateY(7px); }
-}
-
-@keyframes cy-drift {
-  to { transform: translateY(var(--cy-shift, 0)); }
-}
 
 
 /* ==========================================================================
@@ -1530,6 +1545,72 @@ body.cy-body {
    they're signing up FOR, it's a door. Same form, same fields.
    ========================================================================== */
 
+/* The stage the auth cards sit on.
+   Centred in what's left of the viewport under the nav, with the same bloom
+   and grid as the hero — so signing in feels like the same product as the page
+   that sold it, rather than a form bolted to the side. */
+.cy-auth-page {
+  align-content: center;
+  display: grid;
+  min-height: calc(100svh - var(--cy-nav-h));
+  overflow: hidden;
+  padding: clamp(2rem, 5vw, 3.5rem) 1.25rem;
+  position: relative;
+}
+
+.cy-auth-page::before {
+  background:
+    radial-gradient(760px 420px at 20% 0%, rgba(155, 123, 248, 0.14), transparent 70%),
+    radial-gradient(680px 400px at 88% 100%, rgba(34, 211, 238, 0.09), transparent 70%);
+  content: "";
+  inset: 0;
+  position: absolute;
+  z-index: 0;
+}
+
+.cy-auth-page::after {
+  background-image:
+    linear-gradient(var(--cy-border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--cy-border) 1px, transparent 1px);
+  background-size: 62px 62px;
+  content: "";
+  inset: 0;
+  -webkit-mask-image: radial-gradient(760px 420px at 50% 40%, #000, transparent 75%);
+  mask-image: radial-gradient(760px 420px at 50% 40%, #000, transparent 75%);
+  opacity: 0.42;
+  position: absolute;
+  z-index: 0;
+}
+
+.cy-auth-page > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* The lone card on the login page. */
+.cy-auth-single {
+  margin: 0 auto;
+  max-width: 27rem;
+  width: 100%;
+}
+
+/* A small brand mark above a lone form: gives the card a head, and stops the
+   heading floating off the top edge. */
+.cy-auth-mark {
+  align-items: center;
+  background: var(--cy-grad-cta);
+  border: 1px solid rgba(167, 139, 250, 0.6);
+  border-radius: 16px;
+  box-shadow: 0 0 30px var(--cy-glow-violet-soft);
+  color: #fff;
+  display: flex;
+  height: 52px;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+  width: 52px;
+}
+.cy-auth-mark .cy-i { height: 24px; width: 24px; }
+
 .cy-auth {
   align-items: center;
   display: grid;
@@ -1861,13 +1942,21 @@ body.cy-body {
     transform: none;
   }
 
-  /* The hero scene keeps its depth and gradient; it simply stops drifting. */
+  /* The hero scene keeps its depth and gradient; it simply stops drifting.
+     The orbit stops too — the badge rests at the top of its track, which is a
+     perfectly good composition, so nothing is lost but the movement. */
   .cy-float,
   .cy-drift,
-  .cy-streak__flame,
-  .cy-streak-tile__flame {
+  .cy-orbit,
+  .cy-orbit__body,
+  .cy-streak__flame {
     animation: none;
     transform: none;
+  }
+  /* ...except the slot's, which is layout, not motion. Clearing it here would
+     shove the badge half its width off the track. */
+  .cy-orbit__slot {
+    transform: translateX(-50%);
   }
 
   /* The count-up is the one piece of motion that's JavaScript. cybaroo.js

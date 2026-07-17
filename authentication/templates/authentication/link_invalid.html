@@ -1,8 +1,8 @@
-{% extends "base.html" %}
+{% extends "authentication/_auth_base.html" %}
 
 {% block title %}That link didn't work — {{ site_name }}{% endblock %}
 
-{% block content %}
+{% block auth_content %}
 <div class="cy-card cy-card--narrow">
   <div class="cy-status-icon cy-status-icon--warn" aria-hidden="true">
     <svg class="cy-i"><use href="#i-unlink"/></svg>

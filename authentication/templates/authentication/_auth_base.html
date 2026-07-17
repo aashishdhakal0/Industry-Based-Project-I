@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% comment %}
+  The stage every account screen sits on.
+
+  One wrapper, nine templates: sign-up, sign-in, both 2FA steps, and the four
+  status screens all get the same centred, bloomed, gridded backdrop. Repeating
+  it per template would have meant nine chances for one of them to drift.
+
+  Why centred: these screens have exactly one job each. A card pinned to the
+  top of a tall black page reads as an afterthought — the eye has nowhere to
+  rest and the emptiness below looks like something failed to load. Centred in
+  the viewport, the card is unmistakably the point.
+
+  Override `main_class` to nothing so base.html's default padding doesn't fight
+  the full-height stage.
+{% endcomment %}
+
+{% block main_class %}{% endblock %}
+
+{% block content %}
+<div class="cy-auth-page">
+  {% block auth_content %}{% endblock %}
+</div>
+{% endblock %}
