@@ -93,16 +93,28 @@ These are either the product's reason to exist or explicitly graded.
 - [ ] Templates: register · check-your-inbox · verified · expired-link
 - [ ] Console email backend in dev; SMTP deferred to deploy
 
-### 1.3 Login + 2FA
-- [ ] Email+password login (not username)
-- [ ] TOTP setup: create `TOTPDevice`, render QR **from `config_url`**
-- [ ] Confirm-and-activate device (never trust an unconfirmed device)
-- [ ] Second-step TOTP prompt on subsequent logins
-- [ ] Update `UserProfile.last_active` + streak on login
-- [ ] Templates: login · 2FA setup (QR + manual key) · 2FA prompt
+### 1.3 Login + 2FA ✅
+- [x] Email+password login (not username), lower-cased so autocapitalise can't lock anyone out
+- [x] TOTP setup: create `TOTPDevice`, render QR **from `config_url`** as an inline data URI
+- [x] Confirm-and-activate device (never trust an unconfirmed device)
+- [x] Second-step TOTP prompt on subsequent logins
+- [x] **Role-based 2FA** — mandatory for Instructors/Administrators, optional for
+      Students. *Deviation from the spec; rationale in CLAUDE.md. Defend it in the report.*
+- [x] `LOGIN_URL` now points at the real view; the `/admin/login/` stopgap is gone
+- [x] Role routing after login via `authentication.utils.role_home_url`
+- [x] `?next=` honoured, and validated against open redirect
+- [x] Update `UserProfile.last_active` on login (streak builds on this in Sprint 4)
+- [x] Templates: login · 2FA setup (QR + manual key) · 2FA prompt · 429
 
 > `django-otp` renders QR automatically **only in the admin**. The user-facing
-> flow must build it from `TOTPDevice.config_url` via `qrcode`. Spec is wrong here.
+> flow builds it from `TOTPDevice.config_url` via `qrcode`. Spec is wrong here.
+
+> **No session until both factors pass.** Between password and code the user's
+> id sits in the session and nothing else — `login()` is called only once the
+> code verifies. django-otp's own examples log the user in first and gate
+> afterwards, which means a real authenticated session exists in that window
+> and every view must remember to ask `is_verified()` rather than
+> `is_authenticated`. The first one that forgets is the hole.
 
 ### 1.4 RBAC
 - [ ] Groups: Students, Instructors, Administrators
@@ -110,9 +122,16 @@ These are either the product's reason to exist or explicitly graded.
 - [ ] Role-check decorator/mixin, applied per-view
 - [ ] Assign group on registration by role
 
-### 1.5 Rate limiting
-- [ ] `@ratelimit` 10/hr per IP on login + register
-- [ ] Friendly 429 page (plain language, not a stack trace)
+### 1.5 Rate limiting — *partly done, pulled forward*
+- [x] `@ratelimit` 10/hr per IP on **login** and the **2FA prompt**
+- [x] Friendly 429 page (plain language, not a stack trace)
+- [x] `conftest.py` disables it per-test and clears the counter cache between tests
+- [ ] `@ratelimit` on **register** — still to do
+
+> Pulled the login limit forward into 1.3: a login form without one is a
+> brute-force target, and a sprint is not a reasonable window to leave it bare.
+> TOTP has a second layer — `TOTPDevice` carries django-otp's `ThrottlingMixin`,
+> so wrong codes back off per-device regardless of IP.
 
 ### 1.6 CI — *do this early; it pays for itself all semester*
 - [ ] `.github/workflows/ci.yml` — install, PG service, pytest, fail PR on red

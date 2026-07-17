@@ -11,6 +11,7 @@ and never commit .env (see .gitignore).
 from pathlib import Path
 
 from decouple import Csv, config
+from django.urls import reverse_lazy
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -101,17 +102,15 @@ WSGI_APPLICATION = "nstp.wsgi.application"
 
 AUTH_USER_MODEL = "authentication.User"
 
-# TEMPORARY — replace in task 1.3 with the real login view.
+# Where login_required sends anonymous users. reverse_lazy because the URLconf
+# isn't loaded yet when settings are read.
 #
-# login_required sends anonymous users here. Django's default is
-# /accounts/login/, which does not exist and would 404. Pointing at the admin
-# login means the redirect works today (log in there, then /dashboard/ opens),
-# but it is the wrong destination for a student: a non-staff account gets told
-# it lacks permission rather than being signed in.
-#
-# The moment authentication:login exists, this becomes reverse_lazy("authentication:login").
-LOGIN_URL = "/admin/login/"
-LOGIN_REDIRECT_URL = "/dashboard/"
+# LOGIN_REDIRECT_URL is only a fallback: the login view routes by role via
+# authentication.utils.role_home_url, so an Administrator lands in the admin
+# and everyone else on the dashboard. This value applies when something else in
+# Django does the redirecting.
+LOGIN_URL = reverse_lazy("authentication:login")
+LOGIN_REDIRECT_URL = reverse_lazy("dashboard")
 
 
 # --- Database --------------------------------------------------------------

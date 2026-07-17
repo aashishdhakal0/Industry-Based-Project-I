@@ -14,14 +14,13 @@
   </p>
 
   {% comment %}
-    One screen, one action. The login view arrives in task 1.3; until then this
-    points at the only page that exists.
+    One screen, one action.
 
     Deliberately no points or level shown here: the visitor isn't logged in
     yet, and inventing a number to look gamified would be a lie on the very
     first screen they trust us with.
   {% endcomment %}
   <a class="cy-btn cy-btn--primary cy-btn--block"
-     href="{% url 'authentication:register' %}">Log in</a>
+     href="{% url 'authentication:login' %}">Log in</a>
 </div>
 {% endblock %}

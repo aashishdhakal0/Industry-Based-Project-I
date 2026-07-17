@@ -1,11 +1,12 @@
-"""Forms for account creation.
+"""Forms for account creation and sign-in.
 
 Copy here is aimed at a non-technical adult: say what to do, in plain words,
 before they get it wrong rather than after.
 """
 
 from django import forms
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth import authenticate
+from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 
 from .models import User
 
@@ -94,3 +95,95 @@ class RegistrationForm(UserCreationForm):
         if commit:
             user.save()
         return user
+
+
+class LoginForm(AuthenticationForm):
+    """Email + password.
+
+    AuthenticationForm calls its identity field `username` regardless of what
+    USERNAME_FIELD is, so the field below is named `username` but holds an
+    email. Renaming it would mean reimplementing the form; relabelling it is
+    enough, and the user never sees the internal name.
+    """
+
+    username = forms.EmailField(
+        label="Email address",
+        widget=forms.EmailInput(
+            attrs={"autocomplete": "email", "autofocus": True, "class": "form-control"}
+        ),
+    )
+    password = forms.CharField(
+        label="Password",
+        strip=False,
+        widget=forms.PasswordInput(
+            attrs={"autocomplete": "current-password", "class": "form-control"}
+        ),
+    )
+
+    def clean_username(self):
+        """Lower-case before authenticating.
+
+        Registration stores addresses lower-cased, and ModelBackend looks the
+        user up with an exact match. Without this, someone who signs up as
+        `meredith@x.com` and later types `Meredith@x.com` — which their phone
+        will capitalise for them — gets "no such account" and no way to work
+        out why.
+        """
+        return self.cleaned_data["username"].strip().lower()
+
+    def clean(self):
+        """Authenticate, and say something useful when it fails.
+
+        Reimplemented rather than calling super() because of an ordering
+        problem: ModelBackend rejects inactive users itself, returning None, so
+        `confirm_login_allowed` — the hook meant for exactly this message — is
+        never reached. An unverified user would just get "wrong password" and
+        try their password again forever.
+
+        Telling them the account exists but is unverified is enumerable, and is
+        the same deliberate trade-off as the registration form. See risk 13 in
+        docs/build-plan.md.
+        """
+        email = self.cleaned_data.get("username")
+        password = self.cleaned_data.get("password")
+
+        if email and password:
+            self.user_cache = authenticate(
+                self.request, username=email, password=password
+            )
+            if self.user_cache is None:
+                if User.objects.filter(email=email, is_active=False).exists():
+                    raise forms.ValidationError(
+                        "You haven't confirmed your email address yet. Check your "
+                        "inbox for the link we sent when you signed up.",
+                        code="unverified",
+                    )
+                raise self.get_invalid_login_error()
+            self.confirm_login_allowed(self.user_cache)
+
+        return self.cleaned_data
+
+
+class TOTPTokenForm(forms.Form):
+    """The six digits from the authenticator app."""
+
+    token = forms.CharField(
+        label="6-digit code",
+        max_length=6,
+        min_length=6,
+        widget=forms.TextInput(
+            attrs={
+                "autocomplete": "one-time-code",
+                "autofocus": True,
+                "class": "form-control",
+                "inputmode": "numeric",
+                "pattern": "[0-9]*",
+            }
+        ),
+    )
+
+    def clean_token(self):
+        token = self.cleaned_data["token"].strip().replace(" ", "")
+        if not token.isdigit():
+            raise forms.ValidationError("The code is 6 numbers, with no letters.")
+        return token

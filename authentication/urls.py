@@ -13,4 +13,8 @@ urlpatterns = [
     # given its own URL — it is the *result* of opening the link, not a page a
     # user could meaningfully navigate to.
     path("verify/<str:token>/", views.verify, name="verify"),
+    path("login/", views.login_view, name="login"),
+    path("logout/", views.logout_view, name="logout"),
+    path("2fa/setup/", views.two_factor_setup, name="two_factor_setup"),
+    path("2fa/", views.two_factor_verify, name="two_factor_verify"),
 ]

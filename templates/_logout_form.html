@@ -1,0 +1,14 @@
+{% comment %}
+  Logout is a POST, not a link.
+
+  A GET logout is a CSRF hole in miniature: any site can embed
+  <img src="https://cybaroo/logout/"> and sign our users out as they browse.
+  Harmless-looking, endlessly annoying, and trivially avoided. Django's own
+  LogoutView has required POST since 4.1 for the same reason.
+
+  Styled as a quiet button so it reads as a link despite being a form.
+{% endcomment %}
+<form method="post" action="{% url 'authentication:logout' %}" style="display: inline;">
+  {% csrf_token %}
+  <button type="submit" class="cy-btn cy-btn--quiet cy-btn--sm">Log out</button>
+</form>

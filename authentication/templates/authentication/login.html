@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}Log in — {{ site_name }}{% endblock %}
+
+{% block content %}
+<div class="cy-card cy-card--narrow">
+  <h1>Welcome back</h1>
+  <p class="cy-lede">Log in to pick up where you left off.</p>
+
+  {% if form.non_field_errors %}
+    <div class="cy-errors" role="alert">
+      {% for error in form.non_field_errors %}
+        <p class="mb-0">{{ error }}</p>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <form method="post" novalidate>
+    {% csrf_token %}
+    {% comment %}
+      Carries ?next= through the POST, so someone bounced here from a
+      protected page lands back on it rather than the dashboard. The value is
+      validated in authentication.utils.safe_redirect_target — an unvalidated
+      next is an open redirect.
+    {% endcomment %}
+    <input type="hidden" name="next" value="{{ next }}">
+
+    <div class="cy-field">
+      <label for="{{ form.username.id_for_label }}" class="cy-label">{{ form.username.label }}</label>
+      {{ form.username }}
+      {% for error in form.username.errors %}
+        <span class="cy-field-error">{{ error }}</span>
+      {% endfor %}
+    </div>
+
+    <div class="cy-field">
+      <label for="{{ form.password.id_for_label }}" class="cy-label">{{ form.password.label }}</label>
+      {{ form.password }}
+      {% for error in form.password.errors %}
+        <span class="cy-field-error">{{ error }}</span>
+      {% endfor %}
+    </div>
+
+    <button type="submit" class="cy-btn cy-btn--primary cy-btn--block">Log in</button>
+  </form>
+
+  <p class="cy-meta">
+    New here? <a href="{% url 'authentication:register' %}">Create an account</a>
+  </p>
+</div>
+{% endblock %}

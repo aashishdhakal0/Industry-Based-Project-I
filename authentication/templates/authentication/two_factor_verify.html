@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% comment %}
+  The second step on every subsequent login. Deliberately bare: one field, one
+  button, nothing to read. The user knows what to do — they just need somewhere
+  to type it.
+{% endcomment %}
+
+{% block title %}Enter your code — {{ site_name }}{% endblock %}
+
+{% block content %}
+<div class="cy-card cy-card--narrow">
+  <div class="cy-status-icon cy-status-icon--good" aria-hidden="true">
+    <svg class="cy-i"><use href="#i-shield"/></svg>
+  </div>
+
+  <h1>One more step</h1>
+  <p class="cy-lede">
+    Open your authenticator app and type the 6-digit code it's showing.
+  </p>
+
+  <form method="post" novalidate>
+    {% csrf_token %}
+    <div class="cy-field">
+      <label for="{{ form.token.id_for_label }}" class="cy-label">{{ form.token.label }}</label>
+      {{ form.token }}
+      {% for error in form.token.errors %}
+        <span class="cy-field-error">{{ error }}</span>
+      {% endfor %}
+    </div>
+
+    <button type="submit" class="cy-btn cy-btn--primary cy-btn--block">Log in</button>
+  </form>
+
+  <p class="cy-meta">
+    <a href="{% url 'authentication:login' %}">Start again</a>
+  </p>
+</div>
+{% endblock %}

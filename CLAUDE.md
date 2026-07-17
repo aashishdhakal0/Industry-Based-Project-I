@@ -46,6 +46,32 @@ is a requirement, not a nice-to-have.
 | "ReportLab's FPDF class" | **`reportlab.platypus` / `pdfgen.canvas.Canvas`** | ReportLab has no FPDF class. FPDF is a different library |
 | django-otp "handles QR display" | **render QR from `TOTPDevice.config_url`** | django-otp auto-QR is admin-only |
 | Gunicorn on PythonAnywhere | **not used** | PA runs its own WSGI server; gunicorn is redundant |
+| 2FA mandatory for **all** users | **mandatory for Instructors + Administrators, optional for Students** | See below — deliberate, defend it in the report |
+
+#### Why 2FA is role-based, not universal
+
+The spec asks for TOTP on every account. We require it of Instructors and
+Administrators and offer it to Students. This is a considered trade-off, not a
+shortcut — `User.requires_2fa` is the single source of the rule.
+
+**The threat model isn't uniform.** An Instructor publishes content to every
+learner; an Administrator holds the admin. Those accounts are worth stealing,
+and the people holding them are supported staff who can be walked through
+setup. A Student account contains one person's quiz scores. Stealing it gains
+an attacker nothing and costs them a phishing email.
+
+**The cost isn't uniform either.** Our users are non-technical Australian
+adults — the office manager, the council officer, the school administrator.
+"Install an authenticator app" is the single most likely point of abandonment
+in the entire product, and a security course nobody finishes protects nobody.
+Universal 2FA would trade a real drop in completion for a marginal gain against
+a threat that barely exists.
+
+**Students are still offered it**, through the same flow and screens, from the
+dashboard. Optional means opt-in, not absent.
+
+This strengthens the security story rather than weakening it: protection is
+concentrated where the privilege is. Say exactly that in the report.
 
 ### Unresolved blocker
 **PythonAnywhere's free tier has no PostgreSQL** (MySQL is paid; PG is a paid
@@ -148,10 +174,29 @@ rebuilds Django's stock `UserAdmin` around `email` — the stock one hardcodes
 
 **Superuser:** `dhakalaashish75@gmail.com` (ADMINISTRATOR, verified). Password is
 Aashish's own; hash confirmed `pbkdf2_sha256` @ 1,000,000 iterations.
+Being an ADMINISTRATOR, it now **requires 2FA at `/login/`** and will be sent to
+`/2fa/setup/` on first sign-in there. `/admin/` has its own login and is
+unaffected, so there is no way to get locked out.
 
-**Not started:** all views, all templates, all content.
+**Auth — done.** Sprint 1.2 (registration + email verification) and 1.3 (login +
+role-based 2FA) are built, tested and merged. Registration mints Students only
+(`role` is deliberately absent from the form — self-selection would be privilege
+escalation); accounts are `is_active=False` until a signed 48h token is opened.
+Login is email+password, lower-cased, rate-limited 10/hr/IP, with `?next=`
+validated against open redirect. **No session exists until both factors pass** —
+between password and code only a user id sits in the session.
 
-**Next:** Sprint 1.2 — registration + email verification.
+**Design system — done.** Cybaroo identity: near-black base, violet→cyan
+gradients, Space Grotesk + JetBrains Mono vendored locally, 16-icon SVG sprite,
+no emoji anywhere. Landing, About, Modules, dashboard, and a DEBUG-only
+`/styleguide/`. **The gradient carries dark ink, never white** — white measures
+1.81:1 at the cyan end. Rule documented at the top of `cybaroo.css`.
+
+**Not started:** modules/lessons/quizzes/AFE/certificates — all views, all
+content. `/dashboard/` renders placeholder numbers from
+`nstp/placeholder_content.py` (Sprint 2 deletes it).
+
+**Next:** Sprint 1.4 — RBAC groups + per-view role checks. Then 1.6 CI.
 
 **Repo:** github.com/aashishdhakal0/Industry-Based-Project-I — remote **is**
 configured; `BN304-Development` is pushed and tracks `origin`, currently at

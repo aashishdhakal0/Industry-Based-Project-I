@@ -160,13 +160,13 @@ def test_modules_page_shows_the_sequential_lock_honestly(client):
 
 @pytest.mark.django_db
 def test_dashboard_rejects_anonymous_visitors(client):
+    """The /admin/login/ stopgap is gone as of task 1.3 — anonymous visitors
+    now land on our own login page, with ?next= back to where they were going."""
     response = client.get(reverse("dashboard"))
 
     assert response.status_code == 302
-    assert "/admin/login/" in response.url, (
-        "LOGIN_URL is temporary — when task 1.3 lands the real login view, "
-        "update settings.LOGIN_URL and this assertion together."
-    )
+    assert response.url.startswith(reverse("authentication:login"))
+    assert "next=/dashboard/" in response.url
 
 
 @pytest.mark.django_db

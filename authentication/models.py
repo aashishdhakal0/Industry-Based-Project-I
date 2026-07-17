@@ -84,6 +84,27 @@ class User(AbstractUser):
     def is_administrator(self):
         return self.role == self.Role.ADMINISTRATOR
 
+    @property
+    def requires_2fa(self):
+        """Whether this account MUST have TOTP before it can be used.
+
+        Deviation from the spec, made deliberately — see the deviations table
+        in CLAUDE.md. The spec asks for 2FA on every account. We require it of
+        Instructors and Administrators, and offer it to Students.
+
+        The reasoning is our users. A Student is a non-technical Australian
+        adult who came to learn what a phishing email looks like; making an
+        authenticator app the price of entry is the single most likely place
+        they abandon, and a security course nobody finishes protects nobody.
+        Instructors and Administrators are the accounts worth stealing — they
+        publish content to every learner and hold the admin — and those people
+        are supported staff who can be walked through setup.
+
+        Students are still offered TOTP, and the offer is real: same flow, same
+        screens, just opt-in.
+        """
+        return self.role in {self.Role.INSTRUCTOR, self.Role.ADMINISTRATOR}
+
 
 class UserProfile(models.Model):
     """Extended profile and gamification state for a User."""

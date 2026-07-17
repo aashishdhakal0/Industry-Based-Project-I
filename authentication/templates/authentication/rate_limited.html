@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% comment %}
+  The 429. Task 1.5 asks for "a friendly page, not a stack trace" — and the
+  person seeing this is almost never an attacker. It's someone who forgot which
+  password they used and tried eleven times. Tell them what happened and when
+  to come back; don't accuse them of anything.
+{% endcomment %}
+
+{% block title %}Too many attempts — {{ site_name }}{% endblock %}
+
+{% block content %}
+<div class="cy-card cy-card--narrow">
+  <div class="cy-status-icon cy-status-icon--warn" aria-hidden="true">
+    <svg class="cy-i"><use href="#i-clock"/></svg>
+  </div>
+
+  <h1>Let's slow down a moment</h1>
+  <p class="cy-lede">
+    That's a lot of attempts in a short time, so we've paused logins from this
+    connection for a little while. It's a precaution that protects your account
+    — nothing has gone wrong with it.
+  </p>
+
+  <p>
+    Try again in an hour. If you've forgotten your password, we'll be able to
+    help you reset it then.
+  </p>
+</div>
+{% endblock %}

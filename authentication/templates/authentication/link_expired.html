@@ -16,5 +16,9 @@
 
   <a class="cy-btn cy-btn--primary cy-btn--block"
      href="{% url 'authentication:register' %}">Send me a new link</a>
+
+  <p class="cy-meta">
+    Already confirmed your email? <a href="{% url 'authentication:login' %}">Log in</a>
+  </p>
 </div>
 {% endblock %}

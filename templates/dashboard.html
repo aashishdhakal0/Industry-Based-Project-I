@@ -21,7 +21,7 @@
 {% comment %} Logged in: the marketing nav would be noise. {% endcomment %}
 {% block nav_links %}{% endblock %}
 {% block nav_actions %}
-  <a class="cy-btn cy-btn--quiet cy-btn--sm" href="{% url 'landing' %}">Log out</a>
+  {% include "_logout_form.html" %}
 {% endblock %}
 
 {% block content %}
