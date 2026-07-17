@@ -188,6 +188,100 @@ def test_dashboard_renders_clean(client):
 
 
 # --------------------------------------------------------------------------
+# Contrast — the two failures that were found by measuring, not looking
+# --------------------------------------------------------------------------
+
+
+def _contrast(fg, bg):
+    def lin(c):
+        c = c / 255
+        return c / 12.92 if c <= 0.04045 else ((c + 0.055) / 1.055) ** 2.4
+
+    def lum(h):
+        h = h.lstrip("#")
+        r, g, b = (int(h[i : i + 2], 16) for i in (0, 2, 4))
+        return 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b)
+
+    a, b = lum(fg), lum(bg)
+    hi, lo = max(a, b), min(a, b)
+    return (hi + 0.05) / (lo + 0.05)
+
+
+def _token(name):
+    """Read a custom property's value straight out of the stylesheet."""
+    import pathlib
+    import re
+
+    css = pathlib.Path("static/css/cybaroo.css").read_text()
+    match = re.search(rf"{re.escape(name)}:\s*([^;]+);", css)
+    assert match, f"{name} is not defined in cybaroo.css"
+    return match.group(1).strip()
+
+
+def test_input_borders_meet_wcag_non_text_contrast():
+    """WCAG 1.4.11: the boundary of a control you're meant to find and type in
+    needs 3:1 against its surroundings.
+
+    This shipped at 1.58:1 — which is why the fields read as "almost the same
+    as the background". They were. The fix is a token, so the test guards the
+    token rather than a screenshot.
+    """
+    line = _token("--cy-field-line")
+    for surface in ("#191926", "#12121c", "#0b0b12"):
+        ratio = _contrast(line, surface)
+        assert ratio >= 3.0, (
+            f"--cy-field-line ({line}) is {ratio:.2f}:1 against {surface} — "
+            f"WCAG 1.4.11 requires 3:1 for input boundaries."
+        )
+
+
+def test_the_gradient_never_carries_white_text():
+    """The button label is dark ink on a bright gradient, which looks unusual
+    and is the only thing that works: white measures 1.81:1 at the cyan end.
+
+    Both ends must clear AA against the ink, with room to spare — AA is the
+    floor for body text, not the target for a 17px label on a saturated fill.
+    """
+    import re
+
+    grad = _token("--cy-grad")
+    ends = re.findall(r"#[0-9a-fA-F]{6}", grad)
+    assert len(ends) == 2, f"expected two gradient stops, got {ends}"
+
+    ink = _token("--cy-ink")
+    for end in ends:
+        ratio = _contrast(ink, end)
+        assert ratio >= 4.5, (
+            f"dark ink on {end} is {ratio:.2f}:1 — the CTA label fails AA. "
+            f"Brighten the gradient; do not switch the label to white."
+        )
+        # And white must remain the wrong answer, so nobody "fixes" it back.
+        assert _contrast("#ffffff", end) < 4.5 or _contrast(ink, end) >= 7.0
+
+
+# --------------------------------------------------------------------------
+# Stats
+# --------------------------------------------------------------------------
+
+
+@pytest.mark.django_db
+def test_stat_numbers_are_real_in_the_markup_not_filled_in_by_javascript(client):
+    """The count-up animates from 0 up to the figure already in the HTML.
+
+    If the markup shipped "0" and JavaScript filled it in, then every visitor
+    without JS — and everyone with reduced motion — would read that Australia
+    had zero cybercrime reports. These are real ASD figures on a public page
+    for a real client; the truth goes in the HTML and the animation is the
+    enhancement.
+    """
+    html = client.get(reverse("landing")).content.decode()
+
+    assert ">84,700<" in html
+    assert ">$56,600<" in html
+    assert 'data-count-to="84700"' in html
+
+
+# --------------------------------------------------------------------------
 # Styleguide
 # --------------------------------------------------------------------------
 

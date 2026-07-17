@@ -112,46 +112,63 @@
           </div>
         </div>
 
-        <!-- level badge -->
+        {% comment %}
+          Hex rank badge, not a circle-with-a-number: a hexagon reads as an
+          insignia you earned, and it echoes the points icon. The ring around
+          it is progress to the next level.
+        {% endcomment %}
         <div class="cy-drift cy-scene__level">
           <div class="cy-float">
-            <div class="cy-panel">
-              <div class="cy-level cy-level--lg" style="--cy-level-progress: 68;">
-                <div class="cy-level__inner">
-                  <span class="cy-level__label">Level</span>
-                  <span class="cy-level__value">4</span>
+            <div class="cy-hex-wrap" style="--cy-level-progress: 68;">
+              <div class="cy-hex">
+                <div class="cy-hex__inner">
+                  <span class="cy-hex__label">Level</span>
+                  <span class="cy-hex__value">4</span>
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- XP bar, mid-fill -->
+        {% comment %}
+          The reward, at the moment it lands. A points panel states a number;
+          this says something just happened — which is the actual promise.
+        {% endcomment %}
         <div class="cy-drift cy-scene__xp">
           <div class="cy-float">
-            <div class="cy-panel">
-              <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:0.6rem;">
-                <span class="cy-stat__label">Points</span>
-                <span class="cy-stat__value" style="color: var(--cy-violet-soft);">1,240</span>
-              </div>
-              <div class="cy-progress">
-                <div class="cy-progress__fill" style="--cy-value: 68%; --cy-delay: 0.75s;"></div>
-              </div>
+            <div class="cy-xp-toast">
+              <span class="cy-xp-toast__badge">
+                <svg class="cy-i" aria-hidden="true"><use href="#i-bolt"/></svg>
+              </span>
+              <span class="cy-xp-toast__value">+50 XP</span>
+              <span class="cy-xp-toast__text">Quiz passed</span>
             </div>
           </div>
         </div>
 
-        <!-- streak, closest to the reader -->
+        {% comment %}
+          Seven lit squares instead of the numeral 7. Same fact, felt rather
+          than read — you can see the week you turned up.
+        {% endcomment %}
         <div class="cy-drift cy-scene__streak">
           <div class="cy-float">
-            <div class="cy-panel" style="padding: 0.7rem 0.9rem;">
-              <span class="cy-streak" style="border:0; background:none; padding:0;">
-                <span class="cy-streak__flame">
+            <div class="cy-streak-tile">
+              <div class="cy-streak-tile__top">
+                <span class="cy-streak-tile__flame">
                   <svg class="cy-i" aria-hidden="true"><use href="#i-flame"/></svg>
                 </span>
-                <span class="cy-streak__value">7</span>
-                <span class="cy-streak__label">day streak</span>
-              </span>
+                <span class="cy-streak-tile__value">7</span>
+                <span class="cy-streak-tile__label">day streak</span>
+              </div>
+              <div class="cy-week">
+                <span class="cy-week__day cy-week__day--on"></span>
+                <span class="cy-week__day cy-week__day--on"></span>
+                <span class="cy-week__day cy-week__day--on"></span>
+                <span class="cy-week__day cy-week__day--on"></span>
+                <span class="cy-week__day cy-week__day--on"></span>
+                <span class="cy-week__day cy-week__day--on"></span>
+                <span class="cy-week__day cy-week__day--on"></span>
+              </div>
             </div>
           </div>
         </div>
@@ -172,27 +189,60 @@
 <section class="cy-band cy-band--raised">
   <div class="cy-wrap">
     <div class="cy-section__head">
-      <h2 class="cy-section__title">Why it's worth ten minutes</h2>
+      <span class="cy-eyebrow">
+        <span class="cy-eyebrow__dot" aria-hidden="true"></span>
+        Australia, last year
+      </span>
+      <h2 class="cy-section__title">
+        It's not just <span class="cy-grad-text">big companies</span>.
+      </h2>
       <p class="cy-section__lede">
-        Cybercrime in Australia isn't rare, and it isn't only aimed at big
-        companies.
+        While you read this page, someone in Australia reported a cybercrime.
+        Then someone else did. It's rarely dramatic — usually it's an ordinary
+        business having an ordinary Tuesday.
       </p>
     </div>
 
     <div class="cy-stats">
       {% for s in threat_stats.items %}
         <div class="cy-stat-card cy-reveal" style="--cy-delay: {{ forloop.counter0 }}00ms;">
-          <span class="cy-stat-card__value">{{ s.value }}</span>
+          <span class="cy-stat-card__ghost" aria-hidden="true">
+            <svg class="cy-i"><use href="#{{ s.icon }}"/></svg>
+          </span>
+          <span class="cy-stat-card__icon">
+            <svg class="cy-i" aria-hidden="true"><use href="#{{ s.icon }}"/></svg>
+          </span>
+          {% comment %}
+            The real figure is the text content. static/js/cybaroo.js counts up
+            to it from zero when the card scrolls in — and if the script never
+            runs, or motion is reduced, the true number is simply already here.
+            Never ship "0" and hope JavaScript corrects it: these are real ASD
+            statistics on a public page.
+          {% endcomment %}
+          <span class="cy-stat-card__value"
+                data-count-to="{{ s.count_to }}"
+                data-count-prefix="{{ s.prefix }}"
+                data-count-suffix="{{ s.suffix }}">{{ s.value }}</span>
           <span class="cy-stat-card__label">{{ s.label }}</span>
           <p class="cy-stat-card__note">{{ s.note }}</p>
         </div>
       {% endfor %}
     </div>
 
+    <div class="cy-stats-note cy-reveal">
+      <span class="cy-stats-note__icon">
+        <svg class="cy-i" aria-hidden="true"><use href="#i-shield"/></svg>
+      </span>
+      <p>
+        <strong>Here's the good news.</strong> Almost none of this needs
+        technical knowledge to avoid — it needs someone who knows what to look
+        for. That's a ten-minute lesson, not a career change.
+      </p>
+    </div>
+
     <p class="cy-source">
       Source: <a href="{{ threat_stats.source_url }}" rel="noopener">{{ threat_stats.source }}</a>,
-      covering {{ threat_stats.period }}. None of it needs a technical background
-      to avoid — that's rather the point of this whole thing.
+      covering {{ threat_stats.period }}.
     </p>
   </div>
 </section>

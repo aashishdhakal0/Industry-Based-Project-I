@@ -80,6 +80,14 @@
   --cy-border: #2a2a3d;
   --cy-border-lift: #3a3a52;
 
+  /* Input borders are held to a different standard than decorative ones.
+     WCAG 1.4.11 asks 3:1 for the boundary of a control you're meant to find
+     and type in — and --cy-border-lift measures 1.58:1 against the card, which
+     is why the fields read as "almost the same as the background". They were.
+     #666699 clears 3:1 on every surface a field sits on. */
+  --cy-field-line: #666699;
+  --cy-field-bg: #08080f;
+
   /* --- Text. Ratios measured against --cy-surface-2, the lightest surface
      these sit on — the worst case, not the flattering one. ---------------- */
   --cy-text: #f0f0f7;      /* 15.8:1 — AAA */
@@ -89,17 +97,26 @@
                               password, so it doesn't get to be decorative. */
 
   /* --- Accents ---------------------------------------------------------- */
-  --cy-violet: #9b7bf8;        /* the primary. 6.2:1 as text on base */
+  --cy-violet: #9b7bf8;        /* solid accent: rings, borders, glows */
   --cy-violet-soft: #b39dfb;
   --cy-violet-deep: #6d28d9;   /* fills and glows only — too dark for text */
-  --cy-cyan: #22d3ee;          /* 10.9:1 as text on base */
+  --cy-cyan: #22d3ee;
   --cy-cyan-soft: #67e8f9;
 
   /* Ink for anything sitting ON an accent fill. See the rule at the top. */
   --cy-ink: #0b0b12;
 
-  --cy-grad: linear-gradient(115deg, var(--cy-violet), var(--cy-cyan));
+  /* The gradient is BRIGHTER than the solid accents on purpose.
+     Everywhere it appears it is either (a) a fill carrying dark ink, or (b)
+     text on the near-black base — and both get better as it gets lighter.
+     At the old #9b7bf8 the button label measured 6.15:1: technically AA, but
+     AA is the floor for body text, not the target for a 17px label on a
+     saturated fill, and it read as muddy. #a78bfa lifts the worst end to
+     7.21:1 (AAA) while staying unmistakably electric. */
+  --cy-grad: linear-gradient(115deg, #a78bfa, #3ddcf0);
   --cy-grad-soft: linear-gradient(115deg, rgba(155, 123, 248, 0.18), rgba(34, 211, 238, 0.14));
+  /* Decorative only — never carries text, so it can stay saturated. */
+  --cy-grad-deep: linear-gradient(115deg, var(--cy-violet), var(--cy-cyan));
 
   --cy-glow-violet: rgba(155, 123, 248, 0.4);
   --cy-glow-violet-soft: rgba(155, 123, 248, 0.14);
@@ -130,9 +147,13 @@
   --cy-fast: 140ms;
   --cy-slow: 320ms;
 
+  /* The sticky nav's height. The hero subtracts it to fill exactly one
+     viewport; if the nav's padding changes, change this with it. */
+  --cy-nav-h: 61px;
+
   /* Type scale. Fluid, and deliberately dramatic at the top end — the hero
      should feel like a statement, not a paragraph in bold. */
-  --cy-t-hero: clamp(2.6rem, 6vw, 4.75rem);
+  --cy-t-hero: clamp(2.5rem, 5.4vw, 4.25rem);
   --cy-t-h2: clamp(1.9rem, 3.4vw, 2.7rem);
   --cy-t-h3: 1.15rem;
   --cy-t-body: 1.0625rem;
@@ -543,21 +564,33 @@ body.cy-body {
   margin-bottom: 0.5rem;
 }
 
+/* Fields read as wells you type into: darker than the card they sit on, a
+   border that clears 1.4.11, and an inset shadow so the edge has a direction.
+   Previously they were near-invisible — same value as the page, on a boundary
+   at 1.58:1. */
 .cy-body .form-control {
-  background: var(--cy-bg);
-  border: 1px solid var(--cy-border-lift);
+  background: var(--cy-field-bg);
+  border: 1px solid var(--cy-field-line);
   border-radius: var(--cy-r);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.55);
   color: var(--cy-text);
   font-family: var(--cy-font);
   font-size: 1.0625rem;
-  padding: 0.75rem 1rem;
-  transition: border-color var(--cy-fast) var(--cy-ease), box-shadow var(--cy-fast) var(--cy-ease);
+  padding: 0.8rem 1rem;
+  transition:
+    border-color var(--cy-fast) var(--cy-ease),
+    box-shadow var(--cy-fast) var(--cy-ease);
 }
 .cy-body .form-control::placeholder { color: var(--cy-text-3); }
+.cy-body .form-control:hover {
+  border-color: #7b7bb0;
+}
 .cy-body .form-control:focus {
-  background: var(--cy-bg);
+  background: var(--cy-field-bg);
   border-color: var(--cy-violet);
-  box-shadow: 0 0 0 3px var(--cy-glow-violet-soft);
+  box-shadow:
+    inset 0 1px 3px rgba(0, 0, 0, 0.55),
+    0 0 0 3px var(--cy-glow-violet-soft);
   color: var(--cy-text);
   outline: none;
 }
@@ -622,9 +655,20 @@ body.cy-body {
    Hero
    ========================================================================== */
 
+/* Sized to land in one viewport: the first screen should be the whole pitch,
+   not the pitch plus a stripe of the next section. svh rather than vh because
+   vh on mobile means "viewport with the URL bar hidden", which it isn't when
+   the page loads — the difference is exactly the awkward gap.
+
+   min-height, not height: on a short laptop the content still grows rather
+   than being clipped. align-content centres whatever is left over, so there's
+   no dead space at the bottom either way. */
 .cy-hero {
+  align-content: center;
+  display: grid;
+  min-height: calc(100svh - var(--cy-nav-h));
   overflow: hidden;
-  padding: clamp(3rem, 7vw, 6rem) 0 clamp(4rem, 8vw, 7rem);
+  padding: clamp(1.5rem, 3vw, 2.5rem) 0 clamp(2rem, 4vw, 3rem);
   position: relative;
 }
 
@@ -758,12 +802,215 @@ body.cy-body {
    it's what makes the scene read as stacked depth.
 
    --cy-shift is the parallax distance. Nearer panels move further, which is
-   what sells depth: the streak chip is "closest" to the reader, the module
+   what sells depth: the streak tile is "closest" to the reader, the module
    card sits furthest back. */
-.cy-scene__card   { left: 2%;  top: 6%;     width: 74%; --cy-delay: 0s;     --cy-shift: -14px; }
-.cy-scene__level  { right: 0;  top: 30%;                --cy-delay: -2.4s;  --cy-shift: 26px; }
-.cy-scene__xp     { left: 8%;  bottom: 12%; width: 76%; --cy-delay: -4.1s;  --cy-shift: 40px; }
-.cy-scene__streak { right: 4%; bottom: 2%;              --cy-delay: -1.2s;  --cy-shift: 58px; }
+.cy-scene__card   { left: 0;    top: 2%;    width: 78%; --cy-delay: 0s;     --cy-shift: -14px; }
+.cy-scene__level  { right: 1%;  top: 26%;               --cy-delay: -2.4s;  --cy-shift: 24px; }
+.cy-scene__xp     { right: 6%;  top: 56%;               --cy-delay: -4.1s;  --cy-shift: 40px; }
+.cy-scene__streak { left: 4%;   bottom: 0;              --cy-delay: -1.2s;  --cy-shift: 58px; }
+
+
+/* --- Hex level badge -----------------------------------------------------
+   The level ring was a circle with a number in it, which is what every
+   dashboard on earth looks like. A hexagon reads as a rank insignia — a thing
+   you earn — and it's the same silhouette as the points icon, so the two
+   belong to each other.
+
+   Gradient border done with two stacked clips: the outer element IS the
+   gradient, the inner sits 2px inside with the card fill and the same
+   polygon. No border property can follow a clip-path, so this is the way. */
+
+.cy-hex {
+  --cy-hex-clip: polygon(50% 0%, 93.3% 25%, 93.3% 75%, 50% 100%, 6.7% 75%, 6.7% 25%);
+  aspect-ratio: 1 / 1.05;
+  background: var(--cy-grad);
+  clip-path: var(--cy-hex-clip);
+  display: grid;
+  filter: drop-shadow(0 6px 20px rgba(0, 0, 0, 0.6));
+  place-items: center;
+  width: var(--cy-hex-size, 104px);
+}
+
+.cy-hex__inner {
+  align-items: center;
+  background: linear-gradient(165deg, #23233a, #101019);
+  clip-path: var(--cy-hex-clip);
+  display: flex;
+  flex-direction: column;
+  height: calc(100% - 3px);
+  justify-content: center;
+  width: calc(100% - 3px);
+}
+
+.cy-hex__label {
+  color: var(--cy-text-3);
+  font-size: 0.55rem;
+  letter-spacing: 0.14em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.cy-hex__value {
+  background: var(--cy-grad);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  font-family: var(--cy-font-mono);
+  font-size: 1.85rem;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+/* The thin arc of progress-to-next-level, hugging the badge. A ring around a
+   hexagon on purpose: the mismatch of shapes is what makes it read as an
+   attachment to the badge rather than part of it.
+
+   The custom properties are declared HERE, on the wrapper — not inside
+   ::before. A pseudo-element inherits from its originating element, so
+   re-declaring --cy-level-progress in ::before would shadow the inline style
+   that sets it and the ring would sit at 0% forever, silently.
+
+   Sizes derive from --cy-hex-size so the ring tracks the badge; hard-coding
+   128px meant a 78px badge wore a ring floating 25px off it. */
+.cy-hex-wrap {
+  --cy-hex-size: 104px;
+  --cy-level-progress: 0;
+  --cy-ring-d: calc(var(--cy-hex-size) * 1.3);
+  display: grid;
+  place-items: center;
+  position: relative;
+}
+
+.cy-hex-wrap::before {
+  background: conic-gradient(
+    var(--cy-cyan) calc(var(--cy-level-progress) * 1%),
+    rgba(255, 255, 255, 0.06) 0
+  );
+  border-radius: 50%;
+  content: "";
+  grid-area: 1 / 1;
+  height: var(--cy-ring-d);
+  /* Punch the middle out: everything but a 2px band at the edge. */
+  -webkit-mask: radial-gradient(
+    circle,
+    transparent calc(var(--cy-ring-d) / 2 - 3px),
+    #000 calc(var(--cy-ring-d) / 2 - 3px),
+    #000 calc(var(--cy-ring-d) / 2 - 1px),
+    transparent calc(var(--cy-ring-d) / 2 - 1px)
+  );
+  mask: radial-gradient(
+    circle,
+    transparent calc(var(--cy-ring-d) / 2 - 3px),
+    #000 calc(var(--cy-ring-d) / 2 - 3px),
+    #000 calc(var(--cy-ring-d) / 2 - 1px),
+    transparent calc(var(--cy-ring-d) / 2 - 1px)
+  );
+  width: var(--cy-ring-d);
+}
+
+.cy-hex-wrap > * { grid-area: 1 / 1; }
+
+
+/* --- XP toast ------------------------------------------------------------
+   The thing a game shows you the instant you earn something. It's the single
+   most legible way to say "this rewards you" without a paragraph — and it
+   tells a story the scattered widgets didn't: something just happened. */
+
+.cy-xp-toast {
+  align-items: center;
+  backdrop-filter: blur(10px);
+  background: linear-gradient(165deg, rgba(35, 35, 58, 0.96), rgba(16, 16, 25, 0.94));
+  border: 1px solid rgba(167, 139, 250, 0.55);
+  border-radius: var(--cy-r-pill);
+  box-shadow: 0 0 28px var(--cy-glow-violet-soft), var(--cy-shadow-float);
+  display: inline-flex;
+  gap: 0.6rem;
+  padding: 0.6rem 1rem 0.6rem 0.7rem;
+  white-space: nowrap;
+}
+
+.cy-xp-toast__badge {
+  align-items: center;
+  background: var(--cy-grad);
+  border-radius: 50%;
+  color: var(--cy-ink);
+  display: flex;
+  height: 26px;
+  justify-content: center;
+  width: 26px;
+}
+.cy-xp-toast__badge .cy-i { height: 15px; width: 15px; }
+
+.cy-xp-toast__value {
+  background: var(--cy-grad);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  font-family: var(--cy-font-mono);
+  font-weight: 700;
+}
+
+.cy-xp-toast__text {
+  color: var(--cy-text-2);
+  font-size: 0.85rem;
+}
+
+
+/* --- Streak tile ---------------------------------------------------------
+   A number beside a flame says "7". Seven lit squares say "you turned up every
+   day this week" — the same fact, felt rather than read. */
+
+.cy-streak-tile {
+  backdrop-filter: blur(10px);
+  background: linear-gradient(165deg, rgba(35, 35, 58, 0.96), rgba(16, 16, 25, 0.94));
+  border: 1px solid rgba(255, 157, 77, 0.4);
+  border-radius: var(--cy-r-lg);
+  box-shadow: 0 0 26px rgba(255, 157, 77, 0.12), var(--cy-shadow-float);
+  padding: 0.85rem 1rem;
+}
+
+.cy-streak-tile__top {
+  align-items: center;
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.6rem;
+}
+
+.cy-streak-tile__flame {
+  animation: cy-flicker 3.4s ease-in-out infinite;
+  color: var(--cy-flame);
+  transform-origin: 50% 85%;
+}
+
+.cy-streak-tile__value {
+  color: var(--cy-gold);
+  font-family: var(--cy-font-mono);
+  font-size: 1.15rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.cy-streak-tile__label {
+  color: var(--cy-text-3);
+  font-size: 0.8rem;
+}
+
+.cy-week {
+  display: flex;
+  gap: 4px;
+}
+
+.cy-week__day {
+  background: var(--cy-surface-3);
+  border-radius: 3px;
+  height: 9px;
+  width: 9px;
+}
+
+.cy-week__day--on {
+  background: linear-gradient(180deg, var(--cy-gold), var(--cy-flame));
+  box-shadow: 0 0 7px rgba(255, 157, 77, 0.7);
+}
 
 @keyframes cy-float {
   0%, 100% { transform: translateY(-7px); }
@@ -1161,26 +1408,61 @@ body.cy-body {
 
 .cy-stats {
   display: grid;
-  gap: 1.25rem;
-  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+  gap: 1.35rem;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
 }
 
 .cy-stat-card {
   background: linear-gradient(180deg, var(--cy-surface-2), var(--cy-surface));
   border: 1px solid var(--cy-border);
-  border-radius: var(--cy-r-lg);
-  padding: 1.75rem;
+  border-radius: var(--cy-r-xl);
+  overflow: hidden;
+  padding: 1.85rem 1.6rem 1.6rem;
   position: relative;
+  transition: transform var(--cy-slow) var(--cy-ease), border-color var(--cy-slow) var(--cy-ease);
 }
+.cy-stat-card:hover {
+  border-color: var(--cy-border-lift);
+  transform: translateY(-4px);
+}
+
+/* A full-width gradient cap, not a faded hairline. These cards have to carry
+   the emotional weight of the section, and the hairline made them look like
+   the "how it works" cards wearing a different hat. */
 .cy-stat-card::before {
-  background: linear-gradient(90deg, transparent, var(--cy-glow-violet), transparent);
+  background: var(--cy-grad);
   content: "";
-  height: 1px;
-  left: 18%;
+  height: 3px;
+  inset: 0 0 auto;
   position: absolute;
-  right: 18%;
-  top: 0;
 }
+
+/* An oversized ghost of the icon, bled off the corner. Gives each card its own
+   silhouette at a glance, without adding anything to read. */
+.cy-stat-card__ghost {
+  color: var(--cy-violet);
+  opacity: 0.07;
+  pointer-events: none;
+  position: absolute;
+  right: -14px;
+  top: 6px;
+}
+.cy-stat-card__ghost .cy-i { height: 92px; width: 92px; }
+
+.cy-stat-card__icon {
+  align-items: center;
+  background: var(--cy-grad-soft);
+  border: 1px solid rgba(167, 139, 250, 0.3);
+  border-radius: 12px;
+  color: var(--cy-violet-soft);
+  display: flex;
+  height: 40px;
+  justify-content: center;
+  margin-bottom: 1.1rem;
+  position: relative;
+  width: 40px;
+}
+.cy-stat-card__icon .cy-i { height: 20px; width: 20px; }
 
 .cy-stat-card__value {
   background: var(--cy-grad);
@@ -1189,24 +1471,117 @@ body.cy-body {
   color: transparent;
   display: block;
   font-family: var(--cy-font-mono);
+  /* Tabular figures are doing real work here: without them the count-up
+     jitters the card's width on every frame as the digits change. */
   font-feature-settings: "tnum";
-  font-size: clamp(2rem, 3.4vw, 2.75rem);
+  font-size: clamp(2.1rem, 3.6vw, 2.9rem);
   font-weight: 700;
   letter-spacing: -0.04em;
   line-height: 1.1;
-  margin-bottom: 0.4rem;
+  margin-bottom: 0.35rem;
+  position: relative;
 }
 
 .cy-stat-card__label {
   color: var(--cy-text);
   display: block;
   font-weight: 500;
-  margin-bottom: 0.2rem;
+  margin-bottom: 0.3rem;
+  position: relative;
 }
 
 .cy-stat-card__note {
   color: var(--cy-text-3);
   font-size: 0.9rem;
+  margin: 0;
+  position: relative;
+}
+
+/* The reassurance that has to follow the numbers. Without it the section is
+   just three frightening facts aimed at someone who already feels out of
+   their depth. */
+.cy-stats-note {
+  align-items: flex-start;
+  background: var(--cy-grad-soft);
+  border: 1px solid rgba(167, 139, 250, 0.28);
+  border-radius: var(--cy-r-lg);
+  display: flex;
+  gap: 0.85rem;
+  margin-top: 1.75rem;
+  padding: 1.15rem 1.35rem;
+}
+
+.cy-stats-note__icon {
+  color: var(--cy-violet-soft);
+  flex: none;
+  margin-top: 0.15rem;
+}
+
+.cy-stats-note p {
+  color: var(--cy-text-2);
+  margin: 0;
+}
+
+
+/* ==========================================================================
+   Auth split — form beside a reason to fill it in
+   ==========================================================================
+   A sign-up form alone on a black page is a toll gate. Beside the thing
+   they're signing up FOR, it's a door. Same form, same fields.
+   ========================================================================== */
+
+.cy-auth {
+  align-items: center;
+  display: grid;
+  gap: clamp(1.5rem, 4vw, 3rem);
+  grid-template-columns: 1.02fr 0.98fr;
+  margin: 0 auto;
+  max-width: 62rem;
+}
+
+.cy-auth__aside {
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+}
+
+.cy-perks {
+  display: grid;
+  gap: 1.15rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.cy-perk {
+  align-items: flex-start;
+  display: flex;
+  gap: 0.9rem;
+}
+
+.cy-perk__icon {
+  align-items: center;
+  background: var(--cy-grad-soft);
+  border: 1px solid rgba(167, 139, 250, 0.3);
+  border-radius: 10px;
+  color: var(--cy-violet-soft);
+  display: flex;
+  flex: none;
+  height: 36px;
+  justify-content: center;
+  width: 36px;
+}
+.cy-perk__icon .cy-i { height: 18px; width: 18px; }
+
+.cy-perk__title {
+  color: var(--cy-text);
+  display: block;
+  font-weight: 500;
+}
+
+.cy-perk__text {
+  color: var(--cy-text-2);
+  font-size: 0.92rem;
   margin: 0;
 }
 
@@ -1481,6 +1856,7 @@ body.cy-body {
   .cy-btn:hover,
   .cy-step:hover,
   .cy-module--unlocked:hover,
+  .cy-stat-card:hover,
   .cy-badge--earned:hover .cy-badge__medal {
     transform: none;
   }
@@ -1488,10 +1864,16 @@ body.cy-body {
   /* The hero scene keeps its depth and gradient; it simply stops drifting. */
   .cy-float,
   .cy-drift,
-  .cy-streak__flame {
+  .cy-streak__flame,
+  .cy-streak-tile__flame {
     animation: none;
     transform: none;
   }
+
+  /* The count-up is the one piece of motion that's JavaScript. cybaroo.js
+     checks this same query before it touches anything, and the real number is
+     already in the markup — so with reduced motion it never animates away from
+     the truth in the first place. */
 
   /* Both of these must end VISIBLE, not merely un-animated. Content is never
      the thing motion preferences take away. */
@@ -1510,13 +1892,22 @@ body.cy-body {
 
 @media (max-width: 900px) {
   .cy-hero__grid,
-  .cy-showcase {
+  .cy-showcase,
+  .cy-auth {
     grid-template-columns: 1fr;
   }
   /* The scene goes below the words: on a phone the message lands first. */
   .cy-hero__visual { order: 2; }
-  .cy-scene { margin: 0 auto; max-width: 28rem; }
+  .cy-scene { margin: 0 auto; max-width: 26rem; }
   .cy-nav__links { display: none; }
+
+  /* Stacked, the hero can't fit one viewport and shouldn't pretend to —
+     forcing it would just squash the copy. */
+  .cy-hero { min-height: 0; }
+
+  /* Below the form on a phone: they came here to sign up, not to be sold to
+     again. */
+  .cy-auth__aside { order: 2; }
 }
 
 @media (max-width: 576px) {

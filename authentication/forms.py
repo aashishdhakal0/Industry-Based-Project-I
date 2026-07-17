@@ -31,14 +31,14 @@ class RegistrationForm(UserCreationForm):
     )
     email = forms.EmailField(
         label="Email address",
-        help_text="You'll use this to log in. We'll send a link here to confirm it's you.",
+        help_text="Your login, and where the confirmation link lands.",
         widget=forms.EmailInput(attrs={"autocomplete": "email"}),
     )
     organisation = forms.CharField(
         max_length=255,
         required=False,
-        label="Organisation (optional)",
-        help_text="Your business, council or school — if you're here on their behalf.",
+        label="Organisation",
+        help_text="Optional. The business, council or school you're here for.",
         widget=forms.TextInput(attrs={"autocomplete": "organization"}),
     )
 
@@ -49,13 +49,18 @@ class RegistrationForm(UserCreationForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        # Copy note: this is the platform's first impression, and our reader is
+        # a non-technical adult who has been nagged about passwords for twenty
+        # years and ignores it. "At least 8 characters, one uppercase, one
+        # symbol" produces Password1! — advice that is followed and useless.
+        # Three random words is genuinely stronger, actually memorable, and
+        # short enough to read. Say the useful thing, once.
         self.fields["password1"].label = "Password"
         self.fields["password1"].help_text = (
-            "At least 8 characters. Avoid anything you'd guess about yourself — "
-            "a few unrelated words together works well."
+            "Eight characters or more. Three random words beat one clever one."
         )
         self.fields["password2"].label = "Confirm password"
-        self.fields["password2"].help_text = "Type the same password again."
+        self.fields["password2"].help_text = "Once more, to be sure."
 
         for name, field in self.fields.items():
             field.widget.attrs.setdefault("class", "form-control")

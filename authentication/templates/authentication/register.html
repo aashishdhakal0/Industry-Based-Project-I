@@ -1,64 +1,179 @@
 {% extends "base.html" %}
 
+{% comment %}
+  Sign-up.
+
+  Two panels on purpose. A form alone on a black page is a toll gate — it asks
+  and offers nothing. Beside the thing they're signing up FOR, the same form is
+  a door. The fields didn't change; the reason to fill them in is now visible
+  while you do.
+
+  On a phone the aside drops below the form: at that point they've already
+  decided, and being sold to again is just something between them and the
+  keyboard.
+{% endcomment %}
+
 {% block title %}Create your account — {{ site_name }}{% endblock %}
 
 {% block content %}
-<div class="cy-card cy-card--narrow">
-  <h1>Create your account</h1>
-  <p class="cy-lede">
-    It takes a minute. We'll email you a link to confirm it's you.
-  </p>
+<div class="cy-auth">
 
-  {% if form.errors %}
-    {% comment %}
-      Announced as one group so a screen reader hears the whole story at once,
-      rather than discovering errors field by field on the way down.
-    {% endcomment %}
-    <div class="cy-errors" role="alert">
-      <strong>Please check the following:</strong>
-      <ul>
-        {% for field in form %}
-          {% for error in field.errors %}
-            <li>{{ field.label }} — {{ error }}</li>
+  <!-- ============ THE FORM ============ -->
+  <div class="cy-card cy-rise">
+    <h1>Create your account</h1>
+    <p class="cy-lede">Two minutes to sign up. Ten to your first win.</p>
+
+    {% if form.errors %}
+      {% comment %}
+        Announced as one group so a screen reader hears the whole story at
+        once, rather than discovering errors field by field on the way down.
+      {% endcomment %}
+      <div class="cy-errors" role="alert">
+        <strong>Nearly — just fix these:</strong>
+        <ul>
+          {% for field in form %}
+            {% for error in field.errors %}
+              <li>{{ field.label }} — {{ error }}</li>
+            {% endfor %}
           {% endfor %}
-        {% endfor %}
-        {% for error in form.non_field_errors %}
-          <li>{{ error }}</li>
-        {% endfor %}
-      </ul>
-    </div>
-  {% endif %}
-
-  <form method="post" novalidate>
-    {% csrf_token %}
-
-    {% for field in form %}
-      <div class="cy-field">
-        <label for="{{ field.id_for_label }}" class="cy-label">{{ field.label }}</label>
-
-        {% comment %}
-          Hint before the input: read the rule, then type. Underneath, it only
-          gets read after they've already guessed wrong.
-        {% endcomment %}
-        {% if field.help_text %}
-          <span class="cy-hint">{{ field.help_text }}</span>
-        {% endif %}
-
-        {{ field }}
-
-        {% for error in field.errors %}
-          <span class="cy-field-error">{{ error }}</span>
-        {% endfor %}
+          {% for error in form.non_field_errors %}
+            <li>{{ error }}</li>
+          {% endfor %}
+        </ul>
       </div>
-    {% endfor %}
+    {% endif %}
 
-    <button type="submit" class="cy-btn cy-btn--primary cy-btn--block">
-      Create account
-    </button>
-  </form>
+    <form method="post" novalidate>
+      {% csrf_token %}
 
-  <p class="cy-meta">
-    Already have an account? <a href="{% url 'authentication:login' %}">Log in</a>
-  </p>
+      {% for field in form %}
+        <div class="cy-field">
+          <label for="{{ field.id_for_label }}" class="cy-label">{{ field.label }}</label>
+
+          {% comment %}
+            Hint before the input: read the rule, then type. Underneath, it only
+            gets read after they've already guessed wrong.
+          {% endcomment %}
+          {% if field.help_text %}
+            <span class="cy-hint">{{ field.help_text }}</span>
+          {% endif %}
+
+          {{ field }}
+
+          {% for error in field.errors %}
+            <span class="cy-field-error">{{ error }}</span>
+          {% endfor %}
+        </div>
+      {% endfor %}
+
+      <button type="submit" class="cy-btn cy-btn--primary cy-btn--block">
+        Create my account
+        <svg class="cy-i" aria-hidden="true"><use href="#i-arrow-right"/></svg>
+      </button>
+    </form>
+
+    <p class="cy-meta">
+      Already with us? <a href="{% url 'authentication:login' %}">Log in</a>
+    </p>
+  </div>
+
+  <!-- ============ WHY ============ -->
+  {% comment %}
+    Every line here describes something the platform actually does. No counts,
+    no testimonials, no "join thousands of" — the offer is the product.
+  {% endcomment %}
+  <aside class="cy-auth__aside cy-rise" style="--cy-delay: 0.1s;">
+    <div>
+      <span class="cy-eyebrow">
+        <span class="cy-eyebrow__dot" aria-hidden="true"></span>
+        What you're signing up for
+      </span>
+      <h2 class="cy-section__title" style="font-size: 1.6rem;">
+        Ten minutes at a time.
+      </h2>
+    </div>
+
+    <ul class="cy-perks">
+      <li class="cy-perk">
+        <span class="cy-perk__icon">
+          <svg class="cy-i" aria-hidden="true"><use href="#i-layers"/></svg>
+        </span>
+        <span>
+          <span class="cy-perk__title">Six modules, in order</span>
+          <p class="cy-perk__text">
+            No menu to decipher. The next thing to do is always the thing that's
+            open.
+          </p>
+        </span>
+      </li>
+
+      <li class="cy-perk">
+        <span class="cy-perk__icon">
+          <svg class="cy-i" aria-hidden="true"><use href="#i-target"/></svg>
+        </span>
+        <span>
+          <span class="cy-perk__title">A plan, not a score</span>
+          <p class="cy-perk__text">
+            Get one wrong and we'll tell you why, and exactly which lesson to
+            revisit. That's the whole point of us.
+          </p>
+        </span>
+      </li>
+
+      <li class="cy-perk">
+        <span class="cy-perk__icon">
+          <svg class="cy-i" aria-hidden="true"><use href="#i-bolt"/></svg>
+        </span>
+        <span>
+          <span class="cy-perk__title">Points, levels, streaks</span>
+          <p class="cy-perk__text">
+            Because training you can see yourself finishing is training you
+            finish.
+          </p>
+        </span>
+      </li>
+
+      <li class="cy-perk">
+        <span class="cy-perk__icon">
+          <svg class="cy-i" aria-hidden="true"><use href="#i-award"/></svg>
+        </span>
+        <span>
+          <span class="cy-perk__title">A certificate at the end</span>
+          <p class="cy-perk__text">
+            Yours to send to your team, your board, or your auditor.
+          </p>
+        </span>
+      </li>
+    </ul>
+
+    {% comment %} Illustrative, as everywhere else. Nobody's real record. {% endcomment %}
+    <div class="cy-showcase__panel" aria-hidden="true" style="padding: 1.35rem;">
+      <div class="cy-showcase__row">
+        {% comment %}
+          Size via --cy-hex-size, not a raw width: the progress ring derives
+          its diameter from it, so setting width directly leaves the ring
+          orbiting at the default size.
+        {% endcomment %}
+        <div class="cy-hex-wrap" style="--cy-level-progress: 68; --cy-hex-size: 78px;">
+          <div class="cy-hex">
+            <div class="cy-hex__inner">
+              <span class="cy-hex__label">Level</span>
+              <span class="cy-hex__value" style="font-size: 1.4rem;">4</span>
+            </div>
+          </div>
+        </div>
+        <div style="flex: 1;">
+          <div class="cy-progress-row" style="margin-bottom: 0.5rem;">
+            <div class="cy-progress">
+              <div class="cy-progress__fill" style="--cy-value: 68%;"></div>
+            </div>
+            <span class="cy-progress-row__value">68%</span>
+          </div>
+          <span class="cy-hint" style="margin: 0;">760 points to level 5</span>
+        </div>
+      </div>
+    </div>
+  </aside>
+
 </div>
 {% endblock %}

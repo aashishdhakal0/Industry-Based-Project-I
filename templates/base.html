@@ -95,5 +95,13 @@
       <p class="mb-0">Made in Melbourne</p>
     </div>
   </footer>
+
+  {% comment %}
+    The platform's only script: the stats count-up on the home page. Served
+    from static/, so script-src 'self' allows it — no CDN, nothing inline.
+    defer so it never blocks the render, and everything it touches already has
+    its real value in the markup if it never runs.
+  {% endcomment %}
+  <script src="{% static 'js/cybaroo.js' %}" defer></script>
 </body>
 </html>

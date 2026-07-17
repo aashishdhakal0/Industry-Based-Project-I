@@ -77,21 +77,42 @@ THREAT_STATS = {
     "source": "ASD Annual Cyber Threat Report 2024–25",
     "source_url": "https://www.cyber.gov.au/about-us/view-all-content/reports-and-statistics/annual-cyber-threat-report-2024-2025",
     "period": "2024–25",
+    # `value` is what renders — the real figure, always present in the HTML.
+    # `count_to`/`prefix`/`suffix` let static/js/cybaroo.js animate up to it.
+    # The split exists so the truthful number is the one in the markup and the
+    # animation is the enhancement, rather than the page shipping a "0" that
+    # only JavaScript can correct.
     "items": [
         {
             "value": "84,700",
+            "count_to": 84700,
+            "prefix": "",
+            "suffix": "",
+            "icon": "i-layers",
             "label": "cybercrime reports",
+            # Just the fact and its period. An earlier draft of this line read
+            # "most from ordinary organisations, not banks" — which sounds
+            # right, reads well, and is not something ASD reports. If a claim
+            # isn't in the source, it doesn't go on the page.
             "note": "made to the ASD in 2024–25",
         },
         {
             "value": "6 min",
+            "count_to": 6,
+            "prefix": "",
+            "suffix": " min",
+            "icon": "i-clock",
             "label": "between reports",
-            "note": "one lodged every six minutes, on average",
+            "note": "one lodged every six minutes, around the clock, all year",
         },
         {
             "value": "$56,600",
-            "label": "average cost",
-            "note": "per report, for a small business",
+            "count_to": 56600,
+            "prefix": "$",
+            "suffix": "",
+            "icon": "i-bolt",
+            "label": "the average bill",
+            "note": "what one report costs a small business, on average",
         },
     ],
 }
