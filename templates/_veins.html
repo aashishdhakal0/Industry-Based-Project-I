@@ -1,0 +1,90 @@
+{% comment %}
+  The circuit-vein backdrop for the account screens.
+
+  Entirely original, entirely CSS/SVG — no image, nothing fetched, so there's
+  no licence to worry about and nothing for CSP to block.
+
+  How the light travels: each vein is drawn twice. Once as a dim static trace,
+  so the circuitry is always faintly there; once more on top with a long
+  dash-gap pattern whose stroke-dashoffset animates. The visible dash is a
+  short segment of bright stroke that slides along the path — a pulse of light
+  running down a vein. Vary the duration and delay per vein and they stop
+  looking like a mechanism and start looking like a system doing something.
+
+  The geometry is deliberately half circuit, half anatomy: 45° trace bends like
+  a PCB, but the long runs curve. Straight-only reads as a wiring diagram;
+  curves-only reads as lava. The mix is what makes it read as veins of energy.
+
+  Nothing here is announced to a screen reader — it is atmosphere, and there is
+  no sentence that could usefully describe it.
+{% endcomment %}
+<svg class="cy-veins" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice"
+     aria-hidden="true" focusable="false">
+  <defs>
+    <linearGradient id="cy-vein-grad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#a78bfa"/>
+      <stop offset="55%" stop-color="#c4a6ff"/>
+      <stop offset="100%" stop-color="#3ddcf0"/>
+    </linearGradient>
+
+    {% comment %} The bloom that makes a 2px stroke read as light. {% endcomment %}
+    <filter id="cy-vein-glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="3.5" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    {% comment %}
+      Every vein is declared once here and referenced twice below — dim trace,
+      then travelling pulse. Two hand-copied sets would drift the moment one
+      path was nudged.
+    {% endcomment %}
+    <path id="cy-v1" d="M-40 150 H150 L240 240 H430 L520 330 H760 L840 270 H1480"/>
+    <path id="cy-v2" d="M-40 760 H170 L260 670 H400 L470 600 H660 L740 520 H980 L1060 590 H1480"/>
+    <path id="cy-v3" d="M-40 430 C 210 385, 330 530, 570 465 S 910 380, 1170 470 S 1390 525, 1480 480"/>
+    <path id="cy-v4" d="M-40 290 C 250 250, 410 175, 650 240 S 990 305, 1480 215"/>
+    <path id="cy-v5" d="M170 -40 V70 L250 150 V330 L185 395 V580 L265 660 V940"/>
+    <path id="cy-v6" d="M1270 940 V810 L1190 730 V545 L1265 470 V300 L1195 230 V-40"/>
+    <path id="cy-v7" d="M-40 620 C 300 640, 520 700, 780 660 S 1150 600, 1480 640"/>
+    <path id="cy-v8" d="M520 940 V800 L600 720 H820 L900 640 V430 L980 350 V-40"/>
+  </defs>
+
+  {% comment %} The circuitry, always faintly present. {% endcomment %}
+  <g class="cy-veins__traces">
+    <use href="#cy-v1"/><use href="#cy-v2"/><use href="#cy-v3"/><use href="#cy-v4"/>
+    <use href="#cy-v5"/><use href="#cy-v6"/><use href="#cy-v7"/><use href="#cy-v8"/>
+  </g>
+
+  {% comment %}
+    The light. Durations are deliberately not multiples of each other — round
+    numbers resync every few cycles and the whole thing starts pulsing in
+    lockstep, which reads as a screensaver rather than a system.
+  {% endcomment %}
+  <g class="cy-veins__pulses">
+    <use href="#cy-v1" class="cy-vein" style="--dur: 9s;    --delay: 0s;"/>
+    <use href="#cy-v2" class="cy-vein" style="--dur: 13s;   --delay: -3.5s;"/>
+    <use href="#cy-v3" class="cy-vein" style="--dur: 11.5s; --delay: -6s;"/>
+    <use href="#cy-v4" class="cy-vein" style="--dur: 15s;   --delay: -2s;"/>
+    <use href="#cy-v5" class="cy-vein" style="--dur: 10.5s; --delay: -8s;"/>
+    <use href="#cy-v6" class="cy-vein" style="--dur: 14s;   --delay: -5s;"/>
+    <use href="#cy-v7" class="cy-vein" style="--dur: 12.5s; --delay: -9.5s;"/>
+    <use href="#cy-v8" class="cy-vein" style="--dur: 16s;   --delay: -1s;"/>
+  </g>
+
+  {% comment %} Junctions. They breathe rather than blink. {% endcomment %}
+  <g class="cy-veins__nodes">
+    <circle cx="240" cy="240" r="3" style="--delay: 0s;"/>
+    <circle cx="520" cy="330" r="3" style="--delay: -1.2s;"/>
+    <circle cx="840" cy="270" r="3" style="--delay: -2.4s;"/>
+    <circle cx="260" cy="670" r="3" style="--delay: -0.7s;"/>
+    <circle cx="740" cy="520" r="3" style="--delay: -3.1s;"/>
+    <circle cx="1060" cy="590" r="3" style="--delay: -1.9s;"/>
+    <circle cx="250" cy="150" r="3" style="--delay: -2.8s;"/>
+    <circle cx="1190" cy="730" r="3" style="--delay: -0.4s;"/>
+    <circle cx="900" cy="640" r="3" style="--delay: -3.6s;"/>
+    <circle cx="980" cy="350" r="3" style="--delay: -1.5s;"/>
+  </g>
+</svg>

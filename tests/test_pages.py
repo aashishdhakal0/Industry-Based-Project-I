@@ -280,6 +280,41 @@ def test_the_two_gradients_have_not_been_merged():
     assert _token("--cy-grad") != _token("--cy-grad-cta")
 
 
+def test_every_animation_references_keyframes_that_exist():
+    """An `animation: foo` naming keyframes that don't exist is a silent no-op.
+
+    This bit us for real. `cy-spin` was defined alongside the original hero orb;
+    when that scene was deleted the keyframes went with it, and the level
+    badge's orbit track quietly stopped rotating. Its counter-rotation survived,
+    so the badge span on the spot instead of orbiting — exactly the symptom
+    reported, with no error anywhere and nothing in the test suite to catch it.
+
+    Every animation name in the stylesheet must resolve.
+    """
+    import pathlib
+    import re
+
+    css = pathlib.Path("static/css/cybaroo.css").read_text()
+    code = re.sub(r"/\*.*?\*/", "", css, flags=re.S)
+
+    defined = set(re.findall(r"@keyframes\s+([\w-]+)", code))
+    used = set()
+    for value in re.findall(r"animation:\s*([^;]+);", code):
+        # Drop var(--cy-ease) and friends first: those are timing functions and
+        # delays sitting in the same shorthand, not keyframes names. Without
+        # this the check reports --cy-ease as a missing animation, which sends
+        # the next person hunting for a bug that isn't there.
+        value = re.sub(r"var\([^)]*\)", "", value)
+        for word in re.findall(r"\bcy-[\w-]+", value):
+            used.add(word)
+
+    missing = used - defined
+    assert not missing, (
+        f"animations reference keyframes that do not exist: {sorted(missing)}. "
+        f"They fail silently — the element simply never animates."
+    )
+
+
 def test_every_vendored_font_referenced_in_css_exists_on_disk():
     """A missing @font-face src fails silently — the browser just falls back to
     Georgia and the identity quietly evaporates."""
@@ -293,13 +328,15 @@ def test_every_vendored_font_referenced_in_css_exists_on_disk():
         )
 
 
-def test_no_retired_typeface_is_still_in_use():
-    """Space Grotesk was replaced because it reads as the AI-era default. Its
-    files are gone, so any surviving *use* of it would silently fall back.
+@pytest.mark.parametrize("face,glob", [("Space Grotesk", "space-grotesk*"), ("Fraunces", "fraunces*")])
+def test_no_retired_typeface_is_still_in_use(face, glob):
+    """Retired faces must leave no live reference — their files are gone, so a
+    survivor would silently fall back to Georgia and the identity evaporates.
 
-    Checks usage, not mentions: the comment explaining why it was dropped is
-    the most useful sentence in that part of the file, and an assertion that
-    forbids naming the thing you replaced would delete your own reasoning.
+    Checks usage, not mentions: the comments explaining why each face was
+    dropped are the most useful sentences in that part of the file, and an
+    assertion forbidding you to name what you replaced would delete your own
+    reasoning.
     """
     import pathlib
     import re
@@ -308,8 +345,8 @@ def test_no_retired_typeface_is_still_in_use():
     # Strip comments first — what's left is the code that actually runs.
     code = re.sub(r"/\*.*?\*/", "", css, flags=re.S)
 
-    assert "Space Grotesk" not in code, "Space Grotesk is still referenced in live CSS"
-    assert not list(pathlib.Path("static/fonts").glob("space-grotesk*"))
+    assert face not in code, f"{face} is still referenced in live CSS"
+    assert not list(pathlib.Path("static/fonts").glob(glob))
 
 
 # --------------------------------------------------------------------------

@@ -42,39 +42,39 @@
    Fonts — vendored locally; a CDN would be blocked by our CSP.
    -------------------------------------------------------------------------- */
 
-/* Fraunces — the voice.
+/* Bricolage Grotesque — the voice.
  *
- * A soft serif with an optical-size axis and, genuinely, a "wonk" axis for how
- * far its quirks are turned up. It has drawn character: flared stems, an
- * unmistakable g, slightly odd proportions that look like decisions rather
- * than defaults.
+ * Fraunces was the right instinct and the wrong note. A soft serif reads
+ * trustworthy, and it also reads *careful* — and this product is meant to feel
+ * electric. Bricolage has the character without the calm: tight apertures,
+ * chunky weight, deliberately awkward joins, an almost condensed set of
+ * proportions that look drawn rather than derived. It has energy at display
+ * size, which is exactly where the old face went quiet.
  *
- * Chosen against the obvious. Every AI-era product ships a geometric sans —
- * Space Grotesk (what we had), Inter, Manrope — and they have converged into
- * one indistinguishable voice. A warm serif on a dark technical interface is
- * the opposite move, and it says the right thing to our audience: a council
- * officer or school administrator should meet something that reads
- * trustworthy and human, not like a penetration-testing tool. */
+ * Still the anti-default choice. Every AI-era product ships a geometric sans —
+ * Space Grotesk, Inter, Manrope — and they have converged into one voice.
+ * Bricolage is a display grotesque with opinions, and it's rare enough that it
+ * reads as a decision. */
 @font-face {
-  font-family: "Fraunces";
-  font-style: normal;
-  font-weight: 500;
-  font-display: swap;
-  src: url("../fonts/fraunces-latin-500-normal.woff2") format("woff2");
-}
-@font-face {
-  font-family: "Fraunces";
+  font-family: "Bricolage Grotesque";
   font-style: normal;
   font-weight: 600;
   font-display: swap;
-  src: url("../fonts/fraunces-latin-600-normal.woff2") format("woff2");
+  src: url("../fonts/bricolage-grotesque-latin-600-normal.woff2") format("woff2");
 }
 @font-face {
-  font-family: "Fraunces";
+  font-family: "Bricolage Grotesque";
   font-style: normal;
   font-weight: 700;
   font-display: swap;
-  src: url("../fonts/fraunces-latin-700-normal.woff2") format("woff2");
+  src: url("../fonts/bricolage-grotesque-latin-700-normal.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Bricolage Grotesque";
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+  src: url("../fonts/bricolage-grotesque-latin-800-normal.woff2") format("woff2");
 }
 
 /* Instrument Sans — the body.
@@ -125,14 +125,17 @@
    ========================================================================== */
 
 :root {
-  /* --- Surfaces. Near-black, faintly violet rather than neutral grey, so the
-     accent feels native to the page instead of stuck on top of it. --------- */
-  --cy-bg: #0b0b12;
-  --cy-surface: #12121c;
-  --cy-surface-2: #191926;
-  --cy-surface-3: #212131;
-  --cy-border: #2a2a3d;
-  --cy-border-lift: #3a3a52;
+  /* --- Surfaces. Near-black, pushed further toward violet than before: the
+     old ladder was a neutral grey with a hint of blue, which is what every
+     dark theme does. Bleeding real violet into the surfaces makes the accent
+     look like it's coming *from* the page rather than sitting on it — the
+     difference between a lit room and a black one with a lamp in it. ------- */
+  --cy-bg: #0a0812;
+  --cy-surface: #120f1e;
+  --cy-surface-2: #191529;
+  --cy-surface-3: #221c36;
+  --cy-border: #2e2745;
+  --cy-border-lift: #40365e;
 
   /* Input borders are held to a different standard than decorative ones.
      WCAG 1.4.11 asks 3:1 for the boundary of a control you're meant to find
@@ -151,18 +154,18 @@
 
      Ratios measured against --cy-surface-2, the lightest surface these ever
      sit on — the worst case, not the flattering one. --------------------- */
-  --cy-text: #f4efe9;      /* 15.2:1 — AAA. Ivory, not white. */
-  --cy-text-2: #b5aeb8;    /*  8.0:1 — AAA */
-  --cy-text-3: #948b9d;    /*  5.3:1 — AA. Form hints use this: it's the text
+  --cy-text: #f7f0e8;      /* 15.7:1 — AAA. Ivory, not white. */
+  --cy-text-2: #bfb3c4;    /*  8.9:1 — AAA. Violet-warm, not grey. */
+  --cy-text-3: #9c90a8;    /*  5.9:1 — AA. Form hints use this: it's the text
                               telling a non-technical user what makes a good
                               password, so it doesn't get to be decorative. */
 
   /* --- Accents ---------------------------------------------------------- */
-  --cy-violet: #9b7bf8;        /* solid accent: rings, borders, glows */
-  --cy-violet-soft: #b39dfb;
+  --cy-violet: #a78bfa;        /* solid accent: rings, borders, glows */
+  --cy-violet-soft: #c4a6ff;   /* 9.7:1 — the hot end, for live things */
   --cy-violet-deep: #6d28d9;   /* fills and glows only — too dark for text */
-  --cy-cyan: #22d3ee;
-  --cy-cyan-soft: #67e8f9;
+  --cy-cyan: #3ddcf0;
+  --cy-cyan-soft: #5ee7f7;     /* 13.5:1 — brightest thing on the page */
 
   /* Ink for anything sitting ON an accent fill. See the rule at the top. */
   --cy-ink: #0b0b12;
@@ -199,10 +202,10 @@
   --cy-gold: #ffc94b;      /* achievements */
   --cy-danger: #ff8080;    /* errors */
 
-  /* Fraunces speaks; Instrument Sans is read. Headings, the wordmark and the
-     big numbers get the display face — nothing else, or the character stops
-     being character and becomes noise. */
-  --cy-font-display: "Fraunces", Georgia, "Times New Roman", serif;
+  /* Bricolage speaks; Instrument Sans is read. Headings and the wordmark get
+     the display face — nothing else, or the character stops being character
+     and becomes noise. */
+  --cy-font-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
   --cy-font: "Instrument Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
   /* Mono is for numbers that change. Tabular figures stop a points counter
      shifting the layout as it ticks 990 -> 1,000. */
@@ -234,9 +237,13 @@
   --cy-t-h3: 1.15rem;
   --cy-t-body: 1.0625rem;
 
-  /* Section rhythm. Generous, and the same everywhere so the page breathes
-     evenly rather than lurching. */
-  --cy-section-y: clamp(4.5rem, 9vw, 8rem);
+  /* Section rhythm.
+     Was clamp(4.5rem, 9vw, 8rem) — 128px of nothing between every section on
+     a desktop, which is what made it scroll like a document rather than read
+     as a page. Roughly halved. The bands already separate sections with a
+     surface change and a seam; the space only has to stop them touching, not
+     announce a chapter break. */
+  --cy-section-y: clamp(2.75rem, 4.5vw, 4.5rem);
 }
 
 
@@ -257,16 +264,16 @@ body.cy-body {
   overflow-x: hidden;
 }
 
-/* Serifs carry their own rhythm — the tight negative tracking that a geometric
-   sans needs at display size closes a serif up and makes it look cramped.
-   -0.015em, not -0.03em, and a little more leading. */
+/* Bricolage is already tight and chunky, so it wants weight and close leading
+   rather than tracking games. 700 by default — at 600 its character reads as
+   an accident instead of a decision. */
 .cy-body h1,
 .cy-body h2,
 .cy-body h3 {
   font-family: var(--cy-font-display);
-  font-weight: 600;
-  letter-spacing: -0.015em;
-  line-height: 1.16;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: 1.08;
 }
 
 .cy-body a {
@@ -466,10 +473,15 @@ body.cy-body {
     radial-gradient(700px 380px at 85% 100%, rgba(34, 211, 238, 0.08), transparent 70%);
 }
 
+/* The container.
+   Was 72rem centred, which on a 1600px display stranded the content with ~250px
+   of dead space either side — the "why is everything in the middle" look. 84rem
+   with a fluid gutter keeps it near the edges on a wide screen without letting
+   the line length run past readable on the way. */
 .cy-wrap {
   margin: 0 auto;
-  max-width: 72rem;
-  padding-inline: 1.25rem;
+  max-width: 84rem;
+  padding-inline: clamp(1.25rem, 3vw, 2.25rem);
 }
 
 .cy-wrap--narrow {
@@ -477,7 +489,7 @@ body.cy-body {
 }
 
 .cy-section__head {
-  margin-bottom: 3rem;
+  margin-bottom: 1.75rem;
   max-width: 42rem;
 }
 
@@ -930,9 +942,34 @@ body.cy-body {
   animation: cy-orbit-upright 28s linear infinite;
 }
 
+/* ---- Every keyframe the hero scene depends on, in one place ----
+   All four of these had been deleted along with the scenes they were written
+   for, and CSS said nothing: an animation naming keyframes that don't exist is
+   a silent no-op. The result was a "floating" card that didn't float, a
+   parallax that didn't parallax, and an orbit whose track never turned while
+   the badge kept counter-rotating — so it span on the spot.
+   Three dead animations, no error, and no test that could see it. There is one
+   now (test_every_animation_references_keyframes_that_exist).
+   Keep them together. They only get deleted when they're scattered. */
+
+@keyframes cy-spin {
+  to { transform: rotate(360deg); }
+}
+
 @keyframes cy-orbit-upright {
   from { transform: rotate(0deg); }
   to   { transform: rotate(-360deg); }
+}
+
+/* The idle bob, on .cy-float. */
+@keyframes cy-float {
+  0%, 100% { transform: translateY(-7px); }
+  50%      { transform: translateY(7px); }
+}
+
+/* The scroll parallax, on .cy-drift. Distance comes from --cy-shift. */
+@keyframes cy-drift {
+  to { transform: translateY(var(--cy-shift, 0)); }
 }
 
 
@@ -1568,23 +1605,69 @@ body.cy-body {
   z-index: 0;
 }
 
-.cy-auth-page::after {
-  background-image:
-    linear-gradient(var(--cy-border) 1px, transparent 1px),
-    linear-gradient(90deg, var(--cy-border) 1px, transparent 1px);
-  background-size: 62px 62px;
-  content: "";
-  inset: 0;
-  -webkit-mask-image: radial-gradient(760px 420px at 50% 40%, #000, transparent 75%);
-  mask-image: radial-gradient(760px 420px at 50% 40%, #000, transparent 75%);
-  opacity: 0.42;
-  position: absolute;
-  z-index: 0;
-}
-
 .cy-auth-page > * {
   position: relative;
   z-index: 1;
+}
+
+
+/* --- Circuit veins -------------------------------------------------------
+   See templates/_veins.html for how it's drawn. This is the motion.
+
+   Contrast note: the veins live behind an opaque card, so nothing readable
+   ever sits on top of them. They're kept dim regardless — this is the
+   backdrop to a login form, and a login form is not the place to be dazzling.
+   Anything that competes with the password field has failed at its job. */
+
+.cy-veins {
+  height: 100%;
+  inset: 0;
+  pointer-events: none;
+  position: absolute;
+  width: 100%;
+  z-index: 0;
+}
+
+/* The circuitry itself: always faintly there, never the point. */
+.cy-veins__traces use {
+  fill: none;
+  stroke: var(--cy-border);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.25;
+}
+
+/* The light travelling down it.
+   The dash pattern is one short bright segment and a very long gap, so only a
+   pulse is ever visible. Animating the offset by exactly the pattern length
+   (140 + 2600) makes the loop seamless — any other number and the pulse jumps
+   when the animation restarts. */
+.cy-vein {
+  animation: cy-vein-flow var(--dur, 11s) linear infinite;
+  animation-delay: var(--delay, 0s);
+  fill: none;
+  filter: url(#cy-vein-glow);
+  stroke: url(#cy-vein-grad);
+  stroke-dasharray: 140 2600;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2.25;
+}
+
+@keyframes cy-vein-flow {
+  from { stroke-dashoffset: 2740; }
+  to   { stroke-dashoffset: 0; }
+}
+
+.cy-veins__nodes circle {
+  animation: cy-node-breathe 4.5s ease-in-out infinite;
+  animation-delay: var(--delay, 0s);
+  fill: var(--cy-violet-soft);
+}
+
+@keyframes cy-node-breathe {
+  0%, 100% { opacity: 0.2; }
+  50%      { opacity: 0.85; }
 }
 
 /* The lone card on the login page. */
@@ -1957,6 +2040,19 @@ body.cy-body {
      shove the badge half its width off the track. */
   .cy-orbit__slot {
     transform: translateX(-50%);
+  }
+
+  /* The veins loop forever behind the login form, which makes them the most
+     likely thing on the platform to make someone motion-sick. Stopped, the
+     circuitry and its glow remain — the page still reads as the same design,
+     it simply stops flowing. The pulses are hidden rather than frozen: a dash
+     stopped mid-path is a bright stub sitting in the middle of nowhere. */
+  .cy-veins__pulses {
+    display: none;
+  }
+  .cy-veins__nodes circle {
+    animation: none;
+    opacity: 0.5;
   }
 
   /* The count-up is the one piece of motion that's JavaScript. cybaroo.js
