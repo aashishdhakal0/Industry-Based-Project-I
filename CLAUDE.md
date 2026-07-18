@@ -44,34 +44,36 @@ is a requirement, not a nice-to-have.
 | psycopg2-binary | **psycopg 3** | Django marks psycopg2 as deprecation-track |
 | PBKDF2 260k iters | **Django default (1,000,000)** | Spec's number is Django 3.2-era and 74% *weaker*. Never override |
 | "ReportLab's FPDF class" | **`reportlab.platypus` / `pdfgen.canvas.Canvas`** | ReportLab has no FPDF class. FPDF is a different library |
-| django-otp "handles QR display" | **render QR from `TOTPDevice.config_url`** | django-otp auto-QR is admin-only |
+| django-otp TOTP app for 2FA | **6-digit code emailed on every login** | See below — deliberate; email codes are weaker than TOTP, accepted trade-off |
 | Gunicorn on PythonAnywhere | **not used** | PA runs its own WSGI server; gunicorn is redundant |
-| 2FA mandatory for **all** users | **mandatory for Instructors + Administrators, optional for Students** | See below — deliberate, defend it in the report |
 
-#### Why 2FA is role-based, not universal
+#### Why 2FA is an emailed code, not an authenticator app
 
-The spec asks for TOTP on every account. We require it of Instructors and
-Administrators and offer it to Students. This is a considered trade-off, not a
-shortcut — `User.requires_2fa` is the single source of the rule.
+The spec asks for TOTP via an authenticator app. We send a 6-digit code to the
+email address the user has already confirmed, on every sign-in. Deliberate, and
+there are two things to say about it — one in our favour, one against.
 
-**The threat model isn't uniform.** An Instructor publishes content to every
-learner; an Administrator holds the admin. Those accounts are worth stealing,
-and the people holding them are supported staff who can be walked through
-setup. A Student account contains one person's quiz scores. Stealing it gains
-an attacker nothing and costs them a phishing email.
+**Coverage is back to universal, which the spec wanted.** An earlier version of
+this build made TOTP mandatory only for Instructors/Administrators and optional
+for Students, because installing an authenticator app was too much to ask of a
+non-technical Student. An emailed code removes that barrier — no app, no setup,
+nothing to install, just a number in an inbox they already know how to use — so
+every account can carry the second factor without the friction that forced the
+exemption. We now match the spec on *who* is protected.
 
-**The cost isn't uniform either.** Our users are non-technical Australian
-adults — the office manager, the council officer, the school administrator.
-"Install an authenticator app" is the single most likely point of abandonment
-in the entire product, and a security course nobody finishes protects nobody.
-Universal 2FA would trade a real drop in completion for a marginal gain against
-a threat that barely exists.
+**Email codes are weaker than TOTP. This is the accepted cost, stated plainly.**
+A TOTP secret never leaves the user's device; an email code travels the
+network and sits in an inbox, so anyone who has compromised the email account,
+or can read mail in transit, can complete the login. Email is also the channel
+most likely to delay or drop the code. We judge this acceptable because our
+users' realistic threat is a reused password, not a targeted mailbox breach,
+and a second factor they'll actually use beats a stronger one they won't. **Do
+not present this as equivalent to app-based TOTP in the report — present it as
+a usability/security trade-off made with eyes open.**
 
-**Students are still offered it**, through the same flow and screens, from the
-dashboard. Optional means opt-in, not absent.
-
-This strengthens the security story rather than weakening it: protection is
-concentrated where the privilege is. Say exactly that in the report.
+The code is single-use, expires in 10 minutes, is capped at 5 attempts (we hash
+it into the session and count tries ourselves — django-otp's throttling went
+with the library), and is generated with `secrets`, never `random`.
 
 ### Unresolved blocker
 **PythonAnywhere's free tier has no PostgreSQL** (MySQL is paid; PG is a paid
@@ -174,9 +176,8 @@ rebuilds Django's stock `UserAdmin` around `email` — the stock one hardcodes
 
 **Superuser:** `dhakalaashish75@gmail.com` (ADMINISTRATOR, verified). Password is
 Aashish's own; hash confirmed `pbkdf2_sha256` @ 1,000,000 iterations.
-Being an ADMINISTRATOR, it now **requires 2FA at `/login/`** and will be sent to
-`/2fa/setup/` on first sign-in there. `/admin/` has its own login and is
-unaffected, so there is no way to get locked out.
+Signing in at `/login/` now emails a 6-digit code (dev: it prints to the
+console backend). `/admin/` keeps its own login and never asks for a code.
 
 **Auth — done.** Sprint 1.2 (registration + email verification) and 1.3 (login +
 role-based 2FA) are built, tested and merged. Registration mints Students only

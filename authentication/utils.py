@@ -1,56 +1,51 @@
 """Helpers for the sign-in flow."""
 
-import base64
-from io import BytesIO
+import secrets
 
-import qrcode
+from django.conf import settings
 from django.urls import reverse
+from django.utils.crypto import constant_time_compare, salted_hmac
 from django.utils.http import url_has_allowed_host_and_scheme
-from django_otp.plugins.otp_totp.models import TOTPDevice
 
 
-def confirmed_totp_device(user):
-    """The user's usable TOTP device, or None.
+def make_login_code():
+    """A fresh numeric code.
 
-    `confirmed=True` is the whole point: an unconfirmed device is one that was
-    generated but never proven — the user may never have scanned it. Treating
-    it as a second factor would mean anyone who reached the setup page had
-    "2FA" without ever holding the phone.
+    `secrets`, not `random`: random is a Mersenne Twister seeded from the
+    clock, and its output is predictable from previous output. That is fine for
+    picking a quiz question and catastrophic for the thing standing between an
+    attacker and an account.
+
+    Zero-padded, so 42 is "000042" and every code is the same length — a
+    variable-length code leaks a little information and looks broken.
     """
-    return TOTPDevice.objects.filter(user=user, confirmed=True).first()
+    upper = 10 ** settings.LOGIN_CODE_LENGTH
+    return str(secrets.randbelow(upper)).zfill(settings.LOGIN_CODE_LENGTH)
 
 
-def pending_totp_device(user):
-    """The user's half-finished device, or None."""
-    return TOTPDevice.objects.filter(user=user, confirmed=False).first()
+def hash_login_code(code):
+    """Hash a code for storage.
 
+    The code lives in the session, which is server-side — but "server-side" is
+    not "safe to store secrets in plaintext". Sessions get dumped in debugging,
+    copied into fixtures, and read by anyone with database access. Hash it.
 
-def totp_qr_data_uri(device):
-    """Render the device's provisioning URI as an inline PNG data URI.
-
-    django-otp renders a QR automatically **only inside the admin**, so the
-    user-facing flow has to build its own from `config_url`.
-
-    Inline data URI rather than a view serving PNG bytes: our CSP allows
-    `img-src 'self' data:`, so it renders — and more importantly a URL that
-    returns the QR is a URL that hands out the TOTP secret to anyone who can
-    guess it. The secret should never have an address.
+    salted_hmac keys off SECRET_KEY, so a code hashed by one deployment means
+    nothing to another. It is deliberately fast: this is a 6-digit number with
+    a 10-minute life and a 5-attempt cap, not a password, and a slow hash here
+    would only make our own login slow.
     """
-    image = qrcode.make(device.config_url)
-    buffer = BytesIO()
-    image.save(buffer, format="PNG")
-    encoded = base64.b64encode(buffer.getvalue()).decode("ascii")
-    return f"data:image/png;base64,{encoded}"
+    return salted_hmac("cybaroo.login-code", code).hexdigest()
 
 
-def totp_manual_key(device):
-    """The base32 secret, for someone who can't scan the QR.
+def check_login_code(code, expected_hash):
+    """Compare a submitted code against the stored hash, in constant time.
 
-    `device.key` is hex; authenticator apps want base32. Offering this matters
-    for accessibility — a screen-reader user cannot scan a QR code, and without
-    a typeable key 2FA would simply be closed to them.
+    constant_time_compare, not ==: string comparison returns as soon as it
+    finds a difference, so how long it takes reveals how much of the code was
+    right. That is a real attack on a 6-digit secret, and the fix costs nothing.
     """
-    return base64.b32encode(device.bin_key).decode("ascii")
+    return constant_time_compare(hash_login_code(code), expected_hash or "")
 
 
 def role_home_url(user):

@@ -4,8 +4,11 @@ The theme running through these: a password alone is not a session. Most of
 what can go wrong here is something being let through one step early.
 """
 
+import re
+
 import pytest
 from django.contrib.auth import get_user_model
+from django.core import mail
 from django.urls import reverse
 
 User = get_user_model()
@@ -69,12 +72,15 @@ def test_login_url_setting_points_at_our_login_view(client):
 
 
 @pytest.mark.django_db
-def test_student_without_2fa_logs_straight_in(client, student):
+def test_a_correct_password_sends_a_code_rather_than_logging_you_in(client, student):
+    """The password is step one of two now, for every account. See
+    test_two_factor.py for the code itself."""
     response = login(client)
 
     assert response.status_code == 302
-    assert response.url == reverse("dashboard")
-    assert client.session.get("_auth_user_id") == str(student.pk)
+    assert response.url == reverse("authentication:login_code")
+    assert len(mail.outbox) == 1
+    assert "_auth_user_id" not in client.session
 
 
 @pytest.mark.django_db
@@ -86,6 +92,15 @@ def test_wrong_password_is_rejected(client, student):
 
 
 @pytest.mark.django_db
+def test_wrong_password_sends_no_email(client, student):
+    """Otherwise the login form is a free way to post mail to any address that
+    has an account here — a spam cannon with our name on the From line."""
+    login(client, password="not-the-password")
+
+    assert mail.outbox == []
+
+
+@pytest.mark.django_db
 def test_login_is_case_insensitive_on_email(client, student):
     """Registration lower-cases addresses and ModelBackend matches exactly, so
     without normalising here a phone's autocapitalise would lock someone out of
@@ -93,7 +108,8 @@ def test_login_is_case_insensitive_on_email(client, student):
     response = login(client, email="Meredith@Example.COM")
 
     assert response.status_code == 302
-    assert client.session.get("_auth_user_id") == str(student.pk)
+    assert response.url == reverse("authentication:login_code")
+    assert mail.outbox[0].to == ["meredith@example.com"]
 
 
 @pytest.mark.django_db
@@ -127,12 +143,6 @@ def test_login_does_not_leak_the_password_back_into_the_page(client, student):
 def test_administrator_lands_in_the_admin(client):
     admin = User.objects.create_superuser(email="admin@example.com", password=PASSWORD)
 
-    response = login(client, email="admin@example.com")
-
-    # Superusers require 2FA, so they go via setup rather than straight in.
-    assert response.url == reverse("authentication:two_factor_setup")
-
-    # ...and role_home_url is what decides the eventual destination.
     from authentication.utils import role_home_url
 
     assert role_home_url(admin) == reverse("admin:index")
@@ -154,9 +164,19 @@ def test_administrator_without_staff_does_not_land_in_a_dead_end(db):
     assert role_home_url(user) == reverse("dashboard")
 
 
+def finish_with_code(client):
+    """Type in whatever code was just emailed."""
+    code = re.search(r"^\s{4}(\d{6})\s*$", mail.outbox[-1].body, re.M).group(1)
+    return client.post(reverse("authentication:login_code"), {"code": code})
+
+
 @pytest.mark.django_db
-def test_next_parameter_is_honoured(client, student):
-    response = login(client, next="/dashboard/")
+def test_next_survives_the_code_step(client, student):
+    """?next= is captured at the password step and used two requests later, so
+    it has to ride through the pending session. Easy thing to drop."""
+    login(client, next="/dashboard/")
+
+    response = finish_with_code(client)
 
     assert response.url == "/dashboard/"
 
@@ -164,8 +184,14 @@ def test_next_parameter_is_honoured(client, student):
 @pytest.mark.django_db
 def test_next_cannot_be_used_as_an_open_redirect(client, student):
     """Unvalidated ?next= turns our login page into a phishing kit hosted on
-    our own domain — on a cyber-security training platform, no less."""
-    response = login(client, next="https://evil.example/harvest")
+    our own domain — on a cyber-security training platform, no less.
+
+    Validated at capture time, so the poisoned value never reaches the session
+    and can't be honoured after the code check either.
+    """
+    login(client, next="https://evil.example/harvest")
+
+    response = finish_with_code(client)
 
     assert response.status_code == 302
     assert response.url == reverse("dashboard")

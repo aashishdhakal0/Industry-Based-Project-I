@@ -23,11 +23,9 @@ Django==5.2.16
 psycopg[binary]==3.2.9
 
 # --- Auth / MFA ---
-# NOTE: contrary to the spec, django-otp does NOT bundle QR code display.
-# Auto-QR exists only in the Django admin. A user-facing TOTP setup flow must
-# render the QR itself from TOTPDevice.config_url — hence the qrcode dep.
-django-otp==1.7.0
-qrcode[pil]==8.2
+# The second factor is a 6-digit code emailed on login (see the deviations
+# table in CLAUDE.md), built on Django's own signing/crypto. No third-party MFA
+# dependency: django-otp and qrcode were removed with the TOTP flow.
 
 # --- Security ---
 django-ratelimit==4.1.0

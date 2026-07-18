@@ -33,8 +33,11 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     # Third party
-    "django_otp",
-    "django_otp.plugins.otp_totp",
+    # django-otp was removed with the TOTP flow (see the deviations table in
+    # CLAUDE.md). Its tables were dropped with `migrate otp_totp zero` before
+    # it was unlisted — remove an app from INSTALLED_APPS while its migrations
+    # are still applied and Django loses the ability to unapply them, leaving
+    # orphan tables no migration knows about.
     "tinymce",
     # Project apps
     "authentication",
@@ -52,8 +55,6 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
-    # OTPMiddleware MUST come after AuthenticationMiddleware.
-    "django_otp.middleware.OTPMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
@@ -146,9 +147,20 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
-# --- Two-factor authentication (django-otp) --------------------------------
+# --- Two-factor authentication ---------------------------------------------
+#
+# A 6-digit code, emailed on every sign-in. See the deviations table in
+# CLAUDE.md: the spec asks for an authenticator app, and we deviate on the
+# method because our users are non-technical adults. Email codes are weaker
+# than TOTP; that is a documented, accepted trade-off, not an oversight.
 
-OTP_TOTP_ISSUER = "AUSDAIS NSTP"
+LOGIN_CODE_LENGTH = 6
+LOGIN_CODE_TTL_SECONDS = config("LOGIN_CODE_TTL_SECONDS", default=600, cast=int)
+
+# The whole security of a 6-digit code rests on this. Six digits is a million
+# combinations, which sounds like plenty and is not: without a cap, an attacker
+# who has the password can simply try. Five attempts per code, and the code dies.
+LOGIN_CODE_MAX_ATTEMPTS = 5
 
 
 # --- Internationalisation --------------------------------------------------

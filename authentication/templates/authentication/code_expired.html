@@ -1,0 +1,34 @@
+{% extends "authentication/_auth_base.html" %}
+
+{% comment %}
+  Shown when a code has been guessed wrong too many times.
+
+  Tone: the person reading this is overwhelmingly likely to be the account's
+  real owner, mistyping a code off a phone screen. They are not an attacker and
+  shouldn't be spoken to like one. Say what happened, say it's normal, and give
+  them the door back.
+{% endcomment %}
+
+{% block title %}Let's try that again — {{ site_name }}{% endblock %}
+
+{% block auth_content %}
+<div class="cy-card cy-auth-single cy-rise">
+  <div class="cy-status-icon cy-status-icon--warn" aria-hidden="true">
+    <svg class="cy-i"><use href="#i-clock"/></svg>
+  </div>
+
+  <h1>Let's try that again</h1>
+  <p class="cy-lede">
+    That code has had a few goes now, so we've retired it — it's a precaution
+    that protects your account, and nothing has gone wrong with it.
+  </p>
+
+  <p>
+    Log in again and we'll send you a fresh one.
+  </p>
+
+  <a class="cy-btn cy-btn--primary cy-btn--block" href="{% url 'authentication:login' %}">
+    Back to login
+  </a>
+</div>
+{% endblock %}

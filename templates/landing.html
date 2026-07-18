@@ -77,17 +77,15 @@
     </div>
 
     {% comment %}
-      The hero scene: real components from the design system, floating over a
+      The hero scene: a real module card from the design system, floating over a
       violet->cyan bloom. Built from the actual classes rather than a picture of
-      them, so it can never drift out of date with the product.
+      one, so it can never drift out of date with the product.
 
       Two nested motions on purpose: .cy-drift parallaxes with scroll,
       .cy-float bobs with time. Separate elements, because one element can't
       run both — the second transform would win.
 
-      aria-hidden: decorative. Everything it says is in the copy, and a screen
-      reader announcing "Level 4, 1,240 points" to a visitor who hasn't signed
-      up would be nonsense.
+      aria-hidden: decorative. Everything it says is already in the copy.
     {% endcomment %}
     <div class="cy-hero__visual cy-rise" style="--cy-delay: 0.12s;" aria-hidden="true">
       <div class="cy-scene">
@@ -120,31 +118,6 @@
           </div>
         </div>
 
-        {% comment %}
-          The level badge orbits the card. Three nested elements, and each one
-          is load-bearing:
-            .cy-orbit       spins the track
-            .cy-orbit__slot rides at the top of it (static transform only)
-            .cy-orbit__body spins back at the same rate, so the badge stays
-                            upright the whole way round
-          One element can't orbit AND stay level — the second transform would
-          win. With reduced motion the whole thing stops and the badge simply
-          rests at the top of its track.
-        {% endcomment %}
-        <div class="cy-orbit">
-          <div class="cy-orbit__slot">
-            <div class="cy-orbit__body">
-              <div class="cy-hex-wrap" style="--cy-level-progress: 68; --cy-hex-size: 88px;">
-                <div class="cy-hex">
-                  <div class="cy-hex__inner">
-                    <span class="cy-hex__label">Level</span>
-                    <span class="cy-hex__value">4</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
 

@@ -1,0 +1,16 @@
+Hello {{ first_name }},
+
+Your sign-in code is:
+
+    {{ code }}
+
+Type it into {{ site_name }} to finish logging in. It works for the next
+{{ minutes }} minutes, and only once.
+
+If you didn't just try to log in, someone else may know your password. Don't
+use this code — change your password instead, and the sign-in attempt will get
+nowhere without it.
+
+--
+{{ site_name }}
+Built for AUSDAIS PTY LTD

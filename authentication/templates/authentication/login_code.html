@@ -1,0 +1,55 @@
+{% extends "authentication/_auth_base.html" %}
+
+{% comment %}
+  The second step. Deliberately bare: one field, one button, almost nothing to
+  read. The user knows what to do — they need somewhere to type it and a way
+  out if the email never turns up.
+{% endcomment %}
+
+{% block title %}Enter your code — {{ site_name }}{% endblock %}
+
+{% block auth_content %}
+<div class="cy-card cy-auth-single cy-rise">
+  <span class="cy-auth-mark" aria-hidden="true">
+    <svg class="cy-i"><use href="#i-mail"/></svg>
+  </span>
+
+  <h1>Check your email</h1>
+  <p class="cy-lede">
+    We've sent a 6-digit code to <strong>{{ email }}</strong>. Type it in below
+    and you're through.
+  </p>
+
+  <form method="post" novalidate>
+    {% csrf_token %}
+    <div class="cy-field">
+      <label for="{{ form.code.id_for_label }}" class="cy-label">{{ form.code.label }}</label>
+      {{ form.code }}
+      {% for error in form.code.errors %}
+        <span class="cy-field-error">{{ error }}</span>
+      {% endfor %}
+    </div>
+
+    <button type="submit" class="cy-btn cy-btn--primary cy-btn--block">Log in</button>
+  </form>
+
+  {% comment %}
+    Resend issues a new code and invalidates the old one, so it's a POST: a GET
+    that changes state gets fired by link prefetchers and email scanners, and
+    the user's code would silently rotate out from under them before they'd
+    finished typing it.
+
+    A div, not a <p> — a form isn't allowed inside a paragraph.
+  {% endcomment %}
+  <div class="cy-meta">
+    Didn't arrive?
+    <form method="post" action="{% url 'authentication:resend_login_code' %}" style="display:inline;">
+      {% csrf_token %}
+      <button type="submit" class="cy-btn cy-btn--quiet cy-btn--sm" style="padding:0 0.25rem;">
+        Send a new one
+      </button>
+    </form>
+    · <a href="{% url 'authentication:login' %}">Start again</a>
+  </div>
+</div>
+{% endblock %}

@@ -886,9 +886,14 @@ body.cy-body {
   position: absolute;
 }
 
+/* 9s, not 7: a bigger path needs longer or it stops reading as floating and
+   starts reading as agitated. Slower + wider = alive; faster + wider = nervous. */
 .cy-float {
-  animation: cy-float 7s ease-in-out infinite;
+  animation: cy-float 9s ease-in-out infinite;
   animation-delay: var(--cy-delay, 0s);
+  /* The card carries a shadow and a gradient; promoting it once stops the
+     browser re-rasterising all of that on every frame of the rotation. */
+  will-change: transform;
 }
 
 /* Each floating panel gets real depth: a dark shadow beneath and a hairline
@@ -909,169 +914,46 @@ body.cy-body {
 }
 
 
-/* --- Orbit ---------------------------------------------------------------
-   The level badge circles the module card, slowly.
-
-   Two counter-rotating animations, on two elements, for one reason: a single
-   element cannot both orbit and stay upright, because one `transform` would
-   overwrite the other. So the track spins, the slot rides it at the top, and
-   the body spins back at exactly the same rate — which cancels the rotation
-   for the badge alone. The badge travels a circle without ever tipping over.
-
-   The slot's translateX(-50%) is a static transform on an element that is
-   never animated. Put it on an animated element and the animation eats it, and
-   the badge jumps half its width sideways. */
-
-.cy-orbit {
-  animation: cy-spin 28s linear infinite;
-  aspect-ratio: 1;
-  pointer-events: none;
-  position: relative;
-  width: 96%;
-  z-index: 3;
-}
-
-.cy-orbit__slot {
-  left: 50%;
-  position: absolute;
-  top: 0;
-  transform: translateX(-50%);
-}
-
-.cy-orbit__body {
-  animation: cy-orbit-upright 28s linear infinite;
-}
-
 /* ---- Every keyframe the hero scene depends on, in one place ----
-   All four of these had been deleted along with the scenes they were written
-   for, and CSS said nothing: an animation naming keyframes that don't exist is
-   a silent no-op. The result was a "floating" card that didn't float, a
-   parallax that didn't parallax, and an orbit whose track never turned while
-   the badge kept counter-rotating — so it span on the spot.
-   Three dead animations, no error, and no test that could see it. There is one
+   These had been deleted along with the scenes they were written for, and CSS
+   said nothing: an animation naming keyframes that don't exist is a silent
+   no-op. The result was a "floating" card that didn't float and a parallax
+   that didn't parallax. No error, and no test that could see it. There is one
    now (test_every_animation_references_keyframes_that_exist).
    Keep them together. They only get deleted when they're scattered. */
 
-@keyframes cy-spin {
-  to { transform: rotate(360deg); }
-}
+/* The idle float, on .cy-float.
+   Was a 14px vertical bob, which at 7s read as "not moving" — a straight line
+   up and down is the one motion the eye discards as a rendering artefact.
 
-@keyframes cy-orbit-upright {
-  from { transform: rotate(0deg); }
-  to   { transform: rotate(-360deg); }
-}
-
-/* The idle bob, on .cy-float. */
+   What makes it read as alive is that it isn't a line: it drifts sideways and
+   tips slightly as it rises, so the card traces a lazy figure-of-eight and
+   never repeats the same pose twice in a cycle. Same idea as a held camera —
+   the tell isn't amplitude, it's that no two moments match. The rotation is
+   under a degree and a half; past that it stops looking like a floating object
+   and starts looking like a broken one. */
 @keyframes cy-float {
-  0%, 100% { transform: translateY(-7px); }
-  50%      { transform: translateY(7px); }
+  0% {
+    transform: translate3d(0, -14px, 0) rotate(-1.1deg) scale(1);
+  }
+  25% {
+    transform: translate3d(9px, -4px, 0) rotate(0.5deg) scale(1.012);
+  }
+  50% {
+    transform: translate3d(3px, 14px, 0) rotate(1.3deg) scale(1.02);
+  }
+  75% {
+    transform: translate3d(-8px, 3px, 0) rotate(0.2deg) scale(1.008);
+  }
+  100% {
+    transform: translate3d(0, -14px, 0) rotate(-1.1deg) scale(1);
+  }
 }
 
 /* The scroll parallax, on .cy-drift. Distance comes from --cy-shift. */
 @keyframes cy-drift {
   to { transform: translateY(var(--cy-shift, 0)); }
 }
-
-
-/* --- Hex level badge -----------------------------------------------------
-   The level ring was a circle with a number in it, which is what every
-   dashboard on earth looks like. A hexagon reads as a rank insignia — a thing
-   you earn — and it's the same silhouette as the points icon, so the two
-   belong to each other.
-
-   Gradient border done with two stacked clips: the outer element IS the
-   gradient, the inner sits 2px inside with the card fill and the same
-   polygon. No border property can follow a clip-path, so this is the way. */
-
-.cy-hex {
-  --cy-hex-clip: polygon(50% 0%, 93.3% 25%, 93.3% 75%, 50% 100%, 6.7% 75%, 6.7% 25%);
-  aspect-ratio: 1 / 1.05;
-  background: var(--cy-grad);
-  clip-path: var(--cy-hex-clip);
-  display: grid;
-  filter: drop-shadow(0 6px 20px rgba(0, 0, 0, 0.6));
-  place-items: center;
-  width: var(--cy-hex-size, 104px);
-}
-
-.cy-hex__inner {
-  align-items: center;
-  background: linear-gradient(165deg, #23233a, #101019);
-  clip-path: var(--cy-hex-clip);
-  display: flex;
-  flex-direction: column;
-  height: calc(100% - 3px);
-  justify-content: center;
-  width: calc(100% - 3px);
-}
-
-.cy-hex__label {
-  color: var(--cy-text-3);
-  font-size: 0.55rem;
-  letter-spacing: 0.14em;
-  line-height: 1;
-  text-transform: uppercase;
-}
-
-.cy-hex__value {
-  background: var(--cy-grad);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  font-family: var(--cy-font-mono);
-  font-size: 1.85rem;
-  font-weight: 700;
-  line-height: 1.1;
-}
-
-/* The thin arc of progress-to-next-level, hugging the badge. A ring around a
-   hexagon on purpose: the mismatch of shapes is what makes it read as an
-   attachment to the badge rather than part of it.
-
-   The custom properties are declared HERE, on the wrapper — not inside
-   ::before. A pseudo-element inherits from its originating element, so
-   re-declaring --cy-level-progress in ::before would shadow the inline style
-   that sets it and the ring would sit at 0% forever, silently.
-
-   Sizes derive from --cy-hex-size so the ring tracks the badge; hard-coding
-   128px meant a 78px badge wore a ring floating 25px off it. */
-.cy-hex-wrap {
-  --cy-hex-size: 104px;
-  --cy-level-progress: 0;
-  --cy-ring-d: calc(var(--cy-hex-size) * 1.3);
-  display: grid;
-  place-items: center;
-  position: relative;
-}
-
-.cy-hex-wrap::before {
-  background: conic-gradient(
-    var(--cy-cyan) calc(var(--cy-level-progress) * 1%),
-    rgba(255, 255, 255, 0.06) 0
-  );
-  border-radius: 50%;
-  content: "";
-  grid-area: 1 / 1;
-  height: var(--cy-ring-d);
-  /* Punch the middle out: everything but a 2px band at the edge. */
-  -webkit-mask: radial-gradient(
-    circle,
-    transparent calc(var(--cy-ring-d) / 2 - 3px),
-    #000 calc(var(--cy-ring-d) / 2 - 3px),
-    #000 calc(var(--cy-ring-d) / 2 - 1px),
-    transparent calc(var(--cy-ring-d) / 2 - 1px)
-  );
-  mask: radial-gradient(
-    circle,
-    transparent calc(var(--cy-ring-d) / 2 - 3px),
-    #000 calc(var(--cy-ring-d) / 2 - 3px),
-    #000 calc(var(--cy-ring-d) / 2 - 1px),
-    transparent calc(var(--cy-ring-d) / 2 - 1px)
-  );
-  width: var(--cy-ring-d);
-}
-
-.cy-hex-wrap > * { grid-area: 1 / 1; }
 
 
 /* ==========================================================================
@@ -1694,60 +1576,6 @@ body.cy-body {
 }
 .cy-auth-mark .cy-i { height: 24px; width: 24px; }
 
-.cy-auth {
-  align-items: center;
-  display: grid;
-  gap: clamp(1.5rem, 4vw, 3rem);
-  grid-template-columns: 1.02fr 0.98fr;
-  margin: 0 auto;
-  max-width: 62rem;
-}
-
-.cy-auth__aside {
-  display: flex;
-  flex-direction: column;
-  gap: 1.75rem;
-}
-
-.cy-perks {
-  display: grid;
-  gap: 1.15rem;
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-.cy-perk {
-  align-items: flex-start;
-  display: flex;
-  gap: 0.9rem;
-}
-
-.cy-perk__icon {
-  align-items: center;
-  background: var(--cy-grad-soft);
-  border: 1px solid rgba(167, 139, 250, 0.3);
-  border-radius: 10px;
-  color: var(--cy-violet-soft);
-  display: flex;
-  flex: none;
-  height: 36px;
-  justify-content: center;
-  width: 36px;
-}
-.cy-perk__icon .cy-i { height: 18px; width: 18px; }
-
-.cy-perk__title {
-  color: var(--cy-text);
-  display: block;
-  font-weight: 500;
-}
-
-.cy-perk__text {
-  color: var(--cy-text-2);
-  font-size: 0.92rem;
-  margin: 0;
-}
 
 .cy-source {
   color: var(--cy-text-3);
@@ -2025,21 +1853,14 @@ body.cy-body {
     transform: none;
   }
 
-  /* The hero scene keeps its depth and gradient; it simply stops drifting.
-     The orbit stops too — the badge rests at the top of its track, which is a
-     perfectly good composition, so nothing is lost but the movement. */
+  /* The hero card keeps its depth, gradient and shadow; it simply stops
+     moving. The float is the most noticeable motion on the landing page and
+     therefore the first thing that has to go. */
   .cy-float,
   .cy-drift,
-  .cy-orbit,
-  .cy-orbit__body,
   .cy-streak__flame {
     animation: none;
     transform: none;
-  }
-  /* ...except the slot's, which is layout, not motion. Clearing it here would
-     shove the badge half its width off the track. */
-  .cy-orbit__slot {
-    transform: translateX(-50%);
   }
 
   /* The veins loop forever behind the login form, which makes them the most

@@ -169,26 +169,33 @@ class LoginForm(AuthenticationForm):
         return self.cleaned_data
 
 
-class TOTPTokenForm(forms.Form):
-    """The six digits from the authenticator app."""
+class LoginCodeForm(forms.Form):
+    """The six digits we emailed."""
 
-    token = forms.CharField(
+    code = forms.CharField(
         label="6-digit code",
         max_length=6,
         min_length=6,
         widget=forms.TextInput(
             attrs={
+                # one-time-code lets iOS and Android offer the code straight
+                # from the notification, so the user never opens their inbox.
+                # It is the single thing that makes this flow tolerable on a
+                # phone, and it costs one attribute.
                 "autocomplete": "one-time-code",
                 "autofocus": True,
-                "class": "form-control",
+                "class": "form-control cy-code-input",
                 "inputmode": "numeric",
                 "pattern": "[0-9]*",
+                "spellcheck": "false",
             }
         ),
     )
 
-    def clean_token(self):
-        token = self.cleaned_data["token"].strip().replace(" ", "")
-        if not token.isdigit():
+    def clean_code(self):
+        # Spaces and dashes because people paste "123 456" out of an email
+        # without thinking about it, and being told off for it is absurd.
+        code = self.cleaned_data["code"].strip().replace(" ", "").replace("-", "")
+        if not code.isdigit():
             raise forms.ValidationError("The code is 6 numbers, with no letters.")
-        return token
+        return code

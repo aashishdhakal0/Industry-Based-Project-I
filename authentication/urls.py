@@ -14,7 +14,7 @@ urlpatterns = [
     # user could meaningfully navigate to.
     path("verify/<str:token>/", views.verify, name="verify"),
     path("login/", views.login_view, name="login"),
+    path("login/code/", views.login_code, name="login_code"),
+    path("login/code/resend/", views.resend_login_code, name="resend_login_code"),
     path("logout/", views.logout_view, name="logout"),
-    path("2fa/setup/", views.two_factor_setup, name="two_factor_setup"),
-    path("2fa/", views.two_factor_verify, name="two_factor_verify"),
 ]
