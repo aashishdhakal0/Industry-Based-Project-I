@@ -280,3 +280,47 @@ def complete_simulation(request, order_index):
             "module_url": reverse("learn:module", args=[order_index]),
         }
     )
+
+
+@login_required
+def dashboard(request):
+    """The student's home — every figure real, from PostgreSQL via the engine."""
+    from .badges import CATALOGUE
+
+    profile = g.get_profile(request.user)
+    progress = g.module_progress(request.user)
+    for mp in progress:
+        decorate(mp.module)
+        if not mp.unlocked:
+            mp.state, mp.link = "locked", None
+        else:
+            mp.state = (
+                "complete" if mp.complete
+                else "current" if mp.done_lessons > 0
+                else "open"
+            )
+            mp.link = reverse("learn:module", args=[mp.module.order_index])
+        mp.progress_label = f"{mp.done_lessons}/{mp.total_lessons}"
+
+    target = g.continue_target(request.user)
+    earned = set(profile.badges or [])
+
+    return render(
+        request,
+        "dashboard.html",
+        {
+            "profile": profile,
+            "level": g.level_for_points(profile.points),
+            "progress": progress,
+            "modules_done": sum(1 for mp in progress if mp.complete),
+            "modules_total": len(progress),
+            "lessons_done": sum(mp.done_lessons for mp in progress),
+            "continue_module": target[0] if target else None,
+            "continue_lesson": target[1] if target else None,
+            "badges": [
+                {"badge": b, "earned": b.id in earned} for b in CATALOGUE
+            ],
+            "badges_earned": len(earned),
+            "badges_total": len(CATALOGUE),
+        },
+    )

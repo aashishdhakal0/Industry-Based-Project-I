@@ -2,9 +2,10 @@
 
 from django.conf import settings
 from django.contrib import admin
-from django.contrib.auth.decorators import login_required
 from django.urls import include, path
 from django.views.generic import TemplateView
+
+from modules import views as modules_views
 
 from .placeholder_content import MODULES, THREAT_STATS
 
@@ -33,19 +34,8 @@ urlpatterns = [
         ),
         name="modules",
     ),
-    # The student's home. Placeholder data for now (Sprint 4 wires it to real
-    # ProgressRecord/QuizResult aggregates), but gated from day one — an
-    # unprotected dashboard tends to stay unprotected, and CLAUDE.md requires
-    # every view to carry its own auth check.
-    path(
-        "dashboard/",
-        login_required(
-            TemplateView.as_view(
-                template_name="dashboard.html", extra_context=_module_context
-            )
-        ),
-        name="dashboard",
-    ),
+    # The student's home — real progress from PostgreSQL (modules.views.dashboard).
+    path("dashboard/", modules_views.dashboard, name="dashboard"),
     # The student learning experience — browse, lessons, simulation.
     path("learn/", include("modules.urls")),
     path("", include("authentication.urls")),

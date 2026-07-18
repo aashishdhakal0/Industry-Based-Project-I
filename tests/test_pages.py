@@ -466,8 +466,17 @@ def test_no_emoji_in_any_rendered_screen(client):
 
 @pytest.mark.django_db
 def test_dashboard_offers_exactly_one_primary_action(client):
-    """One obvious action per screen is the rule the whole design rests on.
-    If a second primary button appears, that rule has been broken."""
+    """One obvious action per screen is the rule the whole design rests on. On
+    the dashboard that's the single Resume button — if a second primary appears,
+    the rule has been broken."""
+    from modules.models import Lesson, Module
+
+    author = User.objects.create_user(email="a@example.com", password="x" * 14)
+    module = Module.objects.create(
+        title="M1", order_index=1, is_published=True, created_by=author
+    )
+    Lesson.objects.create(module=module, lesson_number=1, title="L1", body_text="<p>x</p>")
+
     user = User.objects.create_user(email="student@example.com", password="x" * 14)
     client.force_login(user)
 

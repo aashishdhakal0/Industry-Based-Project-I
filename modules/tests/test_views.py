@@ -178,3 +178,36 @@ def test_browser_query_count_is_bounded(client_student, make_module, django_asse
     # ceiling: auth, session, profile, and the two progress queries.
     with django_assert_max_num_queries(12):
         client_student.get(reverse("learn:browser"))
+
+
+# --------------------------------------------------------------------------
+# Dashboard — real data from the database
+# --------------------------------------------------------------------------
+
+
+@pytest.mark.django_db
+def test_dashboard_shows_real_points_after_completing_lessons(client_student, student, modules):
+    complete(client_student, modules[0], 1, HTTP_X_REQUESTED_WITH="fetch")
+    complete(client_student, modules[0], 2, HTTP_X_REQUESTED_WITH="fetch")
+
+    html = client_student.get(reverse("dashboard")).content.decode()
+    # 2 lessons × 10 = 20 points, straight from the profile cache.
+    assert ">20<" in html
+
+
+@pytest.mark.django_db
+def test_dashboard_reflects_earned_badges(client_student, student, modules):
+    complete(client_student, modules[0], 1, HTTP_X_REQUESTED_WITH="fetch")
+
+    html = client_student.get(reverse("dashboard")).content.decode()
+    assert "First step" in html          # the badge name
+    assert "cy-badge--earned" in html
+
+
+@pytest.mark.django_db
+def test_dashboard_continue_points_at_the_next_lesson(client_student, modules):
+    complete(client_student, modules[0], 1, HTTP_X_REQUESTED_WITH="fetch")
+
+    html = client_student.get(reverse("dashboard")).content.decode()
+    assert reverse("learn:module", args=[1]) in html
+    assert "Continue where you left off" in html
