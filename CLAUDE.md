@@ -193,11 +193,33 @@ no emoji anywhere. Landing, About, Modules, dashboard, and a DEBUG-only
 `/styleguide/`. **The gradient carries dark ink, never white** — white measures
 1.81:1 at the cyan end. Rule documented at the top of `cybaroo.css`.
 
-**Not started:** modules/lessons/quizzes/AFE/certificates — all views, all
-content. `/dashboard/` renders placeholder numbers from
-`nstp/placeholder_content.py` (Sprint 2 deletes it).
+**Sprint 2 — done.** The full student loop is built and reads live from
+PostgreSQL. `/learn/` browses the 6 real modules (mission cards, sequential
+lock **enforced in the view** as a 403), `/learn/m/N/` is the module overview,
+lessons have a premium reader with mark-complete (+10, celebration overlay via
+`cybaroo.js`, progressive-enhancement so it works without JS), and each module
+has an interactive phishing-inbox **simulation**. `/dashboard/` shows real
+points/level/streak/badges/progress — no placeholders.
 
-**Next:** Sprint 1.4 — RBAC groups + per-view role checks. Then 1.6 CI.
+**Gamification engine** (`modules/gamification.py`): records are the truth,
+`UserProfile.points` is a cache **recomputed** from ProgressRecord+QuizResult on
+every completion (never incremented → cannot drift). Level is a pure function of
+points. Streak advances on activity with the date injected for tests. Badges:
+catalogue in code (`modules/badges.py`), earned ids in `UserProfile.badges`.
+
+**New model:** `modules.SimulationResult` (records sim outcomes; does not gate
+the lock — that's lesson-based per spec; drives a badge). **New dep:** `nh3`,
+sanitising lesson HTML in `Lesson.save()` (stored-XSS control). Content seeded
+by `manage.py seed_learning_content` (idempotent; placeholder lesson bodies with
+real rich structure). **2FA is an emailed code**, not TOTP (see deviations).
+
+**Deviation from the solo cut-list:** simulations + badges were "cut"; the
+client reinstated them. Quiz-taking engine remains Sprint 3 (points infra ready
+for the 50/quiz award). Marketing pages (`landing`, `/modules/`) still read the
+`placeholder_content.MODULES` constant — a cosmetic follow-up could point them
+at the DB too, but it isn't student data.
+
+**Next:** Sprint 3 — quiz engine + Adaptive Feedback Engine. Then 1.4 RBAC, 1.6 CI.
 
 **Repo:** github.com/aashishdhakal0/Industry-Based-Project-I — remote **is**
 configured; `BN304-Development` is pushed and tracks `origin`, currently at

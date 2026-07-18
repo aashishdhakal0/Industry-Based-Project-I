@@ -211,3 +211,29 @@ def test_dashboard_continue_points_at_the_next_lesson(client_student, modules):
     html = client_student.get(reverse("dashboard")).content.decode()
     assert reverse("learn:module", args=[1]) in html
     assert "Continue where you left off" in html
+
+
+# --------------------------------------------------------------------------
+# Rendering hygiene — no template leaks, no emoji, on the new pages
+# --------------------------------------------------------------------------
+
+import re
+
+LEAKS = ["{#", "#}", "{%", "%}", "{{", "}}"]
+EMOJI = re.compile("[\U0001F300-\U0001FAFF\U00002600-\U000027BF\U0001F1E6-\U0001F1FF]")
+
+
+@pytest.mark.django_db
+def test_learn_pages_render_clean_and_without_emoji(client_student, modules):
+    urls = [
+        reverse("learn:browser"),
+        reverse("learn:module", args=[1]),
+        reverse("learn:lesson", args=[1, 1]),
+        reverse("learn:simulation", args=[1]),
+        reverse("dashboard"),
+    ]
+    for url in urls:
+        html = client_student.get(url).content.decode()
+        for token in LEAKS:
+            assert token not in html, f"{url} leaked {token!r}"
+        assert not EMOJI.findall(html), f"{url} contains emoji"
