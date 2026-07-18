@@ -827,13 +827,24 @@ body.cy-body {
   z-index: 0;
 }
 
+/* align-items MUST be start, not center.
+   The scene column is roughly square, so it's taller than the text column. With
+   align-items:center the grid row takes the scene's height and centres the
+   shorter text block within it — which drops the "Built in Melbourne" pill and
+   the heading a hundred-odd pixels below the nav. That was the persistent gap.
+   `start` pins the text to the top of the row, right under the bar; the scene
+   centres itself beside it via align-self so it still looks balanced. */
 .cy-hero__grid {
-  align-items: center;
+  align-items: start;
   display: grid;
   gap: clamp(2rem, 5vw, 4.5rem);
   grid-template-columns: 1.02fr 0.98fr;
   position: relative;
   z-index: 1;
+}
+
+.cy-hero__visual {
+  align-self: center;
 }
 
 .cy-hero__title {
