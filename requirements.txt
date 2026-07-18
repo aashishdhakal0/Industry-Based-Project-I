@@ -34,6 +34,10 @@ django-csp==4.0
 # --- Content authoring ---
 django-tinymce==5.0.0
 Pillow==11.3.0
+# Server-side HTML sanitiser for lesson body_text (stored-XSS control, a
+# CLAUDE.md "never"). nh3 is the maintained, Rust-based ammonia binding; bleach
+# is deprecated. Applied in Lesson.save().
+nh3==0.3.6
 
 # --- PDF certificates ---
 # NOTE: the spec says "ReportLab's FPDF class". No such class exists in

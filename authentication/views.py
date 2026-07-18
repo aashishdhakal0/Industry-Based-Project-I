@@ -213,8 +213,16 @@ def _complete_login(request, user):
     # survive into the real session unless we clear them. Read next_url first.
     _clear_pending(request)
 
-    # Touched on every sign-in; Sprint 4 builds the streak on top of it.
-    UserProfile.objects.filter(user=user).update(last_active=timezone.now())
+    # Showing up counts towards the streak. This replaces the old raw
+    # last_active write, which would have fought the streak logic — advancing
+    # last_active to today without incrementing the count, so a later lesson the
+    # same day would read as "already active today" and never build the streak.
+    # record_login goes through the one streak code path. Imported here rather
+    # than at module top to keep the auth app free of a modules dependency at
+    # import time.
+    from modules.gamification import record_login
+
+    record_login(user)
 
     return redirect(next_url or role_home_url(user))
 

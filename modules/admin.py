@@ -2,7 +2,7 @@
 
 from django.contrib import admin
 
-from .models import Lesson, Module, ProgressRecord, Simulation
+from .models import Lesson, Module, ProgressRecord, Simulation, SimulationResult
 
 
 class LessonInline(admin.TabularInline):
@@ -58,5 +58,15 @@ class ProgressRecordAdmin(admin.ModelAdmin):
     list_filter = ("completed_at", "lesson__module")
     search_fields = ("user__email", "lesson__title")
     list_select_related = ("user", "lesson", "lesson__module")
+    readonly_fields = ("completed_at",)
+    date_hierarchy = "completed_at"
+
+
+@admin.register(SimulationResult)
+class SimulationResultAdmin(admin.ModelAdmin):
+    list_display = ("user", "simulation", "score", "total", "completed_at")
+    list_filter = ("completed_at", "simulation__module")
+    search_fields = ("user__email",)
+    list_select_related = ("user", "simulation", "simulation__module")
     readonly_fields = ("completed_at",)
     date_hierarchy = "completed_at"

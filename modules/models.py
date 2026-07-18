@@ -1,7 +1,40 @@
 """Training content: modules, their lessons and simulations, and progress."""
 
+import nh3
 from django.conf import settings
 from django.db import models
+
+# The allow-list for lesson HTML. Lessons render UNESCAPED, so this is the only
+# thing standing between an author (or a compromised CMS session) and stored
+# XSS in every student's browser — a CLAUDE.md "never". Anything not named here
+# is stripped: no <script>, no <iframe>, no event-handler attributes, no
+# javascript: URLs (nh3 drops those by default).
+LESSON_ALLOWED_TAGS = {
+    "h2", "h3", "h4", "p", "ul", "ol", "li", "strong", "em", "u",
+    "a", "img", "blockquote", "code", "pre", "hr", "br", "table",
+    "thead", "tbody", "tr", "th", "td", "figure", "figcaption", "span", "div",
+}
+LESSON_ALLOWED_ATTRIBUTES = {
+    # No "rel" here — link_rel below manages it (nh3 forbids doing both), adding
+    # rel="noopener noreferrer" to every link so a lesson can't reach back into
+    # our tab via window.opener.
+    "a": {"href", "title"},
+    "img": {"src", "alt", "title", "width", "height"},
+    "span": {"class"},
+    "div": {"class"},
+    "td": {"colspan", "rowspan"},
+    "th": {"colspan", "rowspan"},
+}
+
+
+def sanitise_lesson_html(html):
+    """Strip anything not on the lesson allow-list. Safe to call twice."""
+    return nh3.clean(
+        html or "",
+        tags=LESSON_ALLOWED_TAGS,
+        attributes=LESSON_ALLOWED_ATTRIBUTES,
+        link_rel="noopener noreferrer",
+    )
 
 
 class Module(models.Model):
@@ -73,6 +106,14 @@ class Lesson(models.Model):
             )
         ]
 
+    def save(self, *args, **kwargs):
+        # Sanitise on the way IN, so the database only ever holds clean HTML and
+        # every read path — student viewer, admin preview, exports — is safe by
+        # construction. Sanitising on render instead would mean remembering to
+        # do it at every call site, and the first one forgotten is the hole.
+        self.body_text = sanitise_lesson_html(self.body_text)
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return f"{self.module.title} — L{self.lesson_number}: {self.title}"
 
@@ -129,3 +170,51 @@ class ProgressRecord(models.Model):
 
     def __str__(self):
         return f"{self.user.email} completed {self.lesson}"
+
+
+class SimulationResult(models.Model):
+    """One row per time a student finishes a module's interactive simulation.
+
+    New in Sprint 2. There was nowhere to record a simulation outcome —
+    ProgressRecord is tied to a Lesson — so this is the one schema addition the
+    student loop genuinely needs. Deliberately does NOT gate the sequential
+    unlock (that stays lesson-based, per the spec); it records engagement and
+    drives a badge. See the Sprint 2 plan.
+
+    `path` stores the decisions the student made (which emails they judged, and
+    how), so the simulation can show a personalised recap and so we can tell a
+    perfect run from a scraped-through one later.
+    """
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="simulation_results",
+    )
+    simulation = models.ForeignKey(
+        Simulation, on_delete=models.CASCADE, related_name="results"
+    )
+    score = models.PositiveIntegerField(
+        default=0, help_text="Correct decisions, out of the scenario's total."
+    )
+    total = models.PositiveIntegerField(
+        default=0, help_text="Decisions available in the scenario."
+    )
+    path = models.JSONField(
+        default=list, blank=True, help_text="The decisions the student made."
+    )
+    completed_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = "simulation_results"
+        ordering = ["-completed_at"]
+        constraints = [
+            # One result per student per simulation: re-running overwrites via
+            # update_or_create rather than piling up rows and re-awarding.
+            models.UniqueConstraint(
+                fields=["user", "simulation"], name="unique_simulation_per_user"
+            )
+        ]
+
+    def __str__(self):
+        return f"{self.user.email} — {self.simulation} ({self.score}/{self.total})"
