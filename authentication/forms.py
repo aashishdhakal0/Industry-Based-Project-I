@@ -31,14 +31,14 @@ class RegistrationForm(UserCreationForm):
     )
     email = forms.EmailField(
         label="Email address",
-        help_text="Your login, and where the confirmation link lands.",
+        help_text="This is how you'll log in.",
         widget=forms.EmailInput(attrs={"autocomplete": "email"}),
     )
     organisation = forms.CharField(
         max_length=255,
         required=False,
         label="Organisation",
-        help_text="Optional. The business, council or school you're here for.",
+        help_text="Optional — your workplace, if you're here for one.",
         widget=forms.TextInput(attrs={"autocomplete": "organization"}),
     )
 
@@ -57,10 +57,10 @@ class RegistrationForm(UserCreationForm):
         # short enough to read. Say the useful thing, once.
         self.fields["password1"].label = "Password"
         self.fields["password1"].help_text = (
-            "Eight characters or more. Three random words beat one clever one."
+            "Eight or more characters — three random words work a treat."
         )
         self.fields["password2"].label = "Confirm password"
-        self.fields["password2"].help_text = "Once more, to be sure."
+        self.fields["password2"].help_text = "Just to be sure."
 
         for name, field in self.fields.items():
             field.widget.attrs.setdefault("class", "form-control")

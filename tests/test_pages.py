@@ -24,8 +24,40 @@ def assert_renders_clean(html, screen):
 
 
 # --------------------------------------------------------------------------
+# The shared shell — nav
+# --------------------------------------------------------------------------
+
+
+@pytest.mark.django_db
+def test_mobile_nav_toggle_is_wired_to_its_panel(client):
+    """The hamburger toggles a panel by id. If the button's aria-controls and
+    the panel's id drift apart, the menu silently stops working for assistive
+    tech — and there's no visual sign on desktop, where the toggle is hidden."""
+    html = client.get(reverse("landing")).content.decode()
+
+    assert 'aria-controls="cy-nav-menu"' in html
+    assert 'id="cy-nav-menu"' in html
+    # Ships hidden so a no-JS visitor never meets a dead button (footer is their
+    # fallback); cybaroo.js removes the attribute.
+    assert 'class="cy-nav__toggle"' in html
+    assert " hidden" in html
+
+
+# --------------------------------------------------------------------------
 # Landing page
 # --------------------------------------------------------------------------
+
+
+@pytest.mark.django_db
+def test_module_tiles_link_to_login_for_now(client):
+    """The cards are clickable; until modules exist they point at login. A test
+    because 'they'll route to the real module later' is exactly the kind of
+    placeholder that gets forgotten."""
+    for name in ["landing", "modules"]:
+        html = client.get(reverse(name)).content.decode()
+        assert 'class="cy-module-link" href="/login/"' in html, name
+        # The open tile shows an explicit call to action.
+        assert "cy-module__cta" in html, name
 
 
 @pytest.mark.django_db

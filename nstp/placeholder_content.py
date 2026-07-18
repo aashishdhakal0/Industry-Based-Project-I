@@ -18,7 +18,7 @@ MODULES = [
     {
         "index": 1,
         "title": "Network Security Fundamentals",
-        "subtitle": "What a network actually is, and why yours is worth protecting.",
+        "subtitle": "What a network is, and why yours is worth guarding.",
         "icon": "i-layers",
         "tile_a": "#9b7bf8",
         "tile_b": "#22d3ee",
@@ -26,7 +26,7 @@ MODULES = [
     {
         "index": 2,
         "title": "Recognising Cyber Threats",
-        "subtitle": "The scams and attacks that really turn up in Australian workplaces.",
+        "subtitle": "The scams that actually land in Australian inboxes.",
         "icon": "i-shield",
         "tile_a": "#7c5cf0",
         "tile_b": "#4fb8f5",
@@ -34,7 +34,7 @@ MODULES = [
     {
         "index": 3,
         "title": "Phishing & Social Engineering",
-        "subtitle": "How to spot a fake email or phone call before you act on it.",
+        "subtitle": "Spot a fake email or call before you act on it.",
         "icon": "i-mail",
         "tile_a": "#a86af0",
         "tile_b": "#22d3ee",
@@ -42,7 +42,7 @@ MODULES = [
     {
         "index": 4,
         "title": "Secure Communication Practices",
-        "subtitle": "Passwords, messages and files — handled safely, without the hassle.",
+        "subtitle": "Passwords, messages and files, kept safe without the fuss.",
         "icon": "i-lock",
         "tile_a": "#6d7bf5",
         "tile_b": "#35d6f0",
@@ -50,7 +50,7 @@ MODULES = [
     {
         "index": 5,
         "title": "Firewall & Network Defence",
-        "subtitle": "The tools quietly guarding your business, and how to keep them working.",
+        "subtitle": "The quiet guards on your business — and how to keep them up.",
         "icon": "i-bolt",
         "tile_a": "#b45cf0",
         "tile_b": "#5b8df5",

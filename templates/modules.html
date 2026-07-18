@@ -37,12 +37,13 @@
 
 <section class="cy-band">
   <div class="cy-wrap">
+    {% url 'authentication:login' as tile_link %}
     <div class="cy-map">
       {% for m in modules %}
         {% if forloop.first %}
-          {% include "_module_tile.html" with module=m state="open" delay="0s" %}
+          {% include "_module_tile.html" with module=m state="open" delay="0s" link=tile_link %}
         {% else %}
-          {% include "_module_tile.html" with module=m state="locked" %}
+          {% include "_module_tile.html" with module=m state="locked" link=tile_link %}
         {% endif %}
       {% endfor %}
     </div>

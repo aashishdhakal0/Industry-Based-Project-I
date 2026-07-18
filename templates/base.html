@@ -34,33 +34,47 @@
       </a>
 
       {% comment %}
-        Real site navigation — pages, not anchors. "How it works" and "Rewards"
-        remain as sections you reach by scrolling the home page; they were
-        never destinations, and putting them here made the nav a table of
-        contents for one page rather than a map of the site.
+        One markup, two layouts:
 
-        Links collapse away below 900px rather than becoming a burger menu: a
-        burger needs JavaScript, our CSP is script-src 'self', and the footer
-        already carries the same links. Less to break, nothing to vendor.
+          - Desktop: the panel is the usual inline horizontal bar; the hamburger
+            is hidden (CSS).
+          - Mobile: the hamburger shows and toggles the panel as a dropdown.
+
+        The toggle is driven by a few lines in cybaroo.js (served under our
+        script-src 'self' CSP), with aria-expanded / aria-controls kept in sync
+        so it announces correctly to a screen reader. It carries `hidden` in the
+        markup and JS removes it on load, so a no-JS visitor never sees a dead
+        button — they fall back to the same links in the footer, exactly as
+        before. A <details> element would have been JS-free, but a closed
+        <details> hides its own panel, which fights the desktop inline layout in
+        ways that differ across browser versions — not worth the fragility.
       {% endcomment %}
-      <ul class="cy-nav__links">
-        {% block nav_links %}
-          <li><a class="cy-nav__link" href="{% url 'landing' %}">Home</a></li>
-          <li><a class="cy-nav__link" href="{% url 'about' %}">About</a></li>
-          <li><a class="cy-nav__link" href="{% url 'modules' %}">Modules</a></li>
-        {% endblock %}
-      </ul>
+      <button type="button" class="cy-nav__toggle" aria-label="Menu"
+              aria-expanded="false" aria-controls="cy-nav-menu" hidden>
+        <svg class="cy-i cy-i--menu" aria-hidden="true"><use href="#i-menu"/></svg>
+        <svg class="cy-i cy-i--close" aria-hidden="true"><use href="#i-close"/></svg>
+      </button>
 
-      <div class="cy-nav__actions">
-        {% block nav_actions %}
-          {% if user.is_authenticated %}
-            <a class="cy-btn cy-btn--quiet cy-btn--sm" href="{% url 'dashboard' %}">Dashboard</a>
-            {% include "_logout_form.html" %}
-          {% else %}
-            <a class="cy-btn cy-btn--quiet cy-btn--sm" href="{% url 'authentication:login' %}">Log in</a>
-            <a class="cy-btn cy-btn--primary cy-btn--sm" href="{% url 'authentication:register' %}">Get started</a>
-          {% endif %}
-        {% endblock %}
+      <div class="cy-nav__panel" id="cy-nav-menu">
+        <ul class="cy-nav__links">
+          {% block nav_links %}
+            <li><a class="cy-nav__link" href="{% url 'landing' %}">Home</a></li>
+            <li><a class="cy-nav__link" href="{% url 'about' %}">About</a></li>
+            <li><a class="cy-nav__link" href="{% url 'modules' %}">Modules</a></li>
+          {% endblock %}
+        </ul>
+
+        <div class="cy-nav__actions">
+          {% block nav_actions %}
+            {% if user.is_authenticated %}
+              <a class="cy-btn cy-btn--quiet cy-btn--sm" href="{% url 'dashboard' %}">Dashboard</a>
+              {% include "_logout_form.html" %}
+            {% else %}
+              <a class="cy-btn cy-btn--quiet cy-btn--sm" href="{% url 'authentication:login' %}">Log in</a>
+              <a class="cy-btn cy-btn--primary cy-btn--sm" href="{% url 'authentication:register' %}">Get started</a>
+            {% endif %}
+          {% endblock %}
+        </div>
       </div>
     </div>
   </nav>

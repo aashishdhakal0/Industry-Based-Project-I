@@ -1,6 +1,9 @@
 /* Cybaroo — the only JavaScript on the platform.
  *
- * It animates the stats on the home page counting up as they scroll into view.
+ * Two small jobs, each in its own IIFE so one returning early can't disable the
+ * other:
+ *   1. the mobile nav toggle (runs on every page)
+ *   2. the stats count-up on the home page (runs only where the stats are)
  *
  * WHY THIS IS JS AND ALMOST NOTHING ELSE IS
  * -----------------------------------------
@@ -82,5 +85,52 @@
   Array.prototype.forEach.call(targets, function (el) {
     el.textContent = format(el, 0);
     observer.observe(el);
+  });
+})();
+
+
+/* The mobile nav toggle.
+ *
+ * The button ships with a `hidden` attribute; we remove it here, so a visitor
+ * without JS never sees a control that does nothing — they use the same links
+ * in the footer. aria-expanded is kept in sync for screen readers, and the
+ * menu closes on Escape and when focus leaves it, which is what a keyboard user
+ * expects of a disclosure.
+ */
+(function () {
+  "use strict";
+
+  var toggle = document.querySelector(".cy-nav__toggle");
+  var panel = document.getElementById("cy-nav-menu");
+  if (!toggle || !panel) return;
+
+  toggle.hidden = false;
+
+  function setOpen(open) {
+    panel.classList.toggle("is-open", open);
+    toggle.setAttribute("aria-expanded", open ? "true" : "false");
+  }
+
+  toggle.addEventListener("click", function () {
+    setOpen(toggle.getAttribute("aria-expanded") !== "true");
+  });
+
+  document.addEventListener("keydown", function (event) {
+    if (event.key === "Escape" && toggle.getAttribute("aria-expanded") === "true") {
+      setOpen(false);
+      toggle.focus();
+    }
+  });
+
+  // Tapping outside the open menu closes it — the standard "click away" that
+  // stops the dropdown lingering over the page.
+  document.addEventListener("click", function (event) {
+    if (
+      toggle.getAttribute("aria-expanded") === "true" &&
+      !panel.contains(event.target) &&
+      !toggle.contains(event.target)
+    ) {
+      setOpen(false);
+    }
   });
 })();

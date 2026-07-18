@@ -210,12 +210,18 @@
       page, the modules page, the dashboard and the styleguide can't drift.
       Sprint 2 swaps it for real Module rows.
     {% endcomment %}
+    {% comment %}
+      Every tile links to login for now — Sprint 2 points them at the real
+      module. `{% url %}` can't be an include argument directly, so it's
+      captured into a variable first.
+    {% endcomment %}
+    {% url 'authentication:login' as tile_link %}
     <div class="cy-map">
       {% for m in modules %}
         {% if forloop.first %}
-          {% include "_module_tile.html" with module=m state="open" delay="0s" %}
+          {% include "_module_tile.html" with module=m state="open" delay="0s" link=tile_link %}
         {% else %}
-          {% include "_module_tile.html" with module=m state="locked" %}
+          {% include "_module_tile.html" with module=m state="locked" link=tile_link %}
         {% endif %}
       {% endfor %}
     </div>
@@ -340,9 +346,16 @@
         Sample figures illustrating the system — not anyone's real record.
         Sprint 4 wires the live versions to UserProfile.
       {% endcomment %}
+      {% comment %}
+        The .cy-live-* classes make this demonstrate itself: as the panel
+        scrolls into view the ring fills, the bar fills and the badges pop in,
+        one after another. See the @supports block in cybaroo.css — without
+        scroll-timeline support, or under reduced motion, everything just shows
+        its final value.
+      {% endcomment %}
       <div class="cy-showcase__panel cy-reveal" style="--cy-delay: 0.1s;" aria-hidden="true">
         <div class="cy-showcase__row">
-          <div class="cy-level cy-level--lg" style="--cy-level-progress: 68;">
+          <div class="cy-level cy-level--lg cy-live-ring" style="--cy-level-progress: 68;">
             <div class="cy-level__inner">
               <span class="cy-level__label">Level</span>
               <span class="cy-level__value">4</span>
@@ -366,38 +379,38 @@
           </div>
         </div>
 
-        <div>
+        <div class="cy-live-bar">
           <div class="cy-progress-row" style="margin-bottom: 0.5rem;">
             <div class="cy-progress">
               <div class="cy-progress__fill" style="--cy-value: 68%;"></div>
             </div>
-            <span class="cy-progress-row__value">68%</span>
+            <span class="cy-progress-row__value">Lvl 5</span>
           </div>
-          <span class="cy-hint">760 points to level 5</span>
+          <span class="cy-hint">760 points to your next level</span>
         </div>
 
         <hr class="cy-divider">
 
         <div class="cy-badges">
-          <div class="cy-badge cy-badge--earned">
+          <div class="cy-badge cy-badge--earned cy-live-badge" style="--cy-badge-i: 0;">
             <div class="cy-badge__medal">
               <svg class="cy-i" aria-hidden="true"><use href="#i-target"/></svg>
             </div>
             <span class="cy-badge__name">First quiz passed</span>
           </div>
-          <div class="cy-badge cy-badge--earned">
+          <div class="cy-badge cy-badge--earned cy-live-badge" style="--cy-badge-i: 1;">
             <div class="cy-badge__medal">
               <svg class="cy-i" aria-hidden="true"><use href="#i-book"/></svg>
             </div>
             <span class="cy-badge__name">Module 1 done</span>
           </div>
-          <div class="cy-badge cy-badge--earned cy-badge--gold">
+          <div class="cy-badge cy-badge--earned cy-badge--gold cy-live-badge" style="--cy-badge-i: 2;">
             <div class="cy-badge__medal">
               <svg class="cy-i" aria-hidden="true"><use href="#i-flame"/></svg>
             </div>
             <span class="cy-badge__name">7 day streak</span>
           </div>
-          <div class="cy-badge cy-badge--locked">
+          <div class="cy-badge cy-badge--locked cy-live-badge" style="--cy-badge-i: 3;">
             <div class="cy-badge__medal">
               <svg class="cy-i" aria-hidden="true"><use href="#i-shield"/></svg>
             </div>

@@ -10,9 +10,17 @@
                response is the message; the copy says how to unlock it.
     complete — done, accent border
 
-  Optional: progress (0-100) and progress_label render a bar; omit for the
-  marketing pages where nobody has progress yet.
+  Optional:
+    progress (0-100) + progress_label — render a bar. Omit on marketing pages
+      where nobody has progress yet.
+    link — make the whole tile a link. On the public pages every tile points at
+      login for now; once modules exist it becomes the module's own URL.
+
+  The link wraps the <article> in an <a>. HTML allows almost anything inside an
+  anchor, and it keeps the whole tile a single tap target — which matters most
+  on a phone, where a small "Start here" chip would be a fiddly thing to hit.
 {% endcomment %}
+{% if link %}<a class="cy-module-link" href="{{ link }}">{% endif %}
 <article class="cy-module cy-reveal
                 {% if state == 'locked' %}cy-module--locked{% else %}cy-module--unlocked{% endif %}
                 {% if state == 'complete' %}cy-module--complete{% endif %}"
@@ -55,5 +63,14 @@
         <span class="cy-progress-row__value">{{ progress_label }}</span>
       </div>
     {% endif %}
+
+    {% comment %} The explicit call-to-action, only on a linked open tile. {% endcomment %}
+    {% if link and state == 'open' %}
+      <span class="cy-module__cta">
+        Start here
+        <svg class="cy-i" aria-hidden="true"><use href="#i-arrow-right"/></svg>
+      </span>
+    {% endif %}
   </div>
 </article>
+{% if link %}</a>{% endif %}

@@ -5,13 +5,15 @@
 {% block auth_content %}
 <div class="cy-card cy-auth-single cy-rise">
   {% comment %}
-    A mark above the heading. Without it the card opens on a bare word and the
-    top edge feels unfinished — this is the one screen with nothing else on it,
-    so it has to carry itself.
+    The real Cybaroo wordmark, same mark + name as the nav, so the login card
+    is unmistakably part of the same product rather than a generic form behind
+    a shield icon. It links home — a logo that goes to the homepage is a
+    convention people rely on without thinking.
   {% endcomment %}
-  <span class="cy-auth-mark" aria-hidden="true">
-    <svg class="cy-i"><use href="#i-shield"/></svg>
-  </span>
+  <a class="cy-wordmark cy-auth-wordmark" href="{% url 'landing' %}">
+    <span class="cy-mark" aria-hidden="true"></span>
+    {{ site_name }}
+  </a>
 
   <h1>Welcome back</h1>
   <p class="cy-lede">Pick up where you left off.</p>
