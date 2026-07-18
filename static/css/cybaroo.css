@@ -2032,6 +2032,431 @@ body.cy-body {
 
 
 /* ==========================================================================
+   Learning experience — HUD, continue card, lesson reader, simulation
+   ========================================================================== */
+
+.cy-learn {
+  padding-top: 1rem;
+}
+
+/* --- The HUD strip -------------------------------------------------------
+   A player status bar: level ring, who you are, points and streak. Shared by
+   the module browser and the dashboard. */
+.cy-hud {
+  align-items: center;
+  background: linear-gradient(165deg, var(--cy-surface-2), var(--cy-surface));
+  border: 1px solid var(--cy-border);
+  border-radius: var(--cy-r-xl);
+  box-shadow: var(--cy-shadow);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  justify-content: space-between;
+  padding: 1.5rem 1.75rem;
+  position: relative;
+}
+.cy-hud::before {
+  background: linear-gradient(90deg, transparent, var(--cy-glow-violet), transparent);
+  content: "";
+  height: 1px;
+  left: 10%;
+  position: absolute;
+  right: 10%;
+  top: -1px;
+}
+
+.cy-hud__identity {
+  align-items: center;
+  display: flex;
+  gap: 1.15rem;
+}
+
+.cy-hud__greet {
+  color: var(--cy-text-3);
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+.cy-hud__headline {
+  color: var(--cy-text);
+  font-family: var(--cy-font-display);
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin: 0.1rem 0 0;
+}
+
+.cy-hud__stats {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+/* --- Continue card -------------------------------------------------------
+   The one obvious next action, as a clickable card. */
+.cy-continue {
+  align-items: center;
+  background: var(--cy-grad-soft);
+  border: 1px solid rgba(167, 139, 250, 0.35);
+  border-radius: var(--cy-r-lg);
+  color: var(--cy-text);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: space-between;
+  margin-top: 1.25rem;
+  padding: 1.25rem 1.5rem;
+  text-decoration: none;
+  transition: transform var(--cy-slow) var(--cy-ease), border-color var(--cy-slow) var(--cy-ease);
+}
+.cy-continue:hover {
+  border-color: var(--cy-violet);
+  color: var(--cy-text);
+  transform: translateY(-3px);
+}
+
+.cy-continue__label {
+  color: var(--cy-violet-soft);
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  margin-bottom: 0.3rem;
+  text-transform: uppercase;
+}
+
+.cy-continue__title {
+  color: var(--cy-text);
+  font-family: var(--cy-font-display);
+  font-size: 1.2rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+/* --- Module overview: the contents list ---------------------------------- */
+
+.cy-toc {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.cy-toc__item {
+  align-items: center;
+  background: linear-gradient(180deg, var(--cy-surface-2), var(--cy-surface));
+  border: 1px solid var(--cy-border);
+  border-radius: var(--cy-r);
+  color: var(--cy-text);
+  display: flex;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  text-decoration: none;
+  transition: transform var(--cy-fast) var(--cy-ease), border-color var(--cy-fast) var(--cy-ease);
+}
+.cy-toc__item:hover {
+  border-color: var(--cy-border-lift);
+  color: var(--cy-text);
+  transform: translateX(3px);
+}
+
+.cy-toc__check {
+  align-items: center;
+  border: 1.5px solid var(--cy-border-lift);
+  border-radius: 50%;
+  color: var(--cy-ink);
+  display: flex;
+  flex: none;
+  height: 28px;
+  justify-content: center;
+  width: 28px;
+}
+.cy-toc__check .cy-i { height: 15px; width: 15px; }
+.cy-toc__item--done .cy-toc__check {
+  background: var(--cy-grad-cta);
+  border-color: transparent;
+  color: #fff;
+}
+
+.cy-toc__body { flex: 1; min-width: 0; }
+.cy-toc__num {
+  color: var(--cy-text-3);
+  font-family: var(--cy-font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+}
+.cy-toc__title { color: var(--cy-text); font-weight: 500; }
+.cy-toc__go { color: var(--cy-text-3); flex: none; }
+.cy-toc__item:hover .cy-toc__go { color: var(--cy-violet-soft); }
+
+/* A step that isn't a lesson: the simulation and the (Sprint 3) quiz. */
+.cy-toc__item--sim .cy-toc__check {
+  background: rgba(34, 211, 238, 0.12);
+  border-color: rgba(34, 211, 238, 0.4);
+  color: var(--cy-cyan);
+}
+.cy-toc__item--soon {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+
+/* --- Lesson reader ------------------------------------------------------- */
+
+/* A slim read-position bar pinned under the nav. */
+.cy-reader-progress {
+  background: var(--cy-surface-3);
+  height: 3px;
+  left: 0;
+  position: sticky;
+  top: var(--cy-nav-h);
+  z-index: 5;
+}
+.cy-reader-progress__fill {
+  background: var(--cy-grad);
+  height: 100%;
+}
+
+.cy-reader {
+  padding-top: 2rem;
+}
+
+.cy-reader__meta {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+}
+.cy-reader__count {
+  color: var(--cy-text-3);
+  font-family: var(--cy-font-mono);
+  font-size: 0.8rem;
+}
+
+.cy-reader__title {
+  font-size: clamp(1.8rem, 4vw, 2.5rem);
+  letter-spacing: -0.03em;
+  margin-bottom: 1.5rem;
+}
+
+/* Comfortable measure and rhythm for long reading. */
+.cy-reader__body {
+  font-size: 1.12rem;
+  line-height: 1.75;
+}
+.cy-reader__body h2 { font-size: 1.5rem; margin: 2.25rem 0 0.75rem; }
+.cy-reader__body h3 { font-size: 1.2rem; margin: 1.75rem 0 0.6rem; }
+.cy-reader__body ul, .cy-reader__body ol { margin: 0 0 1.1rem 1.2rem; }
+.cy-reader__body li { margin-bottom: 0.4rem; }
+.cy-reader__body blockquote {
+  border-left: 3px solid var(--cy-violet);
+  background: var(--cy-grad-soft);
+  border-radius: 0 var(--cy-r) var(--cy-r) 0;
+  color: var(--cy-text);
+  margin: 1.5rem 0;
+  padding: 1rem 1.25rem;
+}
+.cy-reader__body table {
+  border-collapse: collapse;
+  margin: 1.5rem 0;
+  width: 100%;
+}
+.cy-reader__body th, .cy-reader__body td {
+  border: 1px solid var(--cy-border);
+  padding: 0.6rem 0.85rem;
+  text-align: left;
+}
+.cy-reader__body th { background: var(--cy-surface-2); color: var(--cy-text); }
+.cy-reader__body img { border-radius: var(--cy-r); height: auto; max-width: 100%; }
+
+.cy-reader__foot {
+  align-items: center;
+  border-top: 1px solid var(--cy-border);
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+  margin-top: 2.5rem;
+  padding-top: 1.5rem;
+}
+
+/* The no-JS completion flash. */
+.cy-flash {
+  align-items: center;
+  background: var(--cy-grad-soft);
+  border: 1px solid rgba(167, 139, 250, 0.4);
+  border-radius: var(--cy-r);
+  color: var(--cy-text);
+  display: flex;
+  gap: 0.6rem;
+  margin-bottom: 1.5rem;
+  padding: 0.85rem 1.15rem;
+}
+.cy-flash .cy-i { color: var(--cy-violet-soft); flex: none; }
+
+
+/* --- Reward overlay ------------------------------------------------------ */
+
+.cy-reward {
+  align-items: center;
+  background: rgba(10, 8, 18, 0.8);
+  backdrop-filter: blur(6px);
+  display: flex;
+  inset: 0;
+  justify-content: center;
+  padding: 1.5rem;
+  position: fixed;
+  z-index: 60;
+}
+
+.cy-reward__card {
+  background: linear-gradient(165deg, var(--cy-surface-2), var(--cy-surface));
+  border: 1px solid var(--cy-border-lift);
+  border-radius: var(--cy-r-xl);
+  box-shadow: var(--cy-shadow-float);
+  max-width: 22rem;
+  overflow: hidden;
+  padding: 2.5rem 2rem 2rem;
+  position: relative;
+  text-align: center;
+  width: 100%;
+  animation: cy-reward-in 0.4s var(--cy-ease) both;
+}
+
+@keyframes cy-reward-in {
+  from { opacity: 0; transform: translateY(20px) scale(0.96); }
+}
+
+/* A radial burst behind the number. */
+.cy-reward__burst {
+  background: radial-gradient(circle, var(--cy-glow-violet), transparent 65%);
+  height: 220px;
+  left: 50%;
+  position: absolute;
+  top: 10px;
+  transform: translateX(-50%);
+  width: 220px;
+  animation: cy-burst 0.8s var(--cy-ease) both;
+}
+@keyframes cy-burst {
+  from { opacity: 0; transform: translateX(-50%) scale(0.5); }
+  60%  { opacity: 1; }
+  to   { opacity: 0.5; transform: translateX(-50%) scale(1); }
+}
+
+.cy-reward__points {
+  background: var(--cy-grad);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  font-family: var(--cy-font-mono);
+  font-size: 3.5rem;
+  font-weight: 700;
+  line-height: 1;
+  position: relative;
+}
+.cy-reward__label {
+  color: var(--cy-text-3);
+  margin: 0.25rem 0 1.25rem;
+}
+.cy-reward__badges {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin-bottom: 1.5rem;
+}
+.cy-reward__badge {
+  align-items: center;
+  background: var(--cy-grad-soft);
+  border: 1px solid rgba(167, 139, 250, 0.4);
+  border-radius: var(--cy-r-pill);
+  color: var(--cy-violet-soft);
+  display: inline-flex;
+  gap: 0.5rem;
+  justify-content: center;
+  padding: 0.5rem 1rem;
+}
+.cy-reward__badge span { color: var(--cy-text); font-weight: 500; }
+
+
+/* --- Simulation: the inbox ----------------------------------------------- */
+
+.cy-sim-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  margin-top: 1.5rem;
+}
+
+.cy-sim-mail {
+  background: linear-gradient(180deg, var(--cy-surface-2), var(--cy-surface));
+  border: 1px solid var(--cy-border);
+  border-radius: var(--cy-r-lg);
+  overflow: hidden;
+  padding: 1.35rem;
+  transition: border-color var(--cy-slow) var(--cy-ease);
+}
+.cy-sim-mail.is-correct { border-color: rgba(155, 123, 248, 0.55); }
+.cy-sim-mail.is-wrong { border-color: rgba(255, 128, 128, 0.5); }
+
+.cy-sim-mail__from {
+  color: var(--cy-text-2);
+  font-size: 0.9rem;
+}
+.cy-sim-mail__subject {
+  color: var(--cy-text);
+  font-weight: 600;
+  margin: 0.35rem 0;
+}
+.cy-sim-mail__preview {
+  color: var(--cy-text-2);
+  font-size: 0.95rem;
+  margin: 0 0 1rem;
+}
+.cy-sim-mail__actions {
+  display: flex;
+  gap: 0.75rem;
+}
+.cy-sim-mail__actions .cy-btn { flex: 1; }
+.cy-sim-mail__actions .is-chosen { border-color: var(--cy-violet); }
+
+.cy-sim-mail__verdict {
+  border-top: 1px solid var(--cy-border);
+  margin-top: 1.1rem;
+  padding-top: 1.1rem;
+}
+.cy-sim-mail__result {
+  align-items: center;
+  color: var(--cy-text);
+  display: flex;
+  font-weight: 500;
+  gap: 0.5rem;
+  margin-bottom: 0.6rem;
+}
+.is-correct .cy-sim-mail__result .cy-i { color: var(--cy-violet-soft); }
+.is-wrong .cy-sim-mail__result .cy-i { color: var(--cy-danger); }
+.cy-sim-mail__verdict ul {
+  color: var(--cy-text-2);
+  font-size: 0.92rem;
+  margin: 0 0 0 1.1rem;
+}
+.cy-sim-mail__verdict li { margin-bottom: 0.3rem; }
+
+.cy-sim-finish {
+  border: 1px solid var(--cy-border-lift);
+  border-radius: var(--cy-r-lg);
+  background: var(--cy-grad-soft);
+  margin-top: 1.5rem;
+  padding: 1.5rem;
+  text-align: center;
+}
+.cy-sim-finish__score {
+  font-family: var(--cy-font-display);
+  font-size: 1.25rem;
+  margin: 0 0 1rem;
+}
+
+
+/* ==========================================================================
    Entrance
    ========================================================================== */
 
@@ -2179,6 +2604,14 @@ body.cy-body {
   /* The radar ping is pure decoration; with motion reduced the static dot on
      its own reads perfectly well as "live". */
   .cy-demo__live-dot::after { display: none; }
+
+  /* The reward overlay still appears — it's content (points, badges) — it just
+     doesn't burst or slide in. */
+  .cy-reward__card,
+  .cy-reward__burst {
+    animation: none;
+  }
+  .cy-reward__burst { opacity: 0.4; }
 
   /* The veins loop forever behind the login form, which makes them the most
      likely thing on the platform to make someone motion-sick. Stopped, the

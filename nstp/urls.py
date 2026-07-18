@@ -46,6 +46,8 @@ urlpatterns = [
         ),
         name="dashboard",
     ),
+    # The student learning experience — browse, lessons, simulation.
+    path("learn/", include("modules.urls")),
     path("", include("authentication.urls")),
 ]
 

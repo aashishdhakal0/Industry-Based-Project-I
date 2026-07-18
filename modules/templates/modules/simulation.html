@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% comment %}
+  The interactive simulation. Module 1 is a phishing inbox: judge each message
+  safe or scam, get immediate feedback, then a score.
+
+  The scenario is emitted with json_script (safe, no inline JS, CSP-friendly)
+  and cybaroo.js builds the interaction into #cy-sim. A <noscript> note covers
+  the JS-off case honestly — an interactive exercise needs JavaScript, and ours
+  is served from static/ under script-src 'self'.
+{% endcomment %}
+
+{% block title %}Simulation — {{ module.title }} — {{ site_name }}{% endblock %}
+{% block nav_links %}{% endblock %}
+{% block nav_actions %}
+  <a class="cy-btn cy-btn--quiet cy-btn--sm" href="{% url 'learn:module' module.order_index %}">Module</a>
+  {% include "_logout_form.html" %}
+{% endblock %}
+
+{% block content %}
+<div class="cy-wrap cy-wrap--narrow cy-learn">
+
+  <a class="cy-nav__link" href="{% url 'learn:module' module.order_index %}" style="display:inline-block; margin-bottom:1rem;">← {{ module.title }}</a>
+
+  <span class="cy-eyebrow"><span class="cy-eyebrow__dot" aria-hidden="true"></span> Practise</span>
+  <h1 style="font-size: 1.85rem; margin: 0.75rem 0 0.5rem;">Spot the scam</h1>
+  <p class="cy-lede">{{ simulation.scenario_text }}</p>
+
+  {{ simulation.decision_points|json_script:"cy-sim-data" }}
+
+  <div id="cy-sim"
+       data-complete-url="{% url 'learn:complete_simulation' module.order_index %}"
+       data-module-url="{% url 'learn:module' module.order_index %}"
+       data-csrf="{{ csrf_token }}">
+    <noscript>
+      <p class="cy-flash">This exercise needs JavaScript to run. Everything else
+      on {{ site_name }} works without it — this one is hands-on.</p>
+    </noscript>
+  </div>
+
+</div>
+{% endblock %}

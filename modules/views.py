@@ -1,3 +1,282 @@
-from django.shortcuts import render
+"""The student learning experience: browse, module overview, lessons, simulation.
 
-# Create your views here.
+Every view here is behind login, and every view that serves module content
+enforces the sequential lock *in the view* (a 403), never merely by hiding a
+link — a hidden link is not a control (CLAUDE.md).
+"""
+
+import json
+
+from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
+from django.views.decorators.http import require_POST
+
+from . import gamification as g
+from .models import Lesson, Module, ProgressRecord
+from .presentation import decorate
+
+
+def _published_module(order_index):
+    return get_object_or_404(Module, order_index=order_index, is_published=True)
+
+
+def _locked_response(request, module):
+    """A friendly 403 for a locked module. Returned (not raised) by content
+    views when the user hasn't unlocked the module yet — real HTTP 403, so it's
+    an enforced control, but a page a non-technical user can understand."""
+    return render(request, "modules/locked.html", {"module": module}, status=403)
+
+
+@login_required
+def browser(request):
+    """The mission map — all published modules with real progress and lock state."""
+    progress = g.module_progress(request.user)
+    for mp in progress:
+        decorate(mp.module)
+        # The tile's state string and link, computed once here so the template
+        # stays declarative. Locked tiles get no link.
+        if not mp.unlocked:
+            mp.state, mp.link = "locked", None
+        else:
+            if mp.complete:
+                mp.state = "complete"
+            elif mp.done_lessons > 0:
+                mp.state = "current"
+            else:
+                mp.state = "open"
+            mp.link = reverse("learn:module", args=[mp.module.order_index])
+        mp.progress_label = f"{mp.done_lessons}/{mp.total_lessons}"
+
+    target = g.continue_target(request.user)
+    profile = g.get_profile(request.user)
+
+    return render(
+        request,
+        "modules/browser.html",
+        {
+            "progress": progress,
+            "continue_module": target[0] if target else None,
+            "continue_lesson": target[1] if target else None,
+            "level": g.level_for_points(profile.points),
+            "profile": profile,
+            "modules_done": sum(1 for mp in progress if mp.complete),
+            "modules_total": len(progress),
+        },
+    )
+
+
+@login_required
+def module_overview(request, order_index):
+    """A module's contents: its lessons (with done ticks), simulation and quiz."""
+    module = _published_module(order_index)
+    if not g.is_module_unlocked(request.user, module):
+        return _locked_response(request, module)
+
+    # The no-JS celebration: a reward stashed by complete_lesson on redirect.
+    reward_flash = request.session.pop("reward", None)
+
+    lessons = list(module.lessons.filter(is_active=True).order_by("lesson_number"))
+    done_numbers = set(
+        ProgressRecord.objects.filter(
+            user=request.user, lesson__module=module, lesson__is_active=True
+        ).values_list("lesson__lesson_number", flat=True)
+    )
+    for lesson in lessons:
+        lesson.is_done = lesson.lesson_number in done_numbers
+
+    simulation = getattr(module, "simulation", None)
+    sim_done = (
+        simulation is not None and simulation.results.filter(user=request.user).exists()
+    )
+
+    next_lesson = next((lesson for lesson in lessons if not lesson.is_done), None)
+
+    return render(
+        request,
+        "modules/overview.html",
+        {
+            "module": decorate(module),
+            "lessons": lessons,
+            "done_count": len(done_numbers),
+            "total_count": len(lessons),
+            "percent": round(len(done_numbers) / len(lessons) * 100) if lessons else 0,
+            "simulation": simulation,
+            "sim_done": sim_done,
+            "next_lesson": next_lesson,
+            "all_lessons_done": bool(lessons) and next_lesson is None,
+            "reward_flash": reward_flash,
+        },
+    )
+
+
+def _lesson_or_locked(request, order_index, lesson_number):
+    """Fetch a lesson, enforcing publication, activity and the module lock.
+    Returns (lesson, None) or (None, response)."""
+    module = _published_module(order_index)
+    if not g.is_module_unlocked(request.user, module):
+        return None, _locked_response(request, module)
+    lesson = get_object_or_404(
+        Lesson, module=module, lesson_number=lesson_number, is_active=True
+    )
+    return lesson, None
+
+
+@login_required
+def lesson(request, order_index, lesson_number):
+    """The reading experience for one lesson."""
+    lesson, blocked = _lesson_or_locked(request, order_index, lesson_number)
+    if blocked:
+        return blocked
+
+    module = lesson.module
+    siblings = list(module.lessons.filter(is_active=True).order_by("lesson_number"))
+    numbers = [s.lesson_number for s in siblings]
+    position = numbers.index(lesson.lesson_number)
+
+    prev_lesson = siblings[position - 1] if position > 0 else None
+    next_lesson = siblings[position + 1] if position < len(siblings) - 1 else None
+
+    is_done = ProgressRecord.objects.filter(user=request.user, lesson=lesson).exists()
+    reward_flash = request.session.pop("reward", None)
+
+    return render(
+        request,
+        "modules/lesson.html",
+        {
+            "module": decorate(module),
+            "lesson": lesson,
+            "position": position + 1,
+            "total": len(siblings),
+            "progress_percent": round((position + 1) / len(siblings) * 100),
+            "prev_lesson": prev_lesson,
+            "next_lesson": next_lesson,
+            "is_done": is_done,
+            "reward_flash": reward_flash,
+        },
+    )
+
+
+@login_required
+@require_POST
+def complete_lesson(request, order_index, lesson_number):
+    """Record a lesson as complete and award the points.
+
+    Progressive enhancement: a plain form POST records and redirects to the next
+    lesson (or the overview) with the reward in the session for a celebration
+    banner. A `fetch` with the X-Requested-With header instead gets JSON back,
+    so the JS can animate the reward inline without a page load. Same server
+    path either way.
+    """
+    lesson, blocked = _lesson_or_locked(request, order_index, lesson_number)
+    if blocked:
+        return blocked
+
+    created, reward = g.complete_lesson(request.user, lesson)
+
+    next_lesson = (
+        lesson.module.lessons.filter(
+            is_active=True, lesson_number__gt=lesson_number
+        )
+        .order_by("lesson_number")
+        .first()
+    )
+    next_url = (
+        reverse("learn:lesson", args=[order_index, next_lesson.lesson_number])
+        if next_lesson
+        else reverse("learn:module", args=[order_index])
+    )
+
+    payload = {
+        "created": created,
+        "points": reward.points,
+        "points_gained": g.POINTS_PER_LESSON if created else 0,
+        "level": reward.level.level,
+        "level_percent": reward.level.percent,
+        "streak": reward.streak,
+        "new_badges": [
+            {"name": b.name, "icon": b.icon} for b in reward.new_badges
+        ],
+        "next_url": next_url,
+        "module_done": next_lesson is None,
+    }
+
+    if request.headers.get("X-Requested-With") == "fetch":
+        return JsonResponse(payload)
+
+    if created:
+        request.session["reward"] = payload
+    return redirect(next_url)
+
+
+@login_required
+def simulation(request, order_index):
+    """The interactive simulation for a module."""
+    module = _published_module(order_index)
+    if not g.is_module_unlocked(request.user, module):
+        return _locked_response(request, module)
+
+    sim = getattr(module, "simulation", None)
+    if sim is None:
+        return redirect("learn:module", order_index=order_index)
+
+    previous = sim.results.filter(user=request.user).first()
+
+    return render(
+        request,
+        "modules/simulation.html",
+        {
+            "module": decorate(module),
+            "simulation": sim,
+            # The scenario data as JSON for sim.js to drive the interaction.
+            "scenario_json": json.dumps(sim.decision_points),
+            "previous": previous,
+        },
+    )
+
+
+@login_required
+@require_POST
+def complete_simulation(request, order_index):
+    """Record a simulation outcome (JSON body: score, total, path)."""
+    module = _published_module(order_index)
+    if not g.is_module_unlocked(request.user, module):
+        return _locked_response(request, module)
+
+    sim = getattr(module, "simulation", None)
+    if sim is None:
+        return JsonResponse({"error": "no simulation"}, status=404)
+
+    try:
+        data = json.loads(request.body or "{}")
+        score = int(data.get("score", 0))
+        total = int(data.get("total", 0))
+        path = data.get("path", [])
+        if not isinstance(path, list):
+            raise ValueError
+    except (ValueError, TypeError, json.JSONDecodeError):
+        return JsonResponse({"error": "bad payload"}, status=400)
+
+    # Clamp so a tampered client can't post score>total or negatives.
+    total = max(0, total)
+    score = max(0, min(score, total))
+
+    reward = g.complete_simulation(
+        request.user, sim, score=score, total=total, path=path
+    )
+
+    return JsonResponse(
+        {
+            "score": score,
+            "total": total,
+            "points": reward.points,
+            "level": reward.level.level,
+            "level_percent": reward.level.percent,
+            "streak": reward.streak,
+            "new_badges": [
+                {"name": b.name, "icon": b.icon} for b in reward.new_badges
+            ],
+            "module_url": reverse("learn:module", args=[order_index]),
+        }
+    )

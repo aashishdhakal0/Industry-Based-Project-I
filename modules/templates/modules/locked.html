@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% comment %}
+  Served with HTTP 403 when a student tries to open a module they haven't
+  unlocked (by typing the URL — the browser never links to a locked module).
+  A real status code, so the lock is an enforced control, but a page a
+  non-technical person can understand rather than a bare "Forbidden".
+{% endcomment %}
+
+{% block title %}Not yet — {{ site_name }}{% endblock %}
+{% block nav_links %}{% endblock %}
+{% block nav_actions %}
+  <a class="cy-btn cy-btn--quiet cy-btn--sm" href="{% url 'learn:browser' %}">All modules</a>
+  {% include "_logout_form.html" %}
+{% endblock %}
+
+{% block main_class %}{% endblock %}
+
+{% block content %}
+<div class="cy-auth-page">
+  <div class="cy-card cy-auth-single cy-rise">
+    <div class="cy-status-icon cy-status-icon--warn" aria-hidden="true">
+      <svg class="cy-i"><use href="#i-lock"/></svg>
+    </div>
+    <h1>Not unlocked yet</h1>
+    <p class="cy-lede">
+      <strong>{{ module.title }}</strong> opens once you've finished the module
+      before it. Modules run in order so each one builds on the last.
+    </p>
+    <a class="cy-btn cy-btn--primary cy-btn--block" href="{% url 'learn:browser' %}">
+      Back to your modules
+    </a>
+  </div>
+</div>
+{% endblock %}

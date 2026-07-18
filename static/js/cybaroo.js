@@ -134,3 +134,212 @@
     }
   });
 })();
+
+
+/* Lesson "mark complete" — progressive enhancement.
+ *
+ * The form works without JS (POST -> record -> redirect to the next lesson with
+ * a flash). Here we intercept it, POST via fetch, play the reward animation,
+ * then advance. Same endpoint, same server logic; this just avoids the reload
+ * and gives the moment some weight.
+ */
+(function () {
+  "use strict";
+
+  var form = document.querySelector(".cy-complete");
+  if (!form) return;
+
+  var overlay = document.getElementById("cy-reward");
+  var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  function go(url) {
+    window.location.href = url;
+  }
+
+  function celebrate(data) {
+    if (!overlay) return go(data.next_url);
+
+    document.getElementById("cy-reward-points").textContent =
+      "+" + (data.points_gained || 0);
+
+    var badgeWrap = document.getElementById("cy-reward-badges");
+    badgeWrap.innerHTML = "";
+    (data.new_badges || []).forEach(function (b) {
+      var el = document.createElement("div");
+      el.className = "cy-reward__badge";
+      el.innerHTML =
+        '<svg class="cy-i" aria-hidden="true"><use href="#' + b.icon + '"/></svg>' +
+        "<span>" + b.name + "</span>";
+      badgeWrap.appendChild(el);
+    });
+
+    overlay.hidden = false;
+    overlay.removeAttribute("aria-hidden");
+
+    var cont = document.getElementById("cy-reward-go");
+    cont.textContent = data.module_done ? "Back to module" : "Next lesson";
+    cont.focus();
+    cont.onclick = function () {
+      go(data.next_url);
+    };
+  }
+
+  form.addEventListener("submit", function (event) {
+    event.preventDefault();
+    var token = form.querySelector("[name=csrfmiddlewaretoken]").value;
+
+    fetch(form.action, {
+      method: "POST",
+      headers: { "X-Requested-With": "fetch", "X-CSRFToken": token },
+    })
+      .then(function (r) {
+        return r.json();
+      })
+      .then(function (data) {
+        // Nothing earned (already complete): just move on.
+        if (!data.points_gained) return go(data.next_url);
+        if (reduce) return celebrate(data); // overlay, no burst (CSS handles it)
+        celebrate(data);
+      })
+      .catch(function () {
+        // Network failed — fall back to a normal submit.
+        form.submit();
+      });
+  });
+})();
+
+
+/* The interactive simulation: a phishing inbox.
+ *
+ * Reads the scenario from the json_script block and builds the exercise into
+ * #cy-sim. Judge each message safe or scam, see why, then a score is posted to
+ * the server (which stores the SimulationResult and returns the reward).
+ */
+(function () {
+  "use strict";
+
+  var root = document.getElementById("cy-sim");
+  var dataEl = document.getElementById("cy-sim-data");
+  if (!root || !dataEl) return;
+
+  var scenario;
+  try {
+    scenario = JSON.parse(dataEl.textContent);
+  } catch (e) {
+    return;
+  }
+  var items = (scenario && scenario.items) || [];
+  if (!items.length) return;
+
+  var path = [];
+  var judged = 0;
+  var score = 0;
+
+  function icon(id) {
+    return '<svg class="cy-i" aria-hidden="true"><use href="#' + id + '"/></svg>';
+  }
+
+  function makeCard(item) {
+    var card = document.createElement("div");
+    card.className = "cy-sim-mail";
+    card.innerHTML =
+      '<div class="cy-sim-mail__head">' +
+      '<span class="cy-sim-mail__from">' + escapeHtml(item.from) + "</span>" +
+      "</div>" +
+      '<div class="cy-sim-mail__subject">' + escapeHtml(item.subject) + "</div>" +
+      '<p class="cy-sim-mail__preview">' + escapeHtml(item.preview) + "</p>" +
+      '<div class="cy-sim-mail__actions">' +
+      '<button type="button" class="cy-btn cy-btn--ghost" data-choice="safe">This is safe</button>' +
+      '<button type="button" class="cy-btn cy-btn--ghost" data-choice="scam">This is a scam</button>' +
+      "</div>" +
+      '<div class="cy-sim-mail__verdict" hidden></div>';
+
+    var verdict = card.querySelector(".cy-sim-mail__verdict");
+    var actions = card.querySelector(".cy-sim-mail__actions");
+
+    actions.querySelectorAll("button").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var said = btn.getAttribute("data-choice");
+        var saidScam = said === "scam";
+        var correct = saidScam === !!item.scam;
+        if (correct) score++;
+        judged++;
+        path.push({ id: item.id, said: said, correct: correct });
+
+        actions.querySelectorAll("button").forEach(function (b) {
+          b.disabled = true;
+        });
+        btn.classList.add("is-chosen");
+
+        card.classList.add(correct ? "is-correct" : "is-wrong");
+        var tells = (item.tells || [])
+          .map(function (t) {
+            return "<li>" + escapeHtml(t) + "</li>";
+          })
+          .join("");
+        verdict.innerHTML =
+          '<div class="cy-sim-mail__result">' +
+          icon(correct ? "i-check-circle" : "i-close") +
+          "<span>" +
+          (correct ? "Correct — " : "Not quite — ") +
+          (item.scam ? "this one is a scam." : "this one is safe.") +
+          "</span></div>" +
+          (tells ? "<ul>" + tells + "</ul>" : "");
+        verdict.hidden = false;
+
+        if (judged === items.length) showFinish();
+      });
+    });
+
+    return card;
+  }
+
+  function showFinish() {
+    var finish = document.createElement("div");
+    finish.className = "cy-sim-finish";
+    finish.innerHTML =
+      '<p class="cy-sim-finish__score">You spotted <strong>' +
+      score +
+      " of " +
+      items.length +
+      "</strong> correctly.</p>" +
+      '<button type="button" class="cy-btn cy-btn--primary" id="cy-sim-finish-btn">Finish</button>';
+    root.appendChild(finish);
+
+    document.getElementById("cy-sim-finish-btn").addEventListener("click", function () {
+      var btn = this;
+      btn.disabled = true;
+      fetch(root.getAttribute("data-complete-url"), {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": root.getAttribute("data-csrf"),
+        },
+        body: JSON.stringify({ score: score, total: items.length, path: path }),
+      })
+        .then(function (r) {
+          return r.json();
+        })
+        .then(function () {
+          window.location.href = root.getAttribute("data-module-url");
+        })
+        .catch(function () {
+          window.location.href = root.getAttribute("data-module-url");
+        });
+    });
+  }
+
+  function escapeHtml(s) {
+    var d = document.createElement("div");
+    d.textContent = s == null ? "" : String(s);
+    return d.innerHTML;
+  }
+
+  var list = document.createElement("div");
+  list.className = "cy-sim-list";
+  items.forEach(function (item) {
+    list.appendChild(makeCard(item));
+  });
+  root.innerHTML = "";
+  root.appendChild(list);
+})();

@@ -20,8 +20,15 @@ ICONS = ["i-layers", "i-shield", "i-mail", "i-lock", "i-bolt", "i-clock"]
 
 
 def decorate(module):
-    """Attach `.tile_a`, `.tile_b`, `.icon` to a Module instance for templates."""
+    """Attach presentation attributes to a Module for the templates.
+
+    Also aliases `.index`/`.subtitle` onto the real model so it drops into the
+    same `_module_tile.html` partial the marketing pages use (which was written
+    against the placeholder dicts' key names).
+    """
     i = (module.order_index - 1) % len(TILES)
     module.tile_a, module.tile_b = TILES[i]
     module.icon = ICONS[(module.order_index - 1) % len(ICONS)]
+    module.index = module.order_index
+    module.subtitle = module.description
     return module
