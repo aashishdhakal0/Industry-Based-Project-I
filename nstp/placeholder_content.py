@@ -18,7 +18,7 @@ MODULES = [
     {
         "index": 1,
         "title": "Network Security Fundamentals",
-        "subtitle": "What a network is, and why yours is worth guarding.",
+        "subtitle": "How networks work, and where yours is most exposed.",
         "icon": "i-layers",
         "tile_a": "#9b7bf8",
         "tile_b": "#22d3ee",
@@ -26,7 +26,7 @@ MODULES = [
     {
         "index": 2,
         "title": "Recognising Cyber Threats",
-        "subtitle": "The scams that actually land in Australian inboxes.",
+        "subtitle": "The tactics used against Australian organisations today.",
         "icon": "i-shield",
         "tile_a": "#7c5cf0",
         "tile_b": "#4fb8f5",
@@ -34,7 +34,7 @@ MODULES = [
     {
         "index": 3,
         "title": "Phishing & Social Engineering",
-        "subtitle": "Spot a fake email or call before you act on it.",
+        "subtitle": "Identify fraudulent emails and calls before they succeed.",
         "icon": "i-mail",
         "tile_a": "#a86af0",
         "tile_b": "#22d3ee",
@@ -42,7 +42,7 @@ MODULES = [
     {
         "index": 4,
         "title": "Secure Communication Practices",
-        "subtitle": "Passwords, messages and files, kept safe without the fuss.",
+        "subtitle": "Handling passwords, messages and files securely, as routine.",
         "icon": "i-lock",
         "tile_a": "#6d7bf5",
         "tile_b": "#35d6f0",
@@ -50,7 +50,7 @@ MODULES = [
     {
         "index": 5,
         "title": "Firewall & Network Defence",
-        "subtitle": "The quiet guards on your business — and how to keep them up.",
+        "subtitle": "The defences protecting your business, and how to maintain them.",
         "icon": "i-bolt",
         "tile_a": "#b45cf0",
         "tile_b": "#5b8df5",
@@ -58,7 +58,7 @@ MODULES = [
     {
         "index": 6,
         "title": "Incident Response",
-        "subtitle": "If something goes wrong: who to call, and what to do first.",
+        "subtitle": "A clear plan for the first hour after something goes wrong.",
         "icon": "i-clock",
         "tile_a": "#8b5cf6",
         "tile_b": "#67e8f9",

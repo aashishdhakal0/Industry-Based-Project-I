@@ -337,33 +337,37 @@ body.cy-body {
 .cy-nav__inner {
   align-items: center;
   display: flex;
-  gap: 2rem;
-  justify-content: space-between;
-  position: relative;   /* the mobile dropdown anchors to this */
+  flex-wrap: nowrap;       /* the bar is one line, always */
+  gap: 1.5rem;
+  position: relative;      /* the mobile dropdown anchors to this */
 }
 
-/* Desktop: panel is the inline horizontal bar; the hamburger is hidden. Mobile
-   overrides all of this in the media query at the foot of the file. */
+/* Desktop: the hamburger is hidden and the panel is the inline bar. The
+   wordmark's auto right-margin pushes the panel to the far edge, so there's no
+   flex:1 / space-between tug-of-war to overflow or wrap. Mobile overrides all
+   of this in the media query at the foot of the file. */
 .cy-nav__toggle {
   display: none;
+}
+
+/* Pushes everything after it to the right. flex:none so the wordmark never
+   compresses. */
+.cy-wordmark {
+  flex: none;
+  margin-right: auto;
 }
 
 .cy-nav__panel {
   align-items: center;
   display: flex;
-  /* Fill the space between wordmark and edge, and space-between its own links
-     and actions — so the bar keeps its wordmark-left / links / actions-right
-     rhythm rather than bunching everything on the right. */
-  flex: 1;
+  flex: none;
   gap: 2rem;
-  justify-content: space-between;
-  margin-left: 2.5rem;
 }
 
 .cy-nav__links {
   align-items: center;
   display: flex;
-  gap: 1.75rem;
+  gap: 1.5rem;
   list-style: none;
   margin: 0;
   padding: 0;
@@ -374,6 +378,7 @@ body.cy-body {
   font-size: 0.95rem;
   text-decoration: none;
   transition: color var(--cy-fast) var(--cy-ease);
+  white-space: nowrap;     /* "Get started" never breaks mid-phrase */
 }
 .cy-nav__link:hover {
   color: var(--cy-text);
@@ -790,7 +795,10 @@ body.cy-body {
   display: grid;
   min-height: calc(100svh - var(--cy-nav-h));
   overflow: hidden;
-  padding: clamp(1.75rem, 4vw, 3.25rem) 0 clamp(2rem, 4vw, 3rem);
+  /* Top padding kept small on purpose — the content should sit just beneath
+     the bar. The larger bottom padding gives the section air before the next
+     band. */
+  padding: clamp(0.5rem, 1.5vw, 1.25rem) 0 clamp(2rem, 4vw, 3rem);
   position: relative;
 }
 
@@ -1805,6 +1813,184 @@ body.cy-body {
   gap: 1.15rem;
 }
 
+
+/* --- The rewards demo card -----------------------------------------------
+   A dashboard preview rather than a pile of widgets: a titled header, an
+   identity block (ring + level + bar), two stat tiles, and an achievements
+   section — the structure a real product screen would have, which is what
+   makes it read as premium rather than assembled. */
+
+.cy-demo {
+  gap: 1.5rem;
+  padding: 1.6rem 1.6rem 1.75rem;
+}
+
+.cy-demo__head {
+  align-items: center;
+  border-bottom: 1px solid var(--cy-border);
+  display: flex;
+  justify-content: space-between;
+  padding-bottom: 1.1rem;
+}
+
+.cy-demo__eyebrow {
+  color: var(--cy-text-2);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.cy-demo__live {
+  align-items: center;
+  color: var(--cy-text-3);
+  display: inline-flex;
+  font-size: 0.72rem;
+  gap: 0.4rem;
+  letter-spacing: 0.04em;
+}
+
+.cy-demo__live-dot {
+  background: var(--cy-cyan);
+  border-radius: 50%;
+  box-shadow: 0 0 8px var(--cy-cyan);
+  height: 6px;
+  position: relative;
+  width: 6px;
+}
+/* A soft radar ping so "live" is shown, not just claimed. */
+.cy-demo__live-dot::after {
+  animation: cy-ping 2.4s ease-out infinite;
+  border: 1px solid var(--cy-cyan);
+  border-radius: 50%;
+  content: "";
+  inset: -3px;
+  position: absolute;
+}
+
+@keyframes cy-ping {
+  0%   { opacity: 0.7; transform: scale(0.6); }
+  100% { opacity: 0;   transform: scale(2.2); }
+}
+
+.cy-demo__identity {
+  align-items: center;
+  display: flex;
+  gap: 1.25rem;
+}
+
+.cy-demo__ident-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.cy-demo__ident-top {
+  align-items: baseline;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.55rem;
+}
+
+.cy-demo__level-name {
+  color: var(--cy-text);
+  font-family: var(--cy-font-display);
+  font-size: 1.15rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.cy-demo__level-next {
+  color: var(--cy-text-3);
+  font-family: var(--cy-font-mono);
+  font-feature-settings: "tnum";
+  font-size: 0.78rem;
+}
+
+/* Two stat tiles, side by side. Real cells with their own surface and border,
+   not floating pills — that's most of the lift from "basic" to "considered". */
+.cy-demo__stats {
+  display: grid;
+  gap: 0.85rem;
+  grid-template-columns: 1fr 1fr;
+}
+
+.cy-demo__stat {
+  background: var(--cy-surface-3);
+  border: 1px solid var(--cy-border);
+  border-radius: var(--cy-r);
+  display: grid;
+  gap: 0.15rem;
+  padding: 0.9rem 1rem;
+}
+
+.cy-demo__stat-icon {
+  color: var(--cy-violet);
+  margin-bottom: 0.15rem;
+}
+.cy-demo__stat-icon .cy-i { height: 18px; width: 18px; }
+.cy-demo__stat-icon--flame { color: var(--cy-flame); }
+
+.cy-demo__stat-value {
+  color: var(--cy-text);
+  font-family: var(--cy-font-mono);
+  font-feature-settings: "tnum";
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.cy-demo__stat-label {
+  color: var(--cy-text-3);
+  font-size: 0.8rem;
+}
+
+.cy-demo__section {
+  border-top: 1px solid var(--cy-border);
+  padding-top: 1.25rem;
+}
+
+.cy-demo__section-head {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.cy-demo__section-title {
+  color: var(--cy-text);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.cy-demo__section-count {
+  color: var(--cy-text-3);
+  font-family: var(--cy-font-mono);
+  font-feature-settings: "tnum";
+  font-size: 0.78rem;
+}
+
+/* Inside the demo the four badges share the row evenly rather than each taking
+   a fixed 88px and wrapping. Smaller medals, tighter labels — a neat strip. */
+.cy-demo .cy-badges {
+  gap: 0.6rem;
+  justify-content: space-between;
+}
+.cy-demo .cy-badge {
+  flex: 1;
+  gap: 0.45rem;
+  width: auto;
+}
+.cy-demo .cy-badge__medal {
+  border-radius: 16px;
+  height: 52px;
+  width: 52px;
+}
+.cy-demo .cy-badge__medal .cy-i { height: 22px; width: 22px; }
+.cy-demo .cy-badge__name {
+  font-size: 0.7rem;
+  line-height: 1.25;
+}
+
 .cy-showcase__list {
   display: grid;
   gap: 1.15rem;
@@ -1974,10 +2160,14 @@ body.cy-body {
      therefore the first thing that has to go. */
   .cy-float,
   .cy-drift,
-  .cy-streak__flame {
+  .cy-streak__flame,
+  .cy-demo__live-dot::after {
     animation: none;
     transform: none;
   }
+  /* The radar ping is pure decoration; with motion reduced the static dot on
+     its own reads perfectly well as "live". */
+  .cy-demo__live-dot::after { display: none; }
 
   /* The veins loop forever behind the login form, which makes them the most
      likely thing on the platform to make someone motion-sick. Stopped, the
