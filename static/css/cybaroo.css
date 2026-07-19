@@ -2401,6 +2401,31 @@ body.cy-body {
 .cy-cert__title { font-size: 1.5rem; margin: 0 0 0.6rem; }
 .cy-cert__lede { color: var(--cy-text-2); margin: 0 auto; max-width: 28rem; }
 
+/* --- Empty state --------------------------------------------------------- */
+
+.cy-empty {
+  background: linear-gradient(180deg, var(--cy-surface-2), var(--cy-surface));
+  border: 1px solid var(--cy-border);
+  border-radius: var(--cy-r-xl);
+  padding: 3rem 2rem;
+  text-align: center;
+}
+.cy-empty__icon {
+  align-items: center;
+  background: var(--cy-surface-3);
+  border: 1px solid var(--cy-border-lift);
+  border-radius: 16px;
+  color: var(--cy-text-3);
+  display: inline-flex;
+  height: 56px;
+  justify-content: center;
+  margin-bottom: 1rem;
+  width: 56px;
+}
+.cy-empty__icon .cy-i { height: 26px; width: 26px; }
+.cy-empty__title { font-size: 1.25rem; margin: 0 0 0.4rem; }
+.cy-empty__text { color: var(--cy-text-2); margin: 0; }
+
 
 /* ==========================================================================
    Learning experience — HUD, continue card, lesson reader, simulation
@@ -3033,6 +3058,10 @@ a.cy-path__link:hover { background: var(--cy-surface-2); }
   .cy-step:hover,
   .cy-module--unlocked:hover,
   .cy-stat-card:hover,
+  .cy-tile:hover,
+  .cy-badge-card.is-earned:hover,
+  .cy-stepper__dot a:hover,
+  .cy-continue:hover,
   .cy-badge--earned:hover .cy-badge__medal {
     transform: none;
   }

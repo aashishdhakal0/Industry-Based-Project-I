@@ -31,10 +31,18 @@
   </a>
 {% endif %}
 
-<div class="cy-map" style="margin-top: 1.75rem;">
-  {% for mp in progress %}
-    {% include "_module_tile.html" with module=mp.module state=mp.state link=mp.link progress=mp.percent progress_label=mp.progress_label %}
-  {% endfor %}
-</div>
+{% if progress %}
+  <div class="cy-map" style="margin-top: 1.75rem;">
+    {% for mp in progress %}
+      {% include "_module_tile.html" with module=mp.module state=mp.state link=mp.link progress=mp.percent progress_label=mp.progress_label %}
+    {% endfor %}
+  </div>
+{% else %}
+  <div class="cy-empty cy-rise" style="margin-top: 1.75rem;">
+    <div class="cy-empty__icon"><svg class="cy-i" aria-hidden="true"><use href="#i-layers"/></svg></div>
+    <h2 class="cy-empty__title">No modules yet</h2>
+    <p class="cy-empty__text">Your training modules will appear here once they're published.</p>
+  </div>
+{% endif %}
 
 {% endblock %}

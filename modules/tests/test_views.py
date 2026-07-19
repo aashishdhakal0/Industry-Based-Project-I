@@ -230,6 +230,9 @@ def test_learn_pages_render_clean_and_without_emoji(client_student, modules):
         reverse("learn:module", args=[1]),
         reverse("learn:lesson", args=[1, 1]),
         reverse("learn:simulation", args=[1]),
+        reverse("learn:progress"),
+        reverse("learn:badges"),
+        reverse("learn:certificate"),
         reverse("dashboard"),
     ]
     for url in urls:
