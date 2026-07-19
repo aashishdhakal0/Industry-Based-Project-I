@@ -21,6 +21,17 @@
     <span class="cy-reader__count">Lesson {{ position }} of {{ total }}</span>
   </div>
 
+  {% comment %} In-module stepper: a dot per lesson, done / current / to-do. {% endcomment %}
+  <ol class="cy-stepper" aria-label="Lessons in this module">
+    {% for step in steps %}
+      <li class="cy-stepper__dot {% if step.done %}is-done{% elif step.current %}is-current{% endif %}">
+        <a href="{{ step.url }}" aria-label="Lesson {{ step.number }}{% if step.current %} (current){% elif step.done %} (done){% endif %}">
+          {% if step.done %}<svg class="cy-i" aria-hidden="true"><use href="#i-check"/></svg>{% else %}{{ step.number }}{% endif %}
+        </a>
+      </li>
+    {% endfor %}
+  </ol>
+
   {% if reward_flash %}
     {% comment %} No-JS celebration: shown after a redirect from mark-complete. {% endcomment %}
     <div class="cy-flash" role="status">

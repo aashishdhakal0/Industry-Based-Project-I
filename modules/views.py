@@ -140,7 +140,24 @@ def lesson(request, order_index, lesson_number):
     prev_lesson = siblings[position - 1] if position > 0 else None
     next_lesson = siblings[position + 1] if position < len(siblings) - 1 else None
 
-    is_done = ProgressRecord.objects.filter(user=request.user, lesson=lesson).exists()
+    done_numbers = set(
+        ProgressRecord.objects.filter(
+            user=request.user, lesson__module=module, lesson__is_active=True
+        ).values_list("lesson__lesson_number", flat=True)
+    )
+    is_done = lesson.lesson_number in done_numbers
+
+    # The in-module stepper: one dot per lesson, marked done / current.
+    steps = [
+        {
+            "number": s.lesson_number,
+            "done": s.lesson_number in done_numbers,
+            "current": s.lesson_number == lesson.lesson_number,
+            "url": reverse("learn:lesson", args=[order_index, s.lesson_number]),
+        }
+        for s in siblings
+    ]
+
     reward_flash = request.session.pop("reward", None)
 
     return render(
@@ -155,6 +172,7 @@ def lesson(request, order_index, lesson_number):
             "prev_lesson": prev_lesson,
             "next_lesson": next_lesson,
             "is_done": is_done,
+            "steps": steps,
             "reward_flash": reward_flash,
             "active": "modules",
         },

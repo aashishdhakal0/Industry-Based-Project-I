@@ -2505,87 +2505,162 @@ body.cy-body {
   letter-spacing: -0.01em;
 }
 
-/* --- Module overview: the contents list ---------------------------------- */
+/* --- Module overview: the task-path -------------------------------------
+   A vertical stepper. One continuous connector line sits behind the nodes; the
+   nodes are opaque and sit on top, so it reads as connected steps. Node state
+   (done / current / to-do / soon) carries the meaning. */
 
-.cy-toc {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
+.cy-path {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  position: relative;
+}
+/* The connector: from the first node's centre to the last node's centre.
+   left = link padding-left (0.9rem) + node radius (21px). */
+.cy-path::before {
+  background: var(--cy-border);
+  bottom: 34px;
+  content: "";
+  left: calc(0.9rem + 21px);
+  position: absolute;
+  top: 34px;
+  width: 2px;
 }
 
-.cy-toc__item {
+.cy-path__step { position: relative; }
+
+.cy-path__link {
   align-items: center;
-  background: linear-gradient(180deg, var(--cy-surface-2), var(--cy-surface));
-  border: 1px solid var(--cy-border);
   border-radius: var(--cy-r);
   color: var(--cy-text);
   display: flex;
   gap: 1rem;
-  padding: 1rem 1.25rem;
+  padding: 0.7rem 0.9rem;
   text-decoration: none;
-  transition: transform var(--cy-fast) var(--cy-ease), border-color var(--cy-fast) var(--cy-ease);
+  transition: background var(--cy-fast) var(--cy-ease);
 }
-.cy-toc__item:hover {
-  border-color: var(--cy-border-lift);
-  color: var(--cy-text);
-  transform: translateX(3px);
-}
+a.cy-path__link:hover { background: var(--cy-surface-2); }
 
-.cy-toc__check {
+.cy-path__node {
   align-items: center;
+  background: var(--cy-surface-3);
   border: 1.5px solid var(--cy-border-lift);
   border-radius: 50%;
-  color: var(--cy-ink);
+  color: var(--cy-text-2);
   display: flex;
   flex: none;
-  height: 28px;
+  font-family: var(--cy-font-mono);
+  font-size: 0.95rem;
+  font-weight: 700;
+  height: 42px;
   justify-content: center;
-  width: 28px;
+  position: relative;
+  width: 42px;
+  z-index: 1;                 /* cover the connector line */
 }
-.cy-toc__check .cy-i { height: 15px; width: 15px; }
-.cy-toc__item--done .cy-toc__check {
+.cy-path__node .cy-i { height: 18px; width: 18px; }
+
+.cy-path__body { flex: 1; min-width: 0; }
+.cy-path__label {
+  color: var(--cy-text-3);
+  display: block;
+  font-family: var(--cy-font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.cy-path__title { color: var(--cy-text); font-weight: 500; }
+
+.cy-path__tag {
+  color: var(--cy-violet-soft);
+  flex: none;
+  font-size: 0.82rem;
+  font-weight: 500;
+}
+.cy-path__go { color: var(--cy-text-3); flex: none; }
+.cy-path__link:hover .cy-path__go { color: var(--cy-violet-soft); }
+
+/* --- States --- */
+.cy-path__step.is-done .cy-path__node {
   background: var(--cy-grad-cta);
   border-color: transparent;
   color: #fff;
 }
-
-.cy-toc__body { flex: 1; min-width: 0; }
-.cy-toc__num {
-  color: var(--cy-text-3);
-  font-family: var(--cy-font-mono);
-  font-size: 0.72rem;
-  letter-spacing: 0.08em;
+.cy-path__step.is-current .cy-path__node {
+  background: var(--cy-grad-soft);
+  border-color: var(--cy-violet);
+  box-shadow: 0 0 0 4px var(--cy-glow-violet-soft);
+  color: var(--cy-violet-soft);
 }
-.cy-toc__title { color: var(--cy-text); font-weight: 500; }
-.cy-toc__go { color: var(--cy-text-3); flex: none; }
-.cy-toc__item:hover .cy-toc__go { color: var(--cy-violet-soft); }
-
-/* A step that isn't a lesson: the simulation and the (Sprint 3) quiz. */
-.cy-toc__item--sim .cy-toc__check {
-  background: rgba(34, 211, 238, 0.12);
+.cy-path__step.is-current .cy-path__title { color: var(--cy-text); font-weight: 600; }
+.cy-path__step.is-soon { opacity: 0.55; }
+.cy-path__step.is-soon .cy-path__node { border-style: dashed; }
+.cy-path__step--sim.is-todo .cy-path__node {
+  background: rgba(34, 211, 238, 0.1);
   border-color: rgba(34, 211, 238, 0.4);
   color: var(--cy-cyan);
-}
-.cy-toc__item--soon {
-  opacity: 0.6;
-  pointer-events: none;
 }
 
 
 /* --- Lesson reader ------------------------------------------------------- */
 
-/* A slim read-position bar pinned under the nav. */
+/* A slim read-position bar pinned to the top of the reading column. In the app
+   shell there's no top nav on desktop, so it sticks to 0; on mobile the appbar
+   (higher z-index) sits over it, which is fine. */
 .cy-reader-progress {
   background: var(--cy-surface-3);
+  border-radius: 2px;
   height: 3px;
-  left: 0;
+  margin-bottom: 1.5rem;
+  overflow: hidden;
   position: sticky;
-  top: var(--cy-nav-h);
+  top: 0.5rem;
   z-index: 5;
 }
 .cy-reader-progress__fill {
   background: var(--cy-grad);
+  border-radius: 2px;
   height: 100%;
+  transition: width var(--cy-slow) var(--cy-ease);
+}
+
+/* In-module stepper: dots for each lesson. */
+.cy-stepper {
+  display: flex;
+  gap: 0.5rem;
+  list-style: none;
+  margin: 0 0 2rem;
+  padding: 0;
+}
+.cy-stepper__dot a {
+  align-items: center;
+  background: var(--cy-surface-3);
+  border: 1.5px solid var(--cy-border-lift);
+  border-radius: 50%;
+  color: var(--cy-text-3);
+  display: flex;
+  font-family: var(--cy-font-mono);
+  font-size: 0.8rem;
+  font-weight: 700;
+  height: 32px;
+  justify-content: center;
+  text-decoration: none;
+  transition: transform var(--cy-fast) var(--cy-ease);
+  width: 32px;
+}
+.cy-stepper__dot a:hover { transform: translateY(-2px); }
+.cy-stepper__dot .cy-i { height: 15px; width: 15px; }
+.cy-stepper__dot.is-done a {
+  background: var(--cy-grad-cta);
+  border-color: transparent;
+  color: #fff;
+}
+.cy-stepper__dot.is-current a {
+  background: var(--cy-grad-soft);
+  border-color: var(--cy-violet);
+  box-shadow: 0 0 0 3px var(--cy-glow-violet-soft);
+  color: var(--cy-violet-soft);
 }
 
 .cy-reader {
