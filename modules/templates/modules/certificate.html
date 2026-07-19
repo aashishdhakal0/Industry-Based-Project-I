@@ -1,0 +1,53 @@
+{% extends "app_base.html" %}
+
+{% comment %}
+  Progress toward the completion certificate. The certificate PDF itself is
+  Sprint 5; this page shows how close the student is and an earned/locked state,
+  so the sidebar item leads somewhere real.
+{% endcomment %}
+
+{% block title %}Certificate — {{ site_name }}{% endblock %}
+
+{% block content %}
+
+<div class="cy-page-title cy-rise">
+  <div>
+    <p class="cy-page-title__eyebrow">Your reward</p>
+    <h1 class="cy-page-title__h">Certificate</h1>
+  </div>
+</div>
+
+<div class="cy-cert cy-rise" style="--cy-delay: 0.05s;">
+  <div class="cy-cert__seal {% if earned %}is-earned{% endif %}">
+    <svg class="cy-i" aria-hidden="true"><use href="#i-award"/></svg>
+  </div>
+
+  {% if earned %}
+    <h2 class="cy-cert__title">You've earned it</h2>
+    <p class="cy-cert__lede">
+      You've completed every module. Your certificate will be available to
+      download here shortly.
+    </p>
+  {% else %}
+    <h2 class="cy-cert__title">Finish all {{ modules_total }} modules to earn your certificate</h2>
+    <p class="cy-cert__lede">
+      Complete every module and you'll earn a certificate to share with your
+      team, your board, or your auditor.
+    </p>
+  {% endif %}
+
+  <div class="cy-progress-row" style="max-width: 26rem; margin: 1.5rem auto 0.5rem;">
+    <div class="cy-progress">
+      <div class="cy-progress__fill" style="--cy-value: {{ percent }}%;"></div>
+    </div>
+    <span class="cy-progress-row__value">{{ modules_done }}/{{ modules_total }}</span>
+  </div>
+
+  {% if not earned %}
+    <a class="cy-btn cy-btn--primary" style="margin-top: 1.5rem;" href="{% url 'learn:browser' %}">
+      Keep going <svg class="cy-i" aria-hidden="true"><use href="#i-arrow-right"/></svg>
+    </a>
+  {% endif %}
+</div>
+
+{% endblock %}

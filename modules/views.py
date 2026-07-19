@@ -63,6 +63,7 @@ def browser(request):
             "profile": profile,
             "modules_done": sum(1 for mp in progress if mp.complete),
             "modules_total": len(progress),
+            "active": "modules",
         },
     )
 
@@ -107,6 +108,7 @@ def module_overview(request, order_index):
             "next_lesson": next_lesson,
             "all_lessons_done": bool(lessons) and next_lesson is None,
             "reward_flash": reward_flash,
+            "active": "modules",
         },
     )
 
@@ -154,6 +156,7 @@ def lesson(request, order_index, lesson_number):
             "next_lesson": next_lesson,
             "is_done": is_done,
             "reward_flash": reward_flash,
+            "active": "modules",
         },
     )
 
@@ -232,6 +235,7 @@ def simulation(request, order_index):
             # The scenario data as JSON for sim.js to drive the interaction.
             "scenario_json": json.dumps(sim.decision_points),
             "previous": previous,
+            "active": "modules",
         },
     )
 
@@ -322,5 +326,73 @@ def dashboard(request):
             ],
             "badges_earned": len(earned),
             "badges_total": len(CATALOGUE),
+            "active": "dashboard",
+        },
+    )
+
+
+@login_required
+def progress(request):
+    """My Progress — a per-module breakdown plus headline stats. Real data."""
+    profile = g.get_profile(request.user)
+    prog = g.module_progress(request.user)
+    for mp in prog:
+        decorate(mp.module)
+
+    return render(
+        request,
+        "modules/progress.html",
+        {
+            "active": "progress",
+            "profile": profile,
+            "level": g.level_for_points(profile.points),
+            "progress": prog,
+            "lessons_done": sum(mp.done_lessons for mp in prog),
+            "lessons_total": sum(mp.total_lessons for mp in prog),
+            "modules_done": sum(1 for mp in prog if mp.complete),
+            "modules_total": len(prog),
+        },
+    )
+
+
+@login_required
+def badges(request):
+    """The full achievement gallery — earned and locked, from real data."""
+    from .badges import CATALOGUE
+
+    profile = g.get_profile(request.user)
+    earned = set(profile.badges or [])
+    return render(
+        request,
+        "modules/badges.html",
+        {
+            "active": "badges",
+            "badges": [{"badge": b, "earned": b.id in earned} for b in CATALOGUE],
+            "earned_count": len(earned),
+            "total_count": len(CATALOGUE),
+        },
+    )
+
+
+@login_required
+def certificate(request):
+    """Progress toward the completion certificate.
+
+    The certificate PDF itself is Sprint 5. This page shows how close the
+    student is (modules complete of total) and an earned/locked state, so the
+    sidebar item leads somewhere real rather than a dead link.
+    """
+    prog = g.module_progress(request.user)
+    done = sum(1 for mp in prog if mp.complete)
+    total = len(prog)
+    return render(
+        request,
+        "modules/certificate.html",
+        {
+            "active": "certificate",
+            "modules_done": done,
+            "modules_total": total,
+            "percent": round(done / total * 100) if total else 0,
+            "earned": total > 0 and done >= total,
         },
     )

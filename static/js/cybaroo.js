@@ -343,3 +343,41 @@
   root.innerHTML = "";
   root.appendChild(list);
 })();
+
+
+/* The app sidebar drawer (mobile).
+ *
+ * On desktop the sidebar is always visible and this does nothing. Below the
+ * breakpoint the appbar hamburger toggles the drawer + a backdrop, with
+ * aria-expanded kept in sync, Escape to close, and a tap on the backdrop to
+ * dismiss — what a drawer is expected to do.
+ */
+(function () {
+  "use strict";
+
+  var toggle = document.querySelector(".cy-appbar__toggle");
+  var side = document.getElementById("cy-side");
+  var backdrop = document.getElementById("cy-side-backdrop");
+  if (!toggle || !side || !backdrop) return;
+
+  function setOpen(open) {
+    side.classList.toggle("is-open", open);
+    backdrop.classList.toggle("is-open", open);
+    backdrop.hidden = !open;
+    toggle.setAttribute("aria-expanded", open ? "true" : "false");
+    document.body.style.overflow = open ? "hidden" : "";
+  }
+
+  toggle.addEventListener("click", function () {
+    setOpen(toggle.getAttribute("aria-expanded") !== "true");
+  });
+  backdrop.addEventListener("click", function () {
+    setOpen(false);
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && toggle.getAttribute("aria-expanded") === "true") {
+      setOpen(false);
+      toggle.focus();
+    }
+  });
+})();

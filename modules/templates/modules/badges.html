@@ -1,0 +1,38 @@
+{% extends "app_base.html" %}
+
+{% comment %} The full achievement gallery — earned and locked, from real data. {% endcomment %}
+
+{% block title %}Badges — {{ site_name }}{% endblock %}
+
+{% block content %}
+
+<div class="cy-page-title cy-rise">
+  <div>
+    <p class="cy-page-title__eyebrow">Achievements</p>
+    <h1 class="cy-page-title__h">Badges</h1>
+    <p class="cy-hint" style="margin: 0.2rem 0 0;">{{ earned_count }} of {{ total_count }} earned</p>
+  </div>
+</div>
+
+<div class="cy-badge-grid cy-rise" style="--cy-delay: 0.05s;">
+  {% for item in badges %}
+    <div class="cy-badge-card {% if item.earned %}is-earned{% else %}is-locked{% endif %}">
+      <div class="cy-badge-card__medal">
+        {% if item.earned %}
+          <svg class="cy-i" aria-hidden="true"><use href="#{{ item.badge.icon }}"/></svg>
+        {% else %}
+          <svg class="cy-i" aria-hidden="true"><use href="#i-lock"/></svg>
+        {% endif %}
+      </div>
+      <div>
+        <div class="cy-badge-card__name">{{ item.badge.name }}</div>
+        <p class="cy-badge-card__desc">{{ item.badge.description }}</p>
+      </div>
+      {% if item.earned %}
+        <span class="cy-badge-card__tick"><svg class="cy-i" aria-hidden="true"><use href="#i-check-circle"/></svg></span>
+      {% endif %}
+    </div>
+  {% endfor %}
+</div>
+
+{% endblock %}

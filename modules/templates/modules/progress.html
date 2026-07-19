@@ -1,0 +1,68 @@
+{% extends "app_base.html" %}
+
+{% comment %} My Progress — headline stats + a per-module breakdown, all real. {% endcomment %}
+
+{% block title %}My progress — {{ site_name }}{% endblock %}
+
+{% block content %}
+
+<div class="cy-page-title cy-rise">
+  <div>
+    <p class="cy-page-title__eyebrow">Your training</p>
+    <h1 class="cy-page-title__h">My progress</h1>
+  </div>
+</div>
+
+<div class="cy-tiles cy-rise" style="--cy-delay: 0.05s;">
+  <div class="cy-tile">
+    <div class="cy-tile__icon"><svg class="cy-i" aria-hidden="true"><use href="#i-hex"/></svg></div>
+    <span class="cy-tile__value">{{ profile.points }}</span>
+    <span class="cy-tile__label">points · level {{ level.level }}</span>
+  </div>
+  <div class="cy-tile">
+    <div class="cy-tile__icon cy-tile__icon--flame"><svg class="cy-i" aria-hidden="true"><use href="#i-flame"/></svg></div>
+    <span class="cy-tile__value">{{ profile.streak_count }}</span>
+    <span class="cy-tile__label">day streak</span>
+  </div>
+  <div class="cy-tile">
+    <div class="cy-tile__icon"><svg class="cy-i" aria-hidden="true"><use href="#i-book"/></svg></div>
+    <span class="cy-tile__value">{{ lessons_done }}<span style="color:var(--cy-text-3); font-size:1.1rem;">/{{ lessons_total }}</span></span>
+    <span class="cy-tile__label">lessons complete</span>
+  </div>
+  <div class="cy-tile">
+    <div class="cy-tile__icon"><svg class="cy-i" aria-hidden="true"><use href="#i-layers"/></svg></div>
+    <span class="cy-tile__value">{{ modules_done }}<span style="color:var(--cy-text-3); font-size:1.1rem;">/{{ modules_total }}</span></span>
+    <span class="cy-tile__label">modules complete</span>
+  </div>
+</div>
+
+<div class="cy-section__head" style="margin: 2.5rem 0 1.25rem;">
+  <h2 class="cy-section__title" style="font-size: 1.35rem;">Module by module</h2>
+</div>
+
+<div class="cy-prog cy-rise" style="--cy-delay: 0.08s;">
+  {% for mp in progress %}
+    <div class="cy-prog__row {% if not mp.unlocked %}cy-prog__row--locked{% endif %}">
+      <span class="cy-prog__glyph" style="--cy-tile-a: {{ mp.module.tile_a }}; --cy-tile-b: {{ mp.module.tile_b }};">
+        {% if not mp.unlocked %}
+          <svg class="cy-i" aria-hidden="true"><use href="#i-lock"/></svg>
+        {% elif mp.complete %}
+          <svg class="cy-i" aria-hidden="true"><use href="#i-check"/></svg>
+        {% else %}
+          <svg class="cy-i" aria-hidden="true"><use href="#{{ mp.module.icon }}"/></svg>
+        {% endif %}
+      </span>
+      <div class="cy-prog__body">
+        <div class="cy-prog__top">
+          <span class="cy-prog__name">{{ mp.module.title }}</span>
+          <span class="cy-prog__count">{{ mp.done_lessons }}/{{ mp.total_lessons }}</span>
+        </div>
+        <div class="cy-progress">
+          <div class="cy-progress__fill" style="--cy-value: {{ mp.percent }}%;"></div>
+        </div>
+      </div>
+    </div>
+  {% endfor %}
+</div>
+
+{% endblock %}

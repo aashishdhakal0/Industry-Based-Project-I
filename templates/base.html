@@ -26,6 +26,14 @@
 
   <a class="cy-skip visually-hidden-focusable" href="#main">Skip to main content</a>
 
+  {% comment %}
+    The whole page chrome is one block so a different shell can replace it.
+    Marketing and auth pages use this default (top nav + footer); the logged-in
+    student app overrides `shell` in app_base.html with the sidebar layout.
+    Refactored, not rewritten — the default below is byte-for-byte the old
+    chrome, so nothing outside the app changes.
+  {% endcomment %}
+  {% block shell %}
   <nav class="cy-nav" aria-label="Main">
     <div class="cy-wrap cy-nav__inner">
       <a class="cy-wordmark" href="{% url 'landing' %}">
@@ -109,6 +117,7 @@
       <p class="mb-0">Made in Melbourne</p>
     </div>
   </footer>
+  {% endblock shell %}
 
   {% comment %}
     The platform's only script: the stats count-up on the home page. Served

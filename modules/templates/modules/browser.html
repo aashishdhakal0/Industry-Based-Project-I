@@ -1,76 +1,40 @@
-{% extends "base.html" %}
+{% extends "app_base.html" %}
 
 {% comment %}
-  The student module browser — the mission map. Every number here is real,
-  pulled from PostgreSQL through modules.gamification: the level ring and points
-  from UserProfile (recomputed from records), modules-complete from
-  ProgressRecord, the lock state from module_progress.
+  The Modules page inside the app shell — the mission map. Real progress and
+  lock state from modules.gamification. The HUD stats live on the dashboard; here
+  the focus is the modules themselves.
 {% endcomment %}
 
-{% block title %}Your modules — {{ site_name }}{% endblock %}
-{% block nav_links %}{% endblock %}
-{% block nav_actions %}
-  <a class="cy-btn cy-btn--quiet cy-btn--sm" href="{% url 'dashboard' %}">Dashboard</a>
-  {% include "_logout_form.html" %}
-{% endblock %}
+{% block title %}Modules — {{ site_name }}{% endblock %}
 
 {% block content %}
-<div class="cy-wrap cy-learn">
 
-  <!-- HUD -->
-  <section class="cy-hud cy-rise">
-    <div class="cy-hud__identity">
-      <div class="cy-level cy-level--lg" style="--cy-level-progress: {{ level.percent }};">
-        <div class="cy-level__inner">
-          <span class="cy-level__label">Level</span>
-          <span class="cy-level__value">{{ level.level }}</span>
-        </div>
-      </div>
-      <div>
-        <p class="cy-hud__greet">Your training</p>
-        <p class="cy-hud__headline">{{ modules_done }} of {{ modules_total }} modules complete</p>
-      </div>
-    </div>
-    <div class="cy-hud__stats">
-      <span class="cy-stat cy-stat--points">
-        <span class="cy-stat__icon"><svg class="cy-i" aria-hidden="true"><use href="#i-hex"/></svg></span>
-        <span class="cy-stat__value">{{ profile.points }}</span>
-        <span class="cy-stat__label">points</span>
-      </span>
-      <span class="cy-streak">
-        <span class="cy-streak__flame"><svg class="cy-i" aria-hidden="true"><use href="#i-flame"/></svg></span>
-        <span class="cy-streak__value">{{ profile.streak_count }}</span>
-        <span class="cy-streak__label">day streak</span>
-      </span>
-    </div>
-  </section>
-
-  {% if continue_module %}
-    <a class="cy-continue cy-rise" style="--cy-delay: 0.06s;"
-       href="{% url 'learn:module' continue_module.order_index %}">
-      <div>
-        <span class="cy-continue__label">Continue where you left off</span>
-        <span class="cy-continue__title">{{ continue_module.title }} · {{ continue_lesson.title }}</span>
-      </div>
-      <span class="cy-btn cy-btn--primary cy-btn--sm">
-        Resume
-        <svg class="cy-i" aria-hidden="true"><use href="#i-arrow-right"/></svg>
-      </span>
-    </a>
-  {% endif %}
-
-  <div class="cy-section__head cy-rise" style="--cy-delay: 0.1s; margin: 2.5rem 0 1.5rem;">
-    <h1 class="cy-section__title" style="font-size: 1.6rem;">Your modules</h1>
-    <p class="cy-section__lede" style="font-size: 1rem;">
-      Work through them in order. Finish one to unlock the next.
-    </p>
+<div class="cy-page-title cy-rise">
+  <div>
+    <p class="cy-page-title__eyebrow">Your training</p>
+    <h1 class="cy-page-title__h">Modules</h1>
+    <p class="cy-hint" style="margin: 0.2rem 0 0;">{{ modules_done }} of {{ modules_total }} complete · work through them in order</p>
   </div>
-
-  <div class="cy-map">
-    {% for mp in progress %}
-      {% include "_module_tile.html" with module=mp.module state=mp.state link=mp.link progress=mp.percent progress_label=mp.progress_label %}
-    {% endfor %}
-  </div>
-
 </div>
+
+{% if continue_module %}
+  <a class="cy-continue cy-rise" style="--cy-delay: 0.05s;"
+     href="{% url 'learn:module' continue_module.order_index %}">
+    <div>
+      <span class="cy-continue__label">Continue where you left off</span>
+      <span class="cy-continue__title">{{ continue_module.title }} · {{ continue_lesson.title }}</span>
+    </div>
+    <span class="cy-btn cy-btn--primary cy-btn--sm">
+      Resume <svg class="cy-i" aria-hidden="true"><use href="#i-arrow-right"/></svg>
+    </span>
+  </a>
+{% endif %}
+
+<div class="cy-map" style="margin-top: 1.75rem;">
+  {% for mp in progress %}
+    {% include "_module_tile.html" with module=mp.module state=mp.state link=mp.link progress=mp.percent progress_label=mp.progress_label %}
+  {% endfor %}
+</div>
+
 {% endblock %}

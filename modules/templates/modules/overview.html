@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "app_base.html" %}
 
 {% comment %}
   A module's contents. Lessons with real done-ticks (from ProgressRecord), the
@@ -7,11 +7,6 @@
 {% endcomment %}
 
 {% block title %}{{ module.title }} — {{ site_name }}{% endblock %}
-{% block nav_links %}{% endblock %}
-{% block nav_actions %}
-  <a class="cy-btn cy-btn--quiet cy-btn--sm" href="{% url 'learn:browser' %}">All modules</a>
-  {% include "_logout_form.html" %}
-{% endblock %}
 
 {% block content %}
 <div class="cy-wrap cy-wrap--narrow cy-learn">

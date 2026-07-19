@@ -8,6 +8,9 @@ app_name = "learn"
 
 urlpatterns = [
     path("", views.browser, name="browser"),
+    path("progress/", views.progress, name="progress"),
+    path("badges/", views.badges, name="badges"),
+    path("certificate/", views.certificate, name="certificate"),
     path("m/<int:order_index>/", views.module_overview, name="module"),
     path(
         "m/<int:order_index>/lesson/<int:lesson_number>/",

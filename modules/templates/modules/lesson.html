@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "app_base.html" %}
 
 {% comment %}
   The lesson reader. body_text is rendered with |safe — the ONE place that's
@@ -8,11 +8,6 @@
 {% endcomment %}
 
 {% block title %}{{ lesson.title }} — {{ site_name }}{% endblock %}
-{% block nav_links %}{% endblock %}
-{% block nav_actions %}
-  <a class="cy-btn cy-btn--quiet cy-btn--sm" href="{% url 'learn:module' module.order_index %}">Module</a>
-  {% include "_logout_form.html" %}
-{% endblock %}
 
 {% block content %}
 <div class="cy-reader-progress" aria-hidden="true">

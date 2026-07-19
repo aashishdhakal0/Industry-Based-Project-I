@@ -206,6 +206,26 @@ def points_from_counts(counts):
 # --------------------------------------------------------------------------
 
 
+def _resolve_when(today, now):
+    """Return a consistent (now, today) pair.
+
+    - both given: trusted as-is.
+    - only now: today is its local date.
+    - only today: build a now at midday on that date (so its local date is
+      today), for tests that inject a date without a timestamp.
+    - neither: the real clock.
+    """
+    import datetime
+
+    if now is not None:
+        return now, (today or timezone.localdate(now))
+    if today is not None:
+        naive = datetime.datetime.combine(today, datetime.time(12, 0))
+        return timezone.make_aware(naive), today
+    real = timezone.now()
+    return real, timezone.localdate(real)
+
+
 def _apply_streak(profile, today, now):
     """Advance the streak for activity on `today` (a Melbourne local date).
 
@@ -259,11 +279,14 @@ def refresh_profile(user, *, bump_streak=False, today=None, now=None):
     points = points_from_counts(counts)
 
     if bump_streak:
-        _apply_streak(
-            profile,
-            today or timezone.localdate(),
-            now or timezone.now(),
-        )
+        # `today` and `now` must agree: the streak compares dates but stores a
+        # timestamp, and if the stored timestamp's local date differs from
+        # `today`, the next day's comparison breaks. In production now=real and
+        # today=its local date. When a test injects `today` alone, derive a
+        # matching `now` on that date rather than defaulting to the real clock
+        # (which is what silently desynced them).
+        now, today = _resolve_when(today, now)
+        _apply_streak(profile, today, now)
 
     stats = {**counts, "points": points, "streak": profile.streak_count}
     new_ids = badge_catalogue.newly_earned(stats, profile.badges)

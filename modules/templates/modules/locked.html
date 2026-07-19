@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "app_base.html" %}
 
 {% comment %}
   Served with HTTP 403 when a student tries to open a module they haven't
@@ -8,13 +8,7 @@
 {% endcomment %}
 
 {% block title %}Not yet — {{ site_name }}{% endblock %}
-{% block nav_links %}{% endblock %}
-{% block nav_actions %}
-  <a class="cy-btn cy-btn--quiet cy-btn--sm" href="{% url 'learn:browser' %}">All modules</a>
-  {% include "_logout_form.html" %}
-{% endblock %}
 
-{% block main_class %}{% endblock %}
 
 {% block content %}
 <div class="cy-auth-page">

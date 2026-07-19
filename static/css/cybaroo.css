@@ -2032,6 +2032,377 @@ body.cy-body {
 
 
 /* ==========================================================================
+   App shell — the logged-in student experience
+   ==========================================================================
+   A persistent left sidebar + main content. Fixed sidebar on desktop; an
+   off-canvas drawer on mobile behind the appbar hamburger.
+   ========================================================================== */
+
+:root {
+  --cy-side-w: 250px;
+}
+
+.cy-app {
+  min-height: 100vh;
+}
+
+/* --- Sidebar ------------------------------------------------------------- */
+
+.cy-side {
+  background:
+    radial-gradient(120% 40% at 0% 0%, rgba(155, 123, 248, 0.08), transparent 70%),
+    linear-gradient(180deg, var(--cy-surface-2), var(--cy-surface));
+  border-right: 1px solid var(--cy-border);
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  left: 0;
+  padding: 1.4rem 0.9rem 1.1rem;
+  position: fixed;
+  top: 0;
+  width: var(--cy-side-w);
+  z-index: 40;
+}
+
+.cy-side__brand {
+  align-items: center;
+  color: var(--cy-text);
+  display: flex;
+  font-size: 1.2rem;
+  font-weight: 700;
+  gap: 0.6rem;
+  letter-spacing: -0.04em;
+  margin: 0.25rem 0.6rem 1.5rem;
+  text-decoration: none;
+}
+.cy-side__brand:hover { color: var(--cy-text); }
+
+.cy-side__nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.cy-side__item {
+  align-items: center;
+  border-radius: var(--cy-r);
+  color: var(--cy-text-2);
+  display: flex;
+  gap: 0.75rem;
+  font-weight: 500;
+  padding: 0.7rem 0.85rem;
+  position: relative;
+  text-decoration: none;
+  transition: background var(--cy-fast) var(--cy-ease), color var(--cy-fast) var(--cy-ease);
+}
+.cy-side__item .cy-i { color: var(--cy-text-3); transition: color var(--cy-fast) var(--cy-ease); }
+.cy-side__item:hover {
+  background: var(--cy-surface-3);
+  color: var(--cy-text);
+}
+.cy-side__item:hover .cy-i { color: var(--cy-text-2); }
+
+/* Active: gradient-soft tint, accent bar, violet text and icon, faint glow. */
+.cy-side__item.is-active {
+  background: var(--cy-grad-soft);
+  color: var(--cy-text);
+}
+.cy-side__item.is-active .cy-i { color: var(--cy-violet-soft); }
+.cy-side__item.is-active::before {
+  background: var(--cy-grad);
+  border-radius: 0 3px 3px 0;
+  bottom: 0.55rem;
+  box-shadow: 0 0 12px var(--cy-glow-violet);
+  content: "";
+  left: -0.9rem;
+  position: absolute;
+  top: 0.55rem;
+  width: 3px;
+}
+
+.cy-side__foot {
+  border-top: 1px solid var(--cy-border);
+  margin-top: auto;
+  padding-top: 0.9rem;
+}
+.cy-side__foot .cy-btn {
+  justify-content: flex-start;
+  width: 100%;
+}
+
+/* --- Body + appbar ------------------------------------------------------- */
+
+.cy-app__body {
+  margin-left: var(--cy-side-w);
+  min-height: 100vh;
+}
+
+.cy-app__main {
+  margin: 0 auto;
+  max-width: 74rem;
+  padding: clamp(1.5rem, 3vw, 2.75rem) clamp(1rem, 3vw, 2.5rem) 4rem;
+}
+
+/* Appbar is the mobile top strip; hidden on desktop where the sidebar shows. */
+.cy-appbar {
+  align-items: center;
+  background: rgba(11, 11, 18, 0.82);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--cy-border);
+  display: none;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  position: sticky;
+  top: 0;
+  z-index: 30;
+}
+.cy-appbar__toggle {
+  align-items: center;
+  background: var(--cy-surface-2);
+  border: 1px solid var(--cy-border-lift);
+  border-radius: var(--cy-r);
+  color: var(--cy-text);
+  cursor: pointer;
+  display: inline-flex;
+  height: 42px;
+  justify-content: center;
+  width: 42px;
+}
+.cy-appbar__toggle .cy-i--close { display: none; }
+.cy-appbar__toggle[aria-expanded="true"] .cy-i--menu { display: none; }
+.cy-appbar__toggle[aria-expanded="true"] .cy-i--close { display: inline-block; }
+
+.cy-side-backdrop {
+  background: rgba(6, 5, 12, 0.6);
+  inset: 0;
+  position: fixed;
+  z-index: 35;
+}
+
+/* --- Stat tiles ---------------------------------------------------------- */
+
+.cy-tiles {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+}
+
+.cy-tile {
+  background: linear-gradient(180deg, var(--cy-surface-2), var(--cy-surface));
+  border: 1px solid var(--cy-border);
+  border-radius: var(--cy-r-lg);
+  overflow: hidden;
+  padding: 1.25rem 1.35rem;
+  position: relative;
+  transition: transform var(--cy-slow) var(--cy-ease), border-color var(--cy-slow) var(--cy-ease);
+}
+.cy-tile::before {
+  background: var(--cy-grad);
+  content: "";
+  height: 2px;
+  inset: 0 0 auto;
+  opacity: 0.7;
+  position: absolute;
+}
+.cy-tile:hover {
+  border-color: var(--cy-border-lift);
+  transform: translateY(-3px);
+}
+
+.cy-tile__icon {
+  align-items: center;
+  background: var(--cy-grad-soft);
+  border: 1px solid rgba(167, 139, 250, 0.28);
+  border-radius: 10px;
+  color: var(--cy-violet-soft);
+  display: flex;
+  height: 36px;
+  justify-content: center;
+  margin-bottom: 0.85rem;
+  width: 36px;
+}
+.cy-tile__icon .cy-i { height: 18px; width: 18px; }
+.cy-tile__icon--flame { color: var(--cy-flame); }
+
+.cy-tile__value {
+  color: var(--cy-text);
+  display: block;
+  font-family: var(--cy-font-mono);
+  font-feature-settings: "tnum";
+  font-size: 1.9rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+.cy-tile__label {
+  color: var(--cy-text-3);
+  display: block;
+  font-size: 0.85rem;
+  margin-top: 0.3rem;
+}
+
+/* --- Page header (welcome) ---------------------------------------------- */
+
+.cy-page-title {
+  align-items: center;
+  display: flex;
+  gap: 1.15rem;
+  margin-bottom: 1.75rem;
+}
+.cy-page-title__eyebrow {
+  color: var(--cy-text-3);
+  font-size: 0.85rem;
+  margin: 0;
+}
+.cy-page-title__h {
+  font-size: clamp(1.6rem, 3.5vw, 2.15rem);
+  letter-spacing: -0.03em;
+  margin: 0.15rem 0 0;
+}
+
+/* --- Progress list (My Progress) ----------------------------------------- */
+
+.cy-prog {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.cy-prog__row {
+  align-items: center;
+  background: linear-gradient(180deg, var(--cy-surface-2), var(--cy-surface));
+  border: 1px solid var(--cy-border);
+  border-radius: var(--cy-r-lg);
+  display: flex;
+  gap: 1rem;
+  padding: 1.1rem 1.25rem;
+}
+.cy-prog__row--locked { opacity: 0.62; }
+
+.cy-prog__glyph {
+  align-items: center;
+  background: linear-gradient(135deg, var(--cy-tile-a, #9b7bf8), var(--cy-tile-b, #22d3ee));
+  border-radius: 12px;
+  color: #fff;
+  display: flex;
+  flex: none;
+  height: 42px;
+  justify-content: center;
+  width: 42px;
+}
+.cy-prog__row--locked .cy-prog__glyph { filter: grayscale(0.9); }
+
+.cy-prog__body { flex: 1; min-width: 0; }
+.cy-prog__top {
+  align-items: baseline;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+.cy-prog__name { color: var(--cy-text); font-weight: 500; }
+.cy-prog__count {
+  color: var(--cy-text-3);
+  font-family: var(--cy-font-mono);
+  font-feature-settings: "tnum";
+  font-size: 0.82rem;
+}
+
+/* --- Badge gallery ------------------------------------------------------- */
+
+.cy-badge-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+}
+
+.cy-badge-card {
+  align-items: center;
+  background: linear-gradient(180deg, var(--cy-surface-2), var(--cy-surface));
+  border: 1px solid var(--cy-border);
+  border-radius: var(--cy-r-lg);
+  display: flex;
+  gap: 1rem;
+  padding: 1.25rem;
+  position: relative;
+  transition: transform var(--cy-slow) var(--cy-ease), border-color var(--cy-slow) var(--cy-ease);
+}
+.cy-badge-card.is-earned:hover {
+  border-color: rgba(167, 139, 250, 0.5);
+  transform: translateY(-3px);
+}
+
+.cy-badge-card__medal {
+  align-items: center;
+  border-radius: 16px;
+  display: flex;
+  flex: none;
+  height: 52px;
+  justify-content: center;
+  width: 52px;
+}
+.cy-badge-card__medal .cy-i { height: 24px; width: 24px; }
+.is-earned .cy-badge-card__medal {
+  background: var(--cy-grad-soft);
+  border: 1px solid rgba(167, 139, 250, 0.5);
+  color: var(--cy-violet-soft);
+}
+.is-locked .cy-badge-card__medal {
+  background: var(--cy-surface-3);
+  border: 1px dashed var(--cy-border-lift);
+  color: var(--cy-text-3);
+}
+.is-locked { opacity: 0.72; }
+
+.cy-badge-card__name { color: var(--cy-text); font-weight: 600; }
+.cy-badge-card__desc { color: var(--cy-text-2); font-size: 0.88rem; margin: 0.2rem 0 0; }
+.cy-badge-card__tick {
+  color: var(--cy-violet-soft);
+  position: absolute;
+  right: 1rem;
+  top: 1rem;
+}
+
+/* --- Certificate --------------------------------------------------------- */
+
+.cy-cert {
+  background:
+    radial-gradient(120% 60% at 50% 0%, rgba(255, 201, 75, 0.08), transparent 70%),
+    linear-gradient(180deg, var(--cy-surface-2), var(--cy-surface));
+  border: 1px solid var(--cy-border);
+  border-radius: var(--cy-r-xl);
+  box-shadow: var(--cy-shadow);
+  margin: 0 auto;
+  max-width: 40rem;
+  padding: 2.75rem 2rem;
+  text-align: center;
+}
+
+.cy-cert__seal {
+  align-items: center;
+  background: var(--cy-surface-3);
+  border: 1px solid var(--cy-border-lift);
+  border-radius: 50%;
+  color: var(--cy-text-3);
+  display: inline-flex;
+  height: 84px;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+  width: 84px;
+}
+.cy-cert__seal .cy-i { height: 38px; width: 38px; }
+.cy-cert__seal.is-earned {
+  background: linear-gradient(150deg, rgba(255, 201, 75, 0.2), rgba(255, 157, 77, 0.1));
+  border-color: var(--cy-gold);
+  box-shadow: 0 0 30px rgba(255, 201, 75, 0.2);
+  color: var(--cy-gold);
+}
+
+.cy-cert__title { font-size: 1.5rem; margin: 0 0 0.6rem; }
+.cy-cert__lede { color: var(--cy-text-2); margin: 0 auto; max-width: 28rem; }
+
+
+/* ==========================================================================
    Learning experience — HUD, continue card, lesson reader, simulation
    ========================================================================== */
 
@@ -2658,6 +3029,23 @@ body.cy-body {
   /* The scene goes below the words: on a phone the message lands first. */
   .cy-hero__visual { order: 2; }
   .cy-scene { margin: 0 auto; max-width: 24rem; }
+
+  /* --- App shell → drawer ---
+     The sidebar slides off-canvas and the appbar appears with the hamburger. */
+  .cy-appbar { display: flex; }
+  .cy-app__body { margin-left: 0; }
+
+  .cy-side {
+    transform: translateX(-100%);
+    transition: transform var(--cy-slow) var(--cy-ease);
+    width: min(82vw, 300px);
+  }
+  .cy-side.is-open { transform: translateX(0); box-shadow: var(--cy-shadow-float); }
+  /* The desktop brand line is redundant with the appbar's; hide it in the drawer. */
+  .cy-side__brand { display: none; }
+
+  .cy-side-backdrop { display: none; }
+  .cy-side-backdrop.is-open { display: block; }
 
   /* Stacked, the hero can't fit one viewport and shouldn't pretend to —
      forcing it would just squash the copy. */

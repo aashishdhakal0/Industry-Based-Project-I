@@ -237,3 +237,71 @@ def test_learn_pages_render_clean_and_without_emoji(client_student, modules):
         for token in LEAKS:
             assert token not in html, f"{url} leaked {token!r}"
         assert not EMOJI.findall(html), f"{url} contains emoji"
+
+
+# --------------------------------------------------------------------------
+# The app shell — sidebar, active state, new pages
+# --------------------------------------------------------------------------
+
+STUDENT_PATHS = [
+    ("learn:browser", []),
+    ("dashboard", []),
+    ("learn:progress", []),
+    ("learn:badges", []),
+    ("learn:certificate", []),
+    ("learn:module", [1]),
+    ("learn:lesson", [1, 1]),
+    ("learn:simulation", [1]),
+]
+
+
+@pytest.mark.django_db
+def test_every_student_page_lives_in_the_app_shell(client_student, modules):
+    for name, args in STUDENT_PATHS:
+        html = client_student.get(reverse(name, args=args)).content.decode()
+        assert 'class="cy-side__nav"' in html, name
+        # the mobile drawer toggle, wired to the sidebar
+        assert 'aria-controls="cy-side"' in html, name
+
+
+@pytest.mark.django_db
+def test_sidebar_links_to_every_section(client_student, modules):
+    html = client_student.get(reverse("dashboard")).content.decode()
+    for name in ["dashboard", "learn:browser", "learn:progress", "learn:badges", "learn:certificate"]:
+        assert reverse(name) in html
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    "name,active_key",
+    [("dashboard", "Dashboard"), ("learn:progress", "My progress"), ("learn:badges", "Badges")],
+)
+def test_the_right_sidebar_item_is_active(client_student, modules, name, active_key):
+    html = client_student.get(reverse(name)).content.decode()
+    # the active item and its label appear together
+    marker = 'cy-side__item is-active'
+    assert marker in html
+    idx = html.index(marker)
+    assert active_key in html[idx : idx + 200]
+
+
+@pytest.mark.django_db
+def test_new_pages_show_real_data(client_student, student, modules):
+    complete(client_student, modules[0], 1, HTTP_X_REQUESTED_WITH="fetch")
+
+    progress = client_student.get(reverse("learn:progress")).content.decode()
+    assert modules[0].title in progress
+
+    badges = client_student.get(reverse("learn:badges")).content.decode()
+    assert "First step" in badges and "cy-badge-card" in badges
+
+    cert = client_student.get(reverse("learn:certificate")).content.decode()
+    assert "certificate" in cert.lower()
+
+
+@pytest.mark.django_db
+def test_new_pages_require_login(client, modules):
+    for name in ["learn:progress", "learn:badges", "learn:certificate"]:
+        response = client.get(reverse(name))
+        assert response.status_code == 302
+        assert "/login/" in response.url
