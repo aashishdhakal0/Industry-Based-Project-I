@@ -325,6 +325,13 @@ def dashboard(request):
     target = g.continue_target(request.user)
     earned = set(profile.badges or [])
 
+    # Recent activity — the last few lessons actually completed, newest first.
+    recent = list(
+        ProgressRecord.objects.filter(user=request.user)
+        .select_related("lesson", "lesson__module")
+        .order_by("-completed_at")[:4]
+    )
+
     # Mark the current stop for the roadmap: the first unlocked, unfinished
     # module (the one the student is on right now).
     current_index = None
@@ -372,6 +379,7 @@ def dashboard(request):
             "continue_module": target[0] if target else None,
             "continue_lesson": target[1] if target else None,
             "is_first_time": profile.points == 0 and lessons_done == 0,
+            "recent": recent,
             "nudge_phrase": nudge_phrase,
             "nudge_badge": nudge_badge,
             "badges": [{"badge": b, "earned": b.id in earned} for b in CATALOGUE],

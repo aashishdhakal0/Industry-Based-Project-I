@@ -73,25 +73,71 @@
     </div>
   {% endif %}
 
-  {# ---------- Emotional status: level anticipation + streak ---------- #}
-  <div class="cy-status cy-rise" style="--cy-delay: 0.1s;">
-    <div class="cy-status__card">
-      <div class="cy-status__row">
-        <span class="cy-status__k">Level {{ level.level }} → {{ level.level|add:1 }}</span>
-        <span class="cy-status__v">{{ level.into_level }}/{{ level.level_span }} XP</span>
+  {# ---------- Compact stats strip ---------- #}
+  <div class="cy-statline cy-rise" style="--cy-delay: 0.08s;">
+    <div class="cy-statline__item">
+      <svg class="cy-i" aria-hidden="true"><use href="#i-hex"/></svg>
+      <span class="cy-statline__v">{{ profile.points }}</span>
+      <span class="cy-statline__l">points</span>
+    </div>
+    <div class="cy-statline__item">
+      <svg class="cy-i" aria-hidden="true"><use href="#i-book"/></svg>
+      <span class="cy-statline__v">{{ lessons_done }}</span>
+      <span class="cy-statline__l">lessons</span>
+    </div>
+    <div class="cy-statline__item">
+      <svg class="cy-i" aria-hidden="true"><use href="#i-star"/></svg>
+      <span class="cy-statline__v">{{ badges_earned }}</span>
+      <span class="cy-statline__l">badges</span>
+    </div>
+    <div class="cy-statline__item">
+      <svg class="cy-i" aria-hidden="true"><use href="#i-layers"/></svg>
+      <span class="cy-statline__v">{{ modules_done }}<span class="cy-statline__of">/{{ modules_total }}</span></span>
+      <span class="cy-statline__l">modules</span>
+    </div>
+  </div>
+
+  {# ---------- Status + recent activity, two columns ---------- #}
+  <div class="cy-dash-cols cy-rise" style="--cy-delay: 0.1s;">
+    <div class="cy-dash-cols__left">
+      <div class="cy-status__card cy-elev">
+        <div class="cy-status__row">
+          <span class="cy-status__k">Level {{ level.level }} → {{ level.level|add:1 }}</span>
+          <span class="cy-status__v">{{ level.into_level }}/{{ level.level_span }} XP</span>
+        </div>
+        <div class="cy-progress"><div class="cy-progress__fill" style="--cy-value: {{ level.percent }}%;"></div></div>
+        <p class="cy-status__msg">Only <strong>{{ level.to_next }} points</strong> to level {{ level.level|add:1 }}.</p>
       </div>
-      <div class="cy-progress"><div class="cy-progress__fill" style="--cy-value: {{ level.percent }}%;"></div></div>
-      <p class="cy-status__msg">Only <strong>{{ level.to_next }} points</strong> to level {{ level.level|add:1 }}.</p>
+
+      <div class="cy-status__card cy-elev cy-streak-card cy-streak-card--{{ streak.state }}">
+        <div class="cy-streak-card__flame">
+          <svg class="cy-i" aria-hidden="true"><use href="#i-flame"/></svg>
+        </div>
+        <div>
+          <span class="cy-streak-card__value">{{ streak.display }}<span class="cy-streak-card__unit"> day{{ streak.display|pluralize }}</span></span>
+          <p class="cy-status__msg">{{ streak.message }}</p>
+        </div>
+      </div>
     </div>
 
-    <div class="cy-status__card cy-streak-card cy-streak-card--{{ streak.state }}">
-      <div class="cy-streak-card__flame">
-        <svg class="cy-i" aria-hidden="true"><use href="#i-flame"/></svg>
-      </div>
-      <div>
-        <span class="cy-streak-card__value">{{ streak.display }}<span class="cy-streak-card__unit"> day{{ streak.display|pluralize }}</span></span>
-        <p class="cy-status__msg">{{ streak.message }}</p>
-      </div>
+    {# Recent activity — real, from ProgressRecord. #}
+    <div class="cy-recent cy-elev">
+      <div class="cy-recent__head">Recent activity</div>
+      {% if recent %}
+        <ul class="cy-recent__list">
+          {% for r in recent %}
+            <li class="cy-recent__item">
+              <span class="cy-recent__tick"><svg class="cy-i" aria-hidden="true"><use href="#i-check"/></svg></span>
+              <span class="cy-recent__body">
+                <span class="cy-recent__title">{{ r.lesson.title }}</span>
+                <span class="cy-recent__meta">{{ r.lesson.module.title }} · {{ r.completed_at|timesince }} ago</span>
+              </span>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="cy-recent__empty">Your completed lessons will show up here.</p>
+      {% endif %}
     </div>
   </div>
 

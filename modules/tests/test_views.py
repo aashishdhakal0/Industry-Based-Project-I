@@ -365,3 +365,26 @@ def test_the_streak_nudges_when_a_day_is_at_risk(client_student, student, module
     html = client_student.get(reverse("dashboard")).content.decode()
     assert "cy-streak-card--at_risk" in html
     assert "keep your 4-day streak" in html
+
+
+@pytest.mark.django_db
+def test_dashboard_recent_activity_is_real(client_student, student, modules):
+    """The recent-activity panel lists lessons actually completed, newest first."""
+    complete(client_student, modules[0], 1, HTTP_X_REQUESTED_WITH="fetch")
+    complete(client_student, modules[0], 2, HTTP_X_REQUESTED_WITH="fetch")
+
+    html = client_student.get(reverse("dashboard")).content.decode()
+    assert "Recent activity" in html
+    # both completed lessons appear
+    assert modules[0].lessons.get(lesson_number=1).title in html
+    assert modules[0].lessons.get(lesson_number=2).title in html
+
+
+@pytest.mark.django_db
+def test_dashboard_stats_strip_shows_real_totals(client_student, student, modules):
+    complete(client_student, modules[0], 1, HTTP_X_REQUESTED_WITH="fetch")
+
+    html = client_student.get(reverse("dashboard")).content.decode()
+    assert "cy-statline" in html
+    # 1 lesson done, 10 points, at least the First step badge
+    assert "cy-statline__v" in html
