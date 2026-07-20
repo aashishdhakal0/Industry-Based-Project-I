@@ -26,6 +26,11 @@ class Badge:
     description: str
     icon: str  # an id in templates/_icons.html
     evaluate: Callable[[dict], bool]
+    # Presentation only — never touches awarding. Given the stats dict, returns
+    # (effort, phrase) for an unearned badge to power the "almost there" nudge,
+    # or None if it isn't meaningfully close. `effort` is a rough lessons-worth
+    # so the nearest reward can be picked across different badge types.
+    hint: Callable[[dict], tuple] = None
 
 
 # Order matters only for display — earned-then-locked, roughly by reach.
@@ -36,6 +41,9 @@ CATALOGUE = [
         description="Complete your first lesson.",
         icon="i-book",
         evaluate=lambda s: s["lessons_completed"] >= 1,
+        hint=lambda s: (1, "1 lesson from your first badge")
+        if s["lessons_completed"] == 0
+        else None,
     ),
     Badge(
         id="first_module",
@@ -43,6 +51,9 @@ CATALOGUE = [
         description="Finish every lesson in a module.",
         icon="i-layers",
         evaluate=lambda s: s["modules_completed"] >= 1,
+        hint=lambda s: (4, "Finish a module to earn a badge")
+        if s["modules_completed"] == 0
+        else None,
     ),
     Badge(
         id="first_simulation",
@@ -64,6 +75,12 @@ CATALOGUE = [
         description="Keep a 3-day streak.",
         icon="i-flame",
         evaluate=lambda s: s["streak"] >= 3,
+        hint=lambda s: (
+            3 - s["streak"],
+            f"{3 - s['streak']} day{'s' if 3 - s['streak'] != 1 else ''} from a 3-day streak",
+        )
+        if 0 < 3 - s["streak"]
+        else None,
     ),
     Badge(
         id="halfway",
@@ -71,6 +88,12 @@ CATALOGUE = [
         description="Complete three modules.",
         icon="i-bolt",
         evaluate=lambda s: s["modules_completed"] >= 3,
+        hint=lambda s: (
+            (3 - s["modules_completed"]) * 4,
+            f"{3 - s['modules_completed']} module{'s' if 3 - s['modules_completed'] != 1 else ''} from halfway",
+        )
+        if 0 < 3 - s["modules_completed"] <= 2
+        else None,
     ),
     Badge(
         id="graduate",
@@ -89,3 +112,25 @@ def newly_earned(stats, already_earned):
     """Ids of badges the stats now satisfy that aren't already held."""
     held = set(already_earned or [])
     return [b.id for b in CATALOGUE if b.id not in held and b.evaluate(stats)]
+
+
+def nearest_unearned(stats, already_earned):
+    """The closest unearned badge with a hint, as (badge, phrase), or None.
+
+    Presentation only — powers the dashboard's "almost there" nudge. Picks the
+    smallest effort among unearned badges whose hint applies.
+    """
+    held = set(already_earned or [])
+    candidates = []
+    for b in CATALOGUE:
+        if b.id in held or b.hint is None:
+            continue
+        result = b.hint(stats)
+        if result:
+            effort, phrase = result
+            candidates.append((effort, b, phrase))
+    if not candidates:
+        return None
+    candidates.sort(key=lambda c: c[0])
+    _, badge, phrase = candidates[0]
+    return badge, phrase

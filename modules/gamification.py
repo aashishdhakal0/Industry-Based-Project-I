@@ -260,6 +260,72 @@ def get_profile(user):
     return profile
 
 
+# --------------------------------------------------------------------------
+# Derived presentation — read-only, no logic change
+# --------------------------------------------------------------------------
+#
+# Everything below computes from data that already exists. It never writes and
+# never affects awarding; it just frames the same numbers to build momentum.
+
+# A rank title per level. Grows with level; caps at the last for higher levels.
+RANKS = [
+    "Cyber Aware",     # level 1
+    "Cyber Alert",     # 2
+    "Cyber Ready",     # 3
+    "Cyber Capable",   # 4
+    "Cyber Defender",  # 5
+    "Cyber Guardian",  # 6
+    "Cyber Sentinel",  # 7
+    "Cyber Legend",    # 8+
+]
+
+
+def rank_for_level(level):
+    return RANKS[min(max(level, 1), len(RANKS)) - 1]
+
+
+@dataclass
+class StreakStatus:
+    state: str       # "none" | "at_risk" | "safe"
+    display: int     # the number to show (0 if lapsed, so we don't lie)
+    message: str
+
+
+def streak_status(profile, today=None):
+    """How the streak stands *today* — the emotional core of the flame.
+
+    Read-only: it does not reset or advance anything (that happens on activity,
+    in _apply_streak). It only interprets the stored state for display, and
+    shows 0 for a streak that has silently lapsed rather than a stale number.
+    """
+    today = today or timezone.localdate()
+    last = timezone.localdate(profile.last_active) if profile.last_active else None
+    count = profile.streak_count
+
+    if not count or last is None:
+        return StreakStatus("none", 0, "Start a streak — a little every day adds up.")
+    if last == today:
+        return StreakStatus("safe", count, f"You're on a {count}-day streak. Keep it going.")
+    if (today - last).days == 1:
+        return StreakStatus(
+            "at_risk", count,
+            f"Come back today to keep your {count}-day streak alive.",
+        )
+    # Older than yesterday: the next activity will reset it, so it's effectively
+    # gone — show 0 rather than the stale stored count.
+    return StreakStatus("none", 0, "Your streak lapsed — start a fresh one today.")
+
+
+def greeting(now=None):
+    """A time-aware greeting, on the Melbourne clock."""
+    hour = timezone.localtime(now or timezone.now()).hour
+    if hour < 12:
+        return "Good morning"
+    if hour < 17:
+        return "Good afternoon"
+    return "Good evening"
+
+
 @transaction.atomic
 def refresh_profile(user, *, bump_streak=False, today=None, now=None):
     """Reconcile the cached profile with the records. The single write path for
