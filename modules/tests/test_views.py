@@ -364,7 +364,7 @@ def test_the_streak_nudges_when_a_day_is_at_risk(client_student, student, module
 
     html = client_student.get(reverse("dashboard")).content.decode()
     assert "cy-streak-card--at_risk" in html
-    assert "keep your 4-day streak" in html
+    assert "keep your 4-day streak" in html  # new copy: "...keep your 4-day streak."
 
 
 @pytest.mark.django_db

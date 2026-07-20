@@ -67,7 +67,7 @@ def test_active_yesterday_is_at_risk(student):
     status = g.streak_status(profile, today=TODAY)
     assert status.state == "at_risk"
     assert status.display == 7
-    assert "keep your 7-day streak" in status.message
+    assert "keep your 7-day streak" in status.message and "Resets at midnight" in status.message
 
 
 @pytest.mark.django_db
@@ -138,3 +138,38 @@ def test_nearest_reward_skips_earned_badges():
 def test_greeting_is_time_aware(hour, expected):
     now = timezone.make_aware(datetime.datetime(2026, 7, 20, hour, 0))
     assert g.greeting(now) == expected
+
+
+# --------------------------------------------------------------------------
+# Streak milestones
+# --------------------------------------------------------------------------
+
+
+@pytest.mark.django_db
+def test_streak_status_surfaces_the_next_milestone(student):
+    profile = g.get_profile(student)
+    profile.streak_count = 3
+    profile.last_active = _aware(TODAY)
+    profile.badges = ["streak_3"]  # earned the 3-day; next is 7
+    status = g.streak_status(profile, today=TODAY)
+    assert status.milestone == 7
+    assert status.to_milestone == 4
+
+
+@pytest.mark.django_db
+def test_milestone_advances_to_30_once_7_is_earned(student):
+    profile = g.get_profile(student)
+    profile.streak_count = 7
+    profile.last_active = _aware(TODAY)
+    profile.badges = ["streak_3", "streak_7"]
+    status = g.streak_status(profile, today=TODAY)
+    assert status.milestone == 30
+    assert status.to_milestone == 23
+
+
+def test_the_new_streak_badges_evaluate_at_their_thresholds():
+    from modules.badges import BY_ID
+
+    assert BY_ID["streak_7"].evaluate({"streak": 7}) is True
+    assert BY_ID["streak_7"].evaluate({"streak": 6}) is False
+    assert BY_ID["streak_30"].evaluate({"streak": 30}) is True

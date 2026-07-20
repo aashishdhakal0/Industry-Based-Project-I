@@ -83,6 +83,32 @@ CATALOGUE = [
         else None,
     ),
     Badge(
+        id="streak_7",
+        name="Week strong",
+        description="Keep a 7-day streak.",
+        icon="i-flame",
+        evaluate=lambda s: s["streak"] >= 7,
+        hint=lambda s: (
+            7 - s["streak"],
+            f"{7 - s['streak']} days from your 7-day streak",
+        )
+        if 3 <= s["streak"] < 7
+        else None,
+    ),
+    Badge(
+        id="streak_30",
+        name="Unstoppable",
+        description="Keep a 30-day streak.",
+        icon="i-flame",
+        evaluate=lambda s: s["streak"] >= 30,
+        hint=lambda s: (
+            30 - s["streak"],
+            f"{30 - s['streak']} days from your 30-day streak",
+        )
+        if 7 <= s["streak"] < 30
+        else None,
+    ),
+    Badge(
         id="halfway",
         name="Halfway there",
         description="Complete three modules.",

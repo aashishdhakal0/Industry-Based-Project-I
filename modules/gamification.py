@@ -296,36 +296,54 @@ def rank_for_level(level):
     return RANKS[min(max(level, 1), len(RANKS)) - 1]
 
 
+# Streak milestones that map to real, earnable badges (streak_3/7/30).
+STREAK_MILESTONES = [3, 7, 30]
+
+
 @dataclass
 class StreakStatus:
-    state: str       # "none" | "at_risk" | "safe"
-    display: int     # the number to show (0 if lapsed, so we don't lie)
+    state: str        # "none" | "at_risk" | "safe"
+    display: int      # the number to show (0 if lapsed, so we don't lie)
     message: str
+    milestone: int    # the next streak milestone target, or 0 if all reached
+    to_milestone: int # days remaining to that milestone
+
+
+def _next_streak_milestone(streak, earned):
+    """The next unearned streak badge target and days to it, or (0, 0)."""
+    earned = set(earned or [])
+    for m in STREAK_MILESTONES:
+        if f"streak_{m}" not in earned:
+            return m, max(0, m - streak)
+    return 0, 0
 
 
 def streak_status(profile, today=None):
-    """How the streak stands *today* — the emotional core of the flame.
+    """How the streak stands *today* — the flame, with real stakes.
 
     Read-only: it does not reset or advance anything (that happens on activity,
-    in _apply_streak). It only interprets the stored state for display, and
-    shows 0 for a streak that has silently lapsed rather than a stale number.
+    in _apply_streak). It interprets the stored state for display, shows 0 for a
+    streak that has silently lapsed rather than a stale number, and surfaces the
+    next milestone badge.
     """
     today = today or timezone.localdate()
     last = timezone.localdate(profile.last_active) if profile.last_active else None
     count = profile.streak_count
 
     if not count or last is None:
-        return StreakStatus("none", 0, "Start a streak — a little every day adds up.")
-    if last == today:
-        return StreakStatus("safe", count, f"You're on a {count}-day streak. Keep it going.")
-    if (today - last).days == 1:
-        return StreakStatus(
-            "at_risk", count,
-            f"Come back today to keep your {count}-day streak alive.",
-        )
-    # Older than yesterday: the next activity will reset it, so it's effectively
-    # gone — show 0 rather than the stale stored count.
-    return StreakStatus("none", 0, "Your streak lapsed — start a fresh one today.")
+        state, display, msg = "none", 0, "Complete a lesson today to start a streak."
+    elif last == today:
+        state, display = "safe", count
+        msg = f"Locked in for today — see you tomorrow to make it {count + 1}."
+    elif (today - last).days == 1:
+        state, display = "at_risk", count
+        msg = f"Resets at midnight — finish a lesson today to keep your {count}-day streak."
+    else:
+        # Older than yesterday: the next activity resets it, so it's gone.
+        state, display, msg = "none", 0, "Your streak lapsed — start a fresh one today."
+
+    milestone, to_milestone = _next_streak_milestone(display, profile.badges)
+    return StreakStatus(state, display, msg, milestone, to_milestone)
 
 
 def greeting(now=None):
