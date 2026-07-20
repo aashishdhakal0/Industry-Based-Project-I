@@ -191,8 +191,9 @@ def test_dashboard_shows_real_points_after_completing_lessons(client_student, st
     complete(client_student, modules[0], 2, HTTP_X_REQUESTED_WITH="fetch")
 
     html = client_student.get(reverse("dashboard")).content.decode()
-    # 2 lessons × 10 = 20 points, straight from the profile cache.
-    assert ">20<" in html
+    # 2 lessons × 10 = 20 points. The redesigned dashboard frames points as
+    # level XP; at 20 points you're 20 short of level 2.
+    assert "20 points" in html
 
 
 @pytest.mark.django_db
@@ -210,7 +211,7 @@ def test_dashboard_continue_points_at_the_next_lesson(client_student, modules):
 
     html = client_student.get(reverse("dashboard")).content.decode()
     assert reverse("learn:module", args=[1]) in html
-    assert "Continue where you left off" in html
+    assert "Pick up where you left off" in html
 
 
 # --------------------------------------------------------------------------
@@ -308,3 +309,59 @@ def test_new_pages_require_login(client, modules):
         response = client.get(reverse(name))
         assert response.status_code == 302
         assert "/login/" in response.url
+
+
+# --------------------------------------------------------------------------
+# Dashboard — momentum redesign
+# --------------------------------------------------------------------------
+
+
+@pytest.mark.django_db
+def test_a_brand_new_student_gets_the_welcome_state_not_bare_zeros(client_student, modules):
+    html = client_student.get(reverse("dashboard")).content.decode()
+    assert "cy-welcome" in html
+    assert "Welcome to" in html
+    # exactly one primary action, even here
+    assert html.count("cy-btn--primary") == 1
+
+
+@pytest.mark.django_db
+def test_a_returning_student_sees_the_continue_hero_and_rank(client_student, modules):
+    complete(client_student, modules[0], 1, HTTP_X_REQUESTED_WITH="fetch")
+
+    html = client_student.get(reverse("dashboard")).content.decode()
+    assert "cy-hero-continue" in html
+    assert "Cyber Aware" in html                 # the rank title
+    assert html.count("cy-btn--primary") == 1    # the single Continue
+
+
+@pytest.mark.django_db
+def test_the_roadmap_marks_the_current_module(client_student, modules):
+    complete(client_student, modules[0], 1, HTTP_X_REQUESTED_WITH="fetch")
+
+    html = client_student.get(reverse("dashboard")).content.decode()
+    assert "cy-road" in html
+    assert "is-current" in html                  # the pulsing "you are here" stop
+    assert "Certified" in html                   # the journey's end
+
+
+@pytest.mark.django_db
+def test_the_streak_nudges_when_a_day_is_at_risk(client_student, student, modules):
+    import datetime
+
+    from django.utils import timezone
+
+    # Active yesterday, not yet today → at risk.
+    complete(client_student, modules[0], 1, HTTP_X_REQUESTED_WITH="fetch")
+    profile = student.profile
+    profile.streak_count = 4
+    profile.last_active = timezone.make_aware(
+        datetime.datetime.combine(
+            timezone.localdate() - datetime.timedelta(days=1), datetime.time(12, 0)
+        )
+    )
+    profile.save(update_fields=["streak_count", "last_active"])
+
+    html = client_student.get(reverse("dashboard")).content.decode()
+    assert "cy-streak-card--at_risk" in html
+    assert "keep your 4-day streak" in html

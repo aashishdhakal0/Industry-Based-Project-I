@@ -2428,6 +2428,328 @@ body.cy-body {
 
 
 /* ==========================================================================
+   Dashboard — momentum
+   ========================================================================== */
+
+.cy-btn--lg { font-size: 1.12rem; padding: 0.95rem 1.7rem; }
+
+/* --- First-time welcome -------------------------------------------------- */
+
+.cy-welcome {
+  background:
+    radial-gradient(120% 80% at 50% -10%, var(--cy-glow-violet-soft), transparent 70%),
+    linear-gradient(180deg, var(--cy-surface-2), var(--cy-surface));
+  border: 1px solid var(--cy-border);
+  border-radius: var(--cy-r-xl);
+  box-shadow: var(--cy-shadow);
+  padding: clamp(2rem, 5vw, 3.5rem) 1.5rem;
+  text-align: center;
+}
+.cy-welcome__title {
+  font-size: clamp(2rem, 5vw, 3rem);
+  letter-spacing: -0.03em;
+  margin: 0 0 0.75rem;
+}
+.cy-welcome__lede {
+  color: var(--cy-text-2);
+  font-size: 1.1rem;
+  margin: 0 auto 1.75rem;
+  max-width: 34rem;
+}
+.cy-welcome__perks {
+  color: var(--cy-text-3);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+  justify-content: center;
+  margin-top: 1.75rem;
+}
+.cy-welcome__perks span { align-items: center; display: inline-flex; gap: 0.4rem; }
+.cy-welcome__perks .cy-i { color: var(--cy-violet-soft); }
+
+/* --- Identity band ------------------------------------------------------- */
+
+.cy-ident {
+  align-items: center;
+  display: flex;
+  gap: 1.25rem;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+.cy-ident__greet { color: var(--cy-text-3); font-size: 0.9rem; margin: 0; }
+.cy-ident__rank {
+  background: var(--cy-grad);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  font-size: clamp(1.7rem, 4vw, 2.4rem);
+  letter-spacing: -0.03em;
+  margin: 0.1rem 0 0;
+}
+
+/* --- The Continue hero (centrepiece) ------------------------------------- */
+
+.cy-hero-continue {
+  align-items: center;
+  background: linear-gradient(120deg, rgba(109, 40, 217, 0.28), rgba(21, 94, 117, 0.22)), var(--cy-surface-2);
+  border: 1px solid rgba(167, 139, 250, 0.5);
+  border-radius: var(--cy-r-xl);
+  box-shadow: var(--cy-shadow), 0 0 40px var(--cy-glow-violet-soft);
+  color: var(--cy-text);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  justify-content: space-between;
+  overflow: hidden;
+  padding: 1.85rem 2rem;
+  position: relative;
+  text-decoration: none;
+  transition: transform var(--cy-slow) var(--cy-ease), box-shadow var(--cy-slow) var(--cy-ease);
+}
+.cy-hero-continue:hover {
+  color: var(--cy-text);
+  box-shadow: var(--cy-shadow-lift), 0 0 60px var(--cy-glow-violet);
+  transform: translateY(-3px);
+}
+/* A slow ambient glow that breathes, so the centrepiece feels alive. */
+.cy-hero-continue__glow {
+  animation: cy-hero-glow 5s ease-in-out infinite;
+  background: radial-gradient(circle, var(--cy-glow-violet), transparent 70%);
+  height: 320px;
+  pointer-events: none;
+  position: absolute;
+  right: -60px;
+  top: -120px;
+  width: 320px;
+}
+@keyframes cy-hero-glow {
+  0%, 100% { opacity: 0.5; transform: scale(1); }
+  50%      { opacity: 0.9; transform: scale(1.12); }
+}
+.cy-hero-continue__body { position: relative; z-index: 1; }
+.cy-hero-continue__label {
+  color: var(--cy-violet-soft);
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  margin-bottom: 0.4rem;
+  text-transform: uppercase;
+}
+.cy-hero-continue__title {
+  display: block;
+  font-family: var(--cy-font-display);
+  font-size: clamp(1.4rem, 3vw, 1.9rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+}
+.cy-hero-continue__sub { color: var(--cy-text-2); display: block; margin-top: 0.35rem; }
+.cy-hero-continue__cta { position: relative; z-index: 1; }
+.cy-hero-continue--done { border-color: rgba(167, 139, 250, 0.35); }
+
+/* --- Emotional status ---------------------------------------------------- */
+
+.cy-status {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: 1fr 1fr;
+  margin-top: 1.25rem;
+}
+.cy-status__card {
+  background: linear-gradient(180deg, var(--cy-surface-2), var(--cy-surface));
+  border: 1px solid var(--cy-border);
+  border-radius: var(--cy-r-lg);
+  padding: 1.35rem 1.5rem;
+}
+.cy-status__row {
+  align-items: baseline;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.65rem;
+}
+.cy-status__k { color: var(--cy-text); font-weight: 600; }
+.cy-status__v { color: var(--cy-text-3); font-family: var(--cy-font-mono); font-size: 0.8rem; }
+.cy-status__msg { color: var(--cy-text-2); font-size: 0.9rem; margin: 0.75rem 0 0; }
+.cy-status__msg strong { color: var(--cy-violet-soft); }
+
+.cy-streak-card {
+  align-items: center;
+  display: flex;
+  gap: 1rem;
+}
+.cy-streak-card__flame {
+  align-items: center;
+  border-radius: 14px;
+  display: flex;
+  flex: none;
+  height: 52px;
+  justify-content: center;
+  width: 52px;
+}
+.cy-streak-card__flame .cy-i { height: 26px; width: 26px; }
+.cy-streak-card__value { font-family: var(--cy-font-mono); font-size: 1.5rem; font-weight: 700; }
+.cy-streak-card__unit { color: var(--cy-text-3); font-size: 0.9rem; font-weight: 500; }
+
+/* Streak states — the flame carries the emotion. */
+.cy-streak-card--safe .cy-streak-card__flame {
+  background: var(--cy-grad-soft); border: 1px solid rgba(167, 139, 250, 0.4); color: var(--cy-flame);
+}
+.cy-streak-card--safe .cy-streak-card__value { color: var(--cy-gold); }
+
+.cy-streak-card--at_risk {
+  border-color: rgba(255, 157, 77, 0.5);
+  box-shadow: 0 0 26px rgba(255, 157, 77, 0.12);
+}
+.cy-streak-card--at_risk .cy-streak-card__flame {
+  background: rgba(255, 157, 77, 0.16); border: 1px solid rgba(255, 157, 77, 0.5); color: var(--cy-flame);
+}
+.cy-streak-card--at_risk .cy-streak-card__flame .cy-i { animation: cy-flame-urgent 1.6s ease-in-out infinite; transform-origin: 50% 85%; }
+.cy-streak-card--at_risk .cy-streak-card__value { color: var(--cy-flame); }
+.cy-streak-card--at_risk .cy-status__msg strong,
+.cy-streak-card--at_risk .cy-status__msg { color: var(--cy-flame-2, #ffc24b); }
+@keyframes cy-flame-urgent {
+  0%, 100% { transform: scale(1) rotate(0); }
+  50%      { transform: scale(1.15) rotate(-3deg); }
+}
+
+.cy-streak-card--none .cy-streak-card__flame {
+  background: var(--cy-surface-3); border: 1px dashed var(--cy-border-lift); color: var(--cy-text-3);
+}
+.cy-streak-card--none .cy-streak-card__value { color: var(--cy-text-3); }
+
+/* --- Almost there nudge -------------------------------------------------- */
+
+.cy-nudge {
+  align-items: center;
+  background: var(--cy-grad-soft);
+  border: 1px solid rgba(167, 139, 250, 0.32);
+  border-radius: var(--cy-r);
+  color: var(--cy-text);
+  display: flex;
+  gap: 0.85rem;
+  margin-top: 1rem;
+  padding: 0.85rem 1.15rem;
+  text-decoration: none;
+  transition: border-color var(--cy-fast) var(--cy-ease);
+}
+.cy-nudge:hover { border-color: var(--cy-violet); color: var(--cy-text); }
+.cy-nudge__icon { color: var(--cy-violet-soft); flex: none; }
+.cy-nudge__text { flex: 1; }
+.cy-nudge__go { color: var(--cy-text-3); flex: none; }
+.cy-nudge:hover .cy-nudge__go { color: var(--cy-violet-soft); }
+
+/* --- The journey roadmap ------------------------------------------------- */
+
+.cy-road {
+  display: flex;
+  padding: 0.25rem 0 0.5rem;
+  position: relative;
+}
+.cy-road__track {
+  background: var(--cy-border);
+  border-radius: 2px;
+  height: 3px;
+  left: calc(50% / var(--stops));
+  position: absolute;
+  right: calc(50% / var(--stops));
+  top: 25px;
+}
+.cy-road__fill {
+  background: var(--cy-grad);
+  border-radius: 2px;
+  box-shadow: 0 0 12px var(--cy-glow-violet);
+  height: 100%;
+  left: 0;
+  position: absolute;
+  top: 0;
+  width: calc(var(--road-fill) * 1%);
+}
+
+.cy-road__stop {
+  align-items: center;
+  color: var(--cy-text-2);
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.55rem;
+  min-width: 0;
+  position: relative;
+  text-decoration: none;
+  z-index: 1;
+}
+.cy-road__node {
+  align-items: center;
+  background: var(--cy-surface-3);
+  border: 2px solid var(--cy-border-lift);
+  border-radius: 50%;
+  color: var(--cy-text-2);
+  display: flex;
+  flex: none;
+  font-family: var(--cy-font-mono);
+  font-size: 1rem;
+  font-weight: 700;
+  height: 52px;
+  justify-content: center;
+  width: 52px;
+}
+.cy-road__node .cy-i { height: 22px; width: 22px; }
+.cy-road__label {
+  color: var(--cy-text-3);
+  font-size: 0.78rem;
+  max-width: 100%;
+  overflow: hidden;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cy-road__stop--start .cy-road__node,
+.cy-road__node--flag {
+  background: var(--cy-surface-2);
+  border-color: var(--cy-border-lift);
+  color: var(--cy-text-3);
+}
+
+/* Road states */
+.cy-road__stop.is-done .cy-road__node {
+  background: var(--cy-grad-cta);
+  border-color: transparent;
+  box-shadow: 0 0 18px var(--cy-glow-violet-soft);
+  color: #fff;
+}
+.cy-road__stop.is-done .cy-road__label { color: var(--cy-text-2); }
+.cy-road__stop--end.is-done .cy-road__node {
+  background: linear-gradient(150deg, var(--cy-gold), var(--cy-flame));
+  box-shadow: 0 0 22px rgba(255, 201, 75, 0.3);
+}
+
+.cy-road__stop.is-current .cy-road__node {
+  background: var(--cy-grad-soft);
+  border-color: var(--cy-violet);
+  color: var(--cy-violet-soft);
+}
+.cy-road__stop.is-current .cy-road__label { color: var(--cy-text); font-weight: 600; }
+/* The pulsing "you are here" ring. */
+.cy-road__stop.is-current .cy-road__node::after {
+  animation: cy-here 2s ease-out infinite;
+  border: 2px solid var(--cy-violet);
+  border-radius: 50%;
+  content: "";
+  inset: -2px;
+  position: absolute;
+}
+@keyframes cy-here {
+  0%   { opacity: 0.8; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1.5); }
+}
+
+.cy-road__stop.is-open:hover .cy-road__node { border-color: var(--cy-violet); }
+.cy-road__stop.is-locked { opacity: 0.55; }
+.cy-road__stop.is-locked .cy-road__node { border-style: dashed; }
+
+
+/* ==========================================================================
    Learning experience — HUD, continue card, lesson reader, simulation
    ========================================================================== */
 
@@ -3114,6 +3436,16 @@ a.cy-path__link:hover { background: var(--cy-surface-2); }
     opacity: 1;
     transform: none;
   }
+
+  /* Dashboard momentum: the ambient hero glow, the urgent flame and the "you
+     are here" pulse all loop — stop them. The elements stay (glow at a steady
+     opacity, flame lit, ring hidden), so the meaning survives without motion. */
+  .cy-hero-continue__glow,
+  .cy-streak-card--at_risk .cy-streak-card__flame .cy-i {
+    animation: none;
+  }
+  .cy-road__stop.is-current .cy-road__node::after { display: none; }
+  .cy-hero-continue:hover { transform: none; }
 }
 
 
@@ -3233,9 +3565,32 @@ a.cy-path__link:hover { background: var(--cy-surface-2); }
   /* Single column everywhere the grid was still trying for two. */
   .cy-steps,
   .cy-stats,
-  .cy-map {
+  .cy-map,
+  .cy-status {
     grid-template-columns: 1fr;
   }
+
+  /* The roadmap goes vertical on a phone: a stack of stops with the connector
+     running down the left, which reads as a journey without needing to squeeze
+     eight nodes across a narrow screen. */
+  .cy-road { flex-direction: column; }
+  .cy-road__stop {
+    align-items: center;
+    flex-direction: row;
+    gap: 1rem;
+    justify-content: flex-start;
+    padding: 0.4rem 0;
+  }
+  .cy-road__label { max-width: none; text-align: left; }
+  .cy-road__track {
+    bottom: calc(0.4rem + 26px);
+    height: auto;
+    left: 26px;
+    right: auto;
+    top: calc(0.4rem + 26px);
+    width: 3px;
+  }
+  .cy-road__fill { height: calc(var(--road-fill) * 1%); width: 100%; }
 
   /* The hero note wrapped awkwardly as a row; stack it. */
   .cy-hero__note { flex-direction: column; gap: 0.4rem; align-items: flex-start; }

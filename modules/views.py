@@ -307,8 +307,6 @@ def complete_simulation(request, order_index):
 @login_required
 def dashboard(request):
     """The student's home — every figure real, from PostgreSQL via the engine."""
-    from .badges import CATALOGUE
-
     profile = g.get_profile(request.user)
     progress = g.module_progress(request.user)
     for mp in progress:
@@ -327,24 +325,58 @@ def dashboard(request):
     target = g.continue_target(request.user)
     earned = set(profile.badges or [])
 
+    # Mark the current stop for the roadmap: the first unlocked, unfinished
+    # module (the one the student is on right now).
+    current_index = None
+    if target:
+        current_index = target[0].order_index
+
+    level = g.level_for_points(profile.points)
+    stats = g.student_stats(request.user)
+    lessons_done = stats["lessons_completed"]
+
+    from .badges import CATALOGUE, nearest_unearned
+
+    nearest = nearest_unearned(stats, earned)
+    # Anticipation: a nearest-badge phrase if there is one, else next-level.
+    if nearest:
+        nudge_phrase = nearest[1]
+        nudge_badge = nearest[0]
+    else:
+        nudge_phrase = f"Only {level.to_next} points to level {level.level + 1}"
+        nudge_badge = None
+
     return render(
         request,
         "dashboard.html",
         {
+            "active": "dashboard",
             "profile": profile,
-            "level": g.level_for_points(profile.points),
+            "greeting": g.greeting(),
+            "rank": g.rank_for_level(level.level),
+            "level": level,
+            "streak": g.streak_status(profile),
             "progress": progress,
+            "current_index": current_index,
             "modules_done": sum(1 for mp in progress if mp.complete),
             "modules_total": len(progress),
-            "lessons_done": sum(mp.done_lessons for mp in progress),
+            # Roadmap geometry. Nodes = Start + N modules + Certified = N+2.
+            # The connector fills to the last completed module: the fraction is
+            # completed segments / total segments = modules_done / (nodes-1).
+            "road_stops": len(progress) + 2,
+            "road_fill": (
+                round(sum(1 for mp in progress if mp.complete) / (len(progress) + 1) * 100)
+                if progress else 0
+            ),
+            "lessons_done": lessons_done,
             "continue_module": target[0] if target else None,
             "continue_lesson": target[1] if target else None,
-            "badges": [
-                {"badge": b, "earned": b.id in earned} for b in CATALOGUE
-            ],
+            "is_first_time": profile.points == 0 and lessons_done == 0,
+            "nudge_phrase": nudge_phrase,
+            "nudge_badge": nudge_badge,
+            "badges": [{"badge": b, "earned": b.id in earned} for b in CATALOGUE],
             "badges_earned": len(earned),
             "badges_total": len(CATALOGUE),
-            "active": "dashboard",
         },
     )
 

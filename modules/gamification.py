@@ -201,6 +201,18 @@ def points_from_counts(counts):
     )
 
 
+def student_stats(user):
+    """The full stats dict a badge (or the dashboard's nearest-reward nudge)
+    reads — counts plus points and the current streak. Read-only."""
+    profile = get_profile(user)
+    counts = _counts(user)
+    return {
+        **counts,
+        "points": profile.points,
+        "streak": profile.streak_count,
+    }
+
+
 # --------------------------------------------------------------------------
 # Streak
 # --------------------------------------------------------------------------
