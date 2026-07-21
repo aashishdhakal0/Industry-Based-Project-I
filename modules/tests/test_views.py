@@ -191,9 +191,8 @@ def test_dashboard_shows_real_points_after_completing_lessons(client_student, st
     complete(client_student, modules[0], 2, HTTP_X_REQUESTED_WITH="fetch")
 
     html = client_student.get(reverse("dashboard")).content.decode()
-    # 2 lessons × 10 = 20 points. The redesigned dashboard frames points as
-    # level XP; at 20 points you're 20 short of level 2.
-    assert "20 points" in html
+    # 2 lessons × 10 = 20 points, shown in the points stat tile.
+    assert 'cy-tile__value">20<' in html
 
 
 @pytest.mark.django_db
@@ -363,7 +362,7 @@ def test_the_streak_nudges_when_a_day_is_at_risk(client_student, student, module
     profile.save(update_fields=["streak_count", "last_active"])
 
     html = client_student.get(reverse("dashboard")).content.decode()
-    assert "cy-streak-card--at_risk" in html
+    assert "cy-streakbox--at_risk" in html
     assert "keep your 4-day streak" in html  # new copy: "...keep your 4-day streak."
 
 
@@ -385,6 +384,58 @@ def test_dashboard_stats_strip_shows_real_totals(client_student, student, module
     complete(client_student, modules[0], 1, HTTP_X_REQUESTED_WITH="fetch")
 
     html = client_student.get(reverse("dashboard")).content.decode()
-    assert "cy-statline" in html
-    # 1 lesson done, 10 points, at least the First step badge
-    assert "cy-statline__v" in html
+    # Five refined stat tiles up top.
+    assert 'class="cy-tiles cy-tiles--5' in html
+    assert html.count('class="cy-tile"') == 5
+
+
+# --------------------------------------------------------------------------
+# Dashboard — professional layout (stat tiles, rail, quest marker)
+# --------------------------------------------------------------------------
+
+
+@pytest.mark.django_db
+def test_returning_dashboard_has_the_identity_header_and_stat_tiles(client_student, modules):
+    complete(client_student, modules[0], 1, HTTP_X_REQUESTED_WITH="fetch")
+    html = client_student.get(reverse("dashboard")).content.decode()
+    assert "cy-dash-head" in html            # identity header
+    assert "cy-dash-head__rank" in html      # proud rank title
+    assert html.count('class="cy-tile"') == 5
+
+
+@pytest.mark.django_db
+def test_the_main_rail_layout_is_present(client_student, modules):
+    complete(client_student, modules[0], 1, HTTP_X_REQUESTED_WITH="fetch")
+    html = client_student.get(reverse("dashboard")).content.decode()
+    assert "cy-dash-grid__main" in html
+    assert "cy-dash-grid__rail" in html
+    assert "cy-streakbox" in html            # streak lives in the rail
+
+
+@pytest.mark.django_db
+def test_the_quest_marks_you_are_here_on_the_current_module(client_student, modules):
+    complete(client_student, modules[0], 1, HTTP_X_REQUESTED_WITH="fetch")
+    html = client_student.get(reverse("dashboard")).content.decode()
+    assert "Your quest" in html
+    assert "You are here" in html
+    assert "is-current" in html
+
+
+@pytest.mark.django_db
+def test_the_streak_shows_its_next_milestone_badge(client_student, student, modules):
+    import datetime
+    from django.utils import timezone
+
+    complete(client_student, modules[0], 1, HTTP_X_REQUESTED_WITH="fetch")
+    p = student.profile
+    p.streak_count = 3
+    p.last_active = timezone.make_aware(
+        datetime.datetime.combine(timezone.localdate(), datetime.time(12, 0))
+    )
+    p.badges = list(p.badges) + ["streak_3"]
+    p.save()
+
+    html = client_student.get(reverse("dashboard")).content.decode()
+    # 3-day earned → next milestone is the 7-day badge, 4 days away
+    assert "7-day badge" in html
+    assert "4 days" in html

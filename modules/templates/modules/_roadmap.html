@@ -1,0 +1,48 @@
+{% comment %}
+  The journey quest path. Included on the dashboard (both first-time and
+  returning). Needs: progress, current_index, modules_done, modules_total,
+  road_stops, road_fill in context. Pass `quest=1` for the "you are here" marker.
+{% endcomment %}
+<div class="cy-section__head" style="margin: 2rem 0 1.25rem;">
+  <h2 class="cy-section__title" style="font-size: 1.25rem;">Your quest</h2>
+  <a class="cy-nav__link" href="{% url 'learn:browser' %}">All modules →</a>
+</div>
+
+<div class="cy-road" style="--stops: {{ road_stops }}; --road-fill: {{ road_fill }};" role="list" aria-label="Your module journey">
+  <div class="cy-road__track" aria-hidden="true"><span class="cy-road__fill"></span></div>
+
+  <div class="cy-road__stop cy-road__stop--start" role="listitem">
+    <span class="cy-road__node cy-road__node--flag"><svg class="cy-i" aria-hidden="true"><use href="#i-grid"/></svg></span>
+    <span class="cy-road__label">Start</span>
+  </div>
+
+  {% for mp in progress %}
+    {% if mp.complete %}
+      <a class="cy-road__stop is-done" href="{% url 'learn:module' mp.module.order_index %}" role="listitem">
+        <span class="cy-road__node"><svg class="cy-i" aria-hidden="true"><use href="#i-check"/></svg></span>
+        <span class="cy-road__label">Module {{ mp.module.order_index }}</span>
+      </a>
+    {% elif mp.module.order_index == current_index %}
+      <a class="cy-road__stop is-current" href="{% url 'learn:module' mp.module.order_index %}" role="listitem">
+        {% if quest %}<span class="cy-road__here">You are here</span>{% endif %}
+        <span class="cy-road__node">{{ mp.module.order_index }}</span>
+        <span class="cy-road__label">Module {{ mp.module.order_index }}</span>
+      </a>
+    {% elif mp.unlocked %}
+      <a class="cy-road__stop is-open" href="{% url 'learn:module' mp.module.order_index %}" role="listitem">
+        <span class="cy-road__node">{{ mp.module.order_index }}</span>
+        <span class="cy-road__label">Module {{ mp.module.order_index }}</span>
+      </a>
+    {% else %}
+      <div class="cy-road__stop is-locked" role="listitem">
+        <span class="cy-road__node"><svg class="cy-i" aria-hidden="true"><use href="#i-lock"/></svg></span>
+        <span class="cy-road__label">Module {{ mp.module.order_index }}</span>
+      </div>
+    {% endif %}
+  {% endfor %}
+
+  <div class="cy-road__stop cy-road__stop--end {% if modules_done == modules_total and modules_total %}is-done{% endif %}" role="listitem">
+    <span class="cy-road__node cy-road__node--flag"><svg class="cy-i" aria-hidden="true"><use href="#i-award"/></svg></span>
+    <span class="cy-road__label">Certified</span>
+  </div>
+</div>
