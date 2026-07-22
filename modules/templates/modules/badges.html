@@ -1,6 +1,11 @@
 {% extends "app_base.html" %}
 
-{% comment %} The full achievement gallery — earned and locked, from real data. {% endcomment %}
+{% comment %}
+  The achievement gallery — a collection to complete. Grouped into tiers; each
+  badge a distinct collectible (its own icon and gradient). Earned vs locked is
+  real data (UserProfile.badges). Locked badges still tease their name and how
+  to earn them.
+{% endcomment %}
 
 {% block title %}Badges — {{ site_name }}{% endblock %}
 
@@ -10,29 +15,47 @@
   <div>
     <p class="cy-page-title__eyebrow">Achievements</p>
     <h1 class="cy-page-title__h">Badges</h1>
-    <p class="cy-hint" style="margin: 0.2rem 0 0;">{{ earned_count }} of {{ total_count }} earned</p>
   </div>
 </div>
 
-<div class="cy-badge-grid cy-rise" style="--cy-delay: 0.05s;">
-  {% for item in badges %}
-    <div class="cy-badge-card {% if item.earned %}is-earned{% else %}is-locked{% endif %}">
-      <div class="cy-badge-card__medal">
-        {% if item.earned %}
-          <svg class="cy-i" aria-hidden="true"><use href="#{{ item.badge.icon }}"/></svg>
-        {% else %}
-          <svg class="cy-i" aria-hidden="true"><use href="#i-lock"/></svg>
-        {% endif %}
-      </div>
-      <div>
-        <div class="cy-badge-card__name">{{ item.badge.name }}</div>
-        <p class="cy-badge-card__desc">{{ item.badge.description }}</p>
-      </div>
-      {% if item.earned %}
-        <span class="cy-badge-card__tick"><svg class="cy-i" aria-hidden="true"><use href="#i-check-circle"/></svg></span>
-      {% endif %}
-    </div>
-  {% endfor %}
+{# Completion header #}
+<div class="cy-collect-progress cy-elev cy-rise" style="--cy-delay: 0.05s;">
+  <div class="cy-collect-progress__top">
+    <span class="cy-collect-progress__count">{{ earned_count }} <span>of {{ total_count }} earned</span></span>
+    <span class="cy-collect-progress__pct">{{ percent }}%</span>
+  </div>
+  <div class="cy-progress"><div class="cy-progress__fill" style="--cy-value: {{ percent }}%;"></div></div>
 </div>
+
+{% for tier in tiers %}
+  <section class="cy-collect-tier cy-rise" style="--cy-delay: 0.08s;">
+    <div class="cy-collect-tier__head">
+      <h2 class="cy-collect-tier__name">{{ tier.name }}</h2>
+      <span class="cy-collect-tier__count">{{ tier.earned }}/{{ tier.total }}</span>
+    </div>
+
+    <div class="cy-collect-grid">
+      {% for item in tier.items %}
+        <div class="cy-collect {% if item.earned %}is-earned{% else %}is-locked{% endif %}"
+             style="--tile-a: {{ item.badge.tile_a }}; --tile-b: {{ item.badge.tile_b }}; --shine-delay: {{ forloop.counter0 }}00ms;"
+             title="{{ item.badge.description }}">
+          <div class="cy-collect__medal">
+            <svg class="cy-i" aria-hidden="true"><use href="#{{ item.badge.icon }}"/></svg>
+            {% if not item.earned %}
+              <span class="cy-collect__lock" aria-hidden="true"><svg class="cy-i"><use href="#i-lock"/></svg></span>
+            {% endif %}
+          </div>
+          <div class="cy-collect__name">{{ item.badge.name }}</div>
+          <div class="cy-collect__desc">{{ item.badge.description }}</div>
+          {% if item.earned %}
+            <span class="cy-collect__tag"><svg class="cy-i" aria-hidden="true"><use href="#i-check"/></svg> Earned</span>
+          {% else %}
+            <span class="cy-collect__tag cy-collect__tag--locked">Locked</span>
+          {% endif %}
+        </div>
+      {% endfor %}
+    </div>
+  </section>
+{% endfor %}
 
 {% endblock %}

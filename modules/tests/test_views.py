@@ -296,7 +296,7 @@ def test_new_pages_show_real_data(client_student, student, modules):
     assert modules[0].title in progress
 
     badges = client_student.get(reverse("learn:badges")).content.decode()
-    assert "First step" in badges and "cy-badge-card" in badges
+    assert "First step" in badges and "cy-collect is-earned" in badges
 
     cert = client_student.get(reverse("learn:certificate")).content.decode()
     assert "certificate" in cert.lower()
@@ -439,3 +439,45 @@ def test_the_streak_shows_its_next_milestone_badge(client_student, student, modu
     # 3-day earned → next milestone is the 7-day badge, 4 days away
     assert "7-day badge" in html
     assert "4 days" in html
+
+
+# --------------------------------------------------------------------------
+# Badges gallery — tiers, collectibles, teased locked
+# --------------------------------------------------------------------------
+
+
+@pytest.mark.django_db
+def test_badges_gallery_is_grouped_into_tiers_with_counts(client_student, modules):
+    html = client_student.get(reverse("learn:badges")).content.decode()
+    for tier in ["Getting Started", "Knowledge", "Milestones", "Streaks"]:
+        assert tier in html
+    assert "of 11 earned" in html          # overall completion header
+
+
+@pytest.mark.django_db
+def test_locked_badges_still_tease_how_to_earn_them(client_student, modules):
+    html = client_student.get(reverse("learn:badges")).content.decode()
+    # The quiz badge is locked (no quizzes yet) but shows its how-to.
+    assert "Pass your first quiz" in html
+    assert "cy-collect__lock" in html      # the lock chip
+    assert "cy-collect is-locked" in html
+
+
+@pytest.mark.django_db
+def test_earned_badges_show_as_earned(client_student, modules):
+    complete(client_student, modules[0], 1, HTTP_X_REQUESTED_WITH="fetch")
+    html = client_student.get(reverse("learn:badges")).content.decode()
+    assert "cy-collect is-earned" in html
+
+
+def test_every_badge_has_a_distinct_icon_in_the_sprite():
+    import pathlib
+
+    from modules.badges import CATALOGUE
+
+    sprite = pathlib.Path("templates/_icons.html").read_text()
+    icons = [b.icon for b in CATALOGUE]
+    for icon in icons:
+        assert f'id="{icon}"' in sprite, f"{icon} missing from the icon sprite"
+    # streaks aside, the set is distinct — not one shape repeated
+    assert len(set(icons)) >= len(icons) - 1

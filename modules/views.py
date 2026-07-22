@@ -415,8 +415,9 @@ def progress(request):
 
 @login_required
 def badges(request):
-    """The full achievement gallery — earned and locked, from real data."""
-    from .badges import CATALOGUE
+    """The achievement gallery — a collection to complete, grouped into tiers,
+    earned vs locked from real data."""
+    from .badges import CATALOGUE, grouped
 
     profile = g.get_profile(request.user)
     earned = set(profile.badges or [])
@@ -425,9 +426,10 @@ def badges(request):
         "modules/badges.html",
         {
             "active": "badges",
-            "badges": [{"badge": b, "earned": b.id in earned} for b in CATALOGUE],
+            "tiers": grouped(earned),
             "earned_count": len(earned),
             "total_count": len(CATALOGUE),
+            "percent": round(len(earned) / len(CATALOGUE) * 100) if CATALOGUE else 0,
         },
     )
 

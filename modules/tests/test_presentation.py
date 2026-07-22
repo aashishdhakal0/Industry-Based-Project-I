@@ -91,6 +91,7 @@ def test_a_brand_new_student_is_one_lesson_from_the_first_badge():
         "modules_completed": 0,
         "published_modules": 6,
         "streak": 0,
+        "points": 0,
     }
     result = badge_catalogue.nearest_unearned(stats, [])
     assert result is not None
@@ -107,6 +108,7 @@ def test_nearest_reward_prefers_the_closest():
         "modules_completed": 0,
         "published_modules": 6,
         "streak": 2,
+        "points": 10,
     }
     badge, phrase = badge_catalogue.nearest_unearned(stats, ["first_lesson"])
     assert badge.id == "streak_3"
@@ -119,6 +121,7 @@ def test_nearest_reward_skips_earned_badges():
         "modules_completed": 0,
         "published_modules": 6,
         "streak": 0,
+        "points": 0,
     }
     # If first_lesson is already held, it shouldn't be suggested.
     result = badge_catalogue.nearest_unearned(stats, ["first_lesson"])

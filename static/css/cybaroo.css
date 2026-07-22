@@ -2308,60 +2308,145 @@ body.cy-body {
   font-size: 0.82rem;
 }
 
-/* --- Badge gallery ------------------------------------------------------- */
+/* --- Badge gallery — collectibles ---------------------------------------- */
 
-.cy-badge-grid {
-  display: grid;
-  gap: 1rem;
-  grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+.cy-collect-progress { margin-bottom: 2rem; padding: 1.25rem 1.5rem; }
+.cy-collect-progress__top {
+  align-items: baseline;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+.cy-collect-progress__count {
+  color: var(--cy-text);
+  font-family: var(--cy-font-display);
+  font-size: 1.35rem;
+  font-weight: 700;
+}
+.cy-collect-progress__count span {
+  color: var(--cy-text-3);
+  font-family: var(--cy-font);
+  font-size: 0.95rem;
+  font-weight: 400;
+}
+.cy-collect-progress__pct { color: var(--cy-violet-soft); font-family: var(--cy-font-mono); font-weight: 700; }
+
+.cy-collect-tier { margin-bottom: 2.25rem; }
+.cy-collect-tier__head { align-items: center; display: flex; gap: 0.75rem; margin-bottom: 1.15rem; }
+.cy-collect-tier__name { font-size: 1.15rem; margin: 0; }
+.cy-collect-tier__count {
+  background: var(--cy-surface-3);
+  border: 1px solid var(--cy-border);
+  border-radius: var(--cy-r-pill);
+  color: var(--cy-text-3);
+  font-family: var(--cy-font-mono);
+  font-size: 0.76rem;
+  padding: 0.15rem 0.6rem;
 }
 
-.cy-badge-card {
+.cy-collect-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(10.5rem, 1fr));
+}
+
+.cy-collect {
   align-items: center;
   background: linear-gradient(180deg, var(--cy-surface-2), var(--cy-surface));
   border: 1px solid var(--cy-border);
   border-radius: var(--cy-r-lg);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
   display: flex;
-  gap: 1rem;
-  padding: 1.25rem;
+  flex-direction: column;
+  gap: 0.55rem;
+  padding: 1.6rem 1rem 1.3rem;
   position: relative;
+  text-align: center;
   transition: transform var(--cy-slow) var(--cy-ease), border-color var(--cy-slow) var(--cy-ease);
 }
-.cy-badge-card.is-earned:hover {
-  border-color: rgba(167, 139, 250, 0.5);
-  transform: translateY(-3px);
+.cy-collect.is-earned:hover { border-color: rgba(167, 139, 250, 0.5); transform: translateY(-4px); }
+
+.cy-collect__medal {
+  align-items: center;
+  border-radius: 22px;
+  display: flex;
+  height: 72px;
+  justify-content: center;
+  margin-bottom: 0.3rem;
+  overflow: hidden;
+  position: relative;
+  width: 72px;
+}
+.cy-collect__medal .cy-i { height: 32px; position: relative; width: 32px; z-index: 1; }
+
+/* Earned: the badge's own gradient, glossed and glowing. */
+.cy-collect.is-earned .cy-collect__medal {
+  background: linear-gradient(155deg, var(--tile-a), var(--tile-b));
+  box-shadow:
+    inset 0 2px 2px rgba(255, 255, 255, 0.35),
+    inset 0 -4px 8px rgba(0, 0, 0, 0.22),
+    0 6px 16px rgba(0, 0, 0, 0.4),
+    0 0 22px rgba(167, 139, 250, 0.28);
+  color: #fff;
+}
+/* A slow diagonal shine sweeping across earned medals, staggered per badge. */
+.cy-collect.is-earned .cy-collect__medal::after {
+  animation: cy-shine 4.5s ease-in-out infinite;
+  animation-delay: var(--shine-delay, 0s);
+  background: linear-gradient(115deg, transparent 42%, rgba(255, 255, 255, 0.5) 50%, transparent 58%);
+  content: "";
+  inset: 0;
+  position: absolute;
+  transform: translateX(-130%);
+}
+@keyframes cy-shine {
+  0%        { transform: translateX(-130%); }
+  55%, 100% { transform: translateX(130%); }
 }
 
-.cy-badge-card__medal {
-  align-items: center;
-  border-radius: 16px;
-  display: flex;
-  flex: none;
-  height: 52px;
-  justify-content: center;
-  width: 52px;
-}
-.cy-badge-card__medal .cy-i { height: 24px; width: 24px; }
-.is-earned .cy-badge-card__medal {
-  background: var(--cy-grad-soft);
-  border: 1px solid rgba(167, 139, 250, 0.5);
-  color: var(--cy-violet-soft);
-}
-.is-locked .cy-badge-card__medal {
+/* Locked: greyed, dashed, with a lock chip — but still shows what it is. */
+.cy-collect.is-locked { opacity: 0.9; }
+.cy-collect.is-locked .cy-collect__medal {
   background: var(--cy-surface-3);
   border: 1px dashed var(--cy-border-lift);
+  box-shadow: inset 0 -3px 6px rgba(0, 0, 0, 0.3);
   color: var(--cy-text-3);
+  filter: grayscale(0.4);
 }
-.is-locked { opacity: 0.72; }
-
-.cy-badge-card__name { color: var(--cy-text); font-weight: 600; }
-.cy-badge-card__desc { color: var(--cy-text-2); font-size: 0.88rem; margin: 0.2rem 0 0; }
-.cy-badge-card__tick {
-  color: var(--cy-violet-soft);
+.cy-collect__lock {
+  align-items: center;
+  background: var(--cy-surface);
+  border: 1px solid var(--cy-border-lift);
+  border-radius: 50%;
+  bottom: -3px;
+  color: var(--cy-text-2);
+  display: flex;
+  height: 24px;
+  justify-content: center;
   position: absolute;
-  right: 1rem;
-  top: 1rem;
+  right: -3px;
+  width: 24px;
+  z-index: 2;
 }
+.cy-collect__lock .cy-i { height: 12px; width: 12px; }
+
+.cy-collect__name { color: var(--cy-text); font-weight: 600; }
+.cy-collect.is-locked .cy-collect__name { color: var(--cy-text-2); }
+.cy-collect__desc { color: var(--cy-text-3); font-size: 0.8rem; line-height: 1.35; }
+
+.cy-collect__tag {
+  align-items: center;
+  color: var(--cy-violet-soft);
+  display: inline-flex;
+  font-size: 0.7rem;
+  font-weight: 600;
+  gap: 0.3rem;
+  letter-spacing: 0.05em;
+  margin-top: 0.15rem;
+  text-transform: uppercase;
+}
+.cy-collect__tag .cy-i { height: 0.9em; width: 0.9em; }
+.cy-collect__tag--locked { color: var(--cy-text-3); }
 
 /* --- Certificate --------------------------------------------------------- */
 
@@ -3616,12 +3701,14 @@ a.cy-path__link:hover { background: var(--cy-surface-2); }
   .cy-module--unlocked:hover,
   .cy-stat-card:hover,
   .cy-tile:hover,
-  .cy-badge-card.is-earned:hover,
+  .cy-collect.is-earned:hover,
   .cy-stepper__dot a:hover,
   .cy-continue:hover,
   .cy-badge--earned:hover .cy-badge__medal {
     transform: none;
   }
+  /* The badge shine sweeps forever — the one bit of gallery motion to stop. */
+  .cy-collect.is-earned .cy-collect__medal::after { animation: none; display: none; }
 
   /* The hero card keeps its depth, gradient and shadow; it simply stops
      moving. The float is the most noticeable motion on the landing page and
