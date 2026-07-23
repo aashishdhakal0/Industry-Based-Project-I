@@ -3108,6 +3108,128 @@ body.cy-body {
 .cy-recent__empty { color: var(--cy-text-2); margin: 0; }
 
 
+/* --- Study calendar ------------------------------------------------------ */
+
+.cy-cal { padding: 1.35rem 1.5rem; }
+
+.cy-cal__head {
+  align-items: center;
+  display: flex;
+  gap: 0.5rem;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+.cy-cal__title {
+  flex: 1;
+  font-family: var(--cy-font-display);
+  font-size: 1.02rem;
+  font-weight: 600;
+  text-align: center;
+}
+.cy-cal__nav {
+  align-items: center;
+  background: var(--cy-surface-3);
+  border: 1px solid var(--cy-border);
+  border-radius: 9px;
+  color: var(--cy-text-2);
+  display: inline-flex;
+  flex: none;
+  height: 30px;
+  justify-content: center;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+  width: 30px;
+}
+.cy-cal__nav:hover {
+  background: var(--cy-surface-2);
+  border-color: var(--cy-violet);
+  color: var(--cy-text);
+}
+.cy-cal__nav .cy-i { height: 16px; width: 16px; }
+.cy-cal__nav.is-disabled {
+  color: var(--cy-text-3);
+  cursor: default;
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+.cy-cal__row {
+  display: grid;
+  gap: 3px;
+  grid-template-columns: repeat(7, 1fr);
+}
+.cy-cal__row + .cy-cal__row { margin-top: 3px; }
+
+.cy-cal__wd {
+  color: var(--cy-text-3);
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  padding-bottom: 0.4rem;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.cy-cal__day {
+  align-items: center;
+  aspect-ratio: 1;
+  border-radius: 8px;
+  color: var(--cy-text-2);
+  display: flex;
+  font-family: var(--cy-font-mono);
+  font-size: 0.8rem;
+  justify-content: center;
+}
+.cy-cal__day.is-out { color: var(--cy-text-3); opacity: 0.4; }
+
+/* Active days carry a number, so they take the DEEP CTA gradient with a light
+   label (never the bright one — that's for text on the page, not fills under
+   it). See the gradient note at the top of this file. */
+.cy-cal__day.is-active {
+  background: var(--cy-grad-cta);
+  box-shadow: 0 0 0 1px rgba(155, 123, 248, 0.4), 0 3px 12px rgba(109, 40, 217, 0.35);
+  color: #fff;
+  font-weight: 600;
+}
+
+.cy-cal__day.is-today {
+  box-shadow: inset 0 0 0 1.5px var(--cy-violet);
+  color: var(--cy-text);
+  font-weight: 700;
+}
+/* Today and active at once: keep the fill, ring it in cyan so it still stands out. */
+.cy-cal__day.is-active.is-today {
+  box-shadow: inset 0 0 0 1.5px var(--cy-cyan-soft), 0 3px 12px rgba(109, 40, 217, 0.35);
+  color: #fff;
+}
+
+.cy-cal__foot {
+  align-items: center;
+  color: var(--cy-text-2);
+  display: flex;
+  gap: 0.55rem;
+  margin-top: 1rem;
+}
+.cy-cal__key {
+  background: var(--cy-grad-cta);
+  border-radius: 5px;
+  box-shadow: 0 0 0 1px rgba(155, 123, 248, 0.4);
+  flex: none;
+  height: 14px;
+  width: 14px;
+}
+.cy-cal__summary { font-size: 0.85rem; }
+
+/* A gentle settle for the active days as the month paints in. The global
+   reduced-motion reset neutralises it; the no-preference gate is belt-and-braces. */
+@media (prefers-reduced-motion: no-preference) {
+  .cy-cal__day.is-active { animation: cy-cal-pop 0.35s ease both; }
+}
+@keyframes cy-cal-pop {
+  from { opacity: 0; transform: scale(0.82); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+
 /* --- Professional dashboard layout --------------------------------------- */
 
 .cy-dash-head {

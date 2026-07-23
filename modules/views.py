@@ -332,6 +332,19 @@ def dashboard(request):
         .order_by("-completed_at")[:4]
     )
 
+    # Study calendar — the month the arrows point at, or this month by default.
+    # Bad or missing params fall back to the current month rather than erroring.
+    def _int_param(name):
+        try:
+            return int(request.GET.get(name))
+        except (TypeError, ValueError):
+            return None
+
+    cal_year, cal_month = _int_param("cal_year"), _int_param("cal_month")
+    if cal_month is not None and not 1 <= cal_month <= 12:
+        cal_year = cal_month = None
+    calendar = g.activity_calendar(request.user, year=cal_year, month=cal_month)
+
     # Mark the current stop for the roadmap: the first unlocked, unfinished
     # module (the one the student is on right now).
     current_index = None
@@ -380,6 +393,7 @@ def dashboard(request):
             "continue_lesson": target[1] if target else None,
             "is_first_time": profile.points == 0 and lessons_done == 0,
             "recent": recent,
+            "calendar": calendar,
             "nudge_phrase": nudge_phrase,
             "nudge_badge": nudge_badge,
             "badges": [{"badge": b, "earned": b.id in earned} for b in CATALOGUE],

@@ -421,3 +421,119 @@ def complete_simulation(user, simulation, *, score, total, path, today=None, now
 def record_login(user, *, today=None, now=None):
     """Showing up is activity: keep the streak and profile current on sign-in."""
     return refresh_profile(user, bump_streak=True, today=today, now=now)
+
+
+# --------------------------------------------------------------------------
+# Activity calendar — a real month view of the days a student studied.
+# --------------------------------------------------------------------------
+
+# Activity is anything the records count as showing up: a lesson completed, a
+# simulation finished, or a quiz submitted. Each carries a timestamp; we bucket
+# them by *local* date (Melbourne), because that's the day the student saw.
+_ACTIVITY_SOURCES = (
+    (ProgressRecord, "completed_at"),
+    (SimulationResult, "completed_at"),
+    (QuizResult, "submitted_at"),
+)
+
+
+@dataclass
+class CalendarDay:
+    date: object       # datetime.date
+    day: int           # day-of-month number to print
+    in_month: bool     # False for the leading/trailing days of adjacent months
+    active: bool       # the student did something on this day
+    is_today: bool
+
+
+@dataclass
+class ActivityCalendar:
+    year: int
+    month: int
+    label: str                 # "July 2026"
+    weekday_names: list        # ["Mon", …, "Sun"]
+    weeks: list                # list[list[CalendarDay]], Monday-first
+    active_count: int          # active days within this month
+    prev_year: int
+    prev_month: int
+    next_year: int
+    next_month: int
+    can_go_next: bool          # False once showing the current month (no future)
+
+
+def _active_dates_in_range(user, start_dt, end_dt):
+    """The set of local dates in [start_dt, end_dt) on which the user was active.
+
+    One student's activity in a single month is a handful of rows, so loading the
+    timestamps and bucketing in Python is both correct (honours the Melbourne
+    clock at month boundaries) and cheap.
+    """
+    dates = set()
+    for model, field in _ACTIVITY_SOURCES:
+        stamps = (
+            model.objects.filter(
+                user=user, **{f"{field}__gte": start_dt, f"{field}__lt": end_dt}
+            )
+            .values_list(field, flat=True)
+        )
+        for stamp in stamps:
+            dates.add(timezone.localdate(stamp))
+    return dates
+
+
+def activity_calendar(user, *, year=None, month=None, today=None):
+    """A traditional Monday–Sunday month grid marking the student's active days.
+
+    Real data only: active days come from ProgressRecord / SimulationResult /
+    QuizResult timestamps. `year`/`month` pick the month to show (defaulting to
+    the current one); `today` is injectable for tests rather than mocking a clock.
+    """
+    import calendar as _calendar
+    import datetime
+
+    today = today or timezone.localdate()
+    year = year or today.year
+    month = month or today.month
+
+    # A local-aware [first-of-month, first-of-next-month) window. Filtering on it
+    # and converting with localdate keeps boundary timestamps in the right day.
+    start_dt = timezone.make_aware(datetime.datetime(year, month, 1))
+    if month == 12:
+        end_dt = timezone.make_aware(datetime.datetime(year + 1, 1, 1))
+    else:
+        end_dt = timezone.make_aware(datetime.datetime(year, month + 1, 1))
+    active = _active_dates_in_range(user, start_dt, end_dt)
+
+    cal = _calendar.Calendar(firstweekday=0)  # 0 = Monday
+    weeks = [
+        [
+            CalendarDay(
+                date=d,
+                day=d.day,
+                in_month=d.month == month,
+                active=d.month == month and d in active,
+                is_today=d == today,
+            )
+            for d in week
+        ]
+        for week in cal.monthdatescalendar(year, month)
+    ]
+
+    prev_year, prev_month = (year - 1, 12) if month == 1 else (year, month - 1)
+    next_year, next_month = (year + 1, 1) if month == 12 else (year, month + 1)
+    # Never page into the future — there's no activity to see there.
+    can_go_next = (year, month) < (today.year, today.month)
+
+    return ActivityCalendar(
+        year=year,
+        month=month,
+        label=f"{_calendar.month_name[month]} {year}",
+        weekday_names=list(_calendar.day_abbr),  # Mon … Sun (firstweekday=0)
+        weeks=weeks,
+        active_count=len(active),
+        prev_year=prev_year,
+        prev_month=prev_month,
+        next_year=next_year,
+        next_month=next_month,
+        can_go_next=can_go_next,
+    )

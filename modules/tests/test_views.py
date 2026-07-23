@@ -442,6 +442,64 @@ def test_the_streak_shows_its_next_milestone_badge(client_student, student, modu
 
 
 # --------------------------------------------------------------------------
+# Study calendar — a real month view in the dashboard rail
+# --------------------------------------------------------------------------
+
+
+@pytest.mark.django_db
+def test_dashboard_shows_the_activity_calendar_with_todays_study(client_student, modules):
+    from django.utils import timezone
+
+    complete(client_student, modules[0], 1, HTTP_X_REQUESTED_WITH="fetch")
+    html = client_student.get(reverse("dashboard")).content.decode()
+
+    assert "cy-cal" in html
+    assert timezone.localdate().strftime("%B %Y") in html   # e.g. "July 2026"
+    assert "1 active day this month" in html
+    # Today's completion is marked both as active and as today.
+    assert "cy-cal__day is-active is-today" in html
+
+
+@pytest.mark.django_db
+def test_calendar_does_not_page_into_the_future(client_student, modules):
+    complete(client_student, modules[0], 1, HTTP_X_REQUESTED_WITH="fetch")
+    html = client_student.get(reverse("dashboard")).content.decode()
+    # On the current month the forward arrow is disabled, not a link.
+    assert "cy-cal__nav is-disabled" in html
+    assert "cal_month=" in html   # the back arrow still carries navigation params
+
+
+@pytest.mark.django_db
+def test_calendar_arrows_navigate_to_another_month(client_student, modules):
+    import datetime
+
+    from django.utils import timezone
+
+    complete(client_student, modules[0], 1, HTTP_X_REQUESTED_WITH="fetch")
+    # Page back one month using the same params the arrows carry.
+    last_month = timezone.localdate().replace(day=1) - datetime.timedelta(days=1)
+    html = client_student.get(
+        reverse("dashboard"), {"cal_year": last_month.year, "cal_month": last_month.month}
+    ).content.decode()
+
+    assert last_month.strftime("%B %Y") in html
+    # From a past month you can page forward again — the arrow is live.
+    assert "cy-cal__nav is-disabled" not in html
+
+
+@pytest.mark.django_db
+def test_calendar_falls_back_to_this_month_on_bad_params(client_student, modules):
+    from django.utils import timezone
+
+    complete(client_student, modules[0], 1, HTTP_X_REQUESTED_WITH="fetch")
+    this_month = timezone.localdate().strftime("%B %Y")
+
+    for bad in ({"cal_month": "13"}, {"cal_month": "oops"}, {"cal_year": "x"}):
+        html = client_student.get(reverse("dashboard"), bad).content.decode()
+        assert this_month in html
+
+
+# --------------------------------------------------------------------------
 # Badges gallery — tiers, collectibles, teased locked
 # --------------------------------------------------------------------------
 

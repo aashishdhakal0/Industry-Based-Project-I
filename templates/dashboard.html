@@ -129,6 +129,47 @@
         {% endif %}
       </div>
 
+      {# Study calendar — real active days from the records, month by month #}
+      <div class="cy-cal cy-elev">
+        <div class="cy-cal__head">
+          <a class="cy-cal__nav" href="?cal_year={{ calendar.prev_year }}&amp;cal_month={{ calendar.prev_month }}" aria-label="Previous month" rel="nofollow">
+            <svg class="cy-i" aria-hidden="true"><use href="#i-chevron-left"/></svg>
+          </a>
+          <div class="cy-cal__title">{{ calendar.label }}</div>
+          {% if calendar.can_go_next %}
+            <a class="cy-cal__nav" href="?cal_year={{ calendar.next_year }}&amp;cal_month={{ calendar.next_month }}" aria-label="Next month" rel="nofollow">
+              <svg class="cy-i" aria-hidden="true"><use href="#i-chevron-right"/></svg>
+            </a>
+          {% else %}
+            <span class="cy-cal__nav is-disabled" aria-hidden="true">
+              <svg class="cy-i"><use href="#i-chevron-right"/></svg>
+            </span>
+          {% endif %}
+        </div>
+
+        <div class="cy-cal__grid" role="grid" aria-label="Study activity for {{ calendar.label }}">
+          <div class="cy-cal__row cy-cal__row--head" role="row">
+            {% for wd in calendar.weekday_names %}
+              <span class="cy-cal__wd" role="columnheader">{{ wd }}</span>
+            {% endfor %}
+          </div>
+          {% for week in calendar.weeks %}
+            <div class="cy-cal__row" role="row">
+              {% for d in week %}
+                <span class="cy-cal__day{% if not d.in_month %} is-out{% endif %}{% if d.active %} is-active{% endif %}{% if d.is_today %} is-today{% endif %}"
+                      role="gridcell"
+                      {% if d.active %}aria-label="{{ d.date|date:'j F' }}, active"{% endif %}>{{ d.day }}</span>
+              {% endfor %}
+            </div>
+          {% endfor %}
+        </div>
+
+        <div class="cy-cal__foot">
+          <span class="cy-cal__key" aria-hidden="true"></span>
+          <span class="cy-cal__summary">{{ calendar.active_count }} active day{{ calendar.active_count|pluralize }} this month</span>
+        </div>
+      </div>
+
       {# Recent activity — real, newest first #}
       <div class="cy-recent cy-elev">
         <div class="cy-recent__head">Recent activity</div>

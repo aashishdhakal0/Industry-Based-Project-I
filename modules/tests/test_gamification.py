@@ -235,3 +235,116 @@ def test_module_progress_is_a_fixed_number_of_queries(student, make_module, djan
     # Two queries regardless of how many modules exist.
     with django_assert_max_num_queries(2):
         g.module_progress(student)
+
+
+# --------------------------------------------------------------------------
+# Activity calendar — a real month view of the days a student studied
+# --------------------------------------------------------------------------
+
+import datetime
+
+from django.utils import timezone
+
+
+def _study_on(student, module, lesson_number, when):
+    """Record a completed lesson and stamp it onto a specific local date.
+
+    completed_at is auto_now_add (real clock), so we create the row then force
+    the date the way real activity would have landed it.
+    """
+    lesson = module.lessons.get(lesson_number=lesson_number)
+    record = ProgressRecord.objects.create(user=student, lesson=lesson)
+    aware = timezone.make_aware(datetime.datetime.combine(when, datetime.time(12, 0)))
+    ProgressRecord.objects.filter(pk=record.pk).update(completed_at=aware)
+
+
+@pytest.mark.django_db
+def test_calendar_defaults_to_the_current_month(student, modules):
+    today = datetime.date(2026, 7, 24)
+    cal = g.activity_calendar(student, today=today)
+    assert cal.year == 2026 and cal.month == 7
+    assert cal.label == "July 2026"
+
+
+@pytest.mark.django_db
+def test_calendar_is_a_monday_first_grid_with_full_weeks(student, modules):
+    cal = g.activity_calendar(student, year=2026, month=7, today=datetime.date(2026, 7, 24))
+    assert cal.weekday_names == ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+    # July 2026 starts on a Wednesday, so the first row's Mon/Tue spill from June.
+    assert all(len(week) == 7 for week in cal.weeks)
+    first = cal.weeks[0]
+    assert (first[0].day, first[0].in_month) == (29, False)
+    assert (first[2].day, first[2].in_month) == (1, True)
+
+
+@pytest.mark.django_db
+def test_active_days_are_marked_from_real_records(student, modules):
+    _study_on(student, modules[0], 1, datetime.date(2026, 7, 3))
+    _study_on(student, modules[0], 2, datetime.date(2026, 7, 3))  # same day, still one
+    _study_on(student, modules[0], 3, datetime.date(2026, 7, 15))
+
+    cal = g.activity_calendar(student, year=2026, month=7, today=datetime.date(2026, 7, 24))
+    active = {d.day for week in cal.weeks for d in week if d.active}
+    assert active == {3, 15}
+    assert cal.active_count == 2
+
+
+@pytest.mark.django_db
+def test_activity_counts_simulations_and_quizzes_too(student, modules):
+    from quizzes.models import Quiz, QuizResult
+
+    # A simulation on the 5th.
+    sr = SimulationResult.objects.create(
+        user=student, simulation=modules[0].simulation, score=1, total=1, path=[]
+    )
+    SimulationResult.objects.filter(pk=sr.pk).update(
+        completed_at=timezone.make_aware(datetime.datetime(2026, 7, 5, 9, 0))
+    )
+    # A quiz on the 9th.
+    quiz = Quiz.objects.create(module=modules[0])
+    qr = QuizResult.objects.create(user=student, quiz=quiz, score=80, passed=True)
+    QuizResult.objects.filter(pk=qr.pk).update(
+        submitted_at=timezone.make_aware(datetime.datetime(2026, 7, 9, 9, 0))
+    )
+
+    cal = g.activity_calendar(student, year=2026, month=7, today=datetime.date(2026, 7, 24))
+    active = {d.day for week in cal.weeks for d in week if d.active}
+    assert active == {5, 9}
+
+
+@pytest.mark.django_db
+def test_only_the_chosen_month_is_counted(student, modules):
+    _study_on(student, modules[0], 1, datetime.date(2026, 6, 30))
+    _study_on(student, modules[0], 2, datetime.date(2026, 7, 15))
+    _study_on(student, modules[0], 3, datetime.date(2026, 8, 1))
+
+    cal = g.activity_calendar(student, year=2026, month=7, today=datetime.date(2026, 7, 24))
+    assert cal.active_count == 1
+    assert {d.day for week in cal.weeks for d in week if d.active} == {15}
+
+
+@pytest.mark.django_db
+def test_today_is_flagged_only_in_its_own_month(student, modules):
+    today = datetime.date(2026, 7, 24)
+    this_month = g.activity_calendar(student, year=2026, month=7, today=today)
+    todays = [d for week in this_month.weeks for d in week if d.is_today]
+    assert len(todays) == 1 and todays[0].day == 24
+
+    other = g.activity_calendar(student, year=2026, month=6, today=today)
+    assert not any(d.is_today for week in other.weeks for d in week)
+
+
+@pytest.mark.django_db
+def test_navigation_targets_wrap_the_year_and_never_go_past_this_month(student, modules):
+    today = datetime.date(2026, 7, 24)
+
+    current = g.activity_calendar(student, year=2026, month=7, today=today)
+    assert (current.prev_year, current.prev_month) == (2026, 6)
+    assert (current.next_year, current.next_month) == (2026, 8)
+    assert current.can_go_next is False  # this month — no future to page into
+
+    past = g.activity_calendar(student, year=2026, month=3, today=today)
+    assert past.can_go_next is True
+
+    january = g.activity_calendar(student, year=2026, month=1, today=today)
+    assert (january.prev_year, january.prev_month) == (2025, 12)
