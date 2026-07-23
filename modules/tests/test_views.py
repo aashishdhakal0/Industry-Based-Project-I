@@ -481,3 +481,71 @@ def test_every_badge_has_a_distinct_icon_in_the_sprite():
         assert f'id="{icon}"' in sprite, f"{icon} missing from the icon sprite"
     # streaks aside, the set is distinct — not one shape repeated
     assert len(set(icons)) >= len(icons) - 1
+
+
+# --------------------------------------------------------------------------
+# Certificate — the document design and its honest states
+# --------------------------------------------------------------------------
+
+
+def complete_all_modules(client, modules):
+    """Complete every lesson of every module (respecting the sequential lock)."""
+    for module in modules:
+        for lesson in module.lessons.order_by("lesson_number"):
+            complete(client, module, lesson.lesson_number, HTTP_X_REQUESTED_WITH="fetch")
+
+
+@pytest.mark.django_db
+def test_certificate_previews_the_document_with_progress_for_a_new_student(
+    client_student, student, modules
+):
+    html = client_student.get(reverse("learn:certificate")).content.decode()
+    # The document is shown, but as a preview with the progress panel.
+    assert "cy-certificate" in html
+    assert "cy-cert-ribbon" in html and "Preview" in html
+    assert "cy-cert-progress" in html
+    assert f"0 of {len(modules)} modules complete" in html
+    # Real data: the student's name and every module title appear on the design.
+    assert student.email in html
+    for module in modules:
+        assert module.title in html
+
+
+@pytest.mark.django_db
+def test_certificate_code_is_labelled_a_sample_and_the_date_waits(
+    client_student, modules
+):
+    html = client_student.get(reverse("learn:certificate")).content.decode()
+    assert "cy-certificate__code" in html
+    assert "CYB-" in html                       # the sample verification code
+    assert "(sample)" in html                   # never presented as verified
+    assert "On completion" in html              # no issue date until earned
+    assert "cy-cert-note" not in html           # the "you've earned it" note is hidden
+
+
+@pytest.mark.django_db
+def test_the_sample_code_is_stable_for_a_given_student(client_student, modules):
+    first = client_student.get(reverse("learn:certificate")).content.decode()
+    second = client_student.get(reverse("learn:certificate")).content.decode()
+    import re
+
+    code = re.search(r"CYB-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}", first)
+    assert code is not None
+    assert code.group(0) in second
+
+
+@pytest.mark.django_db
+def test_earning_the_certificate_drops_the_preview_and_dates_it(
+    client_student, modules
+):
+    from django.utils import timezone
+
+    complete_all_modules(client_student, modules)
+
+    html = client_student.get(reverse("learn:certificate")).content.decode()
+    assert "cy-certificate" in html
+    assert "cy-cert-ribbon" not in html         # no longer a preview
+    assert "is-preview" not in html
+    assert "cy-cert-progress" not in html       # progress panel gone
+    assert str(timezone.localdate().year) in html   # a real issue date
+    assert "cy-cert-note" in html               # the earned note, with the PDF promise

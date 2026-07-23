@@ -436,23 +436,42 @@ def badges(request):
 
 @login_required
 def certificate(request):
-    """Progress toward the completion certificate.
+    """The completion certificate — its on-screen design, plus a progress state.
 
-    The certificate PDF itself is Sprint 5. This page shows how close the
-    student is (modules complete of total) and an earned/locked state, so the
-    sidebar item leads somewhere real rather than a dead link.
+    The real awarding (a Certificate row + a downloadable, verifiable PDF) lands
+    with the quiz engine in Sprint 5. Here we render the certificate design
+    populated with real data (name, the six modules), and show a progress
+    preview until all modules are complete. The verification code is a clearly
+    labelled sample — no fake "verified" claim.
     """
+    import uuid
+
+    from django.utils import timezone
+
     prog = g.module_progress(request.user)
     done = sum(1 for mp in prog if mp.complete)
     total = len(prog)
+    earned = total > 0 and done >= total
+
+    # Stable per-student sample code, so it looks like a real credential without
+    # pretending to be one (the persistent UUID is issued with the PDF later).
+    raw = uuid.uuid5(uuid.NAMESPACE_DNS, f"cybaroo-cert-{request.user.pk}").hex.upper()
+    sample_code = f"CYB-{raw[:4]}-{raw[4:8]}-{raw[8:12]}"
+
     return render(
         request,
         "modules/certificate.html",
         {
             "active": "certificate",
+            "modules": [
+                {"title": mp.module.title, "complete": mp.complete} for mp in prog
+            ],
             "modules_done": done,
             "modules_total": total,
             "percent": round(done / total * 100) if total else 0,
-            "earned": total > 0 and done >= total,
+            "earned": earned,
+            "student_name": request.user.get_full_name() or request.user.email,
+            "issue_date": timezone.localdate(),
+            "sample_code": sample_code,
         },
     )

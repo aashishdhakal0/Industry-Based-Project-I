@@ -1,9 +1,12 @@
 {% extends "app_base.html" %}
 
 {% comment %}
-  Progress toward the completion certificate. The certificate PDF itself is
-  Sprint 5; this page shows how close the student is and an earned/locked state,
-  so the sidebar item leads somewhere real.
+  The completion certificate — its on-screen design, plus a progress state.
+
+  Real data: the student's name and the six real modules. The verification code
+  is a clearly-labelled sample; the issue date only appears once earned. The
+  downloadable, verifiable PDF is issued with the quiz engine (Sprint 5) — this
+  page shows the design and the progress toward it, with no fake claims.
 {% endcomment %}
 
 {% block title %}Certificate — {{ site_name }}{% endblock %}
@@ -17,37 +20,78 @@
   </div>
 </div>
 
-<div class="cy-cert cy-rise" style="--cy-delay: 0.05s;">
-  <div class="cy-cert__seal {% if earned %}is-earned{% endif %}">
-    <svg class="cy-i" aria-hidden="true"><use href="#i-award"/></svg>
-  </div>
-
-  {% if earned %}
-    <h2 class="cy-cert__title">You've earned it</h2>
-    <p class="cy-cert__lede">
-      You've completed every module. Your certificate will be available to
-      download here shortly.
-    </p>
-  {% else %}
-    <h2 class="cy-cert__title">Finish all {{ modules_total }} modules to earn your certificate</h2>
-    <p class="cy-cert__lede">
-      Complete every module and you'll earn a certificate to share with your
-      team, your board, or your auditor.
-    </p>
-  {% endif %}
-
-  <div class="cy-progress-row" style="max-width: 26rem; margin: 1.5rem auto 0.5rem;">
-    <div class="cy-progress">
-      <div class="cy-progress__fill" style="--cy-value: {{ percent }}%;"></div>
+{% if not earned %}
+  {# Progress toward the certificate #}
+  <div class="cy-cert-progress cy-elev cy-rise" style="--cy-delay: 0.05s;">
+    <div class="cy-cert-progress__body">
+      <div class="cy-cert-progress__icon"><svg class="cy-i" aria-hidden="true"><use href="#i-award"/></svg></div>
+      <div>
+        <h2 class="cy-cert-progress__title">{{ modules_done }} of {{ modules_total }} modules complete</h2>
+        <p class="cy-cert-progress__text">Complete all {{ modules_total }} modules to earn your certificate — a credential you can share with your team, your board, or your auditor.</p>
+      </div>
     </div>
-    <span class="cy-progress-row__value">{{ modules_done }}/{{ modules_total }}</span>
-  </div>
-
-  {% if not earned %}
-    <a class="cy-btn cy-btn--primary" style="margin-top: 1.5rem;" href="{% url 'learn:browser' %}">
+    <div class="cy-progress" style="margin: 1.25rem 0 0.5rem;"><div class="cy-progress__fill" style="--cy-value: {{ percent }}%;"></div></div>
+    <a class="cy-btn cy-btn--primary" style="margin-top: 1rem;" href="{% url 'learn:browser' %}">
       Keep going <svg class="cy-i" aria-hidden="true"><use href="#i-arrow-right"/></svg>
     </a>
-  {% endif %}
+  </div>
+
+  <p class="cy-cert-preview-label">A preview of the certificate you'll earn</p>
+{% endif %}
+
+{# The certificate document — the same design, previewed until earned. #}
+<div class="cy-cert-wrap cy-rise {% if not earned %}is-preview{% endif %}" style="--cy-delay: 0.1s;">
+  {% if not earned %}<span class="cy-cert-ribbon">Preview</span>{% endif %}
+  <div class="cy-certificate" aria-label="Certificate of completion">
+    <div class="cy-certificate__frame">
+
+      <div class="cy-certificate__seal" aria-hidden="true">
+        <span class="cy-mark"></span>
+      </div>
+      <div class="cy-certificate__brand">{{ site_name }}</div>
+
+      <div class="cy-certificate__kicker">Certificate of Completion</div>
+
+      <p class="cy-certificate__intro">This is to certify that</p>
+      <p class="cy-certificate__name">{{ student_name }}</p>
+      <p class="cy-certificate__body">
+        has successfully completed the <strong>Network Security Training Platform</strong>,
+        covering all {{ modules_total }} modules of essential cyber-safety training.
+      </p>
+
+      <ul class="cy-certificate__modules">
+        {% for m in modules %}
+          <li class="{% if m.complete %}is-done{% endif %}">
+            <svg class="cy-i" aria-hidden="true"><use href="#{% if m.complete %}i-check{% else %}i-lock{% endif %}"/></svg>
+            {{ m.title }}
+          </li>
+        {% endfor %}
+      </ul>
+
+      <div class="cy-certificate__foot">
+        <div class="cy-certificate__foot-item">
+          <span class="cy-certificate__foot-label">Issued</span>
+          <span class="cy-certificate__foot-value">{% if earned %}{{ issue_date|date:"j F Y" }}{% else %}On completion{% endif %}</span>
+        </div>
+        <div class="cy-certificate__foot-item">
+          <span class="cy-certificate__foot-label">Verification code <em>(sample)</em></span>
+          <span class="cy-certificate__foot-value cy-certificate__code">{{ sample_code }}</span>
+        </div>
+        <div class="cy-certificate__foot-item cy-certificate__sign">
+          <span class="cy-certificate__sign-line"></span>
+          <span class="cy-certificate__foot-label">AUSDAIS PTY LTD</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
 </div>
+
+{% if earned %}
+  <div class="cy-cert-note cy-rise" style="--cy-delay: 0.14s;">
+    <svg class="cy-i" aria-hidden="true"><use href="#i-award"/></svg>
+    <span>You've earned it. A downloadable, verifiable PDF of your certificate will be available here soon.</span>
+  </div>
+{% endif %}
 
 {% endblock %}
