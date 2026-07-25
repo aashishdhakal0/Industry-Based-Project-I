@@ -3126,18 +3126,19 @@ body.cy-body {
   font-weight: 600;
   text-align: center;
 }
-.cy-cal__nav {
+.cy-cal__nav {                       /* neat circular icon buttons */
   align-items: center;
   background: var(--cy-surface-3);
   border: 1px solid var(--cy-border);
-  border-radius: 9px;
+  border-radius: 50%;
   color: var(--cy-text-2);
+  cursor: pointer;
   display: inline-flex;
   flex: none;
-  height: 30px;
+  height: 32px;
   justify-content: center;
   transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
-  width: 30px;
+  width: 32px;
 }
 .cy-cal__nav:hover {
   background: var(--cy-surface-2);
@@ -3145,26 +3146,28 @@ body.cy-body {
   color: var(--cy-text);
 }
 .cy-cal__nav .cy-i { height: 16px; width: 16px; }
-.cy-cal__nav.is-disabled {
+.cy-cal__nav.is-disabled {           /* forward arrow on the current month */
   color: var(--cy-text-3);
   cursor: default;
-  opacity: 0.3;
+  opacity: 0.28;
   pointer-events: none;
 }
 
+/* Seven equal columns. The weekday header row shares the same track sizing, so
+   each label sits dead-centre over its column of day cells. */
 .cy-cal__row {
   display: grid;
-  gap: 3px;
+  gap: 4px;
   grid-template-columns: repeat(7, 1fr);
 }
-.cy-cal__row + .cy-cal__row { margin-top: 3px; }
+.cy-cal__row + .cy-cal__row { margin-top: 4px; }
+.cy-cal__row--head { margin-bottom: 0.55rem; }
 
 .cy-cal__wd {
   color: var(--cy-text-3);
-  font-size: 0.66rem;
+  font-size: 0.64rem;
   font-weight: 600;
-  letter-spacing: 0.02em;
-  padding-bottom: 0.4rem;
+  letter-spacing: 0.04em;
   text-align: center;
   text-transform: uppercase;
 }
@@ -3172,14 +3175,15 @@ body.cy-body {
 .cy-cal__day {
   align-items: center;
   aspect-ratio: 1;
-  border-radius: 8px;
+  border-radius: 9px;
   color: var(--cy-text-2);
   display: flex;
   font-family: var(--cy-font-mono);
-  font-size: 0.8rem;
+  font-size: 0.82rem;
   justify-content: center;
+  line-height: 1;
 }
-.cy-cal__day.is-out { color: var(--cy-text-3); opacity: 0.4; }
+.cy-cal__day.is-out { color: var(--cy-text-3); opacity: 0.32; }   /* spillover, clearly dimmer */
 
 /* Active days carry a number, so they take the DEEP CTA gradient with a light
    label (never the bright one — that's for text on the page, not fills under
@@ -3202,22 +3206,33 @@ body.cy-body {
   color: #fff;
 }
 
+/* Footer: divided from the grid, a muted summary beside a gradient key. */
 .cy-cal__foot {
   align-items: center;
-  color: var(--cy-text-2);
+  border-top: 1px solid var(--cy-border);
+  color: var(--cy-text-3);
   display: flex;
   gap: 0.55rem;
   margin-top: 1rem;
+  padding-top: 0.9rem;
 }
 .cy-cal__key {
   background: var(--cy-grad-cta);
   border-radius: 5px;
   box-shadow: 0 0 0 1px rgba(155, 123, 248, 0.4);
   flex: none;
-  height: 14px;
-  width: 14px;
+  height: 13px;
+  width: 13px;
 }
-.cy-cal__summary { font-size: 0.85rem; }
+.cy-cal__summary { font-size: 0.82rem; }
+
+/* Cells shrink evenly on a narrow rail; the grid never breaks (fr columns). */
+@media (max-width: 380px) {
+  .cy-cal { padding: 1.15rem 1.1rem; }
+  .cy-cal__day { border-radius: 7px; font-size: 0.76rem; }
+  .cy-cal__row { gap: 3px; }
+  .cy-cal__row + .cy-cal__row { margin-top: 3px; }
+}
 
 /* A gentle settle for the active days as the month paints in. The global
    reduced-motion reset neutralises it; the no-preference gate is belt-and-braces. */
