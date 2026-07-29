@@ -232,8 +232,9 @@ def test_an_imperfect_simulation_does_not_earn_sharp_eye(student, modules):
 def test_module_progress_is_a_fixed_number_of_queries(student, make_module, django_assert_max_num_queries):
     for i in range(1, 7):
         make_module(i)
-    # Two queries regardless of how many modules exist.
-    with django_assert_max_num_queries(2):
+    # Four queries regardless of module count: lessons, lesson-progress, the
+    # gated-module set, and the passed-quiz set. Still O(1), not O(modules).
+    with django_assert_max_num_queries(4):
         g.module_progress(student)
 
 

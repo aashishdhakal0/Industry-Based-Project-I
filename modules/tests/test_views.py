@@ -175,8 +175,11 @@ def test_browser_query_count_is_bounded(client_student, make_module, django_asse
     for i in range(1, 7):
         make_module(i)
     # Whatever the fixed cost is, it must not grow with module count. Generous
-    # ceiling: auth, session, profile, and the two progress queries.
-    with django_assert_max_num_queries(12):
+    # ceiling: auth, session, profile, and the progress queries (module_progress
+    # now runs four — lessons, lesson-progress, gated-module set, passed-quiz set
+    # — and the view resolves it more than once). Six modules seeded; the point
+    # of the test is that this stays flat, not that it's minimal.
+    with django_assert_max_num_queries(18):
         client_student.get(reverse("learn:browser"))
 
 

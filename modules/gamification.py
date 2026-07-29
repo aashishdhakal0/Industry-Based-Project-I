@@ -19,7 +19,7 @@ from django.db.models import Count, F, Q
 from django.utils import timezone
 
 from authentication.models import UserProfile
-from quizzes.models import QuizResult
+from quizzes.models import Quiz, QuizResult
 
 from . import badges as badge_catalogue
 from .models import Module, ProgressRecord, Simulation, SimulationResult
@@ -110,12 +110,31 @@ def module_progress(user):
         .annotate(n=Count("lesson", distinct=True))
     )
 
+    # A module with an active quiz is only complete once that quiz is passed —
+    # lessons teach, the quiz proves it, and the pass is what unlocks the next
+    # module. Modules with no active quiz (yet) fall back to lessons-only, so
+    # nothing that predates its quiz regresses. Two bounded queries, whatever
+    # the module count.
+    module_ids = [m.id for m in modules]
+    gated_module_ids = set(
+        Quiz.objects.filter(module_id__in=module_ids, is_active=True).values_list(
+            "module_id", flat=True
+        )
+    )
+    passed_module_ids = set(
+        QuizResult.objects.filter(
+            user=user, passed=True, quiz__module_id__in=module_ids
+        ).values_list("quiz__module_id", flat=True)
+    )
+
     out = []
     prev_complete = True  # the first module is always unlocked
     for m in modules:
         total = m.total_lessons
         done = done_map.get(m.id, 0)
-        complete = total > 0 and done >= total
+        lessons_done = total > 0 and done >= total
+        quiz_passed = m.id not in gated_module_ids or m.id in passed_module_ids
+        complete = lessons_done and quiz_passed
         out.append(
             ModuleProgress(
                 module=m,
