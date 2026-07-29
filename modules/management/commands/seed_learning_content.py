@@ -18,7 +18,9 @@ from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 
 from authentication.models import User
+from modules.content import module_one
 from modules.models import Lesson, Module, Simulation
+from quizzes.models import Answer, Question, Quiz
 
 # (title, description, difficulty, four lesson titles)
 MODULES = [
@@ -204,6 +206,44 @@ def _placeholder_sim(module_title):
     }
 
 
+def _seed_module_one_quiz(module, lessons_by_number):
+    """Seed Module 1's real quiz and its 15-question bank, idempotently.
+
+    Questions key on (quiz, ordering) and options on (question, option_text), so
+    re-running updates the wording in place rather than duplicating. Every option
+    carries an explanation — the Adaptive Feedback Engine's fuel.
+    """
+    quiz_data = module_one.QUIZ
+    quiz, _ = Quiz.objects.update_or_create(
+        module=module,
+        defaults={
+            "pass_mark": quiz_data["pass_mark"],
+            "is_active": True,
+            "time_limit_minutes": 30,
+        },
+    )
+    for ordering, q in enumerate(quiz_data["questions"], start=1):
+        question, _ = Question.objects.update_or_create(
+            quiz=quiz,
+            ordering=ordering,
+            defaults={
+                "question_text": q["text"],
+                "difficulty": q["difficulty"],
+                "lesson_reference": lessons_by_number[q["lesson"]],
+            },
+        )
+        for option_text, is_correct, explanation in q["options"]:
+            Answer.objects.update_or_create(
+                question=question,
+                option_text=option_text,
+                defaults={
+                    "correct_answer": is_correct,
+                    "explanation_text": explanation,
+                },
+            )
+    return quiz
+
+
 class Command(BaseCommand):
     help = "Create/refresh the six training modules, their lessons and simulations."
 
@@ -232,17 +272,30 @@ class Command(BaseCommand):
                 },
             )
 
+            # Module 1 ships with real, finished lesson content; the rest carry
+            # the rich placeholder until their turn.
+            real_lessons = module_one.LESSONS if index == 1 else None
+            lessons_by_number = {}
             for n, lesson_title in enumerate(lesson_titles, start=1):
-                Lesson.objects.update_or_create(
-                    module=module,
-                    lesson_number=n,
-                    defaults={
+                if real_lessons:
+                    spec = real_lessons[n - 1]
+                    lesson_defaults = {
+                        "title": spec["title"],
+                        "body_text": spec["body"],
+                        "reading_time_minutes": spec["reading_time_minutes"],
+                        "is_active": True,
+                    }
+                else:
+                    lesson_defaults = {
                         "title": lesson_title,
                         "body_text": _placeholder_body(title, lesson_title),
                         "reading_time_minutes": 8,
                         "is_active": True,
-                    },
+                    }
+                lesson, _ = Lesson.objects.update_or_create(
+                    module=module, lesson_number=n, defaults=lesson_defaults
                 )
+                lessons_by_number[n] = lesson
 
             sim_data = PHISHING_SIM if index == 1 else _placeholder_sim(title)
             Simulation.objects.update_or_create(
@@ -254,11 +307,19 @@ class Command(BaseCommand):
                 },
             )
 
-            self.stdout.write(f"  module {index}: {title}  (4 lessons, 1 simulation)")
+            if index == 1:
+                quiz = _seed_module_one_quiz(module, lessons_by_number)
+                self.stdout.write(
+                    f"  module {index}: {title}  (4 lessons, 1 simulation, "
+                    f"quiz with {quiz.questions.count()} questions)"
+                )
+            else:
+                self.stdout.write(f"  module {index}: {title}  (4 lessons, 1 simulation)")
 
         self.stdout.write(
             self.style.SUCCESS(
                 f"Seeded {len(MODULES)} modules, "
-                f"{len(MODULES) * 4} lessons, {len(MODULES)} simulations."
+                f"{len(MODULES) * 4} lessons, {len(MODULES)} simulations, "
+                "Module 1 quiz."
             )
         )
