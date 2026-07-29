@@ -159,9 +159,21 @@ def is_module_unlocked(user, module):
     return False
 
 
-def continue_target(user):
-    """The next thing to do: (module, lesson) for the first unlocked, unfinished
-    module's lowest incomplete lesson, or None if everything's done."""
+@dataclass
+class NextStep:
+    kind: str      # "lesson" | "quiz"
+    module: object
+    lesson: object  # None for a quiz step
+
+
+def next_step(user):
+    """The single next thing to do in the journey, or None if everything's done.
+
+    It's the first unlocked, unfinished module's lowest incomplete lesson; once a
+    module's lessons are all done it's the module's quiz (which is what still
+    stands between the student and completing the module). The invariant from
+    module_progress guarantees a quiz exists whenever lessons are done but the
+    module isn't complete."""
     for mp in module_progress(user):
         if not mp.unlocked or mp.complete:
             continue
@@ -177,7 +189,17 @@ def continue_target(user):
             .first()
         )
         if lesson:
-            return mp.module, lesson
+            return NextStep("lesson", mp.module, lesson)
+        return NextStep("quiz", mp.module, None)
+    return None
+
+
+def continue_target(user):
+    """(module, lesson) for the next incomplete lesson, or None. Kept for callers
+    that only care about lessons; the quiz step is exposed via next_step."""
+    step = next_step(user)
+    if step and step.kind == "lesson":
+        return step.module, step.lesson
     return None
 
 

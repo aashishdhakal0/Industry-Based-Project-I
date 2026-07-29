@@ -20,13 +20,18 @@
 
 {% if continue_module %}
   <a class="cy-continue cy-rise" style="--cy-delay: 0.05s;"
-     href="{% url 'learn:module' continue_module.order_index %}">
+     href="{% if continue_kind == 'quiz' %}{% url 'learn:quiz' continue_module.order_index %}{% else %}{% url 'learn:module' continue_module.order_index %}{% endif %}">
     <div>
-      <span class="cy-continue__label">Continue where you left off</span>
-      <span class="cy-continue__title">{{ continue_module.title }} · {{ continue_lesson.title }}</span>
+      {% if continue_kind == 'quiz' %}
+        <span class="cy-continue__label">Ready when you are</span>
+        <span class="cy-continue__title">{{ continue_module.title }} · module quiz</span>
+      {% else %}
+        <span class="cy-continue__label">Continue where you left off</span>
+        <span class="cy-continue__title">{{ continue_module.title }} · {{ continue_lesson.title }}</span>
+      {% endif %}
     </div>
     <span class="cy-btn cy-btn--primary cy-btn--sm">
-      Resume <svg class="cy-i" aria-hidden="true"><use href="#i-arrow-right"/></svg>
+      {% if continue_kind == 'quiz' %}Take the quiz{% else %}Resume{% endif %} <svg class="cy-i" aria-hidden="true"><use href="#i-arrow-right"/></svg>
     </span>
   </a>
 {% endif %}

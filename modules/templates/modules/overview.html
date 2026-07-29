@@ -84,16 +84,51 @@
       </li>
     {% endif %}
 
-    {% comment %} The quiz arrives in Sprint 3; shown greyed so the module's shape is clear. {% endcomment %}
-    <li class="cy-path__step is-soon">
-      <div class="cy-path__link">
-        <span class="cy-path__node"><svg class="cy-i" aria-hidden="true"><use href="#i-award"/></svg></span>
-        <span class="cy-path__body">
-          <span class="cy-path__label">Quiz</span>
-          <span class="cy-path__title">Coming soon</span>
-        </span>
-      </div>
-    </li>
+    {% if quiz %}
+      {% if quiz_passed %}
+        <li class="cy-path__step cy-path__step--quiz is-done">
+          <a class="cy-path__link" href="{% url 'learn:quiz_result' module.order_index %}">
+            <span class="cy-path__node"><svg class="cy-i" aria-hidden="true"><use href="#i-check"/></svg></span>
+            <span class="cy-path__body">
+              <span class="cy-path__label">Quiz</span>
+              <span class="cy-path__title">Passed — module complete</span>
+            </span>
+            <span class="cy-path__tag">Passed</span>
+          </a>
+        </li>
+      {% elif all_lessons_done %}
+        <li class="cy-path__step cy-path__step--quiz is-current">
+          <a class="cy-path__link" href="{% url 'learn:quiz' module.order_index %}">
+            <span class="cy-path__node"><svg class="cy-i" aria-hidden="true"><use href="#i-award"/></svg></span>
+            <span class="cy-path__body">
+              <span class="cy-path__label">Quiz</span>
+              <span class="cy-path__title">Take the quiz to complete this module</span>
+            </span>
+            <span class="cy-btn cy-btn--primary cy-btn--sm">Take the quiz</span>
+          </a>
+        </li>
+      {% else %}
+        <li class="cy-path__step cy-path__step--quiz is-soon">
+          <div class="cy-path__link">
+            <span class="cy-path__node"><svg class="cy-i" aria-hidden="true"><use href="#i-lock"/></svg></span>
+            <span class="cy-path__body">
+              <span class="cy-path__label">Quiz</span>
+              <span class="cy-path__title">Finish the lessons to unlock</span>
+            </span>
+          </div>
+        </li>
+      {% endif %}
+    {% else %}
+      <li class="cy-path__step is-soon">
+        <div class="cy-path__link">
+          <span class="cy-path__node"><svg class="cy-i" aria-hidden="true"><use href="#i-award"/></svg></span>
+          <span class="cy-path__body">
+            <span class="cy-path__label">Quiz</span>
+            <span class="cy-path__title">Coming soon</span>
+          </span>
+        </div>
+      </li>
+    {% endif %}
   </ol>
 
 </div>

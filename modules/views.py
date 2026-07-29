@@ -13,6 +13,8 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views.decorators.http import require_POST
 
+from quizzes.models import QuizResult
+
 from . import gamification as g
 from .models import Lesson, Module, ProgressRecord
 from .presentation import decorate
@@ -49,7 +51,7 @@ def browser(request):
             mp.link = reverse("learn:module", args=[mp.module.order_index])
         mp.progress_label = f"{mp.done_lessons}/{mp.total_lessons}"
 
-    target = g.continue_target(request.user)
+    step = g.next_step(request.user)
     profile = g.get_profile(request.user)
 
     return render(
@@ -57,8 +59,9 @@ def browser(request):
         "modules/browser.html",
         {
             "progress": progress,
-            "continue_module": target[0] if target else None,
-            "continue_lesson": target[1] if target else None,
+            "continue_module": step.module if step else None,
+            "continue_lesson": step.lesson if step else None,
+            "continue_kind": step.kind if step else None,
             "level": g.level_for_points(profile.points),
             "profile": profile,
             "modules_done": sum(1 for mp in progress if mp.complete),
@@ -92,6 +95,13 @@ def module_overview(request, order_index):
         simulation is not None and simulation.results.filter(user=request.user).exists()
     )
 
+    quiz = getattr(module, "quiz", None)
+    if quiz is not None and not quiz.is_active:
+        quiz = None
+    quiz_passed = quiz is not None and QuizResult.objects.filter(
+        user=request.user, quiz=quiz, passed=True
+    ).exists()
+
     next_lesson = next((lesson for lesson in lessons if not lesson.is_done), None)
 
     return render(
@@ -105,6 +115,8 @@ def module_overview(request, order_index):
             "percent": round(len(done_numbers) / len(lessons) * 100) if lessons else 0,
             "simulation": simulation,
             "sim_done": sim_done,
+            "quiz": quiz,
+            "quiz_passed": quiz_passed,
             "next_lesson": next_lesson,
             "all_lessons_done": bool(lessons) and next_lesson is None,
             "reward_flash": reward_flash,
@@ -322,7 +334,7 @@ def dashboard(request):
             mp.link = reverse("learn:module", args=[mp.module.order_index])
         mp.progress_label = f"{mp.done_lessons}/{mp.total_lessons}"
 
-    target = g.continue_target(request.user)
+    step = g.next_step(request.user)
     earned = set(profile.badges or [])
 
     # Recent activity — the last few lessons actually completed, newest first.
@@ -347,9 +359,7 @@ def dashboard(request):
 
     # Mark the current stop for the roadmap: the first unlocked, unfinished
     # module (the one the student is on right now).
-    current_index = None
-    if target:
-        current_index = target[0].order_index
+    current_index = step.module.order_index if step else None
 
     level = g.level_for_points(profile.points)
     stats = g.student_stats(request.user)
@@ -389,8 +399,9 @@ def dashboard(request):
                 if progress else 0
             ),
             "lessons_done": lessons_done,
-            "continue_module": target[0] if target else None,
-            "continue_lesson": target[1] if target else None,
+            "continue_module": step.module if step else None,
+            "continue_lesson": step.lesson if step else None,
+            "continue_kind": step.kind if step else None,
             "is_first_time": profile.points == 0 and lessons_done == 0,
             "recent": recent,
             "calendar": calendar,

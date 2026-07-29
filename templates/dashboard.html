@@ -87,15 +87,23 @@
 
     <div class="cy-dash-grid__main">
       {% if continue_module %}
-        <a class="cy-hero-continue" href="{% url 'learn:module' continue_module.order_index %}">
+        <a class="cy-hero-continue"
+           href="{% if continue_kind == 'quiz' %}{% url 'learn:quiz' continue_module.order_index %}{% else %}{% url 'learn:module' continue_module.order_index %}{% endif %}">
           <div class="cy-hero-continue__glow" aria-hidden="true"></div>
           <div class="cy-hero-continue__body">
-            <span class="cy-hero-continue__label">Pick up where you left off</span>
-            <span class="cy-hero-continue__title">{{ continue_lesson.title }}</span>
-            <span class="cy-hero-continue__sub">{{ continue_module.title }}</span>
+            {% if continue_kind == 'quiz' %}
+              <span class="cy-hero-continue__label">Ready when you are</span>
+              <span class="cy-hero-continue__title">Take the {{ continue_module.title }} quiz</span>
+              <span class="cy-hero-continue__sub">Lessons done — pass the quiz to unlock the next module</span>
+            {% else %}
+              <span class="cy-hero-continue__label">Pick up where you left off</span>
+              <span class="cy-hero-continue__title">{{ continue_lesson.title }}</span>
+              <span class="cy-hero-continue__sub">{{ continue_module.title }}</span>
+            {% endif %}
           </div>
           <span class="cy-hero-continue__cta cy-btn cy-btn--primary cy-btn--lg">
-            Continue <svg class="cy-i" aria-hidden="true"><use href="#i-arrow-right"/></svg>
+            {% if continue_kind == 'quiz' %}Take the quiz{% else %}Continue{% endif %}
+            <svg class="cy-i" aria-hidden="true"><use href="#i-arrow-right"/></svg>
           </span>
         </a>
       {% else %}

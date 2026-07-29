@@ -223,3 +223,64 @@ def test_quiz_and_result_pages_are_clean_and_in_the_app_shell(client_student, qu
         for token in LEAKS:
             assert token not in html, f"{url} leaked {token!r}"
         assert not EMOJI.findall(html), f"{url} contains emoji"
+
+
+# --------------------------------------------------------------------------
+# The journey — the quiz woven into the module overview and the dashboard
+# --------------------------------------------------------------------------
+
+
+@pytest.mark.django_db
+def test_overview_locks_the_quiz_until_the_lessons_are_done(client_student, quiz):
+    html = client_student.get(reverse("learn:module", args=[quiz.module.order_index])).content.decode()
+    assert "Finish the lessons to unlock" in html
+    assert reverse("learn:quiz", args=[quiz.module.order_index]) not in html
+
+
+@pytest.mark.django_db
+def test_overview_offers_the_quiz_once_lessons_are_done(client_student, quiz, student):
+    finish_lessons(student, quiz.module)
+    html = client_student.get(reverse("learn:module", args=[quiz.module.order_index])).content.decode()
+    assert "Take the quiz" in html
+    assert reverse("learn:quiz", args=[quiz.module.order_index]) in html
+
+
+@pytest.mark.django_db
+def test_overview_marks_the_quiz_passed_after_a_pass(client_student, quiz, student):
+    finish_lessons(student, quiz.module)
+    ids = take_and_get_attempt(client_student, quiz.module)["question_ids"]
+    submit(client_student, quiz.module, ids, correct=10)
+    html = client_student.get(reverse("learn:module", args=[quiz.module.order_index])).content.decode()
+    assert "Passed" in html
+
+
+@pytest.mark.django_db
+def test_dashboard_points_at_the_quiz_when_lessons_are_done_but_quiz_pending(
+    client_student, quiz, student
+):
+    finish_lessons(student, quiz.module)
+    html = client_student.get(reverse("dashboard")).content.decode()
+    assert "Take the quiz" in html
+    assert reverse("learn:quiz", args=[quiz.module.order_index]) in html
+
+
+@pytest.mark.django_db
+def test_full_module_one_journey_unlocks_module_two(client_student, quiz, student, make_module):
+    """Learn -> practise -> quiz -> pass -> the next module opens."""
+    two = make_module(2)
+
+    # Before: module two is locked (module one not complete).
+    assert client_student.get(reverse("learn:module", args=[2])).status_code == 403
+
+    # Learn every lesson, then pass the quiz.
+    finish_lessons(student, quiz.module)
+    ids = take_and_get_attempt(client_student, quiz.module)["question_ids"]
+    resp = submit(client_student, quiz.module, ids, correct=10)
+    result_html = client_student.get(resp.url).content.decode()
+    assert "passed" in result_html.lower()
+    assert reverse("learn:module", args=[2]) in result_html  # "continue to module 2"
+
+    # After: module two is open, and module one reads complete on the map.
+    assert client_student.get(reverse("learn:module", args=[2])).status_code == 200
+    progress = {mp.module.order_index: mp for mp in g.module_progress(student)}
+    assert progress[1].complete is True and progress[2].unlocked is True
