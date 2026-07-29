@@ -1,0 +1,73 @@
+{% extends "app_base.html" %}
+
+{% comment %}
+  The quiz result. Slice 2: score, pass/fail, the reward moment, and one clear
+  next step. The Adaptive Feedback Engine's per-question breakdown and study
+  plan are added to this page in the next slice.
+{% endcomment %}
+
+{% block title %}Quiz result — {{ module.title }} — {{ site_name }}{% endblock %}
+
+{% block content %}
+
+<div class="cy-page-title cy-rise">
+  <div>
+    <p class="cy-page-title__eyebrow">{{ module.title }}</p>
+    <h1 class="cy-page-title__h">Quiz result</h1>
+  </div>
+</div>
+
+<div class="cy-result cy-elev cy-rise {% if passed %}is-pass{% else %}is-fail{% endif %}"
+     style="--cy-delay: 0.05s;">
+  <div class="cy-result__score" style="--cy-score: {{ result.score }};">
+    <span class="cy-result__score-num">{{ result.score }}<span class="cy-result__score-pct">%</span></span>
+    <span class="cy-result__score-label">score</span>
+  </div>
+  <div class="cy-result__headline">
+    {% if passed %}
+      <p class="cy-result__eyebrow">Passed · {{ quiz.pass_mark }}% needed</p>
+      <h2 class="cy-result__title">Well done — you've passed.</h2>
+      <p class="cy-result__lede">You've shown you know this module. The next module is now unlocked.</p>
+    {% else %}
+      <p class="cy-result__eyebrow">Not passed yet · {{ quiz.pass_mark }}% needed</p>
+      <h2 class="cy-result__title">So close — a quick revisit and you've got this.</h2>
+      <p class="cy-result__lede">No penalty for another go. A little revision first will make the difference.</p>
+    {% endif %}
+  </div>
+</div>
+
+{% if reward and passed %}
+  <div class="cy-result__reward cy-rise" style="--cy-delay: 0.1s;">
+    {% if reward.awarded_points %}
+      <span class="cy-result__chip"><svg class="cy-i" aria-hidden="true"><use href="#i-hex"/></svg> +{{ reward.awarded_points }} points</span>
+    {% endif %}
+    {% for b in reward.new_badges %}
+      <span class="cy-result__chip cy-result__chip--badge"><svg class="cy-i" aria-hidden="true"><use href="#{{ b.icon }}"/></svg> {{ b.name }}</span>
+    {% endfor %}
+    {% if reward.streak %}
+      <span class="cy-result__chip"><svg class="cy-i" aria-hidden="true"><use href="#i-flame"/></svg> {{ reward.streak }}-day streak</span>
+    {% endif %}
+  </div>
+{% endif %}
+
+<div class="cy-result__actions cy-rise" style="--cy-delay: 0.14s;">
+  {% if passed %}
+    {% if next_module %}
+      <a class="cy-btn cy-btn--primary cy-btn--lg" href="{% url 'learn:module' next_module.order_index %}">
+        Continue to {{ next_module.title }} <svg class="cy-i" aria-hidden="true"><use href="#i-arrow-right"/></svg>
+      </a>
+    {% else %}
+      <a class="cy-btn cy-btn--primary cy-btn--lg" href="{% url 'learn:certificate' %}">
+        See your certificate <svg class="cy-i" aria-hidden="true"><use href="#i-award"/></svg>
+      </a>
+    {% endif %}
+    <a class="cy-nav__link" href="{% url 'learn:module' module.order_index %}">Back to {{ module.title }}</a>
+  {% else %}
+    <a class="cy-btn cy-btn--primary cy-btn--lg" href="{% url 'learn:quiz' module.order_index %}">
+      Retake the quiz <svg class="cy-i" aria-hidden="true"><use href="#i-arrow-right"/></svg>
+    </a>
+    <a class="cy-nav__link" href="{% url 'learn:module' module.order_index %}">Revise the lessons first</a>
+  {% endif %}
+</div>
+
+{% endblock %}

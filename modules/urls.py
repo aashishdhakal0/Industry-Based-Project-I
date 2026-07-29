@@ -2,6 +2,8 @@
 
 from django.urls import path
 
+from quizzes import views as quiz_views
+
 from . import views
 
 app_name = "learn"
@@ -28,4 +30,9 @@ urlpatterns = [
         views.complete_simulation,
         name="complete_simulation",
     ),
+    # Quiz — module-scoped, but implemented in the quizzes app.
+    path("m/<int:order_index>/quiz/", quiz_views.quiz, name="quiz"),
+    path("m/<int:order_index>/quiz/save/", quiz_views.save_answer, name="quiz_save"),
+    path("m/<int:order_index>/quiz/submit/", quiz_views.submit_quiz, name="quiz_submit"),
+    path("m/<int:order_index>/quiz/result/", quiz_views.quiz_result, name="quiz_result"),
 ]

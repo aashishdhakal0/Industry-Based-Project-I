@@ -1,0 +1,77 @@
+{% extends "app_base.html" %}
+{% load static %}
+
+{% comment %}
+  The quiz paper. Progressive enhancement: without JS every question shows in
+  one scrollable form with a single Submit at the bottom — fully working. With
+  JS (quiz.js) it becomes a one-question-at-a-time stepper with a progress bar
+  and save-as-you-go. No timer, by design.
+{% endcomment %}
+
+{% block title %}Quiz — {{ module.title }} — {{ site_name }}{% endblock %}
+
+{% block content %}
+
+<div class="cy-page-title cy-rise">
+  <div>
+    <p class="cy-page-title__eyebrow">{{ module.title }}</p>
+    <h1 class="cy-page-title__h">Module quiz</h1>
+  </div>
+</div>
+
+<p class="cy-quiz__intro cy-rise" style="--cy-delay: 0.04s;">
+  {{ total }} questions · pass mark {{ quiz.pass_mark }}%. Take your time — there's
+  no timer, and you can retake it if you need to.
+</p>
+
+<form class="cy-quiz cy-elev cy-rise" style="--cy-delay: 0.08s;"
+      method="post"
+      action="{% url 'learn:quiz_submit' module.order_index %}"
+      data-quiz
+      data-save-url="{% url 'learn:quiz_save' module.order_index %}"
+      data-total="{{ total }}">
+  {% csrf_token %}
+
+  <div class="cy-quiz__progress" data-quiz-progress hidden>
+    <div class="cy-quiz__bar"><div class="cy-quiz__bar-fill" data-quiz-fill></div></div>
+    <p class="cy-quiz__count" data-quiz-count>Question 1 of {{ total }}</p>
+  </div>
+
+  {% for q in questions %}
+    <fieldset class="cy-quiz__q" data-quiz-q data-qid="{{ q.id }}">
+      <legend class="cy-quiz__q-text">
+        <span class="cy-quiz__q-num">Question {{ q.number }}</span>
+        {{ q.question_text }}
+      </legend>
+      <div class="cy-quiz__options">
+        {% for a in q.answers.all %}
+          <label class="cy-quiz__opt">
+            <input type="radio" name="q{{ q.id }}" value="{{ a.id }}"
+                   {% if q.saved == a.id %}checked{% endif %}>
+            <span class="cy-quiz__opt-marker" aria-hidden="true"></span>
+            <span class="cy-quiz__opt-text">{{ a.option_text }}</span>
+          </label>
+        {% endfor %}
+      </div>
+    </fieldset>
+  {% endfor %}
+
+  <div class="cy-quiz__nav">
+    <button type="button" class="cy-btn cy-btn--ghost" data-quiz-back hidden>
+      <svg class="cy-i" aria-hidden="true"><use href="#i-chevron-left"/></svg> Back
+    </button>
+    <span class="cy-quiz__nav-spacer"></span>
+    <button type="button" class="cy-btn cy-btn--primary" data-quiz-next hidden>
+      Next <svg class="cy-i" aria-hidden="true"><use href="#i-chevron-right"/></svg>
+    </button>
+    <button type="submit" class="cy-btn cy-btn--primary" data-quiz-submit>
+      Submit quiz <svg class="cy-i" aria-hidden="true"><use href="#i-check"/></svg>
+    </button>
+  </div>
+</form>
+
+{% endblock %}
+
+{% block scripts %}
+  <script src="{% static 'js/quiz.js' %}" defer></script>
+{% endblock %}

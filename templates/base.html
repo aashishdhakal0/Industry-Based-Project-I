@@ -126,5 +126,7 @@
     its real value in the markup if it never runs.
   {% endcomment %}
   <script src="{% static 'js/cybaroo.js' %}" defer></script>
+  {# Page-specific scripts, served from static/ so script-src 'self' allows them. #}
+  {% block scripts %}{% endblock %}
 </body>
 </html>
