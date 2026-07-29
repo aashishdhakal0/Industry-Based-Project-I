@@ -50,7 +50,64 @@
   </div>
 {% endif %}
 
-<div class="cy-result__actions cy-rise" style="--cy-delay: 0.14s;">
+{# ---------------- Adaptive Feedback Engine ---------------- #}
+{% if feedback.wrong_count %}
+  <section class="cy-afe cy-rise" style="--cy-delay: 0.16s;">
+    <div class="cy-afe__head">
+      <h2 class="cy-afe__title">Your study plan</h2>
+      <p class="cy-afe__lede">
+        You missed {{ feedback.wrong_count }} question{{ feedback.wrong_count|pluralize }}, across
+        {{ feedback.lesson_count }} lesson{{ feedback.lesson_count|pluralize }}. Revise
+        {% if feedback.lesson_count > 1 %}these, strongest area last{% else %}this one{% endif %} and try again.
+      </p>
+    </div>
+
+    {# Revise these lessons — ranked by where the mistakes clustered #}
+    <div class="cy-afe__plan">
+      {% for lesson in feedback.plan %}
+        <a class="cy-afe__lesson cy-elev" href="{% url 'learn:lesson' lesson.module_order_index lesson.lesson_number %}">
+          <span class="cy-afe__lesson-body">
+            <span class="cy-afe__lesson-title">{{ lesson.title }}</span>
+            <span class="cy-afe__lesson-meta">
+              {{ lesson.mistakes }} to revisit · {{ lesson.reading_time_minutes }} min read
+            </span>
+          </span>
+          <span class="cy-afe__lesson-go"><svg class="cy-i" aria-hidden="true"><use href="#i-arrow-right"/></svg></span>
+        </a>
+      {% endfor %}
+    </div>
+
+    {# Why each one was wrong — the explanation_text, the AFE's fuel #}
+    <h3 class="cy-afe__subhead">Why these were wrong</h3>
+    <ul class="cy-afe__items">
+      {% for item in feedback.items %}
+        <li class="cy-afe__item cy-elev">
+          <p class="cy-afe__q">{{ item.question_text }}</p>
+          <div class="cy-afe__answer cy-afe__answer--wrong">
+            <span class="cy-afe__tag"><svg class="cy-i" aria-hidden="true"><use href="#i-close"/></svg> Your answer</span>
+            <p class="cy-afe__opt">{{ item.your_option }}</p>
+            <p class="cy-afe__why">{{ item.your_why }}</p>
+          </div>
+          <div class="cy-afe__answer cy-afe__answer--right">
+            <span class="cy-afe__tag"><svg class="cy-i" aria-hidden="true"><use href="#i-check"/></svg> Correct answer</span>
+            <p class="cy-afe__opt">{{ item.correct_option }}</p>
+            <p class="cy-afe__why">{{ item.correct_why }}</p>
+          </div>
+          <a class="cy-afe__trace" href="{% url 'learn:lesson' item.module_order_index item.lesson_number %}">
+            From the lesson “{{ item.lesson_title }}” <svg class="cy-i" aria-hidden="true"><use href="#i-arrow-right"/></svg>
+          </a>
+        </li>
+      {% endfor %}
+    </ul>
+  </section>
+{% elif passed %}
+  <div class="cy-afe__perfect cy-rise" style="--cy-delay: 0.16s;">
+    <svg class="cy-i" aria-hidden="true"><use href="#i-check-circle"/></svg>
+    <span>Full marks — nothing to revise. Outstanding.</span>
+  </div>
+{% endif %}
+
+<div class="cy-result__actions cy-rise" style="--cy-delay: 0.2s;">
   {% if passed %}
     {% if next_module %}
       <a class="cy-btn cy-btn--primary cy-btn--lg" href="{% url 'learn:module' next_module.order_index %}">

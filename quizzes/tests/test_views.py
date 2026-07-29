@@ -157,6 +157,32 @@ def test_a_failing_submit_shows_the_retake_page(client_student, quiz, student):
 
 
 @pytest.mark.django_db
+def test_result_page_shows_the_study_plan_and_the_explanations(client_student, quiz, student):
+    finish_lessons(student, quiz.module)
+    ids = take_and_get_attempt(client_student, quiz.module)["question_ids"]
+    submit(client_student, quiz.module, ids, correct=4)
+
+    html = client_student.get(reverse("learn:quiz_result", args=[quiz.module.order_index])).content.decode()
+    assert "Your study plan" in html
+    assert "Why these were wrong" in html
+    assert "Option 1 is a trap." in html          # the chosen option's explanation
+    assert "Option 0 is correct." in html          # the correct option's explanation
+    # each mistake traces back to a lesson the student can open
+    assert reverse("learn:lesson", args=[quiz.module.order_index, 1]) in html
+
+
+@pytest.mark.django_db
+def test_a_perfect_pass_shows_no_study_plan(client_student, quiz, student):
+    finish_lessons(student, quiz.module)
+    ids = take_and_get_attempt(client_student, quiz.module)["question_ids"]
+    submit(client_student, quiz.module, ids, correct=10)
+
+    html = client_student.get(reverse("learn:quiz_result", args=[quiz.module.order_index])).content.decode()
+    assert "Your study plan" not in html
+    assert "Full marks" in html
+
+
+@pytest.mark.django_db
 def test_submitting_with_no_attempt_in_progress_bounces_to_the_quiz(client_student, quiz, student):
     finish_lessons(student, quiz.module)
     resp = client_student.post(reverse("learn:quiz_submit", args=[quiz.module.order_index]), {})

@@ -14,6 +14,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from modules import gamification as g
 from modules.models import Module, ProgressRecord
 
+from . import feedback as afe
 from . import services as svc
 from .models import Answer, Question, Quiz, QuizResult
 
@@ -176,6 +177,7 @@ def quiz_result(request, order_index):
         return redirect("learn:quiz", order_index=order_index)
 
     reward = request.session.pop(REWARD_KEY, None)
+    feedback = afe.analyse(result)  # the Adaptive Feedback Engine's study plan
     next_module = Module.objects.filter(
         is_published=True, order_index=module.order_index + 1
     ).first()
@@ -188,6 +190,7 @@ def quiz_result(request, order_index):
             "result": result,
             "passed": result.passed,
             "reward": reward,
+            "feedback": feedback,
             "next_module": next_module,
             "active": "modules",
         },
