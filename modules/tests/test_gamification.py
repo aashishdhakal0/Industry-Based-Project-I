@@ -349,3 +349,76 @@ def test_navigation_targets_wrap_the_year_and_never_go_past_this_month(student, 
 
     january = g.activity_calendar(student, year=2026, month=1, today=today)
     assert (january.prev_year, january.prev_month) == (2025, 12)
+
+
+# --------------------------------------------------------------------------
+# Interactive lesson tasks — the XP bar, and banking on completion
+# --------------------------------------------------------------------------
+
+from modules.models import LessonTask, TaskProgress
+
+
+def _add_tasks(lesson, points_list):
+    """Give a lesson tasks with the given point values (should sum to 10)."""
+    return [
+        LessonTask.objects.create(
+            lesson=lesson, order=i, task_key=f"t{i}", kind="CONCEPT", points=p
+        )
+        for i, p in enumerate(points_list, start=1)
+    ]
+
+
+@pytest.mark.django_db
+def test_completing_every_task_banks_the_lesson_and_awards_ten(student, modules):
+    lesson = modules[0].lessons.order_by("lesson_number").first()
+    tasks = _add_tasks(lesson, [2, 2, 2, 2, 2])
+
+    results = [g.complete_task(student, t) for t in tasks]
+
+    # No banking until the final task lands.
+    assert all(r.lesson_completed is False for r in results[:-1])
+    assert results[-1].lesson_completed is True
+    assert results[-1].reward.points == 10                 # POINTS_PER_LESSON, banked once
+    assert ProgressRecord.objects.filter(user=student, lesson=lesson).count() == 1
+
+
+@pytest.mark.django_db
+def test_the_xp_bar_fills_task_by_task(student, modules):
+    lesson = modules[0].lessons.order_by("lesson_number").first()
+    tasks = _add_tasks(lesson, [2, 3, 5])
+
+    r1 = g.complete_task(student, tasks[0])
+    assert (r1.lesson_points_done, r1.lesson_points_total) == (2, 10)
+    r2 = g.complete_task(student, tasks[1])
+    assert r2.lesson_points_done == 5
+    r3 = g.complete_task(student, tasks[2])
+    assert r3.lesson_points_done == 10 and r3.lesson_completed is True
+
+
+@pytest.mark.django_db
+def test_partial_tasks_do_not_bank_points(student, modules):
+    lesson = modules[0].lessons.order_by("lesson_number").first()
+    tasks = _add_tasks(lesson, [2, 2, 2, 2, 2])
+
+    for t in tasks[:3]:
+        g.complete_task(student, t)
+
+    assert not ProgressRecord.objects.filter(user=student, lesson=lesson).exists()
+    assert g.get_profile(student).points == 0
+
+
+@pytest.mark.django_db
+def test_a_task_is_idempotent_and_does_not_re_bank(student, modules):
+    lesson = modules[0].lessons.order_by("lesson_number").first()
+    tasks = _add_tasks(lesson, [5, 5])
+
+    g.complete_task(student, tasks[0])
+    first = g.complete_task(student, tasks[1])          # banks the lesson
+    assert first.lesson_completed is True
+
+    # Re-posting a task changes nothing: one progress row, no second bank.
+    again = g.complete_task(student, tasks[1])
+    assert again.task_created is False
+    assert again.lesson_completed is False
+    assert TaskProgress.objects.filter(user=student, task=tasks[1]).count() == 1
+    assert g.get_profile(student).points == 10

@@ -2,7 +2,15 @@
 
 from django.contrib import admin
 
-from .models import Lesson, Module, ProgressRecord, Simulation, SimulationResult
+from .models import (
+    Lesson,
+    LessonTask,
+    Module,
+    ProgressRecord,
+    Simulation,
+    SimulationResult,
+    TaskProgress,
+)
 
 
 class LessonInline(admin.TabularInline):
@@ -50,6 +58,24 @@ class LessonAdmin(admin.ModelAdmin):
 class SimulationAdmin(admin.ModelAdmin):
     list_display = ("module",)
     list_select_related = ("module",)
+
+
+@admin.register(LessonTask)
+class LessonTaskAdmin(admin.ModelAdmin):
+    list_display = ("lesson", "order", "task_key", "kind", "points")
+    list_filter = ("kind", "lesson__module")
+    search_fields = ("task_key", "title", "body")
+    list_select_related = ("lesson", "lesson__module")
+    ordering = ("lesson__module__order_index", "lesson__lesson_number", "order")
+
+
+@admin.register(TaskProgress)
+class TaskProgressAdmin(admin.ModelAdmin):
+    list_display = ("user", "task", "completed_at")
+    list_filter = ("completed_at",)
+    search_fields = ("user__email", "task__task_key")
+    list_select_related = ("user", "task", "task__lesson")
+    readonly_fields = ("completed_at",)
 
 
 @admin.register(ProgressRecord)

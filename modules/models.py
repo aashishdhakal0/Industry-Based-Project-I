@@ -218,3 +218,95 @@ class SimulationResult(models.Model):
 
     def __str__(self):
         return f"{self.user.email} — {self.simulation} ({self.score}/{self.total})"
+
+
+class LessonTask(models.Model):
+    """One interactive step inside a lesson — the TryHackMe-style unit.
+
+    A lesson is taught as an ordered sequence of these: a short concept, an
+    inline check-question, or a real-world scenario. Authored in code and seeded
+    into rows (the same author-then-seed pattern as the quiz bank), so the lesson
+    view and progress can be generic and DB-driven.
+
+    `points` are a display subdivision of the lesson's fixed value: a lesson's
+    tasks sum to POINTS_PER_LESSON, and completing the last task banks that whole
+    value through the normal ProgressRecord path — the points economy is
+    unchanged, tasks just fill an XP bar on the way there.
+    """
+
+    class Kind(models.TextChoices):
+        CONCEPT = "CONCEPT", "Concept"
+        CHECK = "CHECK", "Check question"
+        SCENARIO = "SCENARIO", "Scenario"
+
+    lesson = models.ForeignKey(
+        Lesson, on_delete=models.CASCADE, related_name="tasks"
+    )
+    order = models.PositiveIntegerField(default=0)
+    task_key = models.CharField(
+        max_length=80, help_text="Stable id within the lesson (for progress rows)."
+    )
+    kind = models.CharField(
+        max_length=20, choices=Kind.choices, default=Kind.CONCEPT
+    )
+    points = models.PositiveIntegerField(default=2)
+    title = models.CharField(max_length=255, blank=True)
+    body = models.TextField(blank=True, help_text="Teaching HTML (sanitised on save).")
+    diagram_key = models.CharField(
+        max_length=40, blank=True, help_text="Names a CSS/SVG diagram partial."
+    )
+    payload = models.JSONField(
+        default=dict,
+        blank=True,
+        help_text="For check/scenario tasks: scenario, question and options "
+        "[{text, correct, explanation}].",
+    )
+
+    class Meta:
+        db_table = "lesson_tasks"
+        ordering = ["lesson__module__order_index", "lesson__lesson_number", "order"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["lesson", "task_key"], name="unique_task_key_per_lesson"
+            )
+        ]
+
+    def save(self, *args, **kwargs):
+        # Developer-authored content, but sanitised anyway — defence in depth,
+        # and it never strips the allow-listed tags we actually use.
+        self.body = sanitise_lesson_html(self.body)
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.lesson} · task {self.order}: {self.task_key}"
+
+
+class TaskProgress(models.Model):
+    """One row per task a student completes — the truth behind the XP bar.
+
+    A lesson counts as complete (and banks its points via ProgressRecord) once a
+    student has a row for every one of its tasks. Persisting per task means a
+    half-finished lesson resumes exactly where it was left.
+    """
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="task_progress",
+    )
+    task = models.ForeignKey(
+        LessonTask, on_delete=models.CASCADE, related_name="progress"
+    )
+    completed_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = "task_progress"
+        ordering = ["-completed_at"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["user", "task"], name="unique_task_progress_per_user"
+            )
+        ]
+
+    def __str__(self):
+        return f"{self.user.email} did {self.task}"

@@ -19,7 +19,7 @@ from django.db import transaction
 
 from authentication.models import User
 from modules.content import module_one
-from modules.models import Lesson, Module, Simulation
+from modules.models import Lesson, LessonTask, Module, Simulation
 from quizzes.models import Answer, Question, Quiz
 
 # (title, description, difficulty, four lesson titles)
@@ -206,6 +206,41 @@ def _placeholder_sim(module_title):
     }
 
 
+def _seed_lesson_tasks(lesson, tasks):
+    """Seed a lesson's interactive tasks idempotently (keyed on task_key).
+
+    Check/scenario options are stored in the task's JSON payload. Tasks no longer
+    present in the content are pruned, so re-running mirrors the content exactly.
+    """
+    seen = []
+    for order, t in enumerate(tasks, start=1):
+        payload = {}
+        if t["kind"] in ("check", "scenario"):
+            payload = {
+                "question": t.get("question", ""),
+                "scenario": t.get("scenario", ""),
+                "options": [
+                    {"text": text, "correct": correct, "explanation": explanation}
+                    for (text, correct, explanation) in t["options"]
+                ],
+            }
+        LessonTask.objects.update_or_create(
+            lesson=lesson,
+            task_key=t["key"],
+            defaults={
+                "order": order,
+                "kind": t["kind"].upper(),
+                "points": t["points"],
+                "title": t.get("title", ""),
+                "body": t.get("body", ""),
+                "diagram_key": t.get("diagram", ""),
+                "payload": payload,
+            },
+        )
+        seen.append(t["key"])
+    lesson.tasks.exclude(task_key__in=seen).delete()
+
+
 def _seed_module_one_quiz(module, lessons_by_number):
     """Seed Module 1's real quiz and its 15-question bank, idempotently.
 
@@ -279,9 +314,11 @@ class Command(BaseCommand):
             for n, lesson_title in enumerate(lesson_titles, start=1):
                 if real_lessons:
                     spec = real_lessons[n - 1]
+                    # Task-based lesson: body_text is just a short intro; the
+                    # teaching lives in the interactive tasks.
                     lesson_defaults = {
                         "title": spec["title"],
-                        "body_text": spec["body"],
+                        "body_text": f"<p>{spec['intro']}</p>",
                         "reading_time_minutes": spec["reading_time_minutes"],
                         "is_active": True,
                     }
@@ -295,6 +332,8 @@ class Command(BaseCommand):
                 lesson, _ = Lesson.objects.update_or_create(
                     module=module, lesson_number=n, defaults=lesson_defaults
                 )
+                if real_lessons:
+                    _seed_lesson_tasks(lesson, spec["tasks"])
                 lessons_by_number[n] = lesson
 
             sim_data = PHISHING_SIM if index == 1 else _placeholder_sim(title)

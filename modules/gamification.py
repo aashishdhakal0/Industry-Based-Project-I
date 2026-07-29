@@ -22,7 +22,14 @@ from authentication.models import UserProfile
 from quizzes.models import Quiz, QuizResult
 
 from . import badges as badge_catalogue
-from .models import Module, ProgressRecord, Simulation, SimulationResult
+from .models import (
+    LessonTask,
+    Module,
+    ProgressRecord,
+    Simulation,
+    SimulationResult,
+    TaskProgress,
+)
 
 POINTS_PER_LESSON = 10
 POINTS_PER_QUIZ = 50
@@ -462,6 +469,75 @@ def complete_simulation(user, simulation, *, score, total, path, today=None, now
 def record_login(user, *, today=None, now=None):
     """Showing up is activity: keep the streak and profile current on sign-in."""
     return refresh_profile(user, bump_streak=True, today=today, now=now)
+
+
+# --------------------------------------------------------------------------
+# Interactive lesson tasks — the XP bar, and banking the lesson on completion
+# --------------------------------------------------------------------------
+#
+# Tasks subdivide a lesson's points for display; the economy is unchanged.
+# Completing every task in a lesson banks the whole lesson through the normal
+# ProgressRecord path (+POINTS_PER_LESSON), so points/levels/streaks are
+# identical to a plain "mark complete" — the tasks just fill a bar on the way.
+
+
+@dataclass
+class TaskResult:
+    task_created: bool          # False if this task was already done
+    task_points: int            # this task's contribution to the lesson's XP
+    lesson_points_done: int     # XP earned in this lesson so far
+    lesson_points_total: int    # the lesson's total XP (sums to POINTS_PER_LESSON)
+    tasks_done: int
+    tasks_total: int
+    lesson_completed: bool      # did THIS call finish (and bank) the lesson?
+    reward: object              # Reward when the lesson just banked, else None
+
+
+def lesson_task_stats(user, lesson):
+    """(done_task_ids, tasks_total, points_done, points_total) for a lesson.
+
+    One query for the tasks, one for the student's progress on them.
+    """
+    tasks = list(lesson.tasks.values_list("id", "points"))
+    points_total = sum(p for _, p in tasks)
+    done_ids = set(
+        TaskProgress.objects.filter(user=user, task__lesson=lesson).values_list(
+            "task_id", flat=True
+        )
+    )
+    points_done = sum(p for tid, p in tasks if tid in done_ids)
+    return done_ids, len(tasks), points_done, points_total
+
+
+@transaction.atomic
+def complete_task(user, task, *, today=None, now=None):
+    """Record a completed task; bank the lesson once every task is done.
+
+    Idempotent per (user, task). The lesson banks its points exactly once — the
+    first time the last task lands — via complete_lesson, which creates the
+    ProgressRecord and returns the celebration Reward.
+    """
+    _, created = TaskProgress.objects.get_or_create(user=user, task=task)
+    lesson = task.lesson
+
+    done_ids, tasks_total, points_done, points_total = lesson_task_stats(user, lesson)
+    all_done = tasks_total > 0 and len(done_ids) >= tasks_total
+
+    lesson_completed = False
+    reward = None
+    if all_done and not ProgressRecord.objects.filter(user=user, lesson=lesson).exists():
+        lesson_completed, reward = complete_lesson(user, lesson, today=today, now=now)
+
+    return TaskResult(
+        task_created=created,
+        task_points=task.points,
+        lesson_points_done=points_done,
+        lesson_points_total=points_total,
+        tasks_done=len(done_ids),
+        tasks_total=tasks_total,
+        lesson_completed=lesson_completed,
+        reward=reward,
+    )
 
 
 # --------------------------------------------------------------------------
