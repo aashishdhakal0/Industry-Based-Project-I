@@ -148,6 +148,13 @@
     var dest = url || nextUrl;
     if (!overlay) return go(dest);
     document.getElementById("cy-reward-points").textContent = "+" + (reward.points_gained || 0);
+    var meta = document.getElementById("cy-reward-meta");
+    if (meta) {
+      var bits = [];
+      if (reward.level) bits.push("Level " + reward.level);
+      if (reward.streak) bits.push(reward.streak + "-day streak");
+      meta.textContent = bits.join(" · ");
+    }
     var wrap = document.getElementById("cy-reward-badges");
     if (wrap) {
       wrap.textContent = "";

@@ -4025,7 +4025,14 @@ a.cy-path__link:hover { background: var(--cy-surface-2); }
 }
 .cy-reward__label {
   color: var(--cy-text-3);
-  margin: 0.25rem 0 1.25rem;
+  margin: 0.25rem 0 0.5rem;
+}
+.cy-reward__meta {
+  color: var(--cy-violet-soft);
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin: 0 0 1.25rem;
+  min-height: 1.2em;
 }
 .cy-reward__badges {
   display: flex;
