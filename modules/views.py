@@ -16,7 +16,7 @@ from django.views.decorators.http import require_POST
 from quizzes.models import QuizResult
 
 from . import gamification as g
-from .models import Lesson, Module, ProgressRecord
+from .models import Lesson, LessonTask, Module, ProgressRecord
 from .presentation import decorate
 
 
@@ -172,6 +172,21 @@ def lesson(request, order_index, lesson_number):
 
     reward_flash = request.session.pop("reward", None)
 
+    # Interactive task room (Module 1+). A lesson with tasks renders as a
+    # TryHackMe-style sequence; lessons without tasks keep the plain reader.
+    tasks = list(lesson.tasks.order_by("order"))
+    lesson_points_done = lesson_points_total = 0
+    if tasks:
+        done_ids, _total, lesson_points_done, lesson_points_total = g.lesson_task_stats(
+            request.user, lesson
+        )
+        for t in tasks:
+            payload = t.payload or {}
+            t.done = t.id in done_ids
+            t.options = payload.get("options", [])
+            t.scenario = payload.get("scenario", "")
+            t.question = payload.get("question", "")
+
     return render(
         request,
         "modules/lesson.html",
@@ -185,6 +200,10 @@ def lesson(request, order_index, lesson_number):
             "next_lesson": next_lesson,
             "is_done": is_done,
             "steps": steps,
+            "tasks": tasks,
+            "has_tasks": bool(tasks),
+            "lesson_points_done": lesson_points_done,
+            "lesson_points_total": lesson_points_total,
             "reward_flash": reward_flash,
             "active": "modules",
         },
@@ -192,6 +211,55 @@ def lesson(request, order_index, lesson_number):
 
 
 @login_required
+@login_required
+@require_POST
+def complete_task(request, order_index, lesson_number):
+    """Record one interactive task as done (fetch only). When it's the last task
+    in the lesson, the engine banks the lesson and we return the celebration
+    reward. Correctness is judged client-side for instant feedback; like
+    mark-complete, this endpoint trusts that the task was done — these are
+    formative, the graded assessment is the quiz."""
+    lesson, blocked = _lesson_or_locked(request, order_index, lesson_number)
+    if blocked:
+        return blocked
+
+    task = get_object_or_404(LessonTask, id=request.POST.get("task"), lesson=lesson)
+    result = g.complete_task(request.user, task)
+
+    next_lesson = (
+        lesson.module.lessons.filter(is_active=True, lesson_number__gt=lesson_number)
+        .order_by("lesson_number")
+        .first()
+    )
+    next_url = (
+        reverse("learn:lesson", args=[order_index, next_lesson.lesson_number])
+        if next_lesson
+        else reverse("learn:module", args=[order_index])
+    )
+
+    payload = {
+        "task_points": result.task_points,
+        "lesson_points_done": result.lesson_points_done,
+        "lesson_points_total": result.lesson_points_total,
+        "tasks_done": result.tasks_done,
+        "tasks_total": result.tasks_total,
+        "lesson_completed": result.lesson_completed,
+        "next_url": next_url,
+        "module_done": next_lesson is None,
+    }
+    if result.lesson_completed and result.reward:
+        r = result.reward
+        payload["reward"] = {
+            "points_gained": g.POINTS_PER_LESSON,
+            "points": r.points,
+            "level": r.level.level,
+            "level_percent": r.level.percent,
+            "streak": r.streak,
+            "new_badges": [{"name": b.name, "icon": b.icon} for b in r.new_badges],
+        }
+    return JsonResponse(payload)
+
+
 @require_POST
 def complete_lesson(request, order_index, lesson_number):
     """Record a lesson as complete and award the points.

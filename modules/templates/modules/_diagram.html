@@ -1,0 +1,10 @@
+{% comment %}
+  Inline CSS/SVG diagrams, keyed by `key` (CSP-safe — no external images).
+  The real diagrams are built in the next slice; unknown keys render nothing.
+{% endcomment %}
+{% if key == "cia-triad" or key == "data-travels" or key == "phishing-email" %}
+  <figure class="cy-diagram cy-diagram--{{ key }}" role="img"
+          aria-label="Diagram: {{ key }}">
+    <div class="cy-diagram__placeholder">Diagram coming in the next step.</div>
+  </figure>
+{% endif %}

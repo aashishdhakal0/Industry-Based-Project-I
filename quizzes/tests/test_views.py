@@ -167,8 +167,12 @@ def test_result_page_shows_the_study_plan_and_the_explanations(client_student, q
     assert "Why these were wrong" in html
     assert "Option 1 is a trap." in html          # the chosen option's explanation
     assert "Option 0 is correct." in html          # the correct option's explanation
-    # each mistake traces back to a lesson the student can open
-    assert reverse("learn:lesson", args=[quiz.module.order_index, 1]) in html
+    # each mistake traces back to a lesson the student can open (which lessons
+    # depends on the random draw, so assert at least one appears)
+    assert any(
+        reverse("learn:lesson", args=[quiz.module.order_index, n]) in html
+        for n in range(1, 5)
+    )
 
 
 @pytest.mark.django_db

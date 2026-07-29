@@ -24,6 +24,11 @@ urlpatterns = [
         views.complete_lesson,
         name="complete_lesson",
     ),
+    path(
+        "m/<int:order_index>/lesson/<int:lesson_number>/task/",
+        views.complete_task,
+        name="complete_task",
+    ),
     path("m/<int:order_index>/simulation/", views.simulation, name="simulation"),
     path(
         "m/<int:order_index>/simulation/complete/",

@@ -1,10 +1,17 @@
 {% extends "app_base.html" %}
+{% load static %}
 
 {% comment %}
-  The lesson reader. body_text is rendered with |safe — the ONE place that's
-  allowed, because Lesson.save() sanitised it against an allow-list on the way
-  into the database (see modules.models). Rendering unsanitised user HTML with
-  |safe is a CLAUDE.md "never"; this is sanitised, so it's the intended path.
+  The lesson. A lesson with interactive tasks renders as a TryHackMe-style room
+  (concept / check / scenario, one at a time, points as you go); a lesson without
+  tasks keeps the plain reader. Both bank through the same points path.
+
+  body/scenario are rendered with |safe — allowed here because LessonTask.save()
+  and Lesson.save() sanitise against an allow-list on the way in (CLAUDE.md).
+
+  Progressive enhancement: the room renders as a readable, worked study page with
+  a "mark complete" button by default; lesson.js upgrades it into the interactive
+  stepper (hiding the revealed answers and driving per-task completion).
 {% endcomment %}
 
 {% block title %}{{ lesson.title }} — {{ site_name }}{% endblock %}
@@ -21,7 +28,6 @@
     <span class="cy-reader__count">Lesson {{ position }} of {{ total }}</span>
   </div>
 
-  {% comment %} In-module stepper: a dot per lesson, done / current / to-do. {% endcomment %}
   <ol class="cy-stepper" aria-label="Lessons in this module">
     {% for step in steps %}
       <li class="cy-stepper__dot {% if step.done %}is-done{% elif step.current %}is-current{% endif %}">
@@ -33,50 +39,124 @@
   </ol>
 
   {% if reward_flash %}
-    {% comment %} No-JS celebration: shown after a redirect from mark-complete. {% endcomment %}
     <div class="cy-flash" role="status">
       <svg class="cy-i" aria-hidden="true"><use href="#i-check-circle"/></svg>
       Lesson complete — <strong>+{{ reward_flash.points_gained }} points</strong>. You're on level {{ reward_flash.level }}.
     </div>
   {% endif %}
 
-  <h1 class="cy-reader__title">{{ lesson.title }}</h1>
-
-  <article class="cy-prose cy-reader__body">
-    {{ lesson.body_text|safe }}
-  </article>
-
-  {% comment %}
-    Mark-complete. A real form (works with no JS: POST -> record -> redirect to
-    the next lesson with a flash). cybaroo.js enhances it: intercept, fetch,
-    play the reward animation, then advance. The endpoint is the same.
-  {% endcomment %}
-  <div class="cy-reader__foot">
-    {% if prev_lesson %}
-      <a class="cy-btn cy-btn--ghost" href="{% url 'learn:lesson' module.order_index prev_lesson.lesson_number %}">
-        Previous
-      </a>
-    {% else %}
-      <span></span>
-    {% endif %}
-
-    <form method="post"
+  {% if has_tasks %}
+    {# ---------------- Interactive task room ---------------- #}
+    <form class="cy-room" method="post"
           action="{% url 'learn:complete_lesson' module.order_index lesson.lesson_number %}"
-          class="cy-complete"
-          data-next="{% if next_lesson %}{% url 'learn:lesson' module.order_index next_lesson.lesson_number %}{% else %}{% url 'learn:module' module.order_index %}{% endif %}">
+          data-room
+          data-task-url="{% url 'learn:complete_task' module.order_index lesson.lesson_number %}"
+          data-next="{% if next_lesson %}{% url 'learn:lesson' module.order_index next_lesson.lesson_number %}{% else %}{% url 'learn:module' module.order_index %}{% endif %}"
+          data-points-done="{{ lesson_points_done }}">
       {% csrf_token %}
-      <button type="submit" class="cy-btn cy-btn--primary"
-              {% if is_done %}data-done="1"{% endif %}>
-        {% if is_done %}
-          <svg class="cy-i" aria-hidden="true"><use href="#i-check"/></svg>
-          {% if next_lesson %}Next lesson{% else %}Finish module{% endif %}
-        {% else %}
-          Mark complete
+
+      <div class="cy-room__head">
+        <p class="cy-room__eyebrow">Lesson {{ position }} · interactive</p>
+        <h1 class="cy-room__title">{{ lesson.title }}</h1>
+        <div class="cy-room__progress" data-room-progress hidden>
+          <div class="cy-room__bar"><div class="cy-room__bar-fill" data-room-fill></div></div>
+          <div class="cy-room__meta">
+            <span class="cy-room__count" data-room-count>Task 1 of {{ tasks|length }}</span>
+            <span class="cy-room__xp">
+              <svg class="cy-i" aria-hidden="true"><use href="#i-hex"/></svg>
+              <b data-room-xp>{{ lesson_points_done }}</b> / {{ lesson_points_total }} XP
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {% for task in tasks %}
+        <section class="cy-task {% if task.done %}is-done{% endif %}"
+                 data-task data-task-id="{{ task.id }}" data-points="{{ task.points }}"
+                 data-kind="{{ task.kind }}"{% if task.done %} data-done="1"{% endif %}>
+          <div class="cy-task__num">Task {{ forloop.counter }} <span>· {{ task.points }} XP</span></div>
+          {% if task.title %}<h2 class="cy-task__title">{{ task.title }}</h2>{% endif %}
+
+          {% if task.diagram_key %}
+            {% include "modules/_diagram.html" with key=task.diagram_key %}
+          {% endif %}
+
+          {% if task.scenario %}
+            <div class="cy-task__scenario cy-prose">{{ task.scenario|safe }}</div>
+          {% endif %}
+          {% if task.body %}
+            <div class="cy-task__body cy-prose">{{ task.body|safe }}</div>
+          {% endif %}
+
+          {% if task.kind == "CONCEPT" %}
+            <div class="cy-task__actions">
+              <button type="button" class="cy-btn cy-btn--primary" data-task-continue>
+                Got it <svg class="cy-i" aria-hidden="true"><use href="#i-arrow-right"/></svg>
+              </button>
+            </div>
+          {% else %}
+            <p class="cy-task__q">{{ task.question }}</p>
+            <div class="cy-task__options">
+              {% for opt in task.options %}
+                <button type="button" class="cy-task__opt {% if opt.correct %}is-correct{% endif %}"
+                        data-correct="{% if opt.correct %}1{% endif %}">
+                  <span class="cy-task__opt-mark" aria-hidden="true"></span>
+                  <span class="cy-task__opt-text">{{ opt.text }}</span>
+                  <span class="cy-task__opt-why">{{ opt.explanation }}</span>
+                </button>
+              {% endfor %}
+            </div>
+          {% endif %}
+        </section>
+      {% endfor %}
+
+      <div class="cy-room__foot">
+        <button type="button" class="cy-btn cy-btn--ghost" data-room-back hidden>
+          <svg class="cy-i" aria-hidden="true"><use href="#i-chevron-left"/></svg> Back
+        </button>
+        <span class="cy-room__foot-spacer"></span>
+        {# JS-driven primary: label and enabled state managed per task. #}
+        <button type="button" class="cy-btn cy-btn--primary" data-room-primary hidden>
+          Got it <svg class="cy-i" aria-hidden="true"><use href="#i-arrow-right"/></svg>
+        </button>
+        {# No-JS (and already-complete) fallback: bank via the normal endpoint. #}
+        <button type="submit" class="cy-btn cy-btn--primary" data-room-complete>
+          {% if is_done %}
+            {% if next_lesson %}Next lesson{% else %}Finish module{% endif %}
+          {% else %}
+            Mark lesson complete
+          {% endif %}
           <svg class="cy-i" aria-hidden="true"><use href="#i-arrow-right"/></svg>
-        {% endif %}
-      </button>
+        </button>
+      </div>
     </form>
-  </div>
+
+  {% else %}
+    {# ---------------- Plain reader (lessons without tasks) ---------------- #}
+    <h1 class="cy-reader__title">{{ lesson.title }}</h1>
+    <article class="cy-prose cy-reader__body">{{ lesson.body_text|safe }}</article>
+
+    <div class="cy-reader__foot">
+      {% if prev_lesson %}
+        <a class="cy-btn cy-btn--ghost" href="{% url 'learn:lesson' module.order_index prev_lesson.lesson_number %}">Previous</a>
+      {% else %}<span></span>{% endif %}
+
+      <form method="post"
+            action="{% url 'learn:complete_lesson' module.order_index lesson.lesson_number %}"
+            class="cy-complete"
+            data-next="{% if next_lesson %}{% url 'learn:lesson' module.order_index next_lesson.lesson_number %}{% else %}{% url 'learn:module' module.order_index %}{% endif %}">
+        {% csrf_token %}
+        <button type="submit" class="cy-btn cy-btn--primary" {% if is_done %}data-done="1"{% endif %}>
+          {% if is_done %}
+            <svg class="cy-i" aria-hidden="true"><use href="#i-check"/></svg>
+            {% if next_lesson %}Next lesson{% else %}Finish module{% endif %}
+          {% else %}
+            Mark complete <svg class="cy-i" aria-hidden="true"><use href="#i-arrow-right"/></svg>
+          {% endif %}
+        </button>
+      </form>
+    </div>
+  {% endif %}
 </div>
 
 {% comment %} The celebration overlay, hidden until JS fires it. {% endcomment %}
@@ -89,4 +169,8 @@
     <button type="button" class="cy-btn cy-btn--primary cy-btn--block" id="cy-reward-go">Continue</button>
   </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+  {% if has_tasks %}<script src="{% static 'js/lesson.js' %}" defer></script>{% endif %}
 {% endblock %}

@@ -610,3 +610,114 @@ def test_earning_the_certificate_drops_the_preview_and_dates_it(
     assert "cy-cert-progress" not in html       # progress panel gone
     assert str(timezone.localdate().year) in html   # a real issue date
     assert "cy-cert-note" in html               # the earned note, with the PDF promise
+
+
+# --------------------------------------------------------------------------
+# Interactive lesson room — tasks, per-task completion, XP, no-JS fallback
+# --------------------------------------------------------------------------
+
+from modules.models import LessonTask, TaskProgress
+
+
+def add_tasks(lesson, specs):
+    """specs: list of (kind, points). Check/scenario tasks get a 2-option payload."""
+    out = []
+    for i, (kind, points) in enumerate(specs, start=1):
+        payload = {}
+        if kind != "CONCEPT":
+            payload = {
+                "question": "Which is safe?",
+                "options": [
+                    {"text": "The safe one", "correct": True, "explanation": "Yes — this is right."},
+                    {"text": "The risky one", "correct": False, "explanation": "No — this is a trap."},
+                ],
+            }
+        out.append(
+            LessonTask.objects.create(
+                lesson=lesson, order=i, task_key=f"k{i}", kind=kind,
+                points=points, body="<p>Teaching.</p>", payload=payload,
+            )
+        )
+    return out
+
+
+def post_task(client, module, lesson, task):
+    return client.post(
+        reverse("learn:complete_task", args=[module.order_index, lesson.lesson_number]),
+        {"task": task.id},
+    )
+
+
+@pytest.mark.django_db
+def test_a_task_lesson_renders_the_interactive_room(client_student, modules):
+    lesson = modules[0].lessons.order_by("lesson_number").first()
+    add_tasks(lesson, [("CONCEPT", 3), ("CHECK", 3), ("SCENARIO", 4)])
+
+    html = client_student.get(
+        reverse("learn:lesson", args=[modules[0].order_index, lesson.lesson_number])
+    ).content.decode()
+    assert "data-room" in html
+    assert html.count("data-task-id=") == 3     # one section per task
+    assert "lesson.js" in html
+    assert "The safe one" in html and "this is a trap" in html.lower()
+
+
+@pytest.mark.django_db
+def test_completing_every_task_banks_the_lesson_and_returns_the_reward(client_student, modules, student):
+    lesson = modules[0].lessons.order_by("lesson_number").first()
+    tasks = add_tasks(lesson, [("CONCEPT", 2), ("CHECK", 3), ("SCENARIO", 5)])
+
+    r1 = post_task(client_student, modules[0], lesson, tasks[0]).json()
+    assert r1["lesson_completed"] is False
+    assert r1["lesson_points_done"] == 2
+
+    post_task(client_student, modules[0], lesson, tasks[1])
+    r3 = post_task(client_student, modules[0], lesson, tasks[2]).json()
+    assert r3["lesson_completed"] is True
+    assert r3["reward"]["points_gained"] == 10
+    assert ProgressRecord.objects.filter(user=student, lesson=lesson).exists()
+
+
+@pytest.mark.django_db
+def test_a_completed_task_shows_as_done_on_return(client_student, modules, student):
+    lesson = modules[0].lessons.order_by("lesson_number").first()
+    tasks = add_tasks(lesson, [("CONCEPT", 5), ("CONCEPT", 5)])
+    post_task(client_student, modules[0], lesson, tasks[0])
+
+    html = client_student.get(
+        reverse("learn:lesson", args=[modules[0].order_index, lesson.lesson_number])
+    ).content.decode()
+    # the first task carries the done marker, the second doesn't
+    assert f'data-task-id="{tasks[0].id}"' in html
+    idx = html.index(f'data-task-id="{tasks[0].id}"')
+    assert 'data-done="1"' in html[idx - 120:idx + 200]
+
+
+@pytest.mark.django_db
+def test_a_task_lesson_still_completes_without_js(client_student, modules, student):
+    """The no-JS fallback: the plain mark-complete endpoint still banks the lesson."""
+    lesson = modules[0].lessons.order_by("lesson_number").first()
+    add_tasks(lesson, [("CONCEPT", 5), ("CHECK", 5)])
+
+    complete(client_student, modules[0], lesson.lesson_number, HTTP_X_REQUESTED_WITH="fetch")
+    assert ProgressRecord.objects.filter(user=student, lesson=lesson).exists()
+
+
+@pytest.mark.django_db
+def test_task_completion_respects_the_module_lock(client_student, modules):
+    locked_lesson = modules[1].lessons.order_by("lesson_number").first()
+    tasks = add_tasks(locked_lesson, [("CONCEPT", 10)])
+    resp = post_task(client_student, modules[1], locked_lesson, tasks[0])
+    assert resp.status_code == 403
+
+
+@pytest.mark.django_db
+def test_task_lesson_page_is_clean_and_without_emoji(client_student, modules):
+    lesson = modules[0].lessons.order_by("lesson_number").first()
+    add_tasks(lesson, [("CONCEPT", 5), ("SCENARIO", 5)])
+    html = client_student.get(
+        reverse("learn:lesson", args=[modules[0].order_index, lesson.lesson_number])
+    ).content.decode()
+    for token in LEAKS:
+        assert token not in html
+    assert not EMOJI.findall(html)
