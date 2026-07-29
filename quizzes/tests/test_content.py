@@ -142,3 +142,13 @@ def test_the_seed_is_idempotent(seeded):
     before = counts()
     call_command("seed_learning_content")
     assert before == counts()
+
+
+@pytest.mark.django_db
+def test_module_one_tasks_use_the_diagrams(seeded):
+    keys = set(
+        LessonTask.objects.filter(lesson__module=seeded)
+        .exclude(diagram_key="")
+        .values_list("diagram_key", flat=True)
+    )
+    assert {"cia-triad", "data-travels", "phishing-email"} <= keys

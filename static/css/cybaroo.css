@@ -4665,15 +4665,99 @@ a.cy-path__link:hover { background: var(--cy-surface-2); }
   100% { opacity: 0; transform: translate(-50%, -2.2rem) scale(1); }
 }
 
-/* Diagram placeholder (real CSS/SVG diagrams arrive next slice). */
+/* Inline CSS/SVG diagrams (no external images — CSP-safe). */
 .cy-diagram {
-  border: 1px dashed var(--cy-border-lift);
+  background: var(--cy-surface-3);
+  border: 1px solid var(--cy-border);
   border-radius: var(--cy-r-lg);
-  margin: 0 0 1.1rem;
-  padding: 1.5rem;
-  text-align: center;
+  margin: 0 0 1.25rem;
+  padding: 1.4rem 1.5rem;
 }
-.cy-diagram__placeholder { color: var(--cy-text-3); font-size: 0.85rem; }
+.cy-diagram__cap {
+  color: var(--cy-text-2);
+  display: grid;
+  font-size: 0.82rem;
+  gap: 0.25rem;
+  margin-top: 1rem;
+}
+.cy-diagram__cap b { color: var(--cy-text); }
+.cy-diagram__cap--single { text-align: center; }
+
+/* CIA triad */
+.cy-cia__svg { display: block; margin: 0 auto; max-width: 320px; width: 100%; }
+.cy-cia__tri { fill: rgba(167, 139, 250, 0.06); stroke: var(--cy-violet); stroke-width: 2; }
+.cy-cia__dot { fill: var(--cy-cyan); }
+.cy-cia__c {
+  fill: var(--cy-violet-soft);
+  font-family: var(--cy-font-mono);
+  font-size: 26px;
+  font-weight: 700;
+  text-anchor: middle;
+}
+.cy-cia__lab { fill: var(--cy-text); font-size: 14px; font-weight: 600; }
+.cy-cia__sub { fill: var(--cy-text-3); font-size: 10px; }
+
+/* Data-travels flow */
+.cy-flow__track {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+}
+.cy-flow__node {
+  background: var(--cy-surface);
+  border: 1px solid var(--cy-border-lift);
+  border-radius: 999px;
+  color: var(--cy-text);
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 0.5rem 0.9rem;
+  white-space: nowrap;
+}
+.cy-flow__arrow { color: var(--cy-violet-soft); display: inline-flex; }
+.cy-flow__arrow .cy-i { height: 18px; width: 18px; }
+
+/* Annotated suspicious email */
+.cy-email__card {
+  background: var(--cy-surface);
+  border: 1px solid var(--cy-border);
+  border-radius: var(--cy-r-lg);
+  padding: 1.1rem 1.2rem;
+}
+.cy-email__line { display: flex; gap: 0.6rem; margin-bottom: 0.2rem; }
+.cy-email__k {
+  color: var(--cy-text-3);
+  flex: none;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding-top: 0.15rem;
+  text-transform: uppercase;
+  width: 3.5rem;
+}
+.cy-email__v { color: var(--cy-text); font-size: 0.9rem; }
+.cy-email__body {
+  border-top: 1px solid var(--cy-border);
+  color: var(--cy-text-2);
+  margin-top: 0.6rem;
+  padding-top: 0.8rem;
+}
+.cy-email__flag {
+  background: rgba(255, 157, 77, 0.14);
+  border-bottom: 2px solid var(--cy-flame);
+  border-radius: 3px 3px 0 0;
+  color: var(--cy-text);
+  padding: 0 0.15rem;
+}
+.cy-email__note {
+  color: var(--cy-flame);
+  font-size: 0.78rem;
+  margin: 0.15rem 0 0.8rem 4.1rem;
+  position: relative;
+}
+.cy-email__note::before { content: "↳ "; }
+.cy-email__body + .cy-email__note { margin-left: 0; }
 
 @media (max-width: 480px) {
   .cy-task { padding: 1.25rem 1.15rem; }

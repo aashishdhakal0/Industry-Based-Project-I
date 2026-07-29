@@ -721,3 +721,31 @@ def test_task_lesson_page_is_clean_and_without_emoji(client_student, modules):
     for token in LEAKS:
         assert token not in html
     assert not EMOJI.findall(html)
+
+
+# --------------------------------------------------------------------------
+# Diagrams — inline CSS/SVG partials, CSP-safe, clean
+# --------------------------------------------------------------------------
+
+from django.template.loader import render_to_string
+
+
+def test_each_diagram_renders_its_content():
+    cases = {
+        "cia-triad": "CIA",
+        "data-travels": "Your device",
+        "phishing-email": "flour-supplier-au.info",
+    }
+    for key, needle in cases.items():
+        html = render_to_string("modules/_diagram.html", {"key": key})
+        assert "cy-diagram" in html
+        assert needle in html
+        # inline only — no external image or script
+        assert "<img" not in html and "<script" not in html
+        for token in LEAKS:
+            assert token not in html
+        assert not EMOJI.findall(html)
+
+
+def test_an_unknown_diagram_key_renders_nothing():
+    assert render_to_string("modules/_diagram.html", {"key": "does-not-exist"}).strip() == ""

@@ -1,10 +1,64 @@
 {% comment %}
-  Inline CSS/SVG diagrams, keyed by `key` (CSP-safe — no external images).
-  The real diagrams are built in the next slice; unknown keys render nothing.
+  Inline CSS/SVG diagrams, keyed by `key`. No external images (CSP-safe), theme
+  styling lives in cybaroo.css. Unknown keys render nothing.
 {% endcomment %}
-{% if key == "cia-triad" or key == "data-travels" or key == "phishing-email" %}
-  <figure class="cy-diagram cy-diagram--{{ key }}" role="img"
-          aria-label="Diagram: {{ key }}">
-    <div class="cy-diagram__placeholder">Diagram coming in the next step.</div>
+
+{% if key == "cia-triad" %}
+  <figure class="cy-diagram cy-cia" role="img"
+          aria-label="The CIA triad: Confidentiality at the top, Integrity and Availability at the base.">
+    <svg viewBox="0 0 340 210" class="cy-cia__svg" xmlns="http://www.w3.org/2000/svg">
+      <polygon class="cy-cia__tri" points="170,24 36,180 304,180"/>
+      <circle class="cy-cia__dot" cx="170" cy="24" r="7"/>
+      <circle class="cy-cia__dot" cx="36" cy="180" r="7"/>
+      <circle class="cy-cia__dot" cx="304" cy="180" r="7"/>
+      <text class="cy-cia__c" x="170" y="106">CIA</text>
+      <text class="cy-cia__lab" x="170" y="14" text-anchor="middle">Confidentiality</text>
+      <text class="cy-cia__sub" x="170" y="204" text-anchor="middle">the three things security protects</text>
+      <text class="cy-cia__lab" x="24" y="198" text-anchor="start">Integrity</text>
+      <text class="cy-cia__lab" x="316" y="198" text-anchor="end">Availability</text>
+    </svg>
+    <figcaption class="cy-diagram__cap">
+      <span><b>Confidentiality</b> — only the right people can see it.</span>
+      <span><b>Integrity</b> — it hasn't been tampered with.</span>
+      <span><b>Availability</b> — it works when you need it.</span>
+    </figcaption>
+  </figure>
+
+{% elif key == "data-travels" %}
+  <figure class="cy-diagram cy-flow" role="img"
+          aria-label="How your information travels: your device, to the router, across the internet, to a server.">
+    <div class="cy-flow__track">
+      <span class="cy-flow__node">Your device</span>
+      <span class="cy-flow__arrow" aria-hidden="true"><svg class="cy-i"><use href="#i-arrow-right"/></svg></span>
+      <span class="cy-flow__node">Router</span>
+      <span class="cy-flow__arrow" aria-hidden="true"><svg class="cy-i"><use href="#i-arrow-right"/></svg></span>
+      <span class="cy-flow__node">The internet</span>
+      <span class="cy-flow__arrow" aria-hidden="true"><svg class="cy-i"><use href="#i-arrow-right"/></svg></span>
+      <span class="cy-flow__node">A server</span>
+    </div>
+    <figcaption class="cy-diagram__cap cy-diagram__cap--single">
+      Your information passes through every step — so it's worth protecting at each one.
+    </figcaption>
+  </figure>
+
+{% elif key == "phishing-email" %}
+  <figure class="cy-diagram cy-email" role="img"
+          aria-label="An annotated suspicious email: a lookalike sender address, an urgent deadline, and a risky link.">
+    <div class="cy-email__card">
+      <div class="cy-email__line">
+        <span class="cy-email__k">From</span>
+        <span class="cy-email__v">Flour Supplier &lt;<mark class="cy-email__flag">billing@flour-supplier-au.info</mark>&gt;</span>
+      </div>
+      <p class="cy-email__note">Lookalike domain — not your real supplier's address.</p>
+      <div class="cy-email__line">
+        <span class="cy-email__k">Subject</span>
+        <span class="cy-email__v"><mark class="cy-email__flag">Pay the overdue invoice within the hour or deliveries stop</mark></span>
+      </div>
+      <p class="cy-email__note">Urgency and a deadline — designed to stop you thinking.</p>
+      <div class="cy-email__body">
+        Our bank details have changed. <mark class="cy-email__flag">View the invoice →</mark>
+      </div>
+      <p class="cy-email__note">An unexpected link and a change of bank details — don't click; verify by phone.</p>
+    </div>
   </figure>
 {% endif %}
