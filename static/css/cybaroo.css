@@ -4981,3 +4981,42 @@ a.cy-path__link:hover { background: var(--cy-surface-2); }
   margin: 0;
   padding-left: 1.1rem;
 }
+
+
+/* --- Activity: branching scenario ----------------------------------------- */
+
+.cy-branch {
+  background: var(--cy-surface);
+  border: 1px solid var(--cy-border);
+  border-radius: var(--cy-r-lg);
+  padding: 1.4rem 1.5rem;
+}
+.cy-branch__scene {
+  color: var(--cy-text);
+  font-size: 1.05rem;
+  line-height: 1.55;
+  margin: 0 0 1.25rem;
+}
+.cy-branch__scene.is-ending {
+  border-left: 3px solid var(--cy-cyan);
+  color: var(--cy-text);
+  padding-left: 1rem;
+}
+.cy-branch__choices { display: flex; flex-direction: column; gap: 0.6rem; }
+.cy-branch__choice {
+  background: var(--cy-surface-2);
+  border: 1px solid var(--cy-border-lift);
+  border-radius: var(--cy-r-lg);
+  color: var(--cy-text);
+  cursor: pointer;
+  font: inherit;
+  padding: 0.85rem 1.1rem;
+  text-align: left;
+  transition: border-color 0.12s ease, transform 0.12s ease;
+}
+.cy-branch__choice:hover:not(:disabled) { border-color: var(--cy-violet); transform: translateX(3px); }
+.cy-branch__choice:disabled { cursor: default; opacity: 0.55; }
+.cy-branch__feedback.is-good { color: var(--cy-cyan-soft); }
+.cy-branch__feedback.is-bad { color: var(--cy-flame); }
+.cy-branch__feedback.is-neutral { color: var(--cy-text-2); }
+.cy-branch__next { align-self: flex-start; margin-top: 0.25rem; }

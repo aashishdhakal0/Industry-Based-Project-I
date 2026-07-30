@@ -852,3 +852,28 @@ def test_password_activity_renders_with_its_rules(client_student, modules):
     frag = html.split('<script id="t-pw" type="application/json">', 1)[1].split("</script>", 1)[0]
     cfg = _json.loads(frag)
     assert cfg["target"] == "strong" and "password" in cfg["common"]
+
+
+@pytest.mark.django_db
+def test_branch_activity_renders_a_scenario_that_reaches_an_ending(client_student, modules):
+    lesson = modules[0].lessons.order_by("lesson_number").first()
+    add_activity(lesson, 1, "t-branch", "BRANCH", 10, {
+        "prompt": "Decide.",
+        "start": "n1",
+        "nodes": {
+            "n1": {"text": "An urgent invoice arrives.", "choices": [
+                {"label": "Verify by phone", "to": "end", "outcome": "good", "feedback": "Right."},
+                {"label": "Pay now", "to": "n1bad", "outcome": "bad", "feedback": "Scam."},
+            ]},
+            "n1bad": {"text": "The money's gone.", "choices": [{"label": "See the better path", "to": "end"}]},
+            "end": {"text": "Verify before you pay.", "choices": []},
+        },
+    })
+    html = client_student.get(
+        reverse("learn:lesson", args=[modules[0].order_index, lesson.lesson_number])
+    ).content.decode()
+    assert 'data-activity-kind="BRANCH"' in html
+    frag = html.split('<script id="t-branch" type="application/json">', 1)[1].split("</script>", 1)[0]
+    cfg = _json.loads(frag)
+    assert cfg["start"] in cfg["nodes"]
+    assert any(not n["choices"] for n in cfg["nodes"].values())   # has an ending

@@ -286,6 +286,64 @@
     input.addEventListener("input", grade);
   };
 
+  // -------------------------------------------------------------- BRANCH ----
+  CONTROLLERS.BRANCH = function (root, cfg) {
+    if (cfg.prompt) root.appendChild(el("p", "cy-act__prompt", cfg.prompt));
+
+    var box = el("div", "cy-branch");
+    var scene = el("p", "cy-branch__scene");
+    scene.setAttribute("aria-live", "polite");
+    var choices = el("div", "cy-branch__choices");
+    var feedback = el("p", "cy-act__feedback cy-branch__feedback");
+    feedback.setAttribute("aria-live", "polite");
+    box.appendChild(scene);
+    box.appendChild(choices);
+    box.appendChild(feedback);
+    root.appendChild(box);
+
+    function clear(node) { while (node.firstChild) node.removeChild(node.firstChild); }
+
+    function renderNode(id) {
+      var node = cfg.nodes[id];
+      if (!node) return;
+      scene.textContent = node.text;
+      clear(choices);
+      feedback.textContent = "";
+      feedback.className = "cy-act__feedback cy-branch__feedback";
+
+      if (!node.choices || node.choices.length === 0) {
+        box.classList.add("is-complete");
+        scene.classList.add("is-ending");
+        solved(root);
+        return;
+      }
+      node.choices.forEach(function (ch) {
+        var b = el("button", "cy-branch__choice", ch.label);
+        b.type = "button";
+        b.addEventListener("click", function () { choose(ch); });
+        choices.appendChild(b);
+      });
+    }
+
+    function choose(ch) {
+      // Lock the current choices.
+      Array.prototype.forEach.call(choices.children, function (b) { b.disabled = true; });
+      if (ch.feedback) {
+        feedback.className = "cy-act__feedback cy-branch__feedback is-" +
+          (ch.outcome === "good" ? "good" : ch.outcome === "bad" ? "bad" : "neutral");
+        feedback.textContent = ch.feedback;
+        var next = el("button", "cy-btn cy-btn--primary cy-branch__next", "Continue");
+        next.type = "button";
+        next.addEventListener("click", function () { renderNode(ch.to); });
+        choices.appendChild(next);
+      } else {
+        renderNode(ch.to);
+      }
+    }
+
+    renderNode(cfg.start);
+  };
+
   // A kind with no controller yet (or a broken config) must never trap the
   // learner: show a gentle note and let them continue.
   function fallback(c) {
