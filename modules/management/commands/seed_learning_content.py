@@ -209,12 +209,13 @@ def _placeholder_sim(module_title):
 def _seed_lesson_tasks(lesson, tasks):
     """Seed a lesson's interactive tasks idempotently (keyed on task_key).
 
-    Check/scenario options are stored in the task's JSON payload. Tasks no longer
-    present in the content are pruned, so re-running mirrors the content exactly.
+    Each activity carries its own `payload` config verbatim (sort/inbox/spot/
+    password/branch); legacy check/scenario tasks build theirs from options.
+    Tasks no longer present in the content are pruned, so re-running mirrors the
+    content exactly.
     """
     seen = []
     for order, t in enumerate(tasks, start=1):
-        payload = {}
         if t["kind"] in ("check", "scenario"):
             payload = {
                 "question": t.get("question", ""),
@@ -224,6 +225,8 @@ def _seed_lesson_tasks(lesson, tasks):
                     for (text, correct, explanation) in t["options"]
                 ],
             }
+        else:
+            payload = t.get("payload", {})
         LessonTask.objects.update_or_create(
             lesson=lesson,
             task_key=t["key"],

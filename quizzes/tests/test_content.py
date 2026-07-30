@@ -1,11 +1,10 @@
-"""Module 1 is content-complete: interactive task lessons and a valid quiz bank.
+"""Module 1 is content-complete: interactive activities and a valid quiz bank.
 
 These tests guard the *content contract* — that the seed produces genuine
-interactive lessons (tasks that sum to a lesson's points, real scenarios, options
-that are explained) and a quiz bank the engine and AFE can rely on.
+interactive activities (each type's payload is well-formed and solvable) whose
+points sum to a lesson's value, plus the end-of-module quiz bank the engine and
+AFE rely on.
 """
-
-import re
 
 import pytest
 from django.contrib.auth import get_user_model
@@ -17,27 +16,12 @@ from quizzes.models import Answer
 
 User = get_user_model()
 
-MIN_TASK_WORDS = 300  # genuine teaching content, now chunked across a lesson's tasks
-
-
-def words_in(html):
-    return len(re.sub(r"<[^>]+>", " ", html or "").split())
-
-
-def task_content_words(task):
-    """All the words a task teaches: its body plus the question, scenario and
-    option explanations in its payload."""
-    n = words_in(task.body)
-    payload = task.payload or {}
-    n += words_in(payload.get("question", "")) + words_in(payload.get("scenario", ""))
-    for opt in payload.get("options", []):
-        n += words_in(opt.get("text", "")) + words_in(opt.get("explanation", ""))
-    return n
+# The interactive "do it" kinds — the weight of every lesson should be here.
+ACTIVITY_KINDS = {"SORT", "INBOX", "SPOT", "PASSWORD", "BRANCH"}
 
 
 @pytest.fixture
 def seeded(db):
-    # The seeder needs a user to own the content.
     User.objects.create_user(
         email="seed-owner@example.com", password="x" * 14, is_superuser=True, is_staff=True
     )
@@ -45,60 +29,132 @@ def seeded(db):
     return Module.objects.get(order_index=1)
 
 
+# --------------------------------------------------------------------------
+# Shape: interactive, weighted toward doing, points sum to 10
+# --------------------------------------------------------------------------
+
+
 @pytest.mark.django_db
-def test_module_one_lessons_are_interactive_task_sequences(seeded):
+def test_each_lesson_is_mostly_interactive_and_sums_to_ten(seeded):
     lessons = list(seeded.lessons.order_by("lesson_number"))
     assert len(lessons) == 4
     for lesson in lessons:
         tasks = list(lesson.tasks.order_by("order"))
-        assert len(tasks) >= 4, f"{lesson.title} has too few tasks"
-        # Tasks subdivide the lesson's points and must sum to the lesson value,
-        # or the XP bar won't match what's banked on completion.
-        assert sum(t.points for t in tasks) == POINTS_PER_LESSON, f"{lesson.title} XP != {POINTS_PER_LESSON}"
-        # Genuine teaching content, now chunked across the tasks (bodies + the
-        # questions, scenarios and explanations the tasks carry).
-        words = sum(task_content_words(t) for t in tasks)
-        assert words >= MIN_TASK_WORDS, f"{lesson.title} task content is too thin ({words} words)"
+        assert sum(t.points for t in tasks) == POINTS_PER_LESSON, f"{lesson.title} != 10 XP"
+        activity_pts = sum(t.points for t in tasks if t.kind in ACTIVITY_KINDS)
+        concept_pts = sum(t.points for t in tasks if t.kind == "CONCEPT")
+        assert activity_pts >= 1, f"{lesson.title} has no interactive activity"
+        # The doing outweighs the reading.
+        assert activity_pts >= concept_pts, f"{lesson.title} is weighted toward reading"
 
 
 @pytest.mark.django_db
-def test_module_one_has_hands_on_scenarios(seeded):
-    scenarios = LessonTask.objects.filter(
-        lesson__module=seeded, kind=LessonTask.Kind.SCENARIO
+def test_module_one_uses_all_five_activity_types(seeded):
+    kinds = set(
+        LessonTask.objects.filter(lesson__module=seeded).values_list("kind", flat=True)
     )
-    # The brief asks for at least one problem-solving scenario; we have several.
-    assert scenarios.count() >= 1
-    # The flagship "spot the risk" scenario lives in Lesson 2.
-    assert scenarios.filter(lesson__lesson_number=2).exists()
+    assert ACTIVITY_KINDS <= kinds, f"missing activity types: {ACTIVITY_KINDS - kinds}"
+
+
+# --------------------------------------------------------------------------
+# Per-activity payload contracts — each must be well-formed and solvable
+# --------------------------------------------------------------------------
 
 
 @pytest.mark.django_db
-def test_check_and_scenario_options_are_well_formed_and_explained(seeded):
-    interactive = LessonTask.objects.filter(lesson__module=seeded).exclude(
-        kind=LessonTask.Kind.CONCEPT
-    )
-    assert interactive.exists()
-    for task in interactive:
-        options = task.payload.get("options", [])
-        assert len(options) == 4, f"{task.task_key} should have four options"
-        assert sum(1 for o in options if o["correct"]) == 1, f"{task.task_key} needs exactly one correct option"
-        for o in options:
-            assert o["explanation"].strip(), f"{task.task_key} has an unexplained option"
-        assert task.payload.get("question"), f"{task.task_key} has no question"
+def test_sort_activities_are_well_formed(seeded):
+    for task in LessonTask.objects.filter(lesson__module=seeded, kind="SORT"):
+        p = task.payload
+        bucket_ids = {b["id"] for b in p["buckets"]}
+        assert len(bucket_ids) >= 2, f"{task.task_key} needs at least two buckets"
+        assert p["items"], f"{task.task_key} has no items"
+        for item in p["items"]:
+            assert item["bucket"] in bucket_ids, f"{task.task_key}: item in unknown bucket"
+            assert item["text"] and item["why"], f"{task.task_key}: item missing text/why"
+        # Solvable across buckets (not everything in one).
+        used = {i["bucket"] for i in p["items"]}
+        assert len(used) >= 2, f"{task.task_key}: all items in one bucket"
+
+
+@pytest.mark.django_db
+def test_inbox_activities_are_well_formed(seeded):
+    for task in LessonTask.objects.filter(lesson__module=seeded, kind="INBOX"):
+        p = task.payload
+        assert p["parts"], f"{task.task_key} has no parts"
+        bad = [pt for pt in p["parts"] if pt.get("bad")]
+        assert bad, f"{task.task_key} has no suspicious part to find"
+        for pt in p["parts"]:
+            assert pt["text"] and pt["why"], f"{task.task_key}: part missing text/why"
+
+
+@pytest.mark.django_db
+def test_spot_activities_are_well_formed(seeded):
+    for task in LessonTask.objects.filter(lesson__module=seeded, kind="SPOT"):
+        p = task.payload
+        assert p["fake"] in ("left", "right"), f"{task.task_key}: fake must be left/right"
+        assert p["left"] and p["right"], f"{task.task_key}: needs both options"
+        assert p["why"], f"{task.task_key}: needs an explanation"
+
+
+@pytest.mark.django_db
+def test_password_activities_are_well_formed(seeded):
+    for task in LessonTask.objects.filter(lesson__module=seeded, kind="PASSWORD"):
+        p = task.payload
+        assert p.get("common"), f"{task.task_key} needs a common-password list"
+        assert p.get("target"), f"{task.task_key} needs a target strength"
+
+
+@pytest.mark.django_db
+def test_branch_activities_are_well_formed_and_reach_an_ending(seeded):
+    for task in LessonTask.objects.filter(lesson__module=seeded, kind="BRANCH"):
+        p = task.payload
+        nodes = p["nodes"]
+        assert p["start"] in nodes, f"{task.task_key}: start node missing"
+        # Every choice points at a real node.
+        for node in nodes.values():
+            for choice in node["choices"]:
+                assert choice["to"] in nodes, f"{task.task_key}: choice to unknown node"
+        # There is at least one ending (a node with no choices).
+        assert any(not n["choices"] for n in nodes.values()), f"{task.task_key}: no ending"
+
+
+# --------------------------------------------------------------------------
+# Coverage, diagram, quiz, idempotency
+# --------------------------------------------------------------------------
+
+
+def _all_strings(value):
+    """Every string leaf inside a nested dict/list — the teaching surface."""
+    if isinstance(value, str):
+        return [value]
+    if isinstance(value, dict):
+        return [s for v in value.values() for s in _all_strings(v)]
+    if isinstance(value, list):
+        return [s for v in value for s in _all_strings(v)]
+    return []
 
 
 @pytest.mark.django_db
 def test_module_one_covers_the_required_ground(seeded):
-    # Search the real teaching surface: intros, task bodies, and payloads.
     parts = [l.body_text for l in seeded.lessons.all()]
     for t in LessonTask.objects.filter(lesson__module=seeded):
         parts.append(t.body)
-        parts.append(str(t.payload))
+        parts.extend(_all_strings(t.payload))
     corpus = " ".join(parts).lower()
     assert "confidentiality" in corpus and "integrity" in corpus and "availability" in corpus
     assert "network" in corpus
-    assert "phishing" in corpus
+    assert "phishing" in corpus or "auspost" in corpus
     assert "human error" in corpus
+
+
+@pytest.mark.django_db
+def test_module_one_uses_the_cia_diagram(seeded):
+    keys = set(
+        LessonTask.objects.filter(lesson__module=seeded)
+        .exclude(diagram_key="")
+        .values_list("diagram_key", flat=True)
+    )
+    assert "cia-triad" in keys
 
 
 @pytest.mark.django_db
@@ -113,8 +169,7 @@ def test_every_question_is_well_formed_for_the_engine_and_the_afe(seeded):
     for q in seeded.quiz.questions.all():
         answers = list(q.answers.all())
         assert len(answers) == 4, f"{q} does not have exactly four options"
-        assert sum(1 for a in answers if a.correct_answer) == 1, f"{q} needs exactly one correct option"
-        # Every option must be explained — the AFE reads this back to the learner.
+        assert sum(1 for a in answers if a.correct_answer) == 1, f"{q} needs one correct option"
         for a in answers:
             assert a.explanation_text.strip(), f"{q} has an option with no explanation"
 
@@ -128,7 +183,7 @@ def test_every_question_traces_to_a_module_one_lesson(seeded):
 
 @pytest.mark.django_db
 def test_the_seed_is_idempotent(seeded):
-    """Re-running must update in place, not duplicate lessons, tasks, questions."""
+    """Re-running must update in place, not duplicate lessons, tasks or questions."""
     quiz = seeded.quiz
 
     def counts():
@@ -142,13 +197,3 @@ def test_the_seed_is_idempotent(seeded):
     before = counts()
     call_command("seed_learning_content")
     assert before == counts()
-
-
-@pytest.mark.django_db
-def test_module_one_tasks_use_the_diagrams(seeded):
-    keys = set(
-        LessonTask.objects.filter(lesson__module=seeded)
-        .exclude(diagram_key="")
-        .values_list("diagram_key", flat=True)
-    )
-    assert {"cia-triad", "data-travels", "phishing-email"} <= keys

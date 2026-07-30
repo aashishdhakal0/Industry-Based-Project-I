@@ -235,9 +235,15 @@ class LessonTask(models.Model):
     """
 
     class Kind(models.TextChoices):
-        CONCEPT = "CONCEPT", "Concept"
-        CHECK = "CHECK", "Check question"
-        SCENARIO = "SCENARIO", "Scenario"
+        CONCEPT = "CONCEPT", "Concept"          # a short teaching intro
+        CHECK = "CHECK", "Check question"        # legacy simple MCQ
+        SCENARIO = "SCENARIO", "Scenario"        # legacy MCQ scenario
+        # Interactive "do it" activities — config lives in `payload`.
+        SORT = "SORT", "Sort into buckets"
+        INBOX = "INBOX", "Inspect an inbox"
+        SPOT = "SPOT", "Spot the fake"
+        PASSWORD = "PASSWORD", "Password builder"
+        BRANCH = "BRANCH", "Branching scenario"
 
     lesson = models.ForeignKey(
         Lesson, on_delete=models.CASCADE, related_name="tasks"
