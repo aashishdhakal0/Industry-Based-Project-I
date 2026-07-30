@@ -179,7 +179,12 @@
 
 {% block scripts %}
   {% if has_tasks %}
-    <script src="{% static 'js/activities.js' %}" defer></script>
-    <script src="{% static 'js/lesson.js' %}" defer></script>
+    {% comment %}
+      ?v= cache-buster: in DEBUG (unhashed static) a browser can hold a stale
+      lesson.js that 304s keep alive. Bump this when the room JS changes so the
+      URL is new and the old cached copy can't win. (Prod hashes it anyway.)
+    {% endcomment %}
+    <script src="{% static 'js/activities.js' %}?v=2" defer></script>
+    <script src="{% static 'js/lesson.js' %}?v=2" defer></script>
   {% endif %}
 {% endblock %}
