@@ -4881,3 +4881,103 @@ a.cy-path__link:hover { background: var(--cy-surface-2); }
 @media (max-width: 480px) {
   .cy-sort__buckets, .cy-spot__pair { grid-template-columns: 1fr; }
 }
+
+
+/* --- Activity: simulated inbox --------------------------------------------- */
+
+.cy-inbox {
+  background: var(--cy-surface);
+  border: 1px solid var(--cy-border);
+  border-radius: var(--cy-r-lg);
+  overflow: hidden;
+}
+.cy-inbox__row {
+  border-bottom: 1px solid var(--cy-border);
+  padding: 0.7rem 0.9rem;
+}
+.cy-inbox__row:last-child { border-bottom: 0; }
+.cy-inbox__zone {
+  color: var(--cy-text-3);
+  display: block;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.3rem;
+  text-transform: uppercase;
+}
+.cy-inbox__part {
+  background: transparent;
+  border: 1px dashed transparent;
+  border-radius: 8px;
+  color: var(--cy-text);
+  cursor: pointer;
+  display: inline;
+  font: inherit;
+  line-height: 1.5;
+  padding: 0.1rem 0.25rem;
+  text-align: left;
+  transition: background-color 0.12s ease, border-color 0.12s ease;
+}
+.cy-inbox__part:hover:not(:disabled) { border-color: var(--cy-border-lift); background: var(--cy-surface-2); }
+.cy-inbox__part:disabled { cursor: default; }
+.cy-inbox__part.is-bad { background: rgba(255, 157, 77, 0.14); border-color: var(--cy-flame); border-style: solid; }
+.cy-inbox__part.is-ok { background: rgba(34, 211, 238, 0.08); border-color: var(--cy-cyan); border-style: solid; }
+.cy-inbox__why { display: block; font-size: 0.82rem; margin-top: 0.35rem; }
+.cy-inbox__why.is-bad { color: var(--cy-flame); }
+.cy-inbox__why.is-ok { color: var(--cy-text-3); }
+.cy-inbox__count {
+  color: var(--cy-text-3);
+  font-family: var(--cy-font-mono);
+  font-size: 0.8rem;
+  margin: 0.75rem 0 0;
+}
+
+/* --- Activity: live password builder --------------------------------------- */
+
+.cy-pw__input {
+  background: var(--cy-surface);
+  border: 1px solid var(--cy-border-lift);
+  border-radius: var(--cy-r-lg);
+  color: var(--cy-text);
+  font-family: var(--cy-font-mono);
+  font-size: 1rem;
+  padding: 0.75rem 1rem;
+  width: 100%;
+}
+.cy-pw__input:focus-visible { border-color: var(--cy-violet); outline: none; }
+.cy-pw__meter {
+  background: var(--cy-surface-3);
+  border-radius: 999px;
+  height: 8px;
+  margin: 0.9rem 0 0.5rem;
+  overflow: hidden;
+}
+.cy-pw__bar { border-radius: 999px; height: 100%; transition: width 0.25s ease, background 0.25s ease; width: 0; }
+.cy-pw__bar[data-strength="weak"] { background: var(--cy-flame); width: 33%; }
+.cy-pw__bar[data-strength="fair"] { background: var(--cy-gold); width: 66%; }
+.cy-pw__bar[data-strength="strong"] { background: var(--cy-grad); width: 100%; }
+.cy-pw__label { font-size: 0.85rem; font-weight: 600; margin: 0 0 0.9rem; }
+.cy-pw__label.is-weak { color: var(--cy-flame); }
+.cy-pw__label.is-fair { color: var(--cy-gold); }
+.cy-pw__label.is-strong { color: var(--cy-cyan-soft); }
+.cy-pw__label.is-none, .cy-pw__label.is- { color: var(--cy-text-3); }
+.cy-pw__checks { list-style: none; margin: 0 0 0.9rem; padding: 0; }
+.cy-pw__check {
+  color: var(--cy-text-3);
+  font-size: 0.85rem;
+  padding: 0.2rem 0 0.2rem 1.6rem;
+  position: relative;
+}
+.cy-pw__check::before {
+  content: "○";
+  left: 0.3rem;
+  position: absolute;
+}
+.cy-pw__check.is-pass { color: var(--cy-text); }
+.cy-pw__check.is-pass::before { color: var(--cy-cyan-soft); content: "✓"; }
+.cy-pw__tips {
+  color: var(--cy-text-3);
+  font-size: 0.8rem;
+  margin: 0;
+  padding-left: 1.1rem;
+}

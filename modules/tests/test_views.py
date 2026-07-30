@@ -817,3 +817,38 @@ def test_activity_completion_banks_through_the_normal_path(client_student, modul
     assert resp.status_code == 200
     assert resp.json()["lesson_completed"] is True   # single task lesson
     assert ProgressRecord.objects.filter(user=student, lesson=lesson).exists()
+
+
+@pytest.mark.django_db
+def test_inbox_activity_renders_with_findable_tells(client_student, modules):
+    lesson = modules[0].lessons.order_by("lesson_number").first()
+    add_activity(lesson, 1, "t-inbox", "INBOX", 10, {
+        "prompt": "Find the tells.",
+        "parts": [
+            {"id": "from", "zone": "From", "text": "svc@auspost-delivery.info", "bad": True, "why": "lookalike"},
+            {"id": "b1", "zone": "Body", "text": "context sentence", "bad": False, "why": "fine"},
+        ],
+    })
+    html = client_student.get(
+        reverse("learn:lesson", args=[modules[0].order_index, lesson.lesson_number])
+    ).content.decode()
+    assert 'data-activity-kind="INBOX"' in html and "activities.js" in html
+    frag = html.split('<script id="t-inbox" type="application/json">', 1)[1].split("</script>", 1)[0]
+    cfg = _json.loads(frag)
+    assert sum(1 for p in cfg["parts"] if p["bad"]) == 1
+
+
+@pytest.mark.django_db
+def test_password_activity_renders_with_its_rules(client_student, modules):
+    lesson = modules[0].lessons.order_by("lesson_number").first()
+    add_activity(lesson, 1, "t-pw", "PASSWORD", 10, {
+        "prompt": "Build one.", "target": "strong",
+        "common": ["password", "123456"], "tips": ["longer is better"],
+    })
+    html = client_student.get(
+        reverse("learn:lesson", args=[modules[0].order_index, lesson.lesson_number])
+    ).content.decode()
+    assert 'data-activity-kind="PASSWORD"' in html
+    frag = html.split('<script id="t-pw" type="application/json">', 1)[1].split("</script>", 1)[0]
+    cfg = _json.loads(frag)
+    assert cfg["target"] == "strong" and "password" in cfg["common"]

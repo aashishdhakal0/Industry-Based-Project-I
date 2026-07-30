@@ -157,6 +157,135 @@
     root.appendChild(feedback);
   };
 
+  // --------------------------------------------------------------- INBOX ----
+  CONTROLLERS.INBOX = function (root, cfg) {
+    if (cfg.prompt) root.appendChild(el("p", "cy-act__prompt", cfg.prompt));
+
+    var card = el("div", "cy-inbox");
+    var totalBad = 0, found = 0;
+
+    cfg.parts.forEach(function (part) {
+      if (part.bad) totalBad += 1;
+      var row = el("div", "cy-inbox__row");
+      row.appendChild(el("span", "cy-inbox__zone", part.zone));
+      var btn = el("button", "cy-inbox__part", part.text);
+      btn.type = "button";
+      var note = el("span", "cy-inbox__why");
+      btn.addEventListener("click", function () {
+        if (btn.disabled) return;
+        btn.disabled = true;
+        note.textContent = part.why;
+        if (part.bad) {
+          btn.classList.add("is-bad");
+          note.classList.add("is-bad");
+          found += 1;
+          update();
+          if (found === totalBad) {
+            feedback.className = "cy-act__feedback is-good";
+            feedback.textContent = "That's all the tells — you'd spot this in real life.";
+            solved(root);
+          }
+        } else {
+          btn.classList.add("is-ok");
+          note.classList.add("is-ok");
+        }
+      });
+      row.appendChild(btn);
+      row.appendChild(note);
+      card.appendChild(row);
+    });
+    root.appendChild(card);
+
+    var counter = el("p", "cy-inbox__count");
+    var feedback = el("p", "cy-act__feedback");
+    feedback.setAttribute("aria-live", "polite");
+    root.appendChild(counter);
+    root.appendChild(feedback);
+
+    function update() {
+      counter.textContent = found + " of " + totalBad + " tells found";
+    }
+    update();
+  };
+
+  // ------------------------------------------------------------ PASSWORD ----
+  CONTROLLERS.PASSWORD = function (root, cfg) {
+    if (cfg.prompt) root.appendChild(el("p", "cy-act__prompt", cfg.prompt));
+    var common = (cfg.common || []).map(function (s) { return String(s).toLowerCase(); });
+    var done = false;
+
+    var wrap = el("div", "cy-pw");
+    var input = el("input", "cy-pw__input");
+    input.type = "text";
+    input.setAttribute("autocomplete", "off");
+    input.setAttribute("autocapitalize", "off");
+    input.setAttribute("spellcheck", "false");
+    input.setAttribute("aria-label", "Try a password");
+    input.setAttribute("placeholder", "Type a password to test…");
+    wrap.appendChild(input);
+
+    var meter = el("div", "cy-pw__meter");
+    var bar = el("div", "cy-pw__bar");
+    meter.appendChild(bar);
+    wrap.appendChild(meter);
+    var label = el("p", "cy-pw__label", "Start typing…");
+    wrap.appendChild(label);
+
+    var checks = [
+      { key: "len", text: "At least 12 characters", test: function (v) { return v.length >= 12; } },
+      { key: "mix", text: "A mix of character types, or a few words", test: function (v) {
+          var classes = 0;
+          if (/[a-z]/.test(v)) classes++;
+          if (/[A-Z]/.test(v)) classes++;
+          if (/[0-9]/.test(v)) classes++;
+          if (/[^a-zA-Z0-9]/.test(v)) classes++;
+          return classes >= 2 || v.trim().indexOf(" ") > 0;
+      } },
+      { key: "common", text: "Not a common or guessable password", test: function (v) {
+          var low = v.toLowerCase();
+          return v.length > 0 && common.indexOf(low) === -1;
+      } },
+    ];
+    var list = el("ul", "cy-pw__checks");
+    checks.forEach(function (c) {
+      c.node = el("li", "cy-pw__check", c.text);
+      list.appendChild(c.node);
+    });
+    wrap.appendChild(list);
+
+    if (cfg.tips && cfg.tips.length) {
+      var tips = el("ul", "cy-pw__tips");
+      cfg.tips.forEach(function (t) { tips.appendChild(el("li", null, t)); });
+      wrap.appendChild(tips);
+    }
+
+    var feedback = el("p", "cy-act__feedback");
+    feedback.setAttribute("aria-live", "polite");
+    wrap.appendChild(feedback);
+    root.appendChild(wrap);
+
+    function grade() {
+      var v = input.value;
+      var passed = 0;
+      checks.forEach(function (c) {
+        var ok = c.test(v);
+        c.node.classList.toggle("is-pass", ok);
+        if (ok) passed += 1;
+      });
+      var strength = v.length === 0 ? "" : passed <= 1 ? "weak" : passed === 2 ? "fair" : "strong";
+      bar.setAttribute("data-strength", strength);
+      label.textContent = strength ? "Strength: " + strength : "Start typing…";
+      label.className = "cy-pw__label is-" + (strength || "none");
+      if (strength === "strong" && !done) {
+        done = true;
+        feedback.className = "cy-act__feedback is-good";
+        feedback.textContent = "That's a strong one — long, mixed and not guessable.";
+        solved(root);
+      }
+    }
+    input.addEventListener("input", grade);
+  };
+
   // A kind with no controller yet (or a broken config) must never trap the
   // learner: show a gentle note and let them continue.
   function fallback(c) {
