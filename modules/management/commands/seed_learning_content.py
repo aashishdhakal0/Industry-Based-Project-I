@@ -214,6 +214,14 @@ def _seed_lesson_tasks(lesson, tasks):
     Tasks no longer present in the content are pruned, so re-running mirrors the
     content exactly.
     """
+    from modules.models import sanitise_lesson_html
+
+    def _options(pairs):
+        return [
+            {"text": text, "correct": correct, "explanation": explanation}
+            for (text, correct, explanation) in pairs
+        ]
+
     seen = []
     for order, t in enumerate(tasks, start=1):
         if t["kind"] in ("check", "scenario"):
@@ -221,13 +229,22 @@ def _seed_lesson_tasks(lesson, tasks):
                 "question": t.get("question", ""),
                 "scenario": t.get("scenario", ""),
                 "hint": t.get("hint", ""),
-                "options": [
-                    {"text": text, "correct": correct, "explanation": explanation}
-                    for (text, correct, explanation) in t["options"]
-                ],
+                "options": _options(t["options"]),
             }
         else:
-            payload = t.get("payload", {})
+            payload = dict(t.get("payload", {}))
+        # Optional mid-panel check and a second reading block, rendered between
+        # the main body and the panel's end interactive. body2 is sanitised
+        # (it is HTML rendered with |safe); the payload itself is not.
+        if t.get("inline_check"):
+            ic = t["inline_check"]
+            payload["inline_check"] = {
+                "question": ic.get("question", ""),
+                "hint": ic.get("hint", ""),
+                "options": _options(ic["options"]),
+            }
+        if t.get("body2"):
+            payload["body2"] = sanitise_lesson_html(t["body2"])
         LessonTask.objects.update_or_create(
             lesson=lesson,
             task_key=t["key"],

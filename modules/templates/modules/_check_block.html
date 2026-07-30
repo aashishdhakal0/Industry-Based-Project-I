@@ -1,0 +1,30 @@
+{% comment %}
+  One check question inside a panel. Reused for the mid-panel check and the
+  panel's main check. Context: q (question), options (list of {text,correct,
+  explanation}), hint, name (unique radio group name), label (optional heading).
+  Wrapped in [data-check-block] so lesson.js counts it as one completion slot.
+{% endcomment %}
+<div class="cy-check" data-check-block>
+  {% if label %}<p class="cy-panel__do-label">{{ label }}</p>{% endif %}
+  <p class="cy-task__q">{{ q }}</p>
+  <div class="cy-task__options" data-options>
+    {% for opt in options %}
+      <label class="cy-task__opt" data-opt data-correct="{% if opt.correct %}1{% endif %}">
+        <input type="radio" name="{{ name }}">
+        <span class="cy-task__opt-mark" aria-hidden="true"></span>
+        <span class="cy-task__opt-text">{{ opt.text }}</span>
+        <span class="cy-task__opt-why">{{ opt.explanation }}</span>
+      </label>
+    {% endfor %}
+  </div>
+  <div class="cy-panel__actions">
+    <button type="button" class="cy-btn cy-btn--primary" data-check>Check answer</button>
+    {% if hint %}
+      <button type="button" class="cy-task__hint-toggle" data-hint-toggle>
+        <svg class="cy-i" aria-hidden="true"><use href="#i-star"/></svg> Need a hint?
+      </button>
+    {% endif %}
+  </div>
+  {% if hint %}<p class="cy-task__hint" data-hint hidden>{{ hint }}</p>{% endif %}
+  <p class="cy-act__feedback" data-feedback aria-live="polite"></p>
+</div>

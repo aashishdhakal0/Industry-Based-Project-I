@@ -82,31 +82,16 @@
                 {% if task.scenario %}<div class="cy-task__scenario cy-prose">{{ task.scenario|safe }}</div>{% endif %}
                 {% if task.body %}<div class="cy-prose">{{ task.body|safe }}</div>{% endif %}
 
+                {# Optional mid-panel check, after the teaching, before the activity. #}
+                {% if task.inline_check %}
+                  {% include "modules/_check_block.html" with q=task.inline_check.question options=task.inline_check.options hint=task.inline_check.hint name="inline-"|add:task.task_key label="Quick check" %}
+                {% endif %}
+
+                {% if task.body2 %}<div class="cy-prose">{{ task.body2|safe }}</div>{% endif %}
+
+                {# The panel's end interactive. #}
                 {% if task.kind == "CHECK" or task.kind == "SCENARIO" %}
-                  <div class="cy-panel__do">
-                    <p class="cy-panel__do-label">Answer the question</p>
-                    <p class="cy-task__q">{{ task.question }}</p>
-                    <div class="cy-task__options" data-options>
-                      {% for opt in task.options %}
-                        <label class="cy-task__opt" data-opt data-correct="{% if opt.correct %}1{% endif %}">
-                          <input type="radio" name="opt-{{ task.id }}">
-                          <span class="cy-task__opt-mark" aria-hidden="true"></span>
-                          <span class="cy-task__opt-text">{{ opt.text }}</span>
-                          <span class="cy-task__opt-why">{{ opt.explanation }}</span>
-                        </label>
-                      {% endfor %}
-                    </div>
-                    <div class="cy-panel__actions">
-                      <button type="button" class="cy-btn cy-btn--primary" data-check>Check answer</button>
-                      {% if task.hint %}
-                        <button type="button" class="cy-task__hint-toggle" data-hint-toggle>
-                          <svg class="cy-i" aria-hidden="true"><use href="#i-star"/></svg> Need a hint?
-                        </button>
-                      {% endif %}
-                    </div>
-                    {% if task.hint %}<p class="cy-task__hint" data-hint hidden>{{ task.hint }}</p>{% endif %}
-                    <p class="cy-act__feedback" data-feedback aria-live="polite"></p>
-                  </div>
+                  {% include "modules/_check_block.html" with q=task.question options=task.options hint=task.hint name="main-"|add:task.task_key label="Answer the question" %}
                 {% elif task.kind == "CONCEPT" %}
                   <div class="cy-panel__actions">
                     <button type="button" class="cy-btn cy-btn--primary" data-complete>
@@ -186,7 +171,7 @@
       lesson.js that 304s keep alive. Bump this when the room JS changes so the
       URL is new and the old cached copy can't win. (Prod hashes it anyway.)
     {% endcomment %}
-    <script src="{% static 'js/lesson.js' %}?v=4" defer></script>
-    <script src="{% static 'js/activities.js' %}?v=4" defer></script>
+    <script src="{% static 'js/lesson.js' %}?v=5" defer></script>
+    <script src="{% static 'js/activities.js' %}?v=5" defer></script>
   {% endif %}
 {% endblock %}

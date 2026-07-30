@@ -1,14 +1,14 @@
 /* Interactive lesson room, TryHackMe-style: a scrollable page of numbered,
  * collapsible task panels with a progress bar.
  *
- * Without this file the panels render open (native <details>), the questions show
- * their answers as a study page, and a "mark lesson complete" button banks the
- * lesson. With it: each panel collapses, a Check button grades the question, the
- * activity panels complete on doing, each completion ticks the header, pops a
- * "+N XP" toast, fills the progress bar, and the last one fires the celebration.
+ * A panel can hold more than one interactive: an optional mid-panel check, and
+ * an end interactive (a check or an activity). Each is a "slot"; the panel
+ * completes (ticks, banks its XP, fills the bar, opens the next) only when every
+ * slot is satisfied. Without JS the panels render open, questions show as a
+ * study page, and a "mark lesson complete" button banks the lesson.
  *
  * Served from static/ (script-src 'self'); CSRF read from the fallback form's
- * hidden input (the cookie is HttpOnly). activities.js fires cy:solved.
+ * hidden input. activities.js fires cy:solved.
  */
 (function () {
   "use strict";
@@ -96,7 +96,7 @@
     }
   }
 
-  function markDone(panel) {
+  function markPanelDone(panel) {
     if (isDone(panel)) return;
     panel.setAttribute("data-done", "1");
     panel.classList.add("is-done");
@@ -126,25 +126,28 @@
     }
   }
 
-  function wireHint(panel) {
-    var hint = panel.querySelector("[data-hint]");
-    var toggle = panel.querySelector("[data-hint-toggle]");
+  // Each panel has one or more slots (check blocks, activities, a mark-complete).
+  // The panel is done only when every slot is satisfied.
+  function satisfySlot(panel) {
+    if (isDone(panel)) return;
+    panel.__slotsDone = (panel.__slotsDone || 0) + 1;
+    if (panel.__slotsDone >= panel.__slotsTotal) markPanelDone(panel);
+  }
+
+  function wireCheckBlock(panel, block) {
+    var checkBtn = block.querySelector("[data-check]");
+    var feedback = block.querySelector("[data-feedback]");
+    var hint = block.querySelector("[data-hint]");
+    var toggle = block.querySelector("[data-hint-toggle]");
     if (toggle) toggle.addEventListener("click", function () {
       if (hint) hint.hidden = false;
       toggle.hidden = true;
     });
-    return hint;
-  }
-
-  function wireCheck(panel) {
-    var checkBtn = panel.querySelector("[data-check]");
-    var feedback = panel.querySelector("[data-feedback]");
-    var hint = wireHint(panel);
-    var toggle = panel.querySelector("[data-hint-toggle]");
     if (!checkBtn) return;
+    var solved = false;
     checkBtn.addEventListener("click", function () {
-      if (isDone(panel)) return;
-      var opts = panel.querySelectorAll("[data-opt]");
+      if (solved) return;
+      var opts = block.querySelectorAll("[data-opt]");
       var chosen = null;
       Array.prototype.forEach.call(opts, function (o) {
         var inp = o.querySelector("input");
@@ -157,9 +160,11 @@
       var correct = chosen.getAttribute("data-correct") === "1";
       chosen.classList.add("is-revealed", correct ? "is-right" : "is-wrong");
       if (correct) {
+        solved = true;
+        block.classList.add("is-solved");
         if (feedback) { feedback.className = "cy-act__feedback is-good"; feedback.textContent = "Correct."; }
         Array.prototype.forEach.call(opts, function (o) { var inp = o.querySelector("input"); if (inp) inp.disabled = true; });
-        markDone(panel);
+        satisfySlot(panel);
       } else {
         if (feedback) { feedback.className = "cy-act__feedback is-bad"; feedback.textContent = "Not quite. Read the note, take the hint, and try again."; }
         if (hint) hint.hidden = false;
@@ -168,27 +173,27 @@
     });
   }
 
-  function wireConcept(panel) {
-    var btn = panel.querySelector("[data-complete]");
-    if (btn) btn.addEventListener("click", function () { markDone(panel); });
-  }
-
   panels.forEach(function (panel) {
-    var kind = panel.getAttribute("data-kind");
-    if (kind === "CHECK" || kind === "SCENARIO") wireCheck(panel);
-    else if (kind === "CONCEPT") wireConcept(panel);
-    // activities complete via cy:solved
+    var blocks = panel.querySelectorAll("[data-check-block]");
+    var activities = panel.querySelectorAll("[data-activity]");
+    var completes = panel.querySelectorAll("[data-complete]");
+    panel.__slotsTotal = blocks.length + activities.length + completes.length;
+    panel.__slotsDone = 0;
+    Array.prototype.forEach.call(blocks, function (b) { wireCheckBlock(panel, b); });
+    Array.prototype.forEach.call(completes, function (b) {
+      b.addEventListener("click", function () { satisfySlot(panel); });
+    });
+    // activity slots complete via cy:solved (below)
   });
 
   room.addEventListener("cy:solved", function (e) {
     var panel = e.target;
     while (panel && panel !== room && !panel.hasAttribute("data-task")) panel = panel.parentNode;
-    if (panel && panel !== room) markDone(panel);
+    if (panel && panel !== room) satisfySlot(panel);
   });
 
-  // Collapse all, open the first incomplete panel. Hide the no-JS fallback while
-  // there is still something to do (the celebration handles navigation); leave it
-  // visible as "Next lesson" when the whole lesson is already complete.
+  // Collapse all, open the first incomplete panel; hide the no-JS fallback while
+  // there is still something to do (the celebration handles navigation).
   var open = firstOpen();
   panels.forEach(function (p, i) { p.open = (i === open); });
   if (nojs && open !== -1) nojs.hidden = true;

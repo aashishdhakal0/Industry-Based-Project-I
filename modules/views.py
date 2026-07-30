@@ -187,6 +187,8 @@ def lesson(request, order_index, lesson_number):
             t.scenario = payload.get("scenario", "")
             t.question = payload.get("question", "")
             t.hint = payload.get("hint", "")
+            t.inline_check = payload.get("inline_check")   # optional mid-panel check
+            t.body2 = payload.get("body2", "")             # optional reading after it
 
     return render(
         request,

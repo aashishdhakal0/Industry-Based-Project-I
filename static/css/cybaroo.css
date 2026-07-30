@@ -5321,3 +5321,14 @@ a.cy-path__link:hover { background: var(--cy-surface-2); }
   .cy-panel__body { padding: 1.1rem 1.05rem 1.35rem; }
   .cy-panel__xp { display: none; }
 }
+
+
+/* --- Check blocks inside a panel (mid-panel check and the main check) ------ */
+
+.cy-check {
+  border-top: 1px dashed var(--cy-border-lift);
+  margin-top: 1.4rem;
+  padding-top: 1.3rem;
+}
+.cy-check.is-solved [data-check] { display: none; }
+.cy-check.is-solved { opacity: 0.92; }
