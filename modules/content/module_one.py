@@ -43,14 +43,8 @@ LESSONS = [
                 "share information — your laptop, the office printer, the eftpos "
                 "terminal, all talking through a router to the internet. Keeping it "
                 "safe comes down to the <strong>CIA triad</strong> (nothing to do "
-                "with spies):</p>"
-                "<ul>"
-                "<li><strong>Confidentiality</strong> — only the right people can "
-                "see it.</li>"
-                "<li><strong>Integrity</strong> — it hasn't been tampered with.</li>"
-                "<li><strong>Availability</strong> — it's there when you need it.</li>"
-                "</ul>"
-                "<p>Now try it yourself.</p>",
+                "with spies) — the three things every security decision protects, "
+                "shown here. Once they click, sort a few real situations yourself.</p>",
             },
             {
                 "key": "cia-sort",
