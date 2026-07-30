@@ -176,6 +176,17 @@
     if (index > 0) { index -= 1; render(); }
   });
 
+  // Interactive activities (activities.js) announce completion by firing
+  // cy:solved on their task. Treat it exactly like a correct check answer:
+  // mark the task solved so Continue lights up.
+  room.addEventListener("cy:solved", function (e) {
+    var task = e.target;
+    while (task && task !== room && !task.hasAttribute("data-task")) task = task.parentNode;
+    if (!task || task === room) return;
+    task.setAttribute("data-solved", "1");
+    if (task.classList.contains("is-current")) render();
+  });
+
   tasks.forEach(function (task) {
     Array.prototype.forEach.call(task.querySelectorAll(".cy-task__opt"), function (btn) {
       btn.addEventListener("click", function () { onOption(btn, task); });

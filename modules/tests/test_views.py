@@ -749,3 +749,71 @@ def test_each_diagram_renders_its_content():
 
 def test_an_unknown_diagram_key_renders_nothing():
     assert render_to_string("modules/_diagram.html", {"key": "does-not-exist"}).strip() == ""
+
+
+# --------------------------------------------------------------------------
+# Interactive activities — container + CSP-safe JSON config + script wiring
+# --------------------------------------------------------------------------
+
+import json as _json
+
+
+def add_activity(lesson, order, task_key, kind, points, payload):
+    return LessonTask.objects.create(
+        lesson=lesson, order=order, task_key=task_key, kind=kind,
+        points=points, body="", payload=payload,
+    )
+
+
+@pytest.mark.django_db
+def test_sort_activity_renders_container_and_json_config(client_student, modules):
+    lesson = modules[0].lessons.order_by("lesson_number").first()
+    add_activity(lesson, 1, "t-sort", "SORT", 10, {
+        "prompt": "Sort them.",
+        "buckets": [{"id": "safe", "label": "Safe"}, {"id": "risky", "label": "Risky"}],
+        "items": [{"id": "a", "text": "WPA3", "bucket": "safe", "why": "modern"}],
+    })
+    html = client_student.get(
+        reverse("learn:lesson", args=[modules[0].order_index, lesson.lesson_number])
+    ).content.decode()
+
+    assert 'data-activity data-activity-kind="SORT"' in html
+    assert 'data-config="t-sort"' in html
+    # CSP-safe config: inert application/json, not an executable script
+    assert '<script id="t-sort" type="application/json">' in html
+    assert "activities.js" in html
+    # the config actually carries the payload
+    frag = html.split('<script id="t-sort" type="application/json">', 1)[1].split("</script>", 1)[0]
+    cfg = _json.loads(frag)
+    assert {b["id"] for b in cfg["buckets"]} == {"safe", "risky"}
+
+
+@pytest.mark.django_db
+def test_spot_activity_config_marks_the_fake(client_student, modules):
+    lesson = modules[0].lessons.order_by("lesson_number").first()
+    add_activity(lesson, 1, "t-spot", "SPOT", 10, {
+        "prompt": "Pick the scam.",
+        "left": {"sender": "AusPost", "text": "real one"},
+        "right": {"sender": "AusPost", "text": "scam one"},
+        "fake": "right", "why": "lookalike link",
+    })
+    html = client_student.get(
+        reverse("learn:lesson", args=[modules[0].order_index, lesson.lesson_number])
+    ).content.decode()
+    assert 'data-activity-kind="SPOT"' in html
+    frag = html.split('<script id="t-spot" type="application/json">', 1)[1].split("</script>", 1)[0]
+    assert _json.loads(frag)["fake"] == "right"
+
+
+@pytest.mark.django_db
+def test_activity_completion_banks_through_the_normal_path(client_student, modules, student):
+    """Whatever the UI, completing the activity task records + banks like any task."""
+    lesson = modules[0].lessons.order_by("lesson_number").first()
+    task = add_activity(lesson, 1, "t-sort", "SORT", 10, {
+        "prompt": "x", "buckets": [{"id": "a", "label": "A"}],
+        "items": [{"id": "1", "text": "x", "bucket": "a", "why": "y"}],
+    })
+    resp = post_task(client_student, modules[0], lesson, task)
+    assert resp.status_code == 200
+    assert resp.json()["lesson_completed"] is True   # single task lesson
+    assert ProgressRecord.objects.filter(user=student, lesson=lesson).exists()

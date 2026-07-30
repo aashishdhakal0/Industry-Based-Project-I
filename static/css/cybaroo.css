@@ -4771,3 +4771,113 @@ a.cy-path__link:hover { background: var(--cy-surface-2); }
   .cy-room__title { font-size: 1.55rem; }
   .cy-room__foot { flex-wrap: wrap; }
 }
+
+
+/* --- Interactive activities (sort / spot / inbox / password / branch) ----- */
+
+.cy-activity { margin-top: 0.5rem; }
+.cy-act__prompt { color: var(--cy-text-2); font-weight: 500; margin: 0 0 1.1rem; }
+.cy-act__feedback {
+  border-radius: var(--cy-r-lg);
+  font-size: 0.9rem;
+  margin: 1rem 0 0;
+  min-height: 1.2em;
+  padding: 0.1rem 0;
+}
+.cy-act__feedback.is-good { color: var(--cy-cyan-soft); }
+.cy-act__feedback.is-bad { color: var(--cy-flame); }
+
+/* Sort — a tray of tappable chips and labelled buckets */
+.cy-sort__tray {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+  min-height: 2.5rem;
+}
+.cy-sort__item {
+  background: var(--cy-surface-3);
+  border: 1px solid var(--cy-border-lift);
+  border-radius: 999px;
+  color: var(--cy-text);
+  cursor: pointer;
+  font-size: 0.88rem;
+  padding: 0.5rem 0.9rem;
+  text-align: left;
+  transition: border-color 0.12s ease, background-color 0.12s ease, transform 0.12s ease;
+}
+.cy-sort__item:hover { border-color: var(--cy-violet); }
+.cy-sort__item.is-selected {
+  background: var(--cy-surface-2);
+  border-color: var(--cy-violet);
+  box-shadow: 0 0 0 2px rgba(167, 139, 250, 0.35);
+}
+.cy-sort__buckets { display: grid; gap: 0.75rem; grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr)); }
+.cy-sort__bucket {
+  background: var(--cy-surface);
+  border: 1.5px dashed var(--cy-border-lift);
+  border-radius: var(--cy-r-lg);
+  cursor: pointer;
+  min-height: 6rem;
+  padding: 0.75rem;
+  transition: border-color 0.12s ease, background-color 0.12s ease;
+}
+.cy-sort__bucket:hover, .cy-sort__bucket.is-over, .cy-sort__bucket:focus-visible {
+  background: var(--cy-surface-2);
+  border-color: var(--cy-violet);
+  outline: none;
+}
+.cy-sort__bucket-label {
+  color: var(--cy-text-2);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+}
+.cy-sort__zone { display: flex; flex-direction: column; gap: 0.4rem; }
+.cy-sort__placed {
+  background: rgba(34, 211, 238, 0.1);
+  border: 1px solid var(--cy-cyan);
+  border-radius: 8px;
+  color: var(--cy-text);
+  font-size: 0.85rem;
+  padding: 0.4rem 0.6rem;
+}
+.cy-sort__tick { color: var(--cy-cyan-soft); font-weight: 700; }
+
+/* Spot the fake — two cards, click the scam */
+.cy-spot__pair { display: grid; gap: 0.9rem; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); }
+.cy-spot__card {
+  background: var(--cy-surface);
+  border: 1px solid var(--cy-border);
+  border-radius: var(--cy-r-lg);
+  cursor: pointer;
+  padding: 1rem 1.1rem;
+  text-align: left;
+  transition: border-color 0.12s ease, transform 0.12s ease;
+}
+.cy-spot__card:hover { border-color: var(--cy-violet); transform: translateY(-2px); }
+.cy-spot__card:disabled { cursor: default; transform: none; }
+.cy-spot__sender {
+  color: var(--cy-text-3);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  margin-bottom: 0.45rem;
+  text-transform: uppercase;
+}
+.cy-spot__text { color: var(--cy-text); line-height: 1.45; }
+.cy-spot__card.is-fake { background: rgba(255, 157, 77, 0.1); border-color: var(--cy-flame); }
+.cy-spot__card.is-real { background: rgba(34, 211, 238, 0.08); border-color: var(--cy-cyan); }
+
+@keyframes cy-shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
+}
+.is-shake { animation: cy-shake 0.4s ease; }
+
+@media (max-width: 480px) {
+  .cy-sort__buckets, .cy-spot__pair { grid-template-columns: 1fr; }
+}

@@ -94,7 +94,7 @@
                 Got it <svg class="cy-i" aria-hidden="true"><use href="#i-arrow-right"/></svg>
               </button>
             </div>
-          {% else %}
+          {% elif task.kind == "CHECK" or task.kind == "SCENARIO" %}
             <p class="cy-task__q">{{ task.question }}</p>
             <div class="cy-task__options">
               {% for opt in task.options %}
@@ -106,6 +106,14 @@
                 </button>
               {% endfor %}
             </div>
+          {% else %}
+            {# Interactive activity — activities.js reads the JSON config below and
+               renders into this container, firing cy:solved when complete. #}
+            <div class="cy-activity" data-activity data-activity-kind="{{ task.kind }}"
+                 data-config="{{ task.task_key }}">
+              <noscript><p class="cy-task__q">This activity needs JavaScript. Use “Mark lesson complete” below to continue.</p></noscript>
+            </div>
+            {{ task.payload|json_script:task.task_key }}
           {% endif %}
         </section>
       {% endfor %}
@@ -173,5 +181,8 @@
 {% endblock %}
 
 {% block scripts %}
-  {% if has_tasks %}<script src="{% static 'js/lesson.js' %}" defer></script>{% endif %}
+  {% if has_tasks %}
+    <script src="{% static 'js/activities.js' %}" defer></script>
+    <script src="{% static 'js/lesson.js' %}" defer></script>
+  {% endif %}
 {% endblock %}
