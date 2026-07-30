@@ -197,3 +197,28 @@ def test_the_seed_is_idempotent(seeded):
     before = counts()
     call_command("seed_learning_content")
     assert before == counts()
+
+
+@pytest.mark.django_db
+def test_each_lesson_weaves_concept_check_and_activity(seeded):
+    """The richer format: every lesson mixes a concept, an inline check, and a
+    hands-on activity — not read-then-answer."""
+    for lesson in seeded.lessons.order_by("lesson_number"):
+        kinds = set(lesson.tasks.values_list("kind", flat=True))
+        assert "CONCEPT" in kinds, f"{lesson.title} has no concept intro"
+        assert "CHECK" in kinds, f"{lesson.title} has no inline check"
+        assert kinds & ACTIVITY_KINDS, f"{lesson.title} has no hands-on activity"
+        assert lesson.tasks.count() >= 4, f"{lesson.title} is still thin"
+
+
+@pytest.mark.django_db
+def test_inline_check_tasks_are_well_formed(seeded):
+    checks = LessonTask.objects.filter(lesson__module=seeded, kind="CHECK")
+    assert checks.count() >= 6, "expected checks woven across the lessons"
+    for task in checks:
+        opts = task.payload.get("options", [])
+        assert len(opts) == 4, f"{task.task_key} should have four options"
+        assert sum(1 for o in opts if o["correct"]) == 1, f"{task.task_key} needs one correct"
+        for o in opts:
+            assert o["explanation"].strip(), f"{task.task_key} option needs feedback"
+        assert task.payload.get("question"), f"{task.task_key} needs a question"
