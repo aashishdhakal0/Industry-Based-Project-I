@@ -1,163 +1,66 @@
-/* Interactive lesson room — progressive enhancement over a readable study page.
+/* Interactive lesson room, TryHackMe-style: a scrollable page of numbered,
+ * collapsible task panels with a progress bar.
  *
- * Without this file the lesson renders as a worked page (concepts, questions with
- * their answers and explanations shown) plus a "mark lesson complete" button.
- * With it, tasks become a one-at-a-time stepper: instant right/wrong feedback on
- * checks, points banked per task, an XP bar, and a celebration when the lesson
- * completes. Served from static/ (script-src 'self'); CSRF token read from the
- * form input (the cookie is HttpOnly).
+ * Without this file the panels render open (native <details>), the questions show
+ * their answers as a study page, and a "mark lesson complete" button banks the
+ * lesson. With it: each panel collapses, a Check button grades the question, the
+ * activity panels complete on doing, each completion ticks the header, pops a
+ * "+N XP" toast, fills the progress bar, and the last one fires the celebration.
+ *
+ * Served from static/ (script-src 'self'); CSRF read from the fallback form's
+ * hidden input (the cookie is HttpOnly). activities.js fires cy:solved.
  */
 (function () {
   "use strict";
 
   var room = document.querySelector("[data-room]");
   if (!room) return;
+  var panels = Array.prototype.slice.call(room.querySelectorAll("[data-task]"));
+  if (!panels.length) return;
 
-  var tasks = Array.prototype.slice.call(room.querySelectorAll("[data-task]"));
-  if (!tasks.length) return;
-
-  var progress = room.querySelector("[data-room-progress]");
   var fill = room.querySelector("[data-room-fill]");
-  var count = room.querySelector("[data-room-count]");
+  var pct = room.querySelector("[data-room-pct]");
   var xpEl = room.querySelector("[data-room-xp]");
-  var backBtn = room.querySelector("[data-room-back]");
-  var primary = room.querySelector("[data-room-primary]");
-  var primaryLabelEl = primary && primary.querySelector("[data-room-primary-label]");
-  var completeBtn = room.querySelector("[data-room-complete]");
-
+  var nojs = room.querySelector(".cy-room2__nojs");
   var taskUrl = room.getAttribute("data-task-url");
   var nextUrl = room.getAttribute("data-next");
   var tokenInput = room.querySelector("input[name=csrfmiddlewaretoken]");
   var token = tokenInput ? tokenInput.value : "";
-  var total = tasks.length;
+  var total = panels.length;
 
-  // Go live: CSS now hides the revealed answers and the no-JS button, and shows
-  // the stepper chrome.
   room.classList.add("is-live");
-  if (progress) progress.hidden = false;
-  if (primary) primary.hidden = false;
-  if (backBtn) backBtn.hidden = false;
-  if (completeBtn) completeBtn.hidden = true;
 
-  // Start on the first unfinished task.
-  var index = 0;
-  for (var i = 0; i < tasks.length; i++) {
-    if (tasks[i].getAttribute("data-done") !== "1") { index = i; break; }
-    index = i;
+  function isDone(p) { return p.getAttribute("data-done") === "1"; }
+  function firstOpen() {
+    for (var i = 0; i < panels.length; i++) if (!isDone(panels[i])) return i;
+    return -1;
+  }
+  function doneCount() {
+    var n = 0;
+    panels.forEach(function (p) { if (isDone(p)) n += 1; });
+    return n;
   }
 
-  function isDone(el) { return el.getAttribute("data-done") === "1"; }
-  function isLast(i) { return i === total - 1; }
-
-  function setXp(value) { if (xpEl) xpEl.textContent = value; }
+  function updateProgress(pointsDone) {
+    var percent = Math.round(doneCount() / total * 100);
+    if (fill) fill.style.width = percent + "%";
+    if (pct) pct.textContent = "Progress " + percent + "%";
+    if (xpEl && pointsDone != null) xpEl.textContent = pointsDone;
+  }
 
   function toast(points) {
     var t = document.createElement("div");
     t.className = "cy-room__toast";
     t.textContent = "+" + points + " XP";
-    room.appendChild(t);
-    // remove after the animation
+    document.body.appendChild(t);
     t.addEventListener("animationend", function () { t.remove(); });
-  }
-
-  function primaryLabel(el) {
-    if (isDone(el)) return isLast(index) ? "Finish" : "Next";
-    if (el.getAttribute("data-kind") === "CONCEPT") return "Got it";
-    return "Continue";
-  }
-
-  function render() {
-    for (var i = 0; i < tasks.length; i++) {
-      tasks[i].classList.toggle("is-current", i === index);
-    }
-    var el = tasks[index];
-    if (fill) fill.style.width = ((index + 1) / total) * 100 + "%";
-    if (count) count.textContent = "Task " + (index + 1) + " of " + total;
-    if (backBtn) backBtn.disabled = index === 0;
-
-    if (primary) {
-      // Robust label: write to a dedicated span, not a fragile text node.
-      if (primaryLabelEl) primaryLabelEl.textContent = primaryLabel(el);
-      else if (primary.firstChild) primary.firstChild.nodeValue = primaryLabel(el) + " ";
-      // A check/scenario/activity must be solved before Continue lights up.
-      var needsAnswer = el.getAttribute("data-kind") !== "CONCEPT" && !isDone(el)
-        && !el.getAttribute("data-solved");
-      primary.disabled = needsAnswer;
-    }
-    var legend = el.querySelector(".cy-task__title") || el;
-    if (legend.scrollIntoView) legend.scrollIntoView({ block: "nearest" });
-  }
-
-  function complete(el) {
-    // Already recorded (revisiting): resolve without a round-trip.
-    if (isDone(el)) return Promise.resolve(null);
-    if (!taskUrl || !window.fetch) { el.setAttribute("data-done", "1"); return Promise.resolve(null); }
-    var body = new FormData();
-    body.append("task", el.getAttribute("data-task-id"));
-    return fetch(taskUrl, {
-      method: "POST",
-      headers: { "X-CSRFToken": token, "X-Requested-With": "fetch" },
-      body: body,
-      credentials: "same-origin",
-    }).then(function (r) { return r.json(); }).then(function (data) {
-      el.setAttribute("data-done", "1");
-      toast(parseInt(el.getAttribute("data-points"), 10) || 0);
-      if (data) setXp(data.lesson_points_done);
-      return data;
-    }).catch(function () {
-      el.setAttribute("data-done", "1");
-      return null;
-    });
-  }
-
-  function advanceOrFinish() {
-    if (index < total - 1) { index += 1; render(); return; }
-    go(nextUrl);
-  }
-
-  function onPrimary() {
-    var el = tasks[index];
-    if (isDone(el)) { advanceOrFinish(); return; }
-    primary.disabled = true;
-    complete(el).then(function (data) {
-      if (data && data.lesson_completed && data.reward) {
-        celebrate(data.reward, data.next_url);
-      } else {
-        advanceOrFinish();
-      }
-    });
-  }
-
-  function revealHint(task) {
-    var hint = task.querySelector("[data-hint]");
-    var toggle = task.querySelector("[data-hint-toggle]");
-    if (hint) hint.hidden = false;
-    if (toggle) toggle.hidden = true;
-  }
-
-  // Instant feedback on a check/scenario option.
-  function onOption(btn, task) {
-    if (task.getAttribute("data-solved") === "1" || isDone(task)) return;
-    var correct = btn.getAttribute("data-correct") === "1";
-    btn.classList.add("is-revealed", correct ? "is-right" : "is-wrong");
-    if (!correct) revealHint(task);   // a wrong answer nudges with the hint
-    if (correct) {
-      task.setAttribute("data-solved", "1");
-      // reveal the correct one, lock the rest, and light up Continue
-      Array.prototype.forEach.call(task.querySelectorAll(".cy-task__opt"), function (o) {
-        o.classList.add("is-locked");
-        if (o.getAttribute("data-correct") === "1") o.classList.add("is-revealed", "is-right");
-      });
-      if (primary) primary.disabled = false;
-    }
   }
 
   function go(url) { if (url) window.location.href = url; }
 
-  function celebrate(reward, url) {
+  function celebrate(reward) {
     var overlay = document.getElementById("cy-reward");
-    var dest = url || nextUrl;
-    if (!overlay) return go(dest);
+    if (!overlay) return go(nextUrl);
     document.getElementById("cy-reward-points").textContent = "+" + (reward.points_gained || 0);
     var meta = document.getElementById("cy-reward-meta");
     if (meta) {
@@ -178,44 +81,116 @@
     }
     overlay.hidden = false;
     overlay.removeAttribute("aria-hidden");
-    var cont = document.getElementById("cy-reward-go");
-    cont.onclick = function () { go(dest); };
+    document.getElementById("cy-reward-go").onclick = function () { go(nextUrl); };
   }
 
-  if (primary) primary.addEventListener("click", onPrimary);
-  if (backBtn) backBtn.addEventListener("click", function () {
-    if (index > 0) { index -= 1; render(); }
+  function openNextAfter(panel) {
+    var i = panels.indexOf(panel);
+    for (var j = i + 1; j < panels.length; j++) {
+      if (!isDone(panels[j])) {
+        panels[j].open = true;
+        var head = panels[j].querySelector(".cy-panel__head");
+        if (head && head.scrollIntoView) head.scrollIntoView({ block: "nearest" });
+        return;
+      }
+    }
+  }
+
+  function markDone(panel) {
+    if (isDone(panel)) return;
+    panel.setAttribute("data-done", "1");
+    panel.classList.add("is-done");
+    toast(parseInt(panel.getAttribute("data-points"), 10) || 0);
+
+    function advance(data) {
+      updateProgress(data ? data.lesson_points_done : null);
+      if (data && data.lesson_completed && data.reward) {
+        celebrate(data.reward);
+      } else {
+        panel.open = false;
+        openNextAfter(panel);
+      }
+    }
+
+    if (taskUrl && window.fetch) {
+      var body = new FormData();
+      body.append("task", panel.getAttribute("data-task-id"));
+      fetch(taskUrl, {
+        method: "POST",
+        headers: { "X-CSRFToken": token, "X-Requested-With": "fetch" },
+        body: body,
+        credentials: "same-origin",
+      }).then(function (r) { return r.json(); }).then(advance).catch(function () { advance(null); });
+    } else {
+      advance(null);
+    }
+  }
+
+  function wireHint(panel) {
+    var hint = panel.querySelector("[data-hint]");
+    var toggle = panel.querySelector("[data-hint-toggle]");
+    if (toggle) toggle.addEventListener("click", function () {
+      if (hint) hint.hidden = false;
+      toggle.hidden = true;
+    });
+    return hint;
+  }
+
+  function wireCheck(panel) {
+    var checkBtn = panel.querySelector("[data-check]");
+    var feedback = panel.querySelector("[data-feedback]");
+    var hint = wireHint(panel);
+    var toggle = panel.querySelector("[data-hint-toggle]");
+    if (!checkBtn) return;
+    checkBtn.addEventListener("click", function () {
+      if (isDone(panel)) return;
+      var opts = panel.querySelectorAll("[data-opt]");
+      var chosen = null;
+      Array.prototype.forEach.call(opts, function (o) {
+        var inp = o.querySelector("input");
+        if (inp && inp.checked) chosen = o;
+      });
+      if (!chosen) {
+        if (feedback) { feedback.className = "cy-act__feedback is-bad"; feedback.textContent = "Pick an answer first."; }
+        return;
+      }
+      var correct = chosen.getAttribute("data-correct") === "1";
+      chosen.classList.add("is-revealed", correct ? "is-right" : "is-wrong");
+      if (correct) {
+        if (feedback) { feedback.className = "cy-act__feedback is-good"; feedback.textContent = "Correct."; }
+        Array.prototype.forEach.call(opts, function (o) { var inp = o.querySelector("input"); if (inp) inp.disabled = true; });
+        markDone(panel);
+      } else {
+        if (feedback) { feedback.className = "cy-act__feedback is-bad"; feedback.textContent = "Not quite. Read the note, take the hint, and try again."; }
+        if (hint) hint.hidden = false;
+        if (toggle) toggle.hidden = true;
+      }
+    });
+  }
+
+  function wireConcept(panel) {
+    var btn = panel.querySelector("[data-complete]");
+    if (btn) btn.addEventListener("click", function () { markDone(panel); });
+  }
+
+  panels.forEach(function (panel) {
+    var kind = panel.getAttribute("data-kind");
+    if (kind === "CHECK" || kind === "SCENARIO") wireCheck(panel);
+    else if (kind === "CONCEPT") wireConcept(panel);
+    // activities complete via cy:solved
   });
 
-  // Interactive activities (activities.js) announce completion by firing
-  // cy:solved on their task. Treat it exactly like a correct check answer:
-  // mark the task solved so Continue lights up.
   room.addEventListener("cy:solved", function (e) {
-    var task = e.target;
-    while (task && task !== room && !task.hasAttribute("data-task")) task = task.parentNode;
-    if (!task || task === room) return;
-    task.setAttribute("data-solved", "1");
-    if (task.classList.contains("is-current")) render();
+    var panel = e.target;
+    while (panel && panel !== room && !panel.hasAttribute("data-task")) panel = panel.parentNode;
+    if (panel && panel !== room) markDone(panel);
   });
 
-  tasks.forEach(function (task) {
-    Array.prototype.forEach.call(task.querySelectorAll(".cy-task__opt"), function (btn) {
-      btn.addEventListener("click", function () { onOption(btn, task); });
-    });
-  });
-
-  // Hints: reveal the toggle (so it never shows without JS), and wire it.
-  Array.prototype.forEach.call(room.querySelectorAll("[data-hint-toggle]"), function (toggle) {
-    toggle.hidden = false;
-    toggle.addEventListener("click", function () {
-      var task = toggle;
-      while (task && task !== room && !task.hasAttribute("data-task")) task = task.parentNode;
-      if (task && task !== room) revealHint(task);
-    });
-  });
-
-  // Tasks already done on load count as solved (so Continue is enabled).
-  tasks.forEach(function (t) { if (isDone(t)) t.setAttribute("data-solved", "1"); });
-
-  render();
+  // Collapse all, open the first incomplete panel. Hide the no-JS fallback while
+  // there is still something to do (the celebration handles navigation); leave it
+  // visible as "Next lesson" when the whole lesson is already complete.
+  var open = firstOpen();
+  panels.forEach(function (p, i) { p.open = (i === open); });
+  if (nojs && open !== -1) nojs.hidden = true;
+  updateProgress(null);
 })();

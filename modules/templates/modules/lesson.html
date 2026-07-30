@@ -46,103 +46,97 @@
   {% endif %}
 
   {% if has_tasks %}
-    {# ---------------- Interactive task room ---------------- #}
-    <form class="cy-room" method="post"
-          action="{% url 'learn:complete_lesson' module.order_index lesson.lesson_number %}"
-          data-room
-          data-task-url="{% url 'learn:complete_task' module.order_index lesson.lesson_number %}"
-          data-next="{% if next_lesson %}{% url 'learn:lesson' module.order_index next_lesson.lesson_number %}{% else %}{% url 'learn:module' module.order_index %}{% endif %}"
-          data-points-done="{{ lesson_points_done }}">
-      {% csrf_token %}
+    {# ---------- Room: a scrollable page of collapsible task panels ---------- #}
+    <div class="cy-room2" data-room
+         data-task-url="{% url 'learn:complete_task' module.order_index lesson.lesson_number %}"
+         data-next="{% if next_lesson %}{% url 'learn:lesson' module.order_index next_lesson.lesson_number %}{% else %}{% url 'learn:module' module.order_index %}{% endif %}">
 
-      <div class="cy-room__head">
-        <p class="cy-room__eyebrow">Lesson {{ position }} · interactive</p>
-        <h1 class="cy-room__title">{{ lesson.title }}</h1>
-        <div class="cy-room__progress" data-room-progress hidden>
-          <div class="cy-room__bar"><div class="cy-room__bar-fill" data-room-fill></div></div>
-          <div class="cy-room__meta">
-            <span class="cy-room__count" data-room-count>Task 1 of {{ tasks|length }}</span>
-            <span class="cy-room__xp">
-              <svg class="cy-i" aria-hidden="true"><use href="#i-hex"/></svg>
-              <b data-room-xp>{{ lesson_points_done }}</b> / {{ lesson_points_total }} XP
-            </span>
-          </div>
+      <div class="cy-room2__bar">
+        <h1 class="cy-room2__title">{{ lesson.title }}</h1>
+        <div class="cy-room2__progress">
+          <div class="cy-room2__track"><div class="cy-room2__fill" data-room-fill></div></div>
+          <span class="cy-room2__pct" data-room-pct>Progress 0%</span>
+          <span class="cy-room2__xp">
+            <svg class="cy-i" aria-hidden="true"><use href="#i-hex"/></svg>
+            <b data-room-xp>{{ lesson_points_done }}</b> / {{ lesson_points_total }} XP
+          </span>
         </div>
       </div>
 
-      {% for task in tasks %}
-        <section class="cy-task {% if task.done %}is-done{% endif %}"
-                 data-task data-task-id="{{ task.id }}" data-points="{{ task.points }}"
-                 data-kind="{{ task.kind }}"{% if task.done %} data-done="1"{% endif %}>
-          <div class="cy-task__num">Task {{ forloop.counter }} <span>· {{ task.points }} XP</span></div>
-          {% if task.title %}<h2 class="cy-task__title">{{ task.title }}</h2>{% endif %}
+      <ol class="cy-panels">
+        {% for task in tasks %}
+          <li>
+            <details class="cy-panel {% if task.done %}is-done{% endif %}" open
+                     data-task data-task-id="{{ task.id }}" data-kind="{{ task.kind }}"
+                     data-points="{{ task.points }}"{% if task.done %} data-done="1"{% endif %}>
+              <summary class="cy-panel__head">
+                <span class="cy-panel__tick" aria-hidden="true"><svg class="cy-i"><use href="#i-check"/></svg></span>
+                <span class="cy-panel__num">Task {{ forloop.counter }}</span>
+                <span class="cy-panel__title">{{ task.title }}</span>
+                <span class="cy-panel__xp">+{{ task.points }} XP</span>
+                <span class="cy-panel__chev" aria-hidden="true"><svg class="cy-i"><use href="#i-chevron-right"/></svg></span>
+              </summary>
 
-          {% if task.diagram_key %}
-            {% include "modules/_diagram.html" with key=task.diagram_key %}
-          {% endif %}
+              <div class="cy-panel__body">
+                {% if task.diagram_key %}{% include "modules/_diagram.html" with key=task.diagram_key %}{% endif %}
+                {% if task.scenario %}<div class="cy-task__scenario cy-prose">{{ task.scenario|safe }}</div>{% endif %}
+                {% if task.body %}<div class="cy-prose">{{ task.body|safe }}</div>{% endif %}
 
-          {% if task.scenario %}
-            <div class="cy-task__scenario cy-prose">{{ task.scenario|safe }}</div>
-          {% endif %}
-          {% if task.body %}
-            <div class="cy-task__body cy-prose">{{ task.body|safe }}</div>
-          {% endif %}
+                {% if task.kind == "CHECK" or task.kind == "SCENARIO" %}
+                  <div class="cy-panel__do">
+                    <p class="cy-panel__do-label">Answer the question</p>
+                    <p class="cy-task__q">{{ task.question }}</p>
+                    <div class="cy-task__options" data-options>
+                      {% for opt in task.options %}
+                        <label class="cy-task__opt" data-opt data-correct="{% if opt.correct %}1{% endif %}">
+                          <input type="radio" name="opt-{{ task.id }}">
+                          <span class="cy-task__opt-mark" aria-hidden="true"></span>
+                          <span class="cy-task__opt-text">{{ opt.text }}</span>
+                          <span class="cy-task__opt-why">{{ opt.explanation }}</span>
+                        </label>
+                      {% endfor %}
+                    </div>
+                    <div class="cy-panel__actions">
+                      <button type="button" class="cy-btn cy-btn--primary" data-check>Check answer</button>
+                      {% if task.hint %}
+                        <button type="button" class="cy-task__hint-toggle" data-hint-toggle>
+                          <svg class="cy-i" aria-hidden="true"><use href="#i-star"/></svg> Need a hint?
+                        </button>
+                      {% endif %}
+                    </div>
+                    {% if task.hint %}<p class="cy-task__hint" data-hint hidden>{{ task.hint }}</p>{% endif %}
+                    <p class="cy-act__feedback" data-feedback aria-live="polite"></p>
+                  </div>
+                {% elif task.kind == "CONCEPT" %}
+                  <div class="cy-panel__actions">
+                    <button type="button" class="cy-btn cy-btn--primary" data-complete>
+                      Mark as complete <svg class="cy-i" aria-hidden="true"><use href="#i-check"/></svg>
+                    </button>
+                  </div>
+                {% else %}
+                  <div class="cy-panel__do">
+                    <p class="cy-panel__do-label">Your task</p>
+                    <div class="cy-activity" data-activity data-activity-kind="{{ task.kind }}" data-config="{{ task.task_key }}"></div>
+                    {{ task.payload|json_script:task.task_key }}
+                  </div>
+                {% endif %}
+              </div>
+            </details>
+          </li>
+        {% endfor %}
+      </ol>
 
-          {% if task.kind == "CONCEPT" %}
-            {# No inline control — the foot "Got it" button advances the concept. #}
-          {% elif task.kind == "CHECK" or task.kind == "SCENARIO" %}
-            <p class="cy-task__q">{{ task.question }}</p>
-            <div class="cy-task__options">
-              {% for opt in task.options %}
-                <button type="button" class="cy-task__opt {% if opt.correct %}is-correct{% endif %}"
-                        data-correct="{% if opt.correct %}1{% endif %}">
-                  <span class="cy-task__opt-mark" aria-hidden="true"></span>
-                  <span class="cy-task__opt-text">{{ opt.text }}</span>
-                  <span class="cy-task__opt-why">{{ opt.explanation }}</span>
-                </button>
-              {% endfor %}
-            </div>
-            {% if task.hint %}
-              <button type="button" class="cy-task__hint-toggle" data-hint-toggle hidden>
-                <svg class="cy-i" aria-hidden="true"><use href="#i-star"/></svg> Need a hint?
-              </button>
-              <p class="cy-task__hint" data-hint hidden>{{ task.hint }}</p>
-            {% endif %}
-          {% else %}
-            {% comment %}
-              Interactive activity. activities.js reads the JSON config below and
-              renders into this container, firing cy:solved when complete.
-            {% endcomment %}
-            <div class="cy-activity" data-activity data-activity-kind="{{ task.kind }}"
-                 data-config="{{ task.task_key }}">
-              <noscript><p class="cy-task__q">This activity needs JavaScript. Use “Mark lesson complete” below to continue.</p></noscript>
-            </div>
-            {{ task.payload|json_script:task.task_key }}
-          {% endif %}
-        </section>
-      {% endfor %}
-
-      <div class="cy-room__foot">
-        <button type="button" class="cy-btn cy-btn--ghost" data-room-back hidden>
-          <svg class="cy-i" aria-hidden="true"><use href="#i-chevron-left"/></svg> Back
-        </button>
-        <span class="cy-room__foot-spacer"></span>
-        {# JS-driven primary: label and enabled state managed per task. #}
-        <button type="button" class="cy-btn cy-btn--primary" data-room-primary hidden>
-          <span data-room-primary-label>Got it</span>
+      {# No-JS (and already-complete) fallback: bank via the normal endpoint. #}
+      <form class="cy-room2__nojs" method="post"
+            action="{% url 'learn:complete_lesson' module.order_index lesson.lesson_number %}"
+            data-next="{% if next_lesson %}{% url 'learn:lesson' module.order_index next_lesson.lesson_number %}{% else %}{% url 'learn:module' module.order_index %}{% endif %}">
+        {% csrf_token %}
+        <button type="submit" class="cy-btn cy-btn--primary">
+          {% if is_done %}{% if next_lesson %}Next lesson{% else %}Finish module{% endif %}{% else %}Mark lesson complete{% endif %}
           <svg class="cy-i" aria-hidden="true"><use href="#i-arrow-right"/></svg>
         </button>
-        {# No-JS (and already-complete) fallback: bank via the normal endpoint. #}
-        <button type="submit" class="cy-btn cy-btn--primary" data-room-complete>
-          {% if is_done %}
-            {% if next_lesson %}Next lesson{% else %}Finish module{% endif %}
-          {% else %}
-            Mark lesson complete
-          {% endif %}
-          <svg class="cy-i" aria-hidden="true"><use href="#i-arrow-right"/></svg>
-        </button>
-      </div>
-    </form>
+      </form>
+    </div>
 
   {% else %}
     {# ---------------- Plain reader (lessons without tasks) ---------------- #}
@@ -192,7 +186,7 @@
       lesson.js that 304s keep alive. Bump this when the room JS changes so the
       URL is new and the old cached copy can't win. (Prod hashes it anyway.)
     {% endcomment %}
-    <script src="{% static 'js/activities.js' %}?v=3" defer></script>
-    <script src="{% static 'js/lesson.js' %}?v=3" defer></script>
+    <script src="{% static 'js/lesson.js' %}?v=4" defer></script>
+    <script src="{% static 'js/activities.js' %}?v=4" defer></script>
   {% endif %}
 {% endblock %}
