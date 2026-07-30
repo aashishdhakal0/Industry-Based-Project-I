@@ -12,13 +12,21 @@ in the same shape and register it in the seed.
   a vertical stack of numbered, titled, collapsible `<details>` panels.
 - A **lesson** is **4 to 8 task panels** whose `points` sum to **10** (banked at
   lesson end through the normal points path, so the economy never changes).
-- A **panel is a meaty chunk of learning**: several short paragraphs of reading
-  (often a diagram and a callout box) THEN one inline interactive at the bottom.
-  The interactive is either:
+- A **panel is a full, deep task**: several substantial teaching paragraphs (what
+  it is, a concrete Australian example, why it matters, what to do), usually a
+  diagram and a callout box with a specific scenario, THEN the interactive. The
+  end interactive is either:
   - **check**: one question, four options (exactly one correct), an explanation on
     every option, and a **hint**. A "Check answer" button grades it; a wrong try
     reveals the note and shows the hint; retry until correct.
   - **activity**: hands-on. One of `sort`, `inbox`, `spot`, `password`, `branch`.
+- A panel can hold **more than one interactive**. Add an optional **`inline_check`**
+  (a mid-panel question, same shape as a check) after the main reading to test
+  understanding partway through, and an optional **`body2`** for more reading
+  between the mid-check and the end interactive. Each interactive is a "slot"; the
+  panel completes only when **every** slot is satisfied (the mid-check *and* the
+  end activity). Use this where a panel is deep enough to earn two questions;
+  do not force it on every panel.
 - Completing a panel ticks its header, pops a "+N XP" toast, fills the progress
   bar, collapses it and opens the next. The last panel fires the celebration.
 - Weight toward doing: every panel ends in an interactive. A pure reading panel
@@ -39,12 +47,20 @@ Each panel is one dict: a rich `body` (the reading) plus one interactive.
  "question": "...", "hint": "...",
  "options": [("A", True, "why right"), ("B", False, "why wrong"), ...]}
 
-# an activity panel: reading THEN the hands-on activity
+# a deep panel: reading, a mid-panel check, more reading, THEN the activity
 {"key": "cia-triad", "kind": "sort", "points": 3,
  "title": "The three questions security asks", "diagram": "cia-triad",
- "body": "<p>...reading...</p>",
+ "body": "<p>...the main teaching, with a callout box...</p>",
+ "inline_check": {"question": "...", "hint": "...",
+                  "options": [("A", True, "why right"), ("B", False, "why wrong"), ...]},
+ "body2": "<p>...more reading, leading into the activity...</p>",
  "payload": { ... see below ... }}
 ```
+
+`inline_check` and `body2` are both optional and independent. `inline_check`
+takes the same `(text, correct, explanation)` option tuples and a `hint` as a
+check; the seed sanitises `body2` on the way in, exactly like `body`. Both a
+`check` panel and an activity panel may carry an `inline_check`.
 
 Use `<div class="cy-callout">...</div>` in a body for a highlighted point (the
 sanitiser allows it).
@@ -78,7 +94,8 @@ Add new keys as a new `{% elif key == "..." %}` branch plus CSS.
 ## Quiz contract
 
 `QUIZ = {"pass_mark": 70, "questions": [...]}`. At least 20 questions (Module 1
-has 28), roughly evenly spread across the four lessons (10 are drawn per attempt).
+has 40, ten per lesson), roughly evenly spread across the four lessons (10 are
+drawn per attempt, so a deep bank keeps repeat attempts fresh).
 Each question: `{lesson, difficulty, text, options: [(text, is_correct,
 explanation) x4]}` with exactly one correct option and an explanation on **every**
 option. The explanations are what the Adaptive Feedback Engine reads back, so they

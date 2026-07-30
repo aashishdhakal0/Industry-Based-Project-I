@@ -162,7 +162,7 @@ def test_module_one_uses_the_cia_diagram(seeded):
 def test_module_one_quiz_is_a_substantial_bank(seeded):
     quiz = seeded.quiz
     assert quiz.pass_mark == 70
-    assert quiz.questions.count() >= 28
+    assert quiz.questions.count() >= 40
     # Evenly spread so any draw of 10 samples across the whole module.
     from collections import Counter
 
@@ -170,7 +170,7 @@ def test_module_one_quiz_is_a_substantial_bank(seeded):
         quiz.questions.values_list("lesson_reference__lesson_number", flat=True)
     )
     for n in (1, 2, 3, 4):
-        assert per_lesson[n] >= 5, f"lesson {n} is thin in the quiz bank"
+        assert per_lesson[n] >= 8, f"lesson {n} is thin in the quiz bank"
 
 
 @pytest.mark.django_db
