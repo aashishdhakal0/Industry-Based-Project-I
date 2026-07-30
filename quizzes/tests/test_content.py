@@ -209,15 +209,19 @@ def test_the_seed_is_idempotent(seeded):
 
 
 @pytest.mark.django_db
-def test_each_lesson_weaves_concept_check_and_activity(seeded):
-    """The richer format: every lesson mixes a concept, an inline check, and a
-    hands-on activity — not read-then-answer."""
+def test_every_panel_is_reading_plus_interactive(seeded):
+    """The room format: every task panel is a meaty chunk of reading followed by
+    one interactive (a check or an activity), and every lesson mixes both."""
+    import re
+
     for lesson in seeded.lessons.order_by("lesson_number"):
-        kinds = set(lesson.tasks.values_list("kind", flat=True))
-        assert "CONCEPT" in kinds, f"{lesson.title} has no concept intro"
-        assert "CHECK" in kinds, f"{lesson.title} has no inline check"
+        tasks = list(lesson.tasks.order_by("order"))
+        kinds = {t.kind for t in tasks}
+        assert "CHECK" in kinds, f"{lesson.title} has no check panel"
         assert kinds & ACTIVITY_KINDS, f"{lesson.title} has no hands-on activity"
-        assert lesson.tasks.count() >= 4, f"{lesson.title} is still thin"
+        for t in tasks:
+            words = len(re.sub(r"<[^>]+>", " ", t.body or "").split())
+            assert words >= 40, f"{lesson.title} / {t.task_key} has too little reading ({words} words)"
 
 
 @pytest.mark.django_db
@@ -247,10 +251,10 @@ def _content_blob(task):
 
 
 @pytest.mark.django_db
-def test_each_lesson_has_five_to_eight_tasks(seeded):
+def test_each_lesson_has_four_to_eight_panels(seeded):
     for lesson in seeded.lessons.order_by("lesson_number"):
         n = lesson.tasks.count()
-        assert 5 <= n <= 8, f"{lesson.title} has {n} tasks (want 5 to 8)"
+        assert 4 <= n <= 8, f"{lesson.title} has {n} panels (want 4 to 8)"
 
 
 @pytest.mark.django_db

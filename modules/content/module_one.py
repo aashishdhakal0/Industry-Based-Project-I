@@ -4,22 +4,22 @@ This is the module every other module copies, so the shape matters as much as th
 words. Kept as plain data (not schema) so it reads like teaching material and the
 seed stays re-runnable.
 
-House style for all content here and in Modules 2 to 6:
-  * warm, confident, human. Plain Australian English for non-technical readers.
-  * short concept chunks (two to four sentences), never walls of text.
-  * every idea connects to "why this matters to you and what to do".
-  * concrete local scenarios (a clinic, a council desk, a cafe, a school).
-  * no em-dashes, no filler. Use commas, colons and full stops.
+Room format (TryHackMe-style): a lesson is 4 to 8 collapsible task PANELS. Each
+panel is a meaty chunk of learning: substantial reading (paragraphs, a diagram,
+an optional callout box) THEN one inline interactive at the bottom, either a
+check (a question with instant feedback and a hint) or a hands-on activity. The
+panels' points sum to 10 and bank at lesson end.
 
-Each lesson is a sequence of 6 to 8 tasks whose points sum to 10 (banked at
-lesson end). Task kinds: concept (a chunk plus a diagram), check (a question with
-instant feedback and a hint), or a hands-on activity. Never two concepts in a
-row before something interactive.
+House voice for here and Modules 2 to 6: warm, confident, human. Plain Australian
+English for non-technical readers. Every idea ties to why it matters to you and
+what to do. Concrete local scenarios. No em-dashes, no filler.
 """
 
 # --------------------------------------------------------------------------
-# Lessons. Check option tuples are (text, is_correct, explanation); each check
-# also carries a "hint". Activity config lives in each task's "payload".
+# Lessons. Each task is a panel: title + rich `body` (reading, may include a
+# `<div class="cy-callout">` box) + one interactive. Check option tuples are
+# (text, is_correct, explanation); each check carries a `hint`. Activity config
+# lives in `payload`. Points per lesson sum to 10.
 # --------------------------------------------------------------------------
 
 LESSONS = [
@@ -30,28 +30,30 @@ LESSONS = [
         "moves, and learn the three questions security keeps coming back to.",
         "tasks": [
             {
-                "key": "net-intro",
-                "kind": "concept",
-                "points": 1,
+                "key": "net-basics",
+                "kind": "check",
+                "points": 3,
                 "title": "What a network actually is",
                 "diagram": "data-travels",
                 "body": "<p>A network is just devices talking to each other. Your "
-                "laptop, the front desk printer, the eftpos machine: they pass "
+                "laptop, the front desk printer, the eftpos machine: they all pass "
                 "information back and forth through your router and out to the "
-                "internet.</p><p>That information spends its life on the move, so a "
-                "lot of security is really about looking after it while it travels "
-                "and wherever it lands.</p>",
-            },
-            {
-                "key": "net-check",
-                "kind": "check",
-                "points": 2,
-                "title": "Quick check",
+                "internet.</p>"
+                "<p>Most of that information does not sit still. It is <em>in "
+                "transit</em>, moving from one place to another, which is exactly "
+                "when it can be intercepted if it is not looked after. Some is <em>"
+                "at rest</em>, saved on a device or a server, and some is <em>in "
+                "use</em>, open on a screen in front of someone. Good security "
+                "looks after all three.</p>"
+                "<div class=\"cy-callout\"><strong>Why this matters to you:</strong> "
+                "you do not need to run the network to help keep it safe. Knowing "
+                "your information is constantly on the move is the first step to "
+                "protecting it.</div>",
                 "question": "Which of these is actually a network?",
                 "hint": "Look for the option that means devices are joined together to share.",
                 "options": [
                     ("A few devices connected so they can share information", True,
-                     "Spot on. The moment devices are connected to share information, from two machines to the whole internet, you have a network."),
+                     "Spot on. From two machines to the whole internet, a network is devices connected to share information."),
                     ("One powerful computer sitting on its own", False,
                      "Not quite. On its own it is just a computer. What makes a network is the connection between devices."),
                     ("The antivirus app on your laptop", False,
@@ -61,21 +63,25 @@ LESSONS = [
                 ],
             },
             {
-                "key": "cia-intro",
-                "kind": "concept",
-                "points": 2,
+                "key": "cia-triad",
+                "kind": "sort",
+                "points": 3,
                 "title": "The three questions security asks",
                 "diagram": "cia-triad",
                 "body": "<p>Almost every security decision comes back to three "
                 "simple questions, known as the CIA triad. Nothing to do with "
-                "spies. Keep the picture below in mind and the rest of this module "
-                "falls into place.</p>",
-            },
-            {
-                "key": "cia-sort",
-                "kind": "sort",
-                "points": 3,
-                "title": "Which pillar is at risk?",
+                "spies. Confidentiality asks whether only the right people can see "
+                "the information. Integrity asks whether it is still accurate and "
+                "has not been tampered with. Availability asks whether it is there "
+                "when you need it.</p>"
+                "<p>Picture a small dental clinic on a Monday. A patient list "
+                "emailed to the wrong address is a confidentiality slip. An invoice "
+                "with the bank details swapped is an integrity problem. Files "
+                "locked by ransomware before the day even starts is an availability "
+                "disaster. Same office, three very different bad days.</p>"
+                "<div class=\"cy-callout\">Every control in this module protects one "
+                "of these three. When you are unsure about a risk, ask which pillar "
+                "it threatens and the sensible response usually becomes obvious.</div>",
                 "payload": {
                     "prompt": "Tap a situation, then tap the pillar it puts at "
                     "risk. Get all eight and you have got the idea.",
@@ -105,22 +111,21 @@ LESSONS = [
                 },
             },
             {
-                "key": "cia-example",
-                "kind": "concept",
-                "points": 1,
-                "title": "The same clinic, three bad days",
-                "body": "<p>Picture a small dental clinic on a Monday. A patient "
-                "list emailed to the wrong address is a confidentiality slip. An "
-                "invoice with the bank details swapped is an integrity problem. "
-                "Files locked by ransomware before the day even starts is an "
-                "availability disaster. Same office, three very different bad "
-                "days.</p>",
-            },
-            {
-                "key": "ransomware-check",
+                "key": "pillar-fails",
                 "kind": "check",
-                "points": 1,
-                "title": "Quick check",
+                "points": 2,
+                "title": "When a pillar fails",
+                "body": "<p>The three pillars are easiest to understand through "
+                "what goes wrong. Confidentiality fails when information reaches the "
+                "wrong eyes: a misdirected email, a password on a sticky note, a "
+                "stranger reading your screen. Integrity fails when information is "
+                "changed without permission: altered invoice details, a tampered "
+                "spreadsheet. Availability fails when you cannot reach your own "
+                "information: a ransomware lockout, a website knocked offline.</p>"
+                "<p>Notice that a single event can look fine on the surface while a "
+                "pillar has quietly failed. A tampered invoice still opens "
+                "perfectly. That is what makes integrity attacks so effective, and "
+                "why verifying important changes matters so much.</p>",
                 "question": "Ransomware locks your files on the morning of a big deadline. Which pillar took the hit?",
                 "hint": "Ask yourself: can the right people still get to the information when they need it?",
                 "options": [
@@ -134,6 +139,32 @@ LESSONS = [
                      "It is very much a security problem. Being locked out of your own work is an availability failure."),
                 ],
             },
+            {
+                "key": "cia-recap",
+                "kind": "check",
+                "points": 2,
+                "title": "Bringing it together",
+                "body": "<p>You now have the foundation: a network is connected "
+                "devices sharing information, that information is usually on the "
+                "move, and security is about protecting its confidentiality, "
+                "integrity and availability. Everything in the rest of this module "
+                "is a practical way to defend one of those three.</p>"
+                "<p>Keep the triad in your back pocket. It turns vague worry into a "
+                "clear question, and a clear question is halfway to the right "
+                "answer.</p>",
+                "question": "A backup you have tested and can actually restore mainly protects which pillar?",
+                "hint": "A backup does not hide your files or prove they are unchanged. What does it guarantee you can still do?",
+                "options": [
+                    ("Availability", True,
+                     "Yes. A backup means an attack or a mistake does not cost you access to your work."),
+                    ("Confidentiality", False,
+                     "No. A backup does not hide anything. It makes sure you can get your data back."),
+                    ("Integrity", False,
+                     "Not the main point. Backups are chiefly about restoring access, which is availability."),
+                    ("It is not a security control", False,
+                     "It is a core one. It protects availability against ransomware and honest mistakes alike."),
+                ],
+            },
         ],
     },
     {
@@ -143,25 +174,22 @@ LESSONS = [
         "then inspect a scam yourself and tell a genuine message from a fake.",
         "tasks": [
             {
-                "key": "vectors-intro",
-                "kind": "concept",
-                "points": 1,
-                "title": "The usual ways in",
-                "body": "<p>Here is the thing worth remembering: most break-ins are "
-                "not clever. The usual ways in are a convincing fake message "
-                "(phishing), a weak or reused password, software that has not been "
-                "updated, and harmful software called malware. Almost all of them "
-                "need a person to have a busy moment.</p>",
-            },
-            {
-                "key": "phishing-check",
+                "key": "vectors",
                 "kind": "check",
-                "points": 1,
-                "title": "Quick check",
+                "points": 2,
+                "title": "The common ways in",
+                "body": "<p>Attackers are rarely magicians. They walk through doors "
+                "people leave open. The common ways in are few and well understood: "
+                "a convincing fake message (phishing), a weak or reused password, "
+                "software that has not been updated, and harmful software called "
+                "malware, of which ransomware is the one that ruins weeks.</p>"
+                "<p>What ties them together is that almost all of them need a person "
+                "to have a busy moment. That is good news, because it means the fix "
+                "is usually a small human habit rather than an expensive gadget.</p>",
                 "question": "What is phishing, in plain terms?",
-                "hint": "The word sounds like 'fishing'. Think about what they are fishing for, and how.",
+                "hint": "The word sounds like fishing. Think about what they are fishing for, and how.",
                 "options": [
-                    ("A message that pretends to be someone you trust so you will click or hand over details", True,
+                    ("A message that pretends to be someone you trust, to trick you into clicking or sharing details", True,
                      "Exactly. It leans on trust, and it is the most common way Australian organisations get caught out."),
                     ("A faster way to connect to the internet", False,
                      "No, that is nothing to do with it. Phishing is a con, not a connection."),
@@ -172,21 +200,19 @@ LESSONS = [
                 ],
             },
             {
-                "key": "email-anatomy",
-                "kind": "concept",
-                "points": 1,
-                "title": "How a scam email gives itself away",
-                "diagram": "phishing-email",
-                "body": "<p>Good news: scam emails almost always slip up in the "
-                "same three places. The sender's address, a made up deadline, and a "
-                "link that does not go where it claims. Have a look at this one, "
-                "then you will hunt for the tells yourself.</p>",
-            },
-            {
                 "key": "phishing-inbox",
                 "kind": "inbox",
                 "points": 3,
-                "title": "Inspect the email",
+                "title": "Anatomy of a phishing email",
+                "diagram": "phishing-email",
+                "body": "<p>Good news: scam emails almost always give themselves "
+                "away in the same three places. The sender's address is a lookalike, "
+                "close to the real thing but not quite. There is a made up deadline, "
+                "because urgency stops you thinking. And there is a link that does "
+                "not go where it claims.</p>"
+                "<p>Once you know where to look, you can check an email in seconds "
+                "without being technical at all. Here is one annotated, then you "
+                "will find the tells yourself.</p>",
                 "payload": {
                     "prompt": "This just landed in the shared inbox. Tap every part "
                     "that looks off. Find them all to finish.",
@@ -217,38 +243,47 @@ LESSONS = [
             },
             {
                 "key": "human-error",
-                "kind": "concept",
-                "points": 1,
-                "title": "The biggest risk is a rushed human",
+                "kind": "check",
+                "points": 2,
+                "title": "Why a rushed human is the biggest risk",
                 "body": "<p>If you take one thing from this module, take this: the "
                 "biggest risk is not a machine, it is a good person having a rushed "
-                "day. That is why scammers pile on urgency, because a deadline "
-                "stops you thinking. Slowing down for ten seconds is genuinely one "
-                "of the best defences you have.</p>",
-            },
-            {
-                "key": "urgency-check",
-                "kind": "check",
-                "points": 1,
-                "title": "Quick check",
-                "question": "An email says an overdue invoice must be paid in the next hour, to a new bank account. Safest first move?",
-                "hint": "Ask who benefits if you act fast, then find a way to check that does not rely on the email.",
+                "day. Study after study, in Australia and overseas, lands on the "
+                "same finding. Most incidents involve an ordinary human action: a "
+                "click, a reused password, a payment approved because the email "
+                "seemed urgent.</p>"
+                "<p>That is not a reason for guilt, and it is not a reason to "
+                "distrust your team. It is simply where the leverage is. A firewall "
+                "cannot stop you typing your password into a convincing fake page, "
+                "but you can pause when something feels rushed, and that single "
+                "habit prevents more harm than any product.</p>"
+                "<div class=\"cy-callout\">Attackers rely on urgency on purpose. A "
+                "tight deadline exists to stop you thinking. Slowing down for ten "
+                "seconds is a genuine security control.</div>",
+                "question": "Across the organisations that get hit, what is the single biggest risk?",
+                "hint": "Think about what nearly every incident has in common. It is not a particular device.",
                 "options": [
-                    ("Ring the supplier on a number you already have and check", True,
-                     "Yes. A sudden change of bank details plus a deadline is the classic invoice scam. Verify on a number you already trust."),
-                    ("Pay it quickly so nothing gets cut off", False,
-                     "That is exactly what the scammer is counting on. The deadline is there to rush you."),
-                    ("Reply to the email and ask if it is genuine", False,
-                     "Risky. If it is a scam, you are just asking the scammer, and they will say yes."),
-                    ("Click the link to view the invoice first", False,
-                     "Best not to. An unexpected link is often where the trouble starts. Check before you click."),
+                    ("Everyday human error, like clicking a link or reusing a password", True,
+                     "Right. Most incidents involve an ordinary human action, which is why calm habits beat any gadget."),
+                    ("Old printers", False,
+                     "Any device can be a weak point, but the biggest risk overall is human error."),
+                    ("Having too many backups", False,
+                     "Backups are a good thing. They are never the risk."),
+                    ("Using the internet at all", False,
+                     "The internet is not the problem. A rushed human is the more common way in."),
                 ],
             },
             {
                 "key": "sms-spot",
                 "kind": "spot",
-                "points": 1,
-                "title": "Which text is the scam?",
+                "points": 2,
+                "title": "Spotting a scam text",
+                "body": "<p>Phishing is not just email. The same tricks arrive by "
+                "text message, often about a parcel you may or may not be expecting. "
+                "The tells are identical: a lookalike web address, a small fee, and "
+                "a push to act now.</p>"
+                "<p>Have a look at these two, then tap the one you should not "
+                "trust.</p>",
                 "payload": {
                     "prompt": "Two texts about a parcel land on your phone. Tap the fake.",
                     "left": {
@@ -268,21 +303,27 @@ LESSONS = [
                 },
             },
             {
-                "key": "biggest-risk-check",
+                "key": "when-off",
                 "kind": "check",
                 "points": 1,
-                "title": "Quick check",
-                "question": "Across the organisations that get hit, what is the single biggest risk?",
-                "hint": "Think about what nearly every incident has in common. It is not a particular device.",
+                "title": "When something feels off",
+                "body": "<p>The thread running through all of this is simple: when a "
+                "message pressures you, slow down and verify on a channel you "
+                "already trust. Do not use the phone number or link in the "
+                "suspicious message itself, because a scammer supplies their own. "
+                "Ring the number you already have, or type the real web address "
+                "yourself.</p>",
+                "question": "An email says an overdue invoice must be paid in the next hour, to a new bank account. Safest first move?",
+                "hint": "Ask who benefits if you act fast, then find a way to check that does not rely on the email.",
                 "options": [
-                    ("Everyday human error, like clicking a link or reusing a password", True,
-                     "Right. Study after study lands on the same answer, which is why calm habits beat any gadget."),
-                    ("Old printers", False,
-                     "Any device can be a weak point, but the biggest risk overall is human error."),
-                    ("Having too many backups", False,
-                     "Backups are a good thing. They are never the risk."),
-                    ("Using the internet at all", False,
-                     "The internet is not the problem. A rushed human is the more common way in."),
+                    ("Ring the supplier on a number you already have and check", True,
+                     "Yes. A sudden change of bank details plus a deadline is the classic invoice scam. Verify on a number you already trust."),
+                    ("Pay it quickly so nothing gets cut off", False,
+                     "That is exactly what the scammer is counting on. The deadline is there to rush you."),
+                    ("Reply to the email and ask if it is genuine", False,
+                     "Risky. If it is a scam, you are just asking the scammer, and they will say yes."),
+                    ("Click the link to view the invoice first", False,
+                     "Best not to. An unexpected link is often where the trouble starts. Check before you click."),
                 ],
             },
         ],
@@ -290,25 +331,25 @@ LESSONS = [
     {
         "title": "Locking your front door",
         "reading_time_minutes": 7,
-        "intro": "The practical protections: a password worth trusting, a second "
-        "key, and Wi-Fi set up so the front door actually shuts.",
+        "intro": "The practical protections: a strong password, a second key, and "
+        "Wi-Fi set up so the front door actually shuts.",
         "tasks": [
             {
-                "key": "router-intro",
-                "kind": "concept",
-                "points": 1,
-                "title": "Your router is the front door",
-                "body": "<p>Your router is the front door to everything you do "
-                "online. It has two passwords and people mix them up: the Wi-Fi "
-                "password everyone types to get on, and the admin password that "
-                "changes the router's own settings. The second one is the quiet, "
-                "important one.</p>",
-            },
-            {
-                "key": "admin-default-check",
+                "key": "router",
                 "kind": "check",
-                "points": 1,
-                "title": "Quick check",
+                "points": 2,
+                "title": "Your router is the front door",
+                "body": "<p>If your workplace were a building, the router would be "
+                "the front door. It is the box, sometimes called a modem or gateway, "
+                "that connects everything you do to the internet. Almost all of your "
+                "information passes through it, which makes it one of the most "
+                "important things to set up properly and one of the most commonly "
+                "neglected.</p>"
+                "<p>A router has two passwords and people mix them up. The Wi-Fi "
+                "password is the one everyone types to get online. The admin "
+                "password changes the router's own settings, and it is the quiet, "
+                "dangerous one, because its factory default is printed online for "
+                "anyone to find.</p>",
                 "question": "Which password is genuinely dangerous to leave on the factory setting?",
                 "hint": "One password just lets people onto the Wi-Fi. The other lets them change everything.",
                 "options": [
@@ -325,37 +366,43 @@ LESSONS = [
             {
                 "key": "password-builder",
                 "kind": "password",
-                "points": 2,
-                "title": "Build a password worth trusting",
+                "points": 3,
+                "title": "A password worth trusting",
+                "body": "<p>Passwords do not need to be a misery. The single most "
+                "important thing is length. A long password made of a few unrelated "
+                "words is both very strong and easy to remember, far better than a "
+                "short one with a couple of symbols swapped in. And whatever you "
+                "choose, never reuse a password that guards anything else, because "
+                "one leaked website then hands over the lot.</p>"
+                "<p>Try it below. Type a password for the office router and watch "
+                "the meter explain itself as you go.</p>",
                 "payload": {
                     "prompt": "Type a password for the office router. Watch the "
-                    "meter explain itself as you go, and reach Strong to finish.",
+                    "meter explain itself, and reach Strong to finish.",
                     "target": "strong",
                     "common": ["password", "password1", "123456", "12345678", "qwerty",
                                "admin", "letmein", "welcome", "monkey", "iloveyou"],
                     "tips": [
                         "Length beats complexity. Aim for twelve characters or more.",
-                        "A few unrelated words are strong and easy to remember.",
+                        "A few unrelated words are strong and easy to recall.",
                         "Never reuse a password that guards anything else.",
                     ],
                 },
             },
             {
-                "key": "twofa-intro",
-                "kind": "concept",
-                "points": 1,
-                "title": "A second key",
-                "diagram": "two-factor",
-                "body": "<p>Two-factor authentication is a second key. Even if "
-                "someone steals your password, they still need a code from your "
-                "phone, and that they do not have. It takes a couple of minutes to "
-                "switch on and it is one of the most powerful things you can do.</p>",
-            },
-            {
-                "key": "twofa-check",
+                "key": "twofa",
                 "kind": "check",
-                "points": 1,
-                "title": "Quick check",
+                "points": 2,
+                "title": "A second key: two-factor",
+                "diagram": "two-factor",
+                "body": "<p>Even a strong password can be stolen. Two-factor "
+                "authentication is the answer: a second key, usually a code on your "
+                "phone, so that a stolen password on its own is no longer enough to "
+                "get in. It takes a couple of minutes to switch on and it is one of "
+                "the most powerful things you can do.</p>"
+                "<p>If you turn it on in only one place, make it your email, because "
+                "email is the master key that can reset the passwords of most of "
+                "your other accounts.</p>",
                 "question": "What does turning on two-factor authentication actually do for you?",
                 "hint": "It adds something, it does not replace anything. What does an attacker still not have?",
                 "options": [
@@ -370,21 +417,17 @@ LESSONS = [
                 ],
             },
             {
-                "key": "wifi-intro",
-                "kind": "concept",
-                "points": 1,
-                "title": "Three quick wins on the Wi-Fi",
-                "body": "<p>Three quick wins on the Wi-Fi itself. Use modern "
-                "encryption (WPA3 or WPA2, never the ancient WEP). Turn on a "
-                "separate guest network so visitors' phones stay away from your "
-                "work devices. And let the router and your devices update "
-                "themselves.</p>",
-            },
-            {
                 "key": "wifi-sort",
                 "kind": "sort",
                 "points": 2,
-                "title": "Safe or risky?",
+                "title": "Securing the Wi-Fi",
+                "body": "<p>Three quick wins finish off the Wi-Fi. Use modern "
+                "encryption, WPA3 or WPA2, and never the ancient WEP, which has been "
+                "broken for years. Turn on a separate guest network so visitors' "
+                "phones stay away from your work devices. And let the router and "
+                "everything on it install updates automatically, because those "
+                "updates close security holes before attackers can use them.</p>"
+                "<p>Sort the habits below into Safe and Risky to lock it in.</p>",
                 "payload": {
                     "prompt": "Sort each habit into Safe or Risky. All six right to finish.",
                     "buckets": [
@@ -411,7 +454,12 @@ LESSONS = [
                 "key": "login-spot",
                 "kind": "spot",
                 "points": 1,
-                "title": "Which login page is fake?",
+                "title": "Real page or fake?",
+                "body": "<p>One last skill for the front door: telling a real login "
+                "page from a fake one. Scammers build convincing copies of bank and "
+                "email logins, then send you to them. The padlock in the address "
+                "bar does not help, because scam sites can have one too. The tell is "
+                "the web address itself.</p>",
                 "payload": {
                     "prompt": "Your bank's login page, or a fake? Tap the one you should not trust.",
                     "variant": "login",
@@ -432,22 +480,20 @@ LESSONS = [
         "walk away with a five point checklist you will actually use.",
         "tasks": [
             {
-                "key": "defence-intro",
-                "kind": "concept",
-                "points": 2,
+                "key": "defence",
+                "kind": "check",
+                "points": 3,
                 "title": "Why you layer your defences",
                 "diagram": "defence-in-depth",
                 "body": "<p>No single lock is perfect, and that is fine, because you "
-                "do not rely on one. Layer a few simple habits and one slip stops "
-                "being a disaster. If a scam email gets past you, two-factor still "
-                "blocks the stolen password. If ransomware hits, your backup brings "
-                "you back.</p>",
-            },
-            {
-                "key": "backups-check",
-                "kind": "check",
-                "points": 1,
-                "title": "Quick check",
+                "do not rely on one. You layer a few simple habits so that if one is "
+                "missed, the next still protects you. If a scam email slips past you, "
+                "two-factor still blocks the stolen password. If ransomware gets in, "
+                "a good backup brings you back without paying anyone.</p>"
+                "<p>That last one is worth dwelling on. Ransomware works by holding "
+                "your only copy hostage. A recent backup that you have tested and "
+                "can actually restore takes away all their leverage. You restore, "
+                "and carry on.</p>",
                 "question": "How do good backups help against ransomware?",
                 "hint": "Ransomware holds your files hostage. What takes away their leverage?",
                 "options": [
@@ -462,24 +508,43 @@ LESSONS = [
                 ],
             },
             {
-                "key": "reporting-intro",
-                "kind": "concept",
-                "points": 1,
+                "key": "reporting",
+                "kind": "check",
+                "points": 2,
                 "title": "Reporting without blame",
                 "body": "<p>People make mistakes, and the workplaces that handle "
-                "security well are the ones where you can say 'I think I clicked "
-                "something' without fear. Fast, blame free reporting turns a near "
-                "miss into a non-event. Staying quiet is what lets a small problem "
-                "grow.</p>",
+                "security well are the ones where a person can say 'I think I "
+                "clicked something' without fear. Fast, blame free reporting turns a "
+                "near miss into a non-event, because the account can be secured "
+                "before any harm is done. Staying quiet out of embarrassment is what "
+                "lets a small problem grow into an expensive one.</p>"
+                "<p>If you ever think you have slipped up, the most useful thing you "
+                "can do is say so quickly.</p>",
+                "question": "You realise you typed your password into a page that looked a bit off. What now?",
+                "hint": "The goal is to get the account secured before anything bad happens. Who can do that?",
+                "options": [
+                    ("Tell whoever looks after your IT straight away", True,
+                     "Yes. Quick reporting means the account can be secured before harm is done. There is never trouble for owning up."),
+                    ("Say nothing and hope for the best", False,
+                     "Silence just gives the problem room to grow. Speak up early."),
+                    ("Delete the page from your history", False,
+                     "That does not undo an entered password. It needs reporting so the account can be secured."),
+                    ("Wait a week and see if anything happens", False,
+                     "Waiting only hands the attacker time. Report it now."),
+                ],
             },
             {
                 "key": "capstone-branch",
                 "kind": "branch",
-                "points": 4,
+                "points": 3,
                 "title": "A week at Docklands Dental",
+                "body": "<p>Time to put it all together. You are on the front desk "
+                "at a small dental practice for a week, and a few situations come up "
+                "that every Australian small business meets. Make the call you would "
+                "really make. There are no trick questions, and you can always see "
+                "the better path.</p>",
                 "payload": {
-                    "prompt": "It is a busy week at the front desk. Choose what you "
-                    "would really do. You can always see the better path.",
+                    "prompt": "Choose what you would really do. You can always see the better path.",
                     "start": "n1",
                     "nodes": {
                         "n1": {
@@ -555,33 +620,28 @@ LESSONS = [
                 },
             },
             {
-                "key": "clicked-check",
+                "key": "five-habits",
                 "kind": "check",
-                "points": 1,
-                "title": "Quick check",
-                "question": "You realise you typed your password into a page that looked a bit off. What now?",
-                "hint": "The goal is to get the account secured before anything bad happens. Who can do that?",
-                "options": [
-                    ("Tell whoever looks after your IT straight away", True,
-                     "Yes. Quick reporting means the account can be secured before harm is done. There is never trouble for owning up."),
-                    ("Say nothing and hope for the best", False,
-                     "Silence just gives the problem room to grow. Speak up early."),
-                    ("Delete the email and move on", False,
-                     "Deleting the message does not undo an entered password. It needs reporting."),
-                    ("Wait a week and see if anything happens", False,
-                     "Waiting only hands the attacker time. Report it now."),
-                ],
-            },
-            {
-                "key": "checklist-recap",
-                "kind": "concept",
-                "points": 1,
+                "points": 2,
                 "title": "Your five habits",
                 "body": "<p>That is the whole module in five habits. Pause before "
                 "you act on anything urgent. Use long, unique passwords and turn on "
                 "two-factor. Keep everything updated. Back up what you cannot lose. "
                 "And report anything odd, quickly and without blame. None of it "
-                "needs you to be technical.</p>",
+                "needs you to be technical, and together they stop the great "
+                "majority of problems.</p>",
+                "question": "Which single habit most directly stops a stolen password from becoming a break-in?",
+                "hint": "Which habit adds a second check that the attacker cannot provide?",
+                "options": [
+                    ("Turning on two-factor authentication", True,
+                     "Yes. Two-factor adds a second key, so a stolen password on its own will not get anyone in."),
+                    ("Backing up your files", False,
+                     "Backups are vital for recovering from ransomware, but they do not stop a stolen password being used."),
+                    ("Installing updates promptly", False,
+                     "Updates close software holes, which matters, but they do not add a second check at login."),
+                    ("Pausing before urgent requests", False,
+                     "A great habit against scams, but two-factor is what specifically blocks a stolen password."),
+                ],
             },
         ],
     },
