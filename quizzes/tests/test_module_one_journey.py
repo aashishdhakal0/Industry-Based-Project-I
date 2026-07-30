@@ -83,3 +83,11 @@ def test_the_full_interactive_module_one_journey(seeded_client):
     assert progress[1].complete is True
     assert progress[2].unlocked is True
     assert g.get_profile(student).points == 90  # 40 lessons + 50 quiz
+
+    # Returning to the module now shows a clear completion moment with a way on
+    # to Module 2 — the student is never left wondering what happens next.
+    overview = client.get(reverse("learn:module", args=[1])).content.decode()
+    assert "cy-moddone" in overview
+    assert "Module 01 complete" in overview
+    assert "Start Module 2" in overview
+    assert reverse("learn:module", args=[2]) in overview

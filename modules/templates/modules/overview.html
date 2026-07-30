@@ -23,6 +23,52 @@
   <h1 class="cy-rise" style="--cy-delay:0.05s; font-size: 1.9rem; margin: 1.25rem 0 0.5rem;">{{ module.title }}</h1>
   <p class="cy-lede cy-rise" style="--cy-delay:0.05s;">{{ module.description }}</p>
 
+  {% if module_complete %}
+    {% comment %}
+      The completion moment: shown whenever a finished module is opened, so the
+      congratulations, the XP, the badges and the way forward are never missed.
+    {% endcomment %}
+    <div class="cy-moddone cy-rise" style="--cy-delay:0.07s;">
+      <div class="cy-moddone__glow" aria-hidden="true"></div>
+      <span class="cy-moddone__seal"><svg class="cy-i" aria-hidden="true"><use href="#i-award"/></svg></span>
+      <p class="cy-moddone__eyebrow">Module {{ module.order_index|stringformat:"02d" }} complete</p>
+      <h2 class="cy-moddone__title">Nicely done. That's the whole module finished.</h2>
+      <p class="cy-moddone__lede">
+        You've completed every lesson{% if quiz %} and passed the quiz{% endif %} in {{ module.title }}.
+      </p>
+
+      <div class="cy-moddone__stats">
+        <span class="cy-moddone__chip">
+          <svg class="cy-i" aria-hidden="true"><use href="#i-hex"/></svg> +{{ module_points }} XP earned
+        </span>
+        {% for b in earned_badges %}
+          <span class="cy-moddone__chip cy-moddone__chip--badge"
+                style="--cy-tile-a: {{ b.tile_a }}; --cy-tile-b: {{ b.tile_b }};">
+            <svg class="cy-i" aria-hidden="true"><use href="#{{ b.icon }}"/></svg> {{ b.name }}
+          </span>
+        {% endfor %}
+      </div>
+
+      {% if next_module %}
+        <p class="cy-moddone__unlock">
+          <svg class="cy-i" aria-hidden="true"><use href="#i-check-circle"/></svg>
+          Module {{ next_module.order_index|stringformat:"02d" }}, {{ next_module.title }}, is now unlocked.
+        </p>
+        <a class="cy-btn cy-btn--primary cy-btn--lg" href="{% url 'learn:module' next_module.order_index %}">
+          Start Module {{ next_module.order_index }} <svg class="cy-i" aria-hidden="true"><use href="#i-arrow-right"/></svg>
+        </a>
+      {% else %}
+        <p class="cy-moddone__unlock">
+          <svg class="cy-i" aria-hidden="true"><use href="#i-check-circle"/></svg>
+          You've completed every module. Time to collect your certificate.
+        </p>
+        <a class="cy-btn cy-btn--primary cy-btn--lg" href="{% url 'learn:certificate' %}">
+          See your certificate <svg class="cy-i" aria-hidden="true"><use href="#i-award"/></svg>
+        </a>
+      {% endif %}
+    </div>
+  {% endif %}
+
   <div class="cy-progress-row cy-rise" style="--cy-delay:0.08s; margin-bottom: 2.25rem;">
     <div class="cy-progress"><div class="cy-progress__fill" style="--cy-value: {{ percent }}%;"></div></div>
     <span class="cy-progress-row__value">{{ done_count }}/{{ total_count }}</span>

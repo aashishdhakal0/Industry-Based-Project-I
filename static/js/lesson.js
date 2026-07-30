@@ -81,7 +81,10 @@
     }
     overlay.hidden = false;
     overlay.removeAttribute("aria-hidden");
-    document.getElementById("cy-reward-go").onclick = function () { go(nextUrl); };
+    var goBtn = document.getElementById("cy-reward-go");
+    var nextLabel = room.getAttribute("data-next-label");
+    if (goBtn && nextLabel) goBtn.textContent = nextLabel;
+    if (goBtn) goBtn.onclick = function () { go(nextUrl); };
   }
 
   function openNextAfter(panel) {

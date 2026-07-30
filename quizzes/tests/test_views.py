@@ -54,6 +54,26 @@ def test_quiz_redirects_back_to_the_module_until_lessons_are_done(client_student
 
 
 @pytest.mark.django_db
+def test_finishing_the_last_lesson_routes_the_student_to_the_quiz(
+    client_student, quiz, student
+):
+    module = quiz.module
+    lessons = list(module.lessons.order_by("lesson_number"))
+    # Finish all but the last through the engine, then complete the last via the
+    # view so we can read where it sends the student next.
+    for lesson in lessons[:-1]:
+        g.complete_lesson(student, lesson)
+    resp = client_student.post(
+        reverse("learn:complete_lesson", args=[module.order_index, lessons[-1].lesson_number]),
+        HTTP_X_REQUESTED_WITH="fetch",
+    )
+    data = resp.json()
+    assert data["next_label"] == "Take the quiz"
+    assert data["next_url"] == reverse("learn:quiz", args=[module.order_index])
+    assert data["module_done"] is False  # the quiz still stands between them and done
+
+
+@pytest.mark.django_db
 def test_quiz_of_a_locked_module_is_a_403(client_student, quiz, make_module):
     locked = make_module(2)
     Quiz.objects.create(module=locked, pass_mark=70)

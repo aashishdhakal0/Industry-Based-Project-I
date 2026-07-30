@@ -49,7 +49,8 @@
     {# ---------- Room: a scrollable page of collapsible task panels ---------- #}
     <div class="cy-room2" data-room
          data-task-url="{% url 'learn:complete_task' module.order_index lesson.lesson_number %}"
-         data-next="{% if next_lesson %}{% url 'learn:lesson' module.order_index next_lesson.lesson_number %}{% else %}{% url 'learn:module' module.order_index %}{% endif %}">
+         data-next="{{ next_after_url }}"
+         data-next-label="{{ next_after_label }}">
 
       <div class="cy-room2__bar">
         <h1 class="cy-room2__title">{{ lesson.title }}</h1>
@@ -111,16 +112,27 @@
         {% endfor %}
       </ol>
 
-      {# No-JS (and already-complete) fallback: bank via the normal endpoint. #}
-      <form class="cy-room2__nojs" method="post"
-            action="{% url 'learn:complete_lesson' module.order_index lesson.lesson_number %}"
-            data-next="{% if next_lesson %}{% url 'learn:lesson' module.order_index next_lesson.lesson_number %}{% else %}{% url 'learn:module' module.order_index %}{% endif %}">
-        {% csrf_token %}
-        <button type="submit" class="cy-btn cy-btn--primary">
-          {% if is_done %}{% if next_lesson %}Next lesson{% else %}Finish module{% endif %}{% else %}Mark lesson complete{% endif %}
-          <svg class="cy-i" aria-hidden="true"><use href="#i-arrow-right"/></svg>
-        </button>
-      </form>
+      {% comment %}
+        Fallback + already-complete footer. While there is still something to do
+        (and JS is on) lesson.js hides this; a finished lesson keeps it as a
+        plain, always-visible "next step" so the student is never stranded.
+      {% endcomment %}
+      {% if is_done %}
+        <div class="cy-room2__nojs cy-room2__next">
+          <a class="cy-btn cy-btn--primary" href="{{ next_after_url }}">
+            {{ next_after_label }} <svg class="cy-i" aria-hidden="true"><use href="#i-arrow-right"/></svg>
+          </a>
+        </div>
+      {% else %}
+        <form class="cy-room2__nojs" method="post"
+              action="{% url 'learn:complete_lesson' module.order_index lesson.lesson_number %}"
+              data-next="{{ next_after_url }}">
+          {% csrf_token %}
+          <button type="submit" class="cy-btn cy-btn--primary">
+            Mark lesson complete <svg class="cy-i" aria-hidden="true"><use href="#i-arrow-right"/></svg>
+          </button>
+        </form>
+      {% endif %}
     </div>
 
   {% else %}
@@ -133,20 +145,22 @@
         <a class="cy-btn cy-btn--ghost" href="{% url 'learn:lesson' module.order_index prev_lesson.lesson_number %}">Previous</a>
       {% else %}<span></span>{% endif %}
 
-      <form method="post"
-            action="{% url 'learn:complete_lesson' module.order_index lesson.lesson_number %}"
-            class="cy-complete"
-            data-next="{% if next_lesson %}{% url 'learn:lesson' module.order_index next_lesson.lesson_number %}{% else %}{% url 'learn:module' module.order_index %}{% endif %}">
-        {% csrf_token %}
-        <button type="submit" class="cy-btn cy-btn--primary" {% if is_done %}data-done="1"{% endif %}>
-          {% if is_done %}
-            <svg class="cy-i" aria-hidden="true"><use href="#i-check"/></svg>
-            {% if next_lesson %}Next lesson{% else %}Finish module{% endif %}
-          {% else %}
+      {% if is_done %}
+        <a class="cy-btn cy-btn--primary" href="{{ next_after_url }}">
+          <svg class="cy-i" aria-hidden="true"><use href="#i-check"/></svg>
+          {{ next_after_label }}
+        </a>
+      {% else %}
+        <form method="post"
+              action="{% url 'learn:complete_lesson' module.order_index lesson.lesson_number %}"
+              class="cy-complete"
+              data-next="{{ next_after_url }}">
+          {% csrf_token %}
+          <button type="submit" class="cy-btn cy-btn--primary">
             Mark complete <svg class="cy-i" aria-hidden="true"><use href="#i-arrow-right"/></svg>
-          {% endif %}
-        </button>
-      </form>
+          </button>
+        </form>
+      {% endif %}
     </div>
   {% endif %}
 </div>
@@ -171,7 +185,7 @@
       lesson.js that 304s keep alive. Bump this when the room JS changes so the
       URL is new and the old cached copy can't win. (Prod hashes it anyway.)
     {% endcomment %}
-    <script src="{% static 'js/lesson.js' %}?v=5" defer></script>
-    <script src="{% static 'js/activities.js' %}?v=5" defer></script>
+    <script src="{% static 'js/lesson.js' %}?v=6" defer></script>
+    <script src="{% static 'js/activities.js' %}?v=6" defer></script>
   {% endif %}
 {% endblock %}

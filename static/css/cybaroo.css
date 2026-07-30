@@ -5332,3 +5332,92 @@ a.cy-path__link:hover { background: var(--cy-surface-2); }
 }
 .cy-check.is-solved [data-check] { display: none; }
 .cy-check.is-solved { opacity: 0.92; }
+
+
+/* --- Module complete: the finished-module celebration on the overview ------ */
+
+.cy-moddone {
+  position: relative;
+  overflow: hidden;
+  margin: 1.6rem 0 2rem;
+  padding: 2rem 1.7rem 1.9rem;
+  border: 1px solid var(--cy-border-lift);
+  border-radius: var(--cy-r-lg);
+  background:
+    radial-gradient(120% 90% at 50% -20%, var(--cy-glow-violet-soft), transparent 70%),
+    linear-gradient(180deg, var(--cy-surface-2), var(--cy-surface));
+  box-shadow: 0 14px 44px var(--cy-glow-violet-soft);
+  text-align: center;
+}
+.cy-moddone__glow {
+  position: absolute;
+  inset: -1px -1px auto;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, var(--cy-glow-violet), transparent);
+}
+.cy-moddone__seal {
+  display: inline-grid;
+  place-items: center;
+  width: 58px;
+  height: 58px;
+  margin-bottom: 0.9rem;
+  border-radius: 50%;
+  color: var(--cy-ink);
+  background: var(--cy-grad);
+  box-shadow: 0 8px 26px var(--cy-glow-violet);
+}
+.cy-moddone__seal .cy-i { width: 30px; height: 30px; }
+.cy-moddone__eyebrow {
+  margin: 0 0 0.3rem;
+  font: 600 0.76rem/1 var(--cy-font-mono, monospace);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--cy-cyan);
+}
+.cy-moddone__title { margin: 0 0 0.5rem; font-size: 1.5rem; line-height: 1.15; }
+.cy-moddone__lede { margin: 0 auto 1.2rem; max-width: 46ch; color: var(--cy-text-2); }
+
+.cy-moddone__stats {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.55rem;
+  margin-bottom: 1.3rem;
+}
+.cy-moddone__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.42rem 0.8rem;
+  border: 1px solid var(--cy-border-lift);
+  border-radius: 999px;
+  background: var(--cy-surface-3);
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--cy-text);
+}
+.cy-moddone__chip .cy-i { width: 16px; height: 16px; color: var(--cy-violet-soft); }
+.cy-moddone__chip--badge {
+  border-color: transparent;
+  color: var(--cy-ink);
+  background: linear-gradient(120deg, var(--cy-tile-a, var(--cy-violet)), var(--cy-tile-b, var(--cy-cyan)));
+}
+.cy-moddone__chip--badge .cy-i { color: var(--cy-ink); }
+
+.cy-moddone__unlock {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin: 0 auto 1.2rem;
+  color: var(--cy-text-2);
+  font-size: 0.95rem;
+}
+.cy-moddone__unlock .cy-i { width: 18px; height: 18px; color: var(--cy-cyan); flex: none; }
+
+/* The always-visible "next step" under a finished room. */
+.cy-room2__next { display: flex; justify-content: center; }
+
+@media (max-width: 560px) {
+  .cy-moddone { padding: 1.6rem 1.15rem 1.5rem; }
+  .cy-moddone__title { font-size: 1.28rem; }
+}

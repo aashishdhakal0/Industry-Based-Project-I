@@ -31,6 +31,21 @@ def _locked_response(request, module):
     return render(request, "modules/locked.html", {"module": module}, status=403)
 
 
+def _next_link(step, order_index):
+    """Turn a within-module NextStep (from gamification.next_in_module) into the
+    (url, label, kind) a page needs so the student always has one clear way
+    forward: the next lesson, the quiz, or back to the now-complete module."""
+    if step is None:
+        return reverse("learn:module", args=[order_index]), "Finish module", "module"
+    if step.kind == "quiz":
+        return reverse("learn:quiz", args=[order_index]), "Take the quiz", "quiz"
+    return (
+        reverse("learn:lesson", args=[order_index, step.lesson.lesson_number]),
+        "Next lesson",
+        "lesson",
+    )
+
+
 @login_required
 def browser(request):
     """The mission map — all published modules with real progress and lock state."""
@@ -103,6 +118,32 @@ def module_overview(request, order_index):
     ).exists()
 
     next_lesson = next((lesson for lesson in lessons if not lesson.is_done), None)
+    all_lessons_done = bool(lessons) and next_lesson is None
+
+    # Module complete = every lesson done and, if the module is gated by a quiz,
+    # that quiz passed. This mirrors gamification.module_progress exactly, so the
+    # celebration only fires when the next module has genuinely unlocked.
+    module_complete = all_lessons_done and (quiz is None or quiz_passed)
+
+    # The completion moment: the XP this module contributed, any badges the
+    # student holds, and where to go next (the freshly unlocked module, or the
+    # certificate if this was the last one).
+    next_module = None
+    module_points = 0
+    earned_badges = []
+    if module_complete:
+        from .badges import BY_ID
+
+        next_module = (
+            Module.objects.filter(
+                is_published=True, order_index=module.order_index + 1
+            ).first()
+        )
+        module_points = len(done_numbers) * g.POINTS_PER_LESSON + (
+            g.POINTS_PER_QUIZ if quiz_passed else 0
+        )
+        profile = g.get_profile(request.user)
+        earned_badges = [BY_ID[b] for b in (profile.badges or []) if b in BY_ID]
 
     return render(
         request,
@@ -118,7 +159,11 @@ def module_overview(request, order_index):
             "quiz": quiz,
             "quiz_passed": quiz_passed,
             "next_lesson": next_lesson,
-            "all_lessons_done": bool(lessons) and next_lesson is None,
+            "all_lessons_done": all_lessons_done,
+            "module_complete": module_complete,
+            "next_module": next_module,
+            "module_points": module_points,
+            "earned_badges": earned_badges,
             "reward_flash": reward_flash,
             "active": "modules",
         },
@@ -172,6 +217,14 @@ def lesson(request, order_index, lesson_number):
 
     reward_flash = request.session.pop("reward", None)
 
+    # Where "next" points once this lesson is done: the next lesson, the quiz if
+    # this was the last one, or back to the (now complete) module. Computed as if
+    # this lesson is already finished, so a completed lesson never dead-ends.
+    after_step = g.next_in_module(
+        request.user, module, also_done={lesson.lesson_number}
+    )
+    next_after_url, next_after_label, next_after_kind = _next_link(after_step, order_index)
+
     # Interactive task room (Module 1+). A lesson with tasks renders as a
     # TryHackMe-style sequence; lessons without tasks keep the plain reader.
     tasks = list(lesson.tasks.order_by("order"))
@@ -201,6 +254,9 @@ def lesson(request, order_index, lesson_number):
             "progress_percent": round((position + 1) / len(siblings) * 100),
             "prev_lesson": prev_lesson,
             "next_lesson": next_lesson,
+            "next_after_url": next_after_url,
+            "next_after_label": next_after_label,
+            "next_after_kind": next_after_kind,
             "is_done": is_done,
             "steps": steps,
             "tasks": tasks,
@@ -229,16 +285,10 @@ def complete_task(request, order_index, lesson_number):
     task = get_object_or_404(LessonTask, id=request.POST.get("task"), lesson=lesson)
     result = g.complete_task(request.user, task)
 
-    next_lesson = (
-        lesson.module.lessons.filter(is_active=True, lesson_number__gt=lesson_number)
-        .order_by("lesson_number")
-        .first()
-    )
-    next_url = (
-        reverse("learn:lesson", args=[order_index, next_lesson.lesson_number])
-        if next_lesson
-        else reverse("learn:module", args=[order_index])
-    )
+    # After this lesson (banked once its last task is done), the next thing to do:
+    # the next lesson, the quiz, or back to the finished module.
+    step = g.next_in_module(request.user, lesson.module, also_done={lesson_number})
+    next_url, next_label, next_kind = _next_link(step, order_index)
 
     payload = {
         "task_points": result.task_points,
@@ -248,7 +298,8 @@ def complete_task(request, order_index, lesson_number):
         "tasks_total": result.tasks_total,
         "lesson_completed": result.lesson_completed,
         "next_url": next_url,
-        "module_done": next_lesson is None,
+        "next_label": next_label,
+        "module_done": step is None,
     }
     if result.lesson_completed and result.reward:
         r = result.reward
@@ -279,18 +330,10 @@ def complete_lesson(request, order_index, lesson_number):
 
     created, reward = g.complete_lesson(request.user, lesson)
 
-    next_lesson = (
-        lesson.module.lessons.filter(
-            is_active=True, lesson_number__gt=lesson_number
-        )
-        .order_by("lesson_number")
-        .first()
-    )
-    next_url = (
-        reverse("learn:lesson", args=[order_index, next_lesson.lesson_number])
-        if next_lesson
-        else reverse("learn:module", args=[order_index])
-    )
+    # The lesson is now recorded done, so ask what's next in this module: the
+    # next lesson, the quiz, or back to the finished module. Never a dead end.
+    step = g.next_in_module(request.user, lesson.module)
+    next_url, next_label, next_kind = _next_link(step, order_index)
 
     payload = {
         "created": created,
@@ -303,7 +346,8 @@ def complete_lesson(request, order_index, lesson_number):
             {"name": b.name, "icon": b.icon} for b in reward.new_badges
         ],
         "next_url": next_url,
-        "module_done": next_lesson is None,
+        "next_label": next_label,
+        "module_done": step is None,
     }
 
     if request.headers.get("X-Requested-With") == "fetch":

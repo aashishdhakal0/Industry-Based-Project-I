@@ -134,6 +134,42 @@ def test_continue_target_is_none_when_everything_is_done(student, make_module):
     assert g.continue_target(student) is None
 
 
+@pytest.mark.django_db
+def test_next_in_module_walks_lessons_then_ends(student, make_module):
+    module = make_module(1, lessons=3)  # a quizless module
+
+    # Nothing done yet: the first lesson.
+    step = g.next_in_module(student, module)
+    assert step.kind == "lesson" and step.lesson.lesson_number == 1
+
+    # Finish lesson 1: the next is lesson 2.
+    g.complete_lesson(student, module.lessons.get(lesson_number=1))
+    assert g.next_in_module(student, module).lesson.lesson_number == 2
+
+    # `also_done` lets a page look one lesson ahead without writing a record.
+    assert g.next_in_module(
+        student, module, also_done={2}
+    ).lesson.lesson_number == 3
+
+    # All lessons done and no quiz: the module is finished, so None.
+    complete_module(student, module)
+    assert g.next_in_module(student, module) is None
+
+
+@pytest.mark.django_db
+def test_next_in_module_points_at_the_quiz_once_the_lessons_are_done(
+    student, make_module
+):
+    from quizzes.models import Quiz
+
+    module = make_module(1, lessons=2)
+    Quiz.objects.create(module=module, pass_mark=70)  # an active quiz gates the module
+
+    complete_module(student, module)
+    step = g.next_in_module(student, module)
+    assert step is not None and step.kind == "quiz" and step.lesson is None
+
+
 # --------------------------------------------------------------------------
 # Streak — dates injected, no clock mocking
 # --------------------------------------------------------------------------

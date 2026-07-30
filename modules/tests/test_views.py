@@ -128,6 +128,70 @@ def test_completion_without_js_redirects_to_the_next_lesson(client_student, modu
 
 
 @pytest.mark.django_db
+def test_finishing_the_last_lesson_of_a_quizless_module_returns_to_the_module(
+    client_student, modules
+):
+    # These fixture modules have no quiz, so the last lesson completes the module
+    # and the student is sent back to its (now complete) overview — never stranded.
+    for n in range(1, 4):
+        complete(client_student, modules[0], n)
+    last = complete(client_student, modules[0], 4)
+    assert last.status_code == 302
+    assert last.url == reverse("learn:module", args=[1])
+
+
+@pytest.mark.django_db
+def test_last_lesson_completion_reports_the_module_as_done(client_student, modules):
+    for n in range(1, 4):
+        complete(client_student, modules[0], n, HTTP_X_REQUESTED_WITH="fetch")
+    data = json.loads(
+        complete(client_student, modules[0], 4, HTTP_X_REQUESTED_WITH="fetch").content
+    )
+    assert data["module_done"] is True
+    assert data["next_url"] == reverse("learn:module", args=[1])
+
+
+@pytest.mark.django_db
+def test_an_unfinished_module_overview_shows_no_completion_card(client_student, modules):
+    complete(client_student, modules[0], 1)
+    html = client_student.get(reverse("learn:module", args=[1])).content.decode()
+    assert "cy-moddone" not in html
+
+
+@pytest.mark.django_db
+def test_a_completed_module_overview_celebrates_and_offers_the_next_module(
+    client_student, modules
+):
+    for n in range(1, 5):
+        complete(client_student, modules[0], n)
+    html = client_student.get(reverse("learn:module", args=[1])).content.decode()
+    assert "cy-moddone" in html                       # the celebration card
+    assert "Module 01 complete" in html
+    assert "XP earned" in html
+    assert "is now unlocked" in html
+    # A prominent way forward to the next module.
+    assert "Start Module 2" in html
+    assert reverse("learn:module", args=[2]) in html
+    # No unrendered template tokens leaking into the finished-module view.
+    for token in ("{{", "{%", "{#"):
+        assert token not in html
+
+
+@pytest.mark.django_db
+def test_the_final_module_completion_points_to_the_certificate(client_student, modules):
+    # Complete all three fixture modules (quizless, so lessons-only), unlocking
+    # each in turn; the last one has no next module, so it offers the certificate.
+    for module in modules:
+        for n in range(1, 5):
+            complete(client_student, module, n)
+    html = client_student.get(reverse("learn:module", args=[3])).content.decode()
+    assert "cy-moddone" in html
+    assert "See your certificate" in html
+    assert reverse("learn:certificate") in html
+    assert "Start Module" not in html
+
+
+@pytest.mark.django_db
 def test_completion_is_post_only(client_student, modules):
     url = reverse("learn:complete_lesson", args=[1, 1])
     assert client_student.get(url).status_code == 405

@@ -210,6 +210,34 @@ def continue_target(user):
     return None
 
 
+def next_in_module(user, module, *, also_done=()):
+    """The next step to take *inside* one module, so a student is never left on a
+    finished lesson with nowhere to go.
+
+    The first still-incomplete active lesson, else the module's active quiz if one
+    exists, else None once the module is fully done. `also_done` lets a caller
+    treat extra lesson numbers as complete (e.g. the lesson being finished right
+    now) so a page can label "what comes next" before the record is written.
+    Scoped to one module — see next_step for the cross-module journey."""
+    done_numbers = set(
+        ProgressRecord.objects.filter(
+            user=user, lesson__module=module, lesson__is_active=True
+        ).values_list("lesson__lesson_number", flat=True)
+    )
+    done_numbers |= set(also_done)
+    lesson = (
+        module.lessons.filter(is_active=True)
+        .exclude(lesson_number__in=done_numbers)
+        .order_by("lesson_number")
+        .first()
+    )
+    if lesson:
+        return NextStep("lesson", module, lesson)
+    if Quiz.objects.filter(module=module, is_active=True).exists():
+        return NextStep("quiz", module, None)
+    return None
+
+
 # --------------------------------------------------------------------------
 # Counts + stats
 # --------------------------------------------------------------------------

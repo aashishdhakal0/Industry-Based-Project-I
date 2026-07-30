@@ -177,7 +177,7 @@
     overlay.removeAttribute("aria-hidden");
 
     var cont = document.getElementById("cy-reward-go");
-    cont.textContent = data.module_done ? "Back to module" : "Next lesson";
+    cont.textContent = data.next_label || (data.module_done ? "Back to module" : "Next lesson");
     cont.focus();
     cont.onclick = function () {
       go(data.next_url);
