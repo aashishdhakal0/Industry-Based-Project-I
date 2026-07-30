@@ -158,10 +158,18 @@ def test_module_one_uses_the_cia_diagram(seeded):
 
 
 @pytest.mark.django_db
-def test_module_one_quiz_has_a_bank_of_at_least_fifteen(seeded):
+def test_module_one_quiz_is_a_substantial_bank(seeded):
     quiz = seeded.quiz
     assert quiz.pass_mark == 70
-    assert quiz.questions.count() >= 15
+    assert quiz.questions.count() >= 28
+    # Evenly spread so any draw of 10 samples across the whole module.
+    from collections import Counter
+
+    per_lesson = Counter(
+        quiz.questions.values_list("lesson_reference__lesson_number", flat=True)
+    )
+    for n in (1, 2, 3, 4):
+        assert per_lesson[n] >= 5, f"lesson {n} is thin in the quiz bank"
 
 
 @pytest.mark.django_db
