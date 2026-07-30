@@ -41,11 +41,12 @@ def test_each_lesson_is_mostly_interactive_and_sums_to_ten(seeded):
     for lesson in lessons:
         tasks = list(lesson.tasks.order_by("order"))
         assert sum(t.points for t in tasks) == POINTS_PER_LESSON, f"{lesson.title} != 10 XP"
-        activity_pts = sum(t.points for t in tasks if t.kind in ACTIVITY_KINDS)
+        # Interactive = hands-on activities plus checks (both give feedback);
+        # reading = concept chunks. The doing should outweigh the reading.
+        doing_pts = sum(t.points for t in tasks if t.kind in ACTIVITY_KINDS or t.kind == "CHECK")
         concept_pts = sum(t.points for t in tasks if t.kind == "CONCEPT")
-        assert activity_pts >= 1, f"{lesson.title} has no interactive activity"
-        # The doing outweighs the reading.
-        assert activity_pts >= concept_pts, f"{lesson.title} is weighted toward reading"
+        assert any(t.kind in ACTIVITY_KINDS for t in tasks), f"{lesson.title} has no hands-on activity"
+        assert doing_pts >= concept_pts, f"{lesson.title} is weighted toward reading"
 
 
 @pytest.mark.django_db
@@ -230,3 +231,61 @@ def test_inline_check_tasks_are_well_formed(seeded):
         for o in opts:
             assert o["explanation"].strip(), f"{task.task_key} option needs feedback"
         assert task.payload.get("question"), f"{task.task_key} needs a question"
+
+
+# --------------------------------------------------------------------------
+# Gold-standard format: 5-8 tasks, ordering rule, hints, warm em-dash-free voice
+# --------------------------------------------------------------------------
+
+import json as _json
+
+DASHES = ("—", "–")  # em-dash, en-dash
+
+
+def _content_blob(task):
+    return (task.body or "") + _json.dumps(task.payload or {})
+
+
+@pytest.mark.django_db
+def test_each_lesson_has_five_to_eight_tasks(seeded):
+    for lesson in seeded.lessons.order_by("lesson_number"):
+        n = lesson.tasks.count()
+        assert 5 <= n <= 8, f"{lesson.title} has {n} tasks (want 5 to 8)"
+
+
+@pytest.mark.django_db
+def test_never_two_concept_tasks_in_a_row(seeded):
+    for lesson in seeded.lessons.order_by("lesson_number"):
+        kinds = list(lesson.tasks.order_by("order").values_list("kind", flat=True))
+        for a, b in zip(kinds, kinds[1:]):
+            assert not (a == "CONCEPT" and b == "CONCEPT"), (
+                f"{lesson.title}: two concept tasks in a row breaks the weight-toward-doing rule"
+            )
+
+
+@pytest.mark.django_db
+def test_every_check_carries_a_hint(seeded):
+    checks = LessonTask.objects.filter(lesson__module=seeded, kind="CHECK")
+    assert checks.exists()
+    for task in checks:
+        assert task.payload.get("hint", "").strip(), f"{task.task_key} has no hint"
+
+
+@pytest.mark.django_db
+def test_lesson_content_has_no_em_dashes(seeded):
+    """The house voice bans em/en-dashes. Enforced so every module that copies
+    this reference stays in the same voice."""
+    for task in LessonTask.objects.filter(lesson__module=seeded):
+        blob = _content_blob(task)
+        for d in DASHES:
+            assert d not in blob, f"{task.task_key} contains a dash char {d!r}"
+
+
+@pytest.mark.django_db
+def test_module_one_uses_the_new_diagrams(seeded):
+    keys = set(
+        LessonTask.objects.filter(lesson__module=seeded)
+        .exclude(diagram_key="")
+        .values_list("diagram_key", flat=True)
+    )
+    assert {"two-factor", "defence-in-depth"} <= keys
