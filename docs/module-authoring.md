@@ -5,37 +5,49 @@ other module copies its shape. This doc is the checklist so Modules 2 to 6 are
 fast and consistent. There are no schema changes to make: add a `module_two.py`
 in the same shape and register it in the seed.
 
-## The shape
+## The shape (TryHackMe-style room)
 
 - A **module** has **4 lessons**.
-- A **lesson** is **5 to 8 ordered tasks** whose `points` sum to **10** (banked at
+- A **lesson** renders as one scrollable **room**: a sticky "Progress X%" bar and
+  a vertical stack of numbered, titled, collapsible `<details>` panels.
+- A **lesson** is **4 to 8 task panels** whose `points` sum to **10** (banked at
   lesson end through the normal points path, so the economy never changes).
-- A **task** is one of:
-  - **concept**: a punchy chunk of 2 to 4 sentences, usually paired with a
-    diagram. Finished with the foot "Got it" button.
+- A **panel is a meaty chunk of learning**: several short paragraphs of reading
+  (often a diagram and a callout box) THEN one inline interactive at the bottom.
+  The interactive is either:
   - **check**: one question, four options (exactly one correct), an explanation on
-    every option, and a **hint**. Instant per-option feedback; the hint also
-    appears after a wrong answer.
+    every option, and a **hint**. A "Check answer" button grades it; a wrong try
+    reveals the note and shows the hint; retry until correct.
   - **activity**: hands-on. One of `sort`, `inbox`, `spot`, `password`, `branch`.
-- **Ordering rule:** never two concept tasks in a row. Weight the lesson toward
-  doing. (Enforced by `test_never_two_concept_tasks_in_a_row`.)
+- Completing a panel ticks its header, pops a "+N XP" toast, fills the progress
+  bar, collapses it and opens the next. The last panel fires the celebration.
+- Weight toward doing: every panel ends in an interactive. A pure reading panel
+  (`kind: "concept"`, completed by a "Mark as complete" button) is allowed but
+  rarely needed; prefer folding the reading into the panel that carries the check
+  or activity. Each panel should have at least ~40 words of reading.
 
-## Task data (as authored in `module_one.py`)
+## Task (panel) data (as authored in `module_one.py`)
+
+Each panel is one dict: a rich `body` (the reading) plus one interactive.
 
 ```python
-# concept
-{"key": "net-intro", "kind": "concept", "points": 1,
- "title": "...", "diagram": "data-travels", "body": "<p>...</p>"}
-
-# check (option tuples are (text, is_correct, explanation))
-{"key": "net-check", "kind": "check", "points": 2,
- "title": "Quick check", "question": "...", "hint": "...",
+# a check panel: reading THEN a question
+{"key": "net-basics", "kind": "check", "points": 3,
+ "title": "What a network actually is", "diagram": "data-travels",
+ "body": "<p>...several paragraphs...</p>"
+         "<div class=\"cy-callout\"><strong>Why this matters:</strong> ...</div>",
+ "question": "...", "hint": "...",
  "options": [("A", True, "why right"), ("B", False, "why wrong"), ...]}
 
-# activity (config in payload)
-{"key": "cia-sort", "kind": "sort", "points": 3, "title": "...",
+# an activity panel: reading THEN the hands-on activity
+{"key": "cia-triad", "kind": "sort", "points": 3,
+ "title": "The three questions security asks", "diagram": "cia-triad",
+ "body": "<p>...reading...</p>",
  "payload": { ... see below ... }}
 ```
+
+Use `<div class="cy-callout">...</div>` in a body for a highlighted point (the
+sanitiser allows it).
 
 ## Activity payload contracts
 
@@ -83,7 +95,7 @@ parentheses. Enforced by `test_lesson_content_has_no_em_dashes` and
 
 ## Gamification (free, do not re-invent)
 
-XP per task with a "+N XP" toast, a per-lesson "Task X of Y" progress bar, a
+XP per panel with a "+N XP" toast, the room's "Progress X%" bar filling, a
 lesson-complete celebration, and the module-complete moment on passing the quiz
 (which unlocks the next module and advances the certificate). Streaks, level and
 badges all recompute from real records; keep task points summing to 10 and it all
