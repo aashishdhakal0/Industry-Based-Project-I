@@ -735,6 +735,8 @@ def test_each_diagram_renders_its_content():
         "cia-triad": "CIA",
         "data-travels": "Your device",
         "phishing-email": "flour-supplier-au.info",
+        "two-factor": "code on your phone",
+        "defence-in-depth": "What matters",
     }
     for key, needle in cases.items():
         html = render_to_string("modules/_diagram.html", {"key": key})
@@ -877,3 +879,66 @@ def test_branch_activity_renders_a_scenario_that_reaches_an_ending(client_studen
     cfg = _json.loads(frag)
     assert cfg["start"] in cfg["nodes"]
     assert any(not n["choices"] for n in cfg["nodes"].values())   # has an ending
+
+
+# --------------------------------------------------------------------------
+# Framework upgrades: check hints + spot-the-fake login variant
+# --------------------------------------------------------------------------
+
+
+@pytest.mark.django_db
+def test_a_check_with_a_hint_renders_a_hint_toggle_and_hint(client_student, modules):
+    lesson = modules[0].lessons.order_by("lesson_number").first()
+    LessonTask.objects.create(
+        lesson=lesson, order=1, task_key="c1", kind="CHECK", points=10,
+        payload={
+            "question": "Which is safe?",
+            "hint": "Think about who controls the network.",
+            "options": [
+                {"text": "Right one", "correct": True, "explanation": "Yes."},
+                {"text": "Wrong one", "correct": False, "explanation": "No."},
+            ],
+        },
+    )
+    html = client_student.get(
+        reverse("learn:lesson", args=[modules[0].order_index, lesson.lesson_number])
+    ).content.decode()
+    assert "data-hint-toggle" in html
+    assert "Need a hint?" in html
+    assert "Think about who controls the network." in html
+
+
+@pytest.mark.django_db
+def test_a_check_without_a_hint_shows_no_hint_control(client_student, modules):
+    lesson = modules[0].lessons.order_by("lesson_number").first()
+    LessonTask.objects.create(
+        lesson=lesson, order=1, task_key="c2", kind="CHECK", points=10,
+        payload={"question": "Q?", "hint": "", "options": [
+            {"text": "a", "correct": True, "explanation": "y"},
+            {"text": "b", "correct": False, "explanation": "n"},
+        ]},
+    )
+    html = client_student.get(
+        reverse("learn:lesson", args=[modules[0].order_index, lesson.lesson_number])
+    ).content.decode()
+    assert "data-hint-toggle" not in html
+
+
+@pytest.mark.django_db
+def test_spot_login_variant_config_carries_urls_and_the_fake(client_student, modules):
+    lesson = modules[0].lessons.order_by("lesson_number").first()
+    add_activity(lesson, 1, "t-login", "SPOT", 10, {
+        "prompt": "Which login is fake?",
+        "variant": "login",
+        "left": {"url": "https://coastline.com.au/login", "brand": "Coastline"},
+        "right": {"url": "https://coastline-secure-login.com/", "brand": "Coastline"},
+        "fake": "right", "why": "The domain isn't coastline.com.au.",
+    })
+    html = client_student.get(
+        reverse("learn:lesson", args=[modules[0].order_index, lesson.lesson_number])
+    ).content.decode()
+    frag = html.split('<script id="t-login" type="application/json">', 1)[1].split("</script>", 1)[0]
+    cfg = _json.loads(frag)
+    assert cfg["variant"] == "login"
+    assert cfg["fake"] == "right"
+    assert "coastline-secure-login.com" in cfg["right"]["url"]

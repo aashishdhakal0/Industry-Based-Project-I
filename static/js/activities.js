@@ -21,6 +21,18 @@
     return n;
   }
 
+  var SVGNS = "http://www.w3.org/2000/svg";
+  function icon(id) {
+    // Inline sprite reference — no emoji (Cybaroo house rule), CSP-safe.
+    var svg = document.createElementNS(SVGNS, "svg");
+    svg.setAttribute("class", "cy-i");
+    svg.setAttribute("aria-hidden", "true");
+    var use = document.createElementNS(SVGNS, "use");
+    use.setAttribute("href", "#" + id);
+    svg.appendChild(use);
+    return svg;
+  }
+
   function solved(container) {
     container.dispatchEvent(new CustomEvent("cy:solved", { bubbles: true }));
   }
@@ -123,9 +135,25 @@
       var c = el("button", "cy-spot__card");
       c.type = "button";
       c.setAttribute("data-side", side);
-      var head = el("div", "cy-spot__sender", data.sender || "");
-      c.appendChild(head);
-      c.appendChild(el("div", "cy-spot__text", data.text || ""));
+      if (cfg.variant === "login") {
+        // A mini login-page mockup: an address bar (the tell) and a decorative form.
+        c.classList.add("cy-spot__card--login");
+        var bar = el("div", "cy-spot__urlbar");
+        var lock = el("span", "cy-spot__lock");
+        lock.appendChild(icon("i-lock"));
+        bar.appendChild(lock);
+        bar.appendChild(el("span", "cy-spot__url", data.url || ""));
+        c.appendChild(bar);
+        var page = el("div", "cy-spot__page");
+        page.appendChild(el("div", "cy-spot__brand", data.brand || "Sign in"));
+        page.appendChild(el("div", "cy-spot__field"));
+        page.appendChild(el("div", "cy-spot__field"));
+        page.appendChild(el("div", "cy-spot__signin", "Sign in"));
+        c.appendChild(page);
+      } else {
+        c.appendChild(el("div", "cy-spot__sender", data.sender || ""));
+        c.appendChild(el("div", "cy-spot__text", data.text || ""));
+      }
       c.addEventListener("click", function () { pick(side, c); });
       return c;
     }

@@ -49,16 +49,57 @@
         <span class="cy-email__k">From</span>
         <span class="cy-email__v">Flour Supplier &lt;<mark class="cy-email__flag">billing@flour-supplier-au.info</mark>&gt;</span>
       </div>
-      <p class="cy-email__note">Lookalike domain — not your real supplier's address.</p>
+      <p class="cy-email__note">Lookalike domain, not your real supplier's address.</p>
       <div class="cy-email__line">
         <span class="cy-email__k">Subject</span>
         <span class="cy-email__v"><mark class="cy-email__flag">Pay the overdue invoice within the hour or deliveries stop</mark></span>
       </div>
-      <p class="cy-email__note">Urgency and a deadline — designed to stop you thinking.</p>
+      <p class="cy-email__note">Urgency and a deadline, designed to stop you thinking.</p>
       <div class="cy-email__body">
-        Our bank details have changed. <mark class="cy-email__flag">View the invoice →</mark>
+        Our bank details have changed. <mark class="cy-email__flag">View the invoice</mark>
       </div>
-      <p class="cy-email__note">An unexpected link and a change of bank details — don't click; verify by phone.</p>
+      <p class="cy-email__note">An unexpected link and a change of bank details. Do not click; verify by phone.</p>
     </div>
+  </figure>
+
+{% elif key == "two-factor" %}
+  <figure class="cy-diagram cy-2fa" role="img"
+          aria-label="Two-factor authentication: your password plus a code from your phone together let you in.">
+    <div class="cy-2fa__row">
+      <span class="cy-2fa__factor">
+        <svg class="cy-i" aria-hidden="true"><use href="#i-lock"/></svg>
+        <span class="cy-2fa__label">Your password</span>
+      </span>
+      <span class="cy-2fa__op" aria-hidden="true">+</span>
+      <span class="cy-2fa__factor">
+        <svg class="cy-i" aria-hidden="true"><use href="#i-mail"/></svg>
+        <span class="cy-2fa__label">A code on your phone</span>
+      </span>
+      <span class="cy-2fa__op" aria-hidden="true"><svg class="cy-i"><use href="#i-arrow-right"/></svg></span>
+      <span class="cy-2fa__factor cy-2fa__in">
+        <svg class="cy-i" aria-hidden="true"><use href="#i-shield"/></svg>
+        <span class="cy-2fa__label">You are in</span>
+      </span>
+    </div>
+    <figcaption class="cy-diagram__cap cy-diagram__cap--single">
+      A stolen password on its own is not enough. The second factor is a code only you can see.
+    </figcaption>
+  </figure>
+
+{% elif key == "defence-in-depth" %}
+  <figure class="cy-diagram cy-layers" role="img"
+          aria-label="Defence in depth: several simple habits layered, so if one is missed the next still protects what matters.">
+    <div class="cy-layers__l cy-layers__l--1"><span class="cy-layers__tag">Updates</span>
+      <div class="cy-layers__l cy-layers__l--2"><span class="cy-layers__tag">Strong passwords</span>
+        <div class="cy-layers__l cy-layers__l--3"><span class="cy-layers__tag">Two-factor</span>
+          <div class="cy-layers__l cy-layers__l--4"><span class="cy-layers__tag">Backups</span>
+            <div class="cy-layers__core">What matters</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <figcaption class="cy-diagram__cap cy-diagram__cap--single">
+      No single lock is perfect. Layer a few simple ones and one slip is not a disaster.
+    </figcaption>
   </figure>
 {% endif %}

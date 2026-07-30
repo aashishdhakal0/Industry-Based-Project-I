@@ -128,11 +128,19 @@
     });
   }
 
+  function revealHint(task) {
+    var hint = task.querySelector("[data-hint]");
+    var toggle = task.querySelector("[data-hint-toggle]");
+    if (hint) hint.hidden = false;
+    if (toggle) toggle.hidden = true;
+  }
+
   // Instant feedback on a check/scenario option.
   function onOption(btn, task) {
     if (task.getAttribute("data-solved") === "1" || isDone(task)) return;
     var correct = btn.getAttribute("data-correct") === "1";
     btn.classList.add("is-revealed", correct ? "is-right" : "is-wrong");
+    if (!correct) revealHint(task);   // a wrong answer nudges with the hint
     if (correct) {
       task.setAttribute("data-solved", "1");
       // reveal the correct one, lock the rest, and light up Continue
@@ -193,6 +201,16 @@
   tasks.forEach(function (task) {
     Array.prototype.forEach.call(task.querySelectorAll(".cy-task__opt"), function (btn) {
       btn.addEventListener("click", function () { onOption(btn, task); });
+    });
+  });
+
+  // Hints: reveal the toggle (so it never shows without JS), and wire it.
+  Array.prototype.forEach.call(room.querySelectorAll("[data-hint-toggle]"), function (toggle) {
+    toggle.hidden = false;
+    toggle.addEventListener("click", function () {
+      var task = toggle;
+      while (task && task !== room && !task.hasAttribute("data-task")) task = task.parentNode;
+      if (task && task !== room) revealHint(task);
     });
   });
 

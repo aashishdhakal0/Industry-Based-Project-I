@@ -220,6 +220,7 @@ def _seed_lesson_tasks(lesson, tasks):
             payload = {
                 "question": t.get("question", ""),
                 "scenario": t.get("scenario", ""),
+                "hint": t.get("hint", ""),
                 "options": [
                     {"text": text, "correct": correct, "explanation": explanation}
                     for (text, correct, explanation) in t["options"]

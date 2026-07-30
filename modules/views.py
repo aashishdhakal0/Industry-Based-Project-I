@@ -186,6 +186,7 @@ def lesson(request, order_index, lesson_number):
             t.options = payload.get("options", [])
             t.scenario = payload.get("scenario", "")
             t.question = payload.get("question", "")
+            t.hint = payload.get("hint", "")
 
     return render(
         request,
