@@ -22,6 +22,7 @@
   var xpEl = room.querySelector("[data-room-xp]");
   var backBtn = room.querySelector("[data-room-back]");
   var primary = room.querySelector("[data-room-primary]");
+  var primaryLabelEl = primary && primary.querySelector("[data-room-primary-label]");
   var completeBtn = room.querySelector("[data-room-complete]");
 
   var taskUrl = room.getAttribute("data-task-url");
@@ -75,8 +76,10 @@
     if (backBtn) backBtn.disabled = index === 0;
 
     if (primary) {
-      primary.firstChild.nodeValue = primaryLabel(el) + " ";
-      // A check/scenario must be answered correctly before Continue lights up.
+      // Robust label: write to a dedicated span, not a fragile text node.
+      if (primaryLabelEl) primaryLabelEl.textContent = primaryLabel(el);
+      else if (primary.firstChild) primary.firstChild.nodeValue = primaryLabel(el) + " ";
+      // A check/scenario/activity must be solved before Continue lights up.
       var needsAnswer = el.getAttribute("data-kind") !== "CONCEPT" && !isDone(el)
         && !el.getAttribute("data-solved");
       primary.disabled = needsAnswer;

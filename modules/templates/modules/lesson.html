@@ -89,11 +89,7 @@
           {% endif %}
 
           {% if task.kind == "CONCEPT" %}
-            <div class="cy-task__actions">
-              <button type="button" class="cy-btn cy-btn--primary" data-task-continue>
-                Got it <svg class="cy-i" aria-hidden="true"><use href="#i-arrow-right"/></svg>
-              </button>
-            </div>
+            {# No inline control — the foot "Got it" button advances the concept. #}
           {% elif task.kind == "CHECK" or task.kind == "SCENARIO" %}
             <p class="cy-task__q">{{ task.question }}</p>
             <div class="cy-task__options">
@@ -125,7 +121,8 @@
         <span class="cy-room__foot-spacer"></span>
         {# JS-driven primary: label and enabled state managed per task. #}
         <button type="button" class="cy-btn cy-btn--primary" data-room-primary hidden>
-          Got it <svg class="cy-i" aria-hidden="true"><use href="#i-arrow-right"/></svg>
+          <span data-room-primary-label>Got it</span>
+          <svg class="cy-i" aria-hidden="true"><use href="#i-arrow-right"/></svg>
         </button>
         {# No-JS (and already-complete) fallback: bank via the normal endpoint. #}
         <button type="submit" class="cy-btn cy-btn--primary" data-room-complete>
