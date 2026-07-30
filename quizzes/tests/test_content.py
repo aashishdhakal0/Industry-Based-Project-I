@@ -289,3 +289,29 @@ def test_module_one_uses_the_new_diagrams(seeded):
         .values_list("diagram_key", flat=True)
     )
     assert {"two-factor", "defence-in-depth"} <= keys
+
+
+@pytest.mark.django_db
+def test_quiz_content_has_no_em_dashes(seeded):
+    """Same voice rule as the lessons, applied to every question and explanation."""
+    for q in seeded.quiz.questions.all():
+        blob = q.question_text + " " + " ".join(
+            a.option_text + " " + a.explanation_text for a in q.answers.all()
+        )
+        for d in DASHES:
+            assert d not in blob, f"quiz question {q.id} contains a dash char {d!r}"
+
+
+@pytest.mark.django_db
+def test_reseeding_prunes_stale_quiz_options(seeded):
+    """A revised question must not leave old options behind (which could create a
+    second 'correct' answer). Inject a stray option, re-seed, and it should go."""
+    q = seeded.quiz.questions.first()
+    from quizzes.models import Answer as A
+    A.objects.create(question=q, option_text="STALE leftover option", correct_answer=True,
+                     explanation_text="from an older version")
+    assert q.answers.count() == 5
+    call_command("seed_learning_content")
+    q.refresh_from_db()
+    assert q.answers.count() == 4
+    assert q.answers.filter(correct_answer=True).count() == 1

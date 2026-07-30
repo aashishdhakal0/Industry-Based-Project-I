@@ -714,7 +714,13 @@ def test_task_completion_respects_the_module_lock(client_student, modules):
 @pytest.mark.django_db
 def test_task_lesson_page_is_clean_and_without_emoji(client_student, modules):
     lesson = modules[0].lessons.order_by("lesson_number").first()
-    add_tasks(lesson, [("CONCEPT", 5), ("SCENARIO", 5)])
+    # Include an activity task so the activity branch of the template is exercised
+    # (a past leak lived only in that branch).
+    add_tasks(lesson, [("CONCEPT", 4), ("SCENARIO", 3)])
+    add_activity(lesson, 3, "hz-sort", "SORT", 3, {
+        "prompt": "Sort them.", "buckets": [{"id": "a", "label": "A"}, {"id": "b", "label": "B"}],
+        "items": [{"id": "1", "text": "x", "bucket": "a", "why": "y"}],
+    })
     html = client_student.get(
         reverse("learn:lesson", args=[modules[0].order_index, lesson.lesson_number])
     ).content.decode()

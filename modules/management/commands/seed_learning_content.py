@@ -246,11 +246,13 @@ def _seed_lesson_tasks(lesson, tasks):
 
 
 def _seed_module_one_quiz(module, lessons_by_number):
-    """Seed Module 1's real quiz and its 15-question bank, idempotently.
+    """Seed Module 1's real quiz and its question bank, idempotently.
 
-    Questions key on (quiz, ordering) and options on (question, option_text), so
-    re-running updates the wording in place rather than duplicating. Every option
-    carries an explanation — the Adaptive Feedback Engine's fuel.
+    Questions key on (quiz, ordering) and options on (question, option_text). When
+    content is revised, stale rows are pruned: options no longer in a question and
+    questions beyond the current bank are removed, so re-running mirrors the
+    content exactly rather than leaving a question with two "correct" options.
+    Every option carries an explanation, the Adaptive Feedback Engine's fuel.
     """
     quiz_data = module_one.QUIZ
     quiz, _ = Quiz.objects.update_or_create(
@@ -271,6 +273,7 @@ def _seed_module_one_quiz(module, lessons_by_number):
                 "lesson_reference": lessons_by_number[q["lesson"]],
             },
         )
+        current_texts = []
         for option_text, is_correct, explanation in q["options"]:
             Answer.objects.update_or_create(
                 question=question,
@@ -280,6 +283,11 @@ def _seed_module_one_quiz(module, lessons_by_number):
                     "explanation_text": explanation,
                 },
             )
+            current_texts.append(option_text)
+        # Drop options left over from an earlier version of this question.
+        question.answers.exclude(option_text__in=current_texts).delete()
+    # Drop questions beyond the current bank size.
+    quiz.questions.filter(ordering__gt=len(quiz_data["questions"])).delete()
     return quiz
 
 

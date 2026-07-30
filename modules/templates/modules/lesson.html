@@ -109,8 +109,10 @@
               <p class="cy-task__hint" data-hint hidden>{{ task.hint }}</p>
             {% endif %}
           {% else %}
-            {# Interactive activity — activities.js reads the JSON config below and
-               renders into this container, firing cy:solved when complete. #}
+            {% comment %}
+              Interactive activity. activities.js reads the JSON config below and
+              renders into this container, firing cy:solved when complete.
+            {% endcomment %}
             <div class="cy-activity" data-activity data-activity-kind="{{ task.kind }}"
                  data-config="{{ task.task_key }}">
               <noscript><p class="cy-task__q">This activity needs JavaScript. Use “Mark lesson complete” below to continue.</p></noscript>
