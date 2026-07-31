@@ -4932,6 +4932,55 @@ a.cy-path__link:hover { background: var(--cy-surface-2); }
   margin: 0.75rem 0 0;
 }
 
+/* --- Activity: classify (Module 2) — diagnose each alert by category ------- */
+
+.cy-classify { display: grid; gap: 0.75rem; }
+.cy-classify__count {
+  color: var(--cy-text-3);
+  font-family: var(--cy-font-mono);
+  font-size: 0.8rem;
+  margin: 0 0 0.75rem;
+}
+.cy-classify__event {
+  background: var(--cy-surface);
+  border: 1px solid var(--cy-border);
+  border-radius: var(--cy-r-lg);
+  padding: 0.9rem 1rem;
+}
+.cy-classify__event.is-correct { border-color: var(--cy-cyan); }
+.cy-classify__event.is-shake { animation: cy-shake 0.4s; }
+.cy-classify__text { color: var(--cy-text); margin: 0 0 0.7rem; }
+.cy-classify__opts { display: flex; flex-wrap: wrap; gap: 0.45rem; }
+.cy-classify__opt {
+  background: var(--cy-surface-2);
+  border: 1px solid var(--cy-border-lift);
+  border-radius: 999px;
+  color: var(--cy-text);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 0.4rem 0.85rem;
+  transition: border-color 0.12s ease, background-color 0.12s ease;
+}
+.cy-classify__opt:hover:not(:disabled) { border-color: var(--cy-violet); }
+.cy-classify__opt:disabled { cursor: default; opacity: 0.65; }
+.cy-classify__opt.is-right {
+  background: rgba(34, 211, 238, 0.12);
+  border-color: var(--cy-cyan);
+  color: var(--cy-cyan-soft);
+  opacity: 1;
+}
+.cy-classify__opt.is-wrong {
+  background: rgba(255, 157, 77, 0.12);
+  border-color: var(--cy-flame);
+  color: var(--cy-flame);
+}
+.cy-classify__why { font-size: 0.82rem; margin: 0.6rem 0 0; }
+.cy-classify__why.is-good { color: var(--cy-text-2); }
+.cy-classify__why.is-bad { color: var(--cy-flame); }
+.cy-classify__why:empty { display: none; }
+
 /* --- Activity: live password builder --------------------------------------- */
 
 .cy-pw__input {
@@ -5152,6 +5201,122 @@ a.cy-path__link:hover { background: var(--cy-surface-2); }
   padding: 1rem;
   text-align: center;
 }
+
+/* Malware family tree (Module 2) */
+.cy-tree { text-align: center; }
+.cy-tree__root {
+  background: var(--cy-surface);
+  border: 1px solid var(--cy-violet);
+  border-radius: 999px;
+  color: var(--cy-violet-soft);
+  display: inline-block;
+  font-weight: 700;
+  padding: 0.5rem 1.3rem;
+}
+.cy-tree__stem {
+  background: var(--cy-border-lift);
+  height: 18px;
+  margin: 0 auto;
+  width: 2px;
+}
+.cy-tree__kids {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+  position: relative;
+}
+.cy-tree__kids::before {
+  background: var(--cy-border-lift);
+  content: "";
+  height: 2px;
+  left: 12%;
+  position: absolute;
+  right: 12%;
+  top: -1px;
+}
+.cy-tree__kid {
+  background: var(--cy-surface);
+  border: 1px solid var(--cy-border-lift);
+  border-radius: 999px;
+  color: var(--cy-text);
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-top: 10px;
+  padding: 0.45rem 0.85rem;
+  position: relative;
+  white-space: nowrap;
+}
+.cy-tree__kid::before {
+  background: var(--cy-border-lift);
+  content: "";
+  height: 10px;
+  left: 50%;
+  position: absolute;
+  top: -11px;
+  width: 2px;
+}
+
+/* DDoS flood (Module 2) */
+.cy-ddos__row {
+  align-items: center;
+  display: flex;
+  gap: 0.7rem;
+  justify-content: center;
+}
+.cy-ddos__swarm {
+  display: grid;
+  gap: 5px;
+  grid-template-columns: repeat(4, 1fr);
+  max-width: 120px;
+}
+.cy-ddos__swarm span {
+  background: var(--cy-violet-deep);
+  border-radius: 50%;
+  height: 12px;
+  opacity: 0.85;
+  width: 12px;
+}
+.cy-ddos__flood {
+  color: var(--cy-violet-soft);
+  display: inline-flex;
+}
+.cy-ddos__flood .cy-i { height: 16px; margin-left: -6px; width: 16px; }
+.cy-ddos__target {
+  background: var(--cy-surface);
+  border: 1.5px solid var(--cy-cyan);
+  border-radius: var(--cy-r-sm);
+  color: var(--cy-cyan-soft);
+  font-weight: 700;
+  padding: 0.9rem 1rem;
+  text-align: center;
+}
+
+/* Data breach (Module 2) */
+.cy-breach__row {
+  align-items: center;
+  display: flex;
+  gap: 0.8rem;
+  justify-content: center;
+}
+.cy-breach__store,
+.cy-breach__out {
+  align-items: center;
+  background: var(--cy-surface);
+  border: 1px solid var(--cy-border-lift);
+  border-radius: var(--cy-r-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 0.85rem 1.1rem;
+}
+.cy-breach__store .cy-i { color: var(--cy-violet-soft); height: 24px; width: 24px; }
+.cy-breach__out { border-color: var(--cy-cyan); color: var(--cy-cyan-soft); }
+.cy-breach__out .cy-i { color: var(--cy-cyan-soft); height: 24px; width: 24px; }
+.cy-breach__leak { color: var(--cy-violet-soft); display: inline-flex; }
+.cy-breach__leak .cy-i { height: 22px; width: 22px; }
 
 
 /* --- Room v2: scrollable page of collapsible task panels (TryHackMe format) - */

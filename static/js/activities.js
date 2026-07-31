@@ -372,6 +372,73 @@
     renderNode(cfg.start);
   };
 
+  // ------------------------------------------------------------ CLASSIFY ----
+  // Read one alert/event at a time and pick its category. Distinct from SORT:
+  // each event is a card diagnosed on the spot, with teaching feedback. Solved
+  // when every event is correctly categorised.
+  CONTROLLERS.CLASSIFY = function (root, cfg) {
+    if (cfg.prompt) root.appendChild(el("p", "cy-act__prompt", cfg.prompt));
+    var total = cfg.events.length;
+    var done = 0;
+
+    var counter = el("p", "cy-classify__count");
+    counter.setAttribute("aria-live", "polite");
+    var feedback = el("p", "cy-act__feedback");
+    feedback.setAttribute("aria-live", "polite");
+
+    var list = el("div", "cy-classify");
+    cfg.events.forEach(function (event) {
+      var card = el("div", "cy-classify__event");
+      card.appendChild(el("p", "cy-classify__text", event.text));
+
+      var opts = el("div", "cy-classify__opts");
+      var why = el("p", "cy-classify__why");
+      var settled = false;
+
+      cfg.categories.forEach(function (cat) {
+        var b = el("button", "cy-classify__opt", cat.label);
+        b.type = "button";
+        b.addEventListener("click", function () {
+          if (settled) return;
+          if (cat.id === event.category) {
+            settled = true;
+            card.classList.add("is-correct");
+            b.classList.add("is-right");
+            why.className = "cy-classify__why is-good";
+            why.textContent = event.why;
+            Array.prototype.forEach.call(opts.children, function (o) { o.disabled = true; });
+            done += 1;
+            update();
+            if (done === total) {
+              feedback.className = "cy-act__feedback is-good";
+              feedback.textContent = "All classified — that is the recognising-threats skill in action.";
+              solved(root);
+            }
+          } else {
+            b.classList.add("is-wrong");
+            b.disabled = true;
+            card.classList.add("is-shake");
+            window.setTimeout(function () { card.classList.remove("is-shake"); }, 400);
+            why.className = "cy-classify__why is-bad";
+            why.textContent = "Not that one. Look at the signature again and try another.";
+          }
+        });
+        opts.appendChild(b);
+      });
+
+      card.appendChild(opts);
+      card.appendChild(why);
+      list.appendChild(card);
+    });
+
+    root.appendChild(counter);
+    root.appendChild(list);
+    root.appendChild(feedback);
+
+    function update() { counter.textContent = done + " of " + total + " classified"; }
+    update();
+  };
+
   // A kind with no controller yet (or a broken config) must never trap the
   // learner: show a gentle note and let them continue.
   function fallback(c) {

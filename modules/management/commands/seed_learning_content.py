@@ -18,9 +18,18 @@ from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 
 from authentication.models import User
-from modules.content import module_one
+from modules.content import module_one, module_two
 from modules.models import Lesson, LessonTask, Module, Simulation
 from quizzes.models import Answer, Question, Quiz
+
+# Modules with finished, interactive content (LESSONS + QUIZ), keyed by
+# order_index. Adding a module is data-only: write modules/content/module_N.py in
+# the Module 1 shape and register it here. Anything not listed falls back to the
+# rich placeholder until its turn.
+CONTENT = {
+    1: module_one,
+    2: module_two,
+}
 
 # (title, description, difficulty, four lesson titles)
 MODULES = [
@@ -37,13 +46,13 @@ MODULES = [
     ),
     (
         "Recognising Cyber Threats",
-        "The tactics used against Australian organisations today.",
+        "Malware, ransomware, DDoS and the real Australian breaches, and how to spot them.",
         Module.Difficulty.BEGINNER,
         [
-            "The shape of a modern attack",
-            "Scams that target small teams",
-            "Warning signs anyone can spot",
-            "What to do when something feels off",
+            "The malware family",
+            "Ransomware, and attacks on the whole business",
+            "The big breaches: Optus and Medibank",
+            "Recognising and reacting",
         ],
     ),
     (
@@ -262,8 +271,8 @@ def _seed_lesson_tasks(lesson, tasks):
     lesson.tasks.exclude(task_key__in=seen).delete()
 
 
-def _seed_module_one_quiz(module, lessons_by_number):
-    """Seed Module 1's real quiz and its question bank, idempotently.
+def _seed_module_quiz(module, content, lessons_by_number):
+    """Seed a module's real quiz and its question bank, idempotently.
 
     Questions key on (quiz, ordering) and options on (question, option_text). When
     content is revised, stale rows are pruned: options no longer in a question and
@@ -271,7 +280,7 @@ def _seed_module_one_quiz(module, lessons_by_number):
     content exactly rather than leaving a question with two "correct" options.
     Every option carries an explanation, the Adaptive Feedback Engine's fuel.
     """
-    quiz_data = module_one.QUIZ
+    quiz_data = content.QUIZ
     quiz, _ = Quiz.objects.update_or_create(
         module=module,
         defaults={
@@ -336,9 +345,10 @@ class Command(BaseCommand):
                 },
             )
 
-            # Module 1 ships with real, finished lesson content; the rest carry
-            # the rich placeholder until their turn.
-            real_lessons = module_one.LESSONS if index == 1 else None
+            # Registered modules ship with real, finished lesson content; the
+            # rest carry the rich placeholder until their turn.
+            content = CONTENT.get(index)
+            real_lessons = content.LESSONS if content else None
             lessons_by_number = {}
             for n, lesson_title in enumerate(lesson_titles, start=1):
                 if real_lessons:
@@ -375,8 +385,8 @@ class Command(BaseCommand):
                 },
             )
 
-            if index == 1:
-                quiz = _seed_module_one_quiz(module, lessons_by_number)
+            if content:
+                quiz = _seed_module_quiz(module, content, lessons_by_number)
                 self.stdout.write(
                     f"  module {index}: {title}  (4 lessons, 1 simulation, "
                     f"quiz with {quiz.questions.count()} questions)"
@@ -388,6 +398,6 @@ class Command(BaseCommand):
             self.style.SUCCESS(
                 f"Seeded {len(MODULES)} modules, "
                 f"{len(MODULES) * 4} lessons, {len(MODULES)} simulations, "
-                "Module 1 quiz."
+                f"and {len(CONTENT)} interactive quizzes."
             )
         )

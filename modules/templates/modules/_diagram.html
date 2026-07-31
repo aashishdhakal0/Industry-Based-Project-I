@@ -102,4 +102,64 @@
       No single lock is perfect. Layer a few simple ones and one slip is not a disaster.
     </figcaption>
   </figure>
+
+{% elif key == "malware-family" %}
+  <figure class="cy-diagram cy-tree" role="img"
+          aria-label="The malware family: malware is the umbrella term, with viruses, worms, trojans, spyware and ransomware as members.">
+    <div class="cy-tree__root">Malware</div>
+    <div class="cy-tree__stem" aria-hidden="true"></div>
+    <div class="cy-tree__kids">
+      <span class="cy-tree__kid">Virus</span>
+      <span class="cy-tree__kid">Worm</span>
+      <span class="cy-tree__kid">Trojan</span>
+      <span class="cy-tree__kid">Spyware</span>
+      <span class="cy-tree__kid">Ransomware</span>
+    </div>
+    <figcaption class="cy-diagram__cap cy-diagram__cap--single">
+      Malware is the family. A virus is just one member, alongside worms, trojans, spyware and ransomware.
+    </figcaption>
+  </figure>
+
+{% elif key == "ddos" %}
+  <figure class="cy-diagram cy-ddos" role="img"
+          aria-label="A DDoS attack: thousands of infected devices flood one service with traffic, so real users cannot get through.">
+    <div class="cy-ddos__row">
+      <div class="cy-ddos__swarm" aria-hidden="true">
+        <span></span><span></span><span></span><span></span>
+        <span></span><span></span><span></span><span></span>
+        <span></span><span></span><span></span><span></span>
+      </div>
+      <span class="cy-ddos__flood" aria-hidden="true">
+        <svg class="cy-i"><use href="#i-arrow-right"/></svg>
+        <svg class="cy-i"><use href="#i-arrow-right"/></svg>
+        <svg class="cy-i"><use href="#i-arrow-right"/></svg>
+      </span>
+      <div class="cy-ddos__target">Your service</div>
+    </div>
+    <figcaption class="cy-diagram__cap">
+      <span><b>Thousands of devices</b> flood one service with junk traffic, all at once.</span>
+      <span><b>Real customers</b> are left seeing only timeouts. Nothing is stolen; the service is just buried.</span>
+    </figcaption>
+  </figure>
+
+{% elif key == "data-breach" %}
+  <figure class="cy-diagram cy-breach" role="img"
+          aria-label="A data breach: personal records leak out of a company's store into the wrong hands.">
+    <div class="cy-breach__row">
+      <div class="cy-breach__store">
+        <svg class="cy-i" aria-hidden="true"><use href="#i-grid"/></svg>
+        <span>Customer records</span>
+      </div>
+      <span class="cy-breach__leak" aria-hidden="true">
+        <svg class="cy-i"><use href="#i-arrow-right"/></svg>
+      </span>
+      <div class="cy-breach__out">
+        <svg class="cy-i" aria-hidden="true"><use href="#i-eye"/></svg>
+        <span>The wrong hands</span>
+      </div>
+    </div>
+    <figcaption class="cy-diagram__cap cy-diagram__cap--single">
+      Private information ends up where it should not be, and once it is out it cannot be recalled.
+    </figcaption>
+  </figure>
 {% endif %}

@@ -244,6 +244,7 @@ class LessonTask(models.Model):
         SPOT = "SPOT", "Spot the fake"
         PASSWORD = "PASSWORD", "Password builder"
         BRANCH = "BRANCH", "Branching scenario"
+        CLASSIFY = "CLASSIFY", "Classify each alert"
 
     lesson = models.ForeignKey(
         Lesson, on_delete=models.CASCADE, related_name="tasks"
