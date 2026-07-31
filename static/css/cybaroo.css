@@ -5107,6 +5107,52 @@ a.cy-path__link:hover { background: var(--cy-surface-2); }
 .cy-harden__why.is-bad { color: var(--cy-flame); }
 .cy-harden__why:empty { display: none; }
 
+/* --- Activity: netmap (Module 5) — find weaknesses on a network map -------- */
+
+.cy-netmap {
+  display: grid;
+  gap: 0.7rem;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+}
+.cy-netmap__count {
+  color: var(--cy-text-3);
+  font-family: var(--cy-font-mono);
+  font-size: 0.8rem;
+  margin: 0 0 0.75rem;
+}
+.cy-netmap__cell { display: flex; flex-direction: column; }
+.cy-netmap__node {
+  background: var(--cy-surface);
+  border: 1px solid var(--cy-border-lift);
+  border-radius: var(--cy-r-sm);
+  color: var(--cy-text);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  font: inherit;
+  gap: 0.25rem;
+  padding: 0.8rem 0.9rem;
+  text-align: left;
+  transition: border-color 0.12s ease, background-color 0.12s ease;
+}
+.cy-netmap__node:hover:not(:disabled) { border-color: var(--cy-violet); }
+.cy-netmap__node:disabled { cursor: default; }
+.cy-netmap__node.is-weak {
+  background: rgba(255, 157, 77, 0.12);
+  border-color: var(--cy-flame);
+}
+.cy-netmap__node.is-ok {
+  background: rgba(34, 211, 238, 0.08);
+  border-color: var(--cy-cyan);
+}
+.cy-netmap__label { color: var(--cy-text); font-weight: 700; }
+.cy-netmap__detail { color: var(--cy-text-3); font-size: 0.82rem; }
+.cy-netmap__node.is-weak .cy-netmap__detail { color: var(--cy-flame); }
+.cy-netmap__why { font-size: 0.8rem; margin: 0.4rem 0 0; }
+.cy-netmap__why.is-weak { color: var(--cy-flame); }
+.cy-netmap__why.is-ok { color: var(--cy-text-3); }
+.cy-netmap__why:empty { display: none; }
+
 /* --- Activity: live password builder --------------------------------------- */
 
 .cy-pw__input {
@@ -5504,6 +5550,90 @@ a.cy-path__link:hover { background: var(--cy-surface-2); }
 }
 .cy-encrypt__op { color: var(--cy-violet-soft); display: inline-flex; }
 .cy-encrypt__op .cy-i { height: 18px; width: 18px; }
+
+/* Firewall gate (Module 5) */
+.cy-fw__row {
+  align-items: stretch;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+}
+.cy-fw__end {
+  align-items: center;
+  border: 1px solid var(--cy-border-lift);
+  border-radius: var(--cy-r-sm);
+  display: flex;
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 0.7rem 0.9rem;
+}
+.cy-fw__end--net { background: var(--cy-surface); color: var(--cy-text-2); }
+.cy-fw__end--you { background: var(--cy-surface); border-color: var(--cy-cyan); color: var(--cy-cyan-soft); }
+.cy-fw__gate {
+  align-items: center;
+  background: var(--cy-surface-3);
+  border: 1.5px solid var(--cy-violet);
+  border-radius: var(--cy-r-sm);
+  color: var(--cy-violet-soft);
+  display: flex;
+  flex-direction: column;
+  font-size: 0.78rem;
+  font-weight: 700;
+  gap: 0.2rem;
+  justify-content: center;
+  padding: 0.6rem 1rem;
+}
+.cy-fw__gate .cy-i { height: 22px; width: 22px; }
+
+/* Segmentation zones (Module 5) */
+.cy-seg__zones {
+  display: grid;
+  gap: 0.6rem;
+  grid-template-columns: repeat(3, 1fr);
+}
+.cy-seg__zone {
+  background: var(--cy-surface);
+  border: 1.5px dashed var(--cy-border-lift);
+  border-radius: var(--cy-r-sm);
+  color: var(--cy-text);
+  font-size: 0.85rem;
+  font-weight: 700;
+  padding: 1rem 0.6rem;
+  text-align: center;
+}
+.cy-seg__zone--locked { border-style: solid; border-color: var(--cy-cyan); color: var(--cy-cyan-soft); }
+
+/* VPN tunnel (Module 5) */
+.cy-vpn__row {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+}
+.cy-vpn__end {
+  background: var(--cy-surface);
+  border: 1px solid var(--cy-border-lift);
+  border-radius: var(--cy-r-sm);
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 0.7rem 0.9rem;
+}
+.cy-vpn__end--office { border-color: var(--cy-cyan); color: var(--cy-cyan-soft); }
+.cy-vpn__tunnel {
+  align-items: center;
+  background: var(--cy-grad-soft);
+  border: 1px solid var(--cy-violet);
+  border-radius: 999px;
+  color: var(--cy-violet-soft);
+  display: flex;
+  font-size: 0.78rem;
+  font-weight: 700;
+  gap: 0.35rem;
+  padding: 0.5rem 0.9rem;
+}
+.cy-vpn__tunnel .cy-i { height: 16px; width: 16px; }
 
 
 /* --- Room v2: scrollable page of collapsible task panels (TryHackMe format) - */

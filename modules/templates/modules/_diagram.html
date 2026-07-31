@@ -199,4 +199,50 @@
       <span><b>Without the key</b>, anyone who intercepts it in the middle sees only gibberish.</span>
     </figcaption>
   </figure>
+
+{% elif key == "firewall" %}
+  <figure class="cy-diagram cy-fw" role="img"
+          aria-label="A firewall between the internet and your network, allowing wanted traffic and blocking the rest.">
+    <div class="cy-fw__row">
+      <span class="cy-fw__end cy-fw__end--net">The internet</span>
+      <span class="cy-fw__gate">
+        <svg class="cy-i" aria-hidden="true"><use href="#i-shield"/></svg>
+        <span>Firewall</span>
+      </span>
+      <span class="cy-fw__end cy-fw__end--you">Your network</span>
+    </div>
+    <figcaption class="cy-diagram__cap">
+      <span><b>Wanted traffic</b> (your browsing and email) is allowed through.</span>
+      <span><b>Everything else</b>, including constant automated probes, is turned away at the door.</span>
+    </figcaption>
+  </figure>
+
+{% elif key == "segmentation" %}
+  <figure class="cy-diagram cy-seg" role="img"
+          aria-label="A segmented network divided into separate guest, staff and sensitive zones, so a problem in one is contained.">
+    <div class="cy-seg__zones">
+      <span class="cy-seg__zone">Guest</span>
+      <span class="cy-seg__zone">Staff</span>
+      <span class="cy-seg__zone cy-seg__zone--locked">Sensitive</span>
+    </div>
+    <figcaption class="cy-diagram__cap cy-diagram__cap--single">
+      Separate zones, like watertight compartments: trouble in one is sealed off from the rest.
+    </figcaption>
+  </figure>
+
+{% elif key == "vpn-tunnel" %}
+  <figure class="cy-diagram cy-vpn" role="img"
+          aria-label="A VPN tunnel: a remote laptop connects through an encrypted tunnel into the office network.">
+    <div class="cy-vpn__row">
+      <span class="cy-vpn__end">Remote laptop</span>
+      <span class="cy-vpn__tunnel">
+        <svg class="cy-i" aria-hidden="true"><use href="#i-lock"/></svg>
+        <span>encrypted tunnel</span>
+      </span>
+      <span class="cy-vpn__end cy-vpn__end--office">Office network</span>
+    </div>
+    <figcaption class="cy-diagram__cap cy-diagram__cap--single">
+      One guarded, encrypted door into the network, instead of many systems exposed to the internet.
+    </figcaption>
+  </figure>
 {% endif %}

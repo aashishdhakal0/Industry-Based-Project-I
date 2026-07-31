@@ -584,6 +584,62 @@
     update();
   };
 
+  // ------------------------------------------------------------ NETMAP ----
+  // Find the weaknesses on a network map: each device is a node you can tap; the
+  // weak ones reveal why and count toward the total. The spatial cousin of INBOX.
+  // Solved when every weakness has been found.
+  CONTROLLERS.NETMAP = function (root, cfg) {
+    if (cfg.prompt) root.appendChild(el("p", "cy-act__prompt", cfg.prompt));
+    var totalWeak = 0, found = 0;
+    cfg.nodes.forEach(function (n) { if (n.weak) totalWeak += 1; });
+
+    var counter = el("p", "cy-netmap__count");
+    counter.setAttribute("aria-live", "polite");
+    var feedback = el("p", "cy-act__feedback");
+    feedback.setAttribute("aria-live", "polite");
+
+    var grid = el("div", "cy-netmap");
+    cfg.nodes.forEach(function (n) {
+      var cell = el("div", "cy-netmap__cell");
+      var node = el("button", "cy-netmap__node");
+      node.type = "button";
+      node.appendChild(el("span", "cy-netmap__label", n.label));
+      if (n.detail) node.appendChild(el("span", "cy-netmap__detail", n.detail));
+      var why = el("p", "cy-netmap__why");
+
+      node.addEventListener("click", function () {
+        if (node.disabled) return;
+        node.disabled = true;
+        why.textContent = n.why;
+        if (n.weak) {
+          node.classList.add("is-weak");
+          why.className = "cy-netmap__why is-weak";
+          found += 1;
+          update();
+          if (found === totalWeak) {
+            feedback.className = "cy-act__feedback is-good";
+            feedback.textContent = "That is every weakness found. You would spot these on a real network.";
+            solved(root);
+          }
+        } else {
+          node.classList.add("is-ok");
+          why.className = "cy-netmap__why is-ok";
+        }
+      });
+
+      cell.appendChild(node);
+      cell.appendChild(why);
+      grid.appendChild(cell);
+    });
+
+    root.appendChild(counter);
+    root.appendChild(grid);
+    root.appendChild(feedback);
+
+    function update() { counter.textContent = found + " of " + totalWeak + " weaknesses found"; }
+    update();
+  };
+
   // A kind with no controller yet (or a broken config) must never trap the
   // learner: show a gentle note and let them continue.
   function fallback(c) {

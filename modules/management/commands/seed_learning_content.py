@@ -18,7 +18,13 @@ from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 
 from authentication.models import User
-from modules.content import module_four, module_one, module_three, module_two
+from modules.content import (
+    module_five,
+    module_four,
+    module_one,
+    module_three,
+    module_two,
+)
 from modules.models import Lesson, LessonTask, Module, Simulation
 from quizzes.models import Answer, Question, Quiz
 
@@ -31,6 +37,7 @@ CONTENT = {
     2: module_two,
     3: module_three,
     4: module_four,
+    5: module_five,
 }
 
 # (title, description, difficulty, four lesson titles)
@@ -81,13 +88,13 @@ MODULES = [
     ),
     (
         "Firewall & Network Defence",
-        "The defences protecting your business, and how to maintain them.",
+        "The defences around your whole business, and how to spot where they are missing.",
         Module.Difficulty.ADVANCED,
         [
-            "What a firewall really does",
-            "Updates are a security control",
-            "Segmenting a small network",
-            "Knowing when to ask for help",
+            "The firewall: your network's gatekeeper",
+            "Segmentation: contain the trouble",
+            "Remote access and the VPN",
+            "Alerts, patches, and finding the gaps",
         ],
     ),
     (
