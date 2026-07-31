@@ -439,6 +439,76 @@
     update();
   };
 
+  // ------------------------------------------------------------ MAILSORT ----
+  // A realistic mixed inbox: mark each whole email Genuine or Phishing, with the
+  // verdict and its tells revealed as you go. Distinct from INBOX (which inspects
+  // the parts within a single message). Solved when every email is sorted right.
+  CONTROLLERS.MAILSORT = function (root, cfg) {
+    if (cfg.prompt) root.appendChild(el("p", "cy-act__prompt", cfg.prompt));
+    var total = cfg.emails.length;
+    var done = 0;
+
+    var counter = el("p", "cy-mail__count");
+    counter.setAttribute("aria-live", "polite");
+    var feedback = el("p", "cy-act__feedback");
+    feedback.setAttribute("aria-live", "polite");
+
+    var listEl = el("div", "cy-mail");
+    cfg.emails.forEach(function (email) {
+      var row = el("div", "cy-mail__row");
+      row.appendChild(el("span", "cy-mail__from", email.from));
+      row.appendChild(el("p", "cy-mail__subject", email.subject));
+      row.appendChild(el("p", "cy-mail__preview", email.preview));
+
+      var verdicts = el("div", "cy-mail__verdicts");
+      var why = el("p", "cy-mail__why");
+      var settled = false;
+      var correct = email.phish ? "phishing" : "genuine";
+
+      [["genuine", "Genuine"], ["phishing", "Phishing"]].forEach(function (pair) {
+        var b = el("button", "cy-mail__verdict cy-mail__verdict--" + pair[0], pair[1]);
+        b.type = "button";
+        b.addEventListener("click", function () {
+          if (settled) return;
+          if (pair[0] === correct) {
+            settled = true;
+            row.classList.add("is-settled", email.phish ? "is-phish" : "is-genuine");
+            b.classList.add("is-right");
+            why.className = "cy-mail__why is-good";
+            why.textContent = (email.phish ? "Phishing. " : "Genuine. ") + email.why;
+            Array.prototype.forEach.call(verdicts.children, function (o) { o.disabled = true; });
+            done += 1;
+            update();
+            if (done === total) {
+              feedback.className = "cy-act__feedback is-good";
+              feedback.textContent = "Inbox triaged. Every message sorted correctly.";
+              solved(root);
+            }
+          } else {
+            b.classList.add("is-wrong");
+            b.disabled = true;
+            row.classList.add("is-shake");
+            window.setTimeout(function () { row.classList.remove("is-shake"); }, 400);
+            why.className = "cy-mail__why is-bad";
+            why.textContent = "Look again at the sender and what it is asking, then try the other verdict.";
+          }
+        });
+        verdicts.appendChild(b);
+      });
+
+      row.appendChild(verdicts);
+      row.appendChild(why);
+      listEl.appendChild(row);
+    });
+
+    root.appendChild(counter);
+    root.appendChild(listEl);
+    root.appendChild(feedback);
+
+    function update() { counter.textContent = done + " of " + total + " sorted"; }
+    update();
+  };
+
   // A kind with no controller yet (or a broken config) must never trap the
   // learner: show a gentle note and let them continue.
   function fallback(c) {

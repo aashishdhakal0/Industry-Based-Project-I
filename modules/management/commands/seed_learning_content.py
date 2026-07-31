@@ -18,7 +18,7 @@ from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 
 from authentication.models import User
-from modules.content import module_one, module_two
+from modules.content import module_one, module_three, module_two
 from modules.models import Lesson, LessonTask, Module, Simulation
 from quizzes.models import Answer, Question, Quiz
 
@@ -29,6 +29,7 @@ from quizzes.models import Answer, Question, Quiz
 CONTENT = {
     1: module_one,
     2: module_two,
+    3: module_three,
 }
 
 # (title, description, difficulty, four lesson titles)
@@ -57,13 +58,13 @@ MODULES = [
     ),
     (
         "Phishing & Social Engineering",
-        "Identify fraudulent emails and calls before they succeed.",
+        "The con behind the click, and how to spot every version of it.",
         Module.Difficulty.INTERMEDIATE,
         [
-            "Why phishing still works",
+            "The con behind the click",
+            "Phishing and its sharper cousins",
+            "Beyond the inbox",
             "Reading an email like an investigator",
-            "Phone calls and text messages",
-            "Reporting it the right way",
         ],
     ),
     (

@@ -4981,6 +4981,59 @@ a.cy-path__link:hover { background: var(--cy-surface-2); }
 .cy-classify__why.is-bad { color: var(--cy-flame); }
 .cy-classify__why:empty { display: none; }
 
+/* --- Activity: mailsort (Module 3) — triage a mixed inbox ------------------ */
+
+.cy-mail { display: grid; gap: 0.7rem; }
+.cy-mail__count {
+  color: var(--cy-text-3);
+  font-family: var(--cy-font-mono);
+  font-size: 0.8rem;
+  margin: 0 0 0.75rem;
+}
+.cy-mail__row {
+  background: var(--cy-surface);
+  border: 1px solid var(--cy-border);
+  border-left: 3px solid var(--cy-border-lift);
+  border-radius: var(--cy-r-sm);
+  padding: 0.85rem 1rem;
+}
+.cy-mail__row.is-shake { animation: cy-shake 0.4s; }
+.cy-mail__row.is-settled.is-genuine { border-left-color: var(--cy-cyan); }
+.cy-mail__row.is-settled.is-phish { border-left-color: var(--cy-flame); }
+.cy-mail__from { color: var(--cy-text); font-size: 0.85rem; font-weight: 700; }
+.cy-mail__subject { color: var(--cy-text); font-weight: 600; margin: 0.3rem 0 0.2rem; }
+.cy-mail__preview { color: var(--cy-text-3); font-size: 0.86rem; margin: 0; }
+.cy-mail__verdicts { display: flex; gap: 0.5rem; margin-top: 0.8rem; }
+.cy-mail__verdict {
+  background: var(--cy-surface-2);
+  border: 1px solid var(--cy-border-lift);
+  border-radius: 999px;
+  color: var(--cy-text);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 0.4rem 1rem;
+  transition: border-color 0.12s ease, background-color 0.12s ease;
+}
+.cy-mail__verdict:hover:not(:disabled) { border-color: var(--cy-violet); }
+.cy-mail__verdict:disabled { cursor: default; opacity: 0.6; }
+.cy-mail__verdict.is-right {
+  background: rgba(34, 211, 238, 0.12);
+  border-color: var(--cy-cyan);
+  color: var(--cy-cyan-soft);
+  opacity: 1;
+}
+.cy-mail__verdict.is-wrong {
+  background: rgba(255, 157, 77, 0.12);
+  border-color: var(--cy-flame);
+  color: var(--cy-flame);
+}
+.cy-mail__why { font-size: 0.82rem; margin: 0.65rem 0 0; }
+.cy-mail__why.is-good { color: var(--cy-text-2); }
+.cy-mail__why.is-bad { color: var(--cy-flame); }
+.cy-mail__why:empty { display: none; }
+
 /* --- Activity: live password builder --------------------------------------- */
 
 .cy-pw__input {
@@ -5317,6 +5370,38 @@ a.cy-path__link:hover { background: var(--cy-surface-2); }
 .cy-breach__out .cy-i { color: var(--cy-cyan-soft); height: 24px; width: 24px; }
 .cy-breach__leak { color: var(--cy-violet-soft); display: inline-flex; }
 .cy-breach__leak .cy-i { height: 22px; width: 22px; }
+
+/* Social engineering levers (Module 3) */
+.cy-levers__row {
+  align-items: center;
+  display: flex;
+  gap: 0.7rem;
+  justify-content: center;
+}
+.cy-levers__set { display: grid; gap: 0.4rem; }
+.cy-levers__lever {
+  background: var(--cy-surface);
+  border: 1px solid var(--cy-violet);
+  border-radius: 999px;
+  color: var(--cy-violet-soft);
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 0.35rem 0.85rem;
+  text-align: center;
+}
+.cy-levers__push { color: var(--cy-violet-soft); display: inline-flex; }
+.cy-levers__push .cy-i { height: 16px; margin-left: -6px; width: 16px; }
+.cy-levers__you {
+  background: var(--cy-surface);
+  border: 1.5px solid var(--cy-cyan);
+  border-radius: 50%;
+  color: var(--cy-cyan-soft);
+  display: grid;
+  font-weight: 700;
+  height: 64px;
+  place-items: center;
+  width: 64px;
+}
 
 
 /* --- Room v2: scrollable page of collapsible task panels (TryHackMe format) - */

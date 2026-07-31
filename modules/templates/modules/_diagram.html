@@ -162,4 +162,25 @@
       Private information ends up where it should not be, and once it is out it cannot be recalled.
     </figcaption>
   </figure>
+
+{% elif key == "se-levers" %}
+  <figure class="cy-diagram cy-levers" role="img"
+          aria-label="The levers of social engineering: authority, urgency, fear and curiosity, all pushing on you.">
+    <div class="cy-levers__row">
+      <div class="cy-levers__set">
+        <span class="cy-levers__lever">Authority</span>
+        <span class="cy-levers__lever">Urgency</span>
+        <span class="cy-levers__lever">Fear</span>
+        <span class="cy-levers__lever">Curiosity</span>
+      </div>
+      <span class="cy-levers__push" aria-hidden="true">
+        <svg class="cy-i"><use href="#i-arrow-right"/></svg>
+        <svg class="cy-i"><use href="#i-arrow-right"/></svg>
+      </span>
+      <div class="cy-levers__you">You</div>
+    </div>
+    <figcaption class="cy-diagram__cap cy-diagram__cap--single">
+      Social engineering does not attack the computer. It presses these ordinary human instincts until you act.
+    </figcaption>
+  </figure>
 {% endif %}
