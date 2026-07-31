@@ -509,6 +509,81 @@
     update();
   };
 
+  // ------------------------------------------------------------ HARDEN ----
+  // Secure a workspace step by step: each part starts "At risk" and you pick the
+  // secure fix, watching it flip to "Secured". Each step carries its own options
+  // (unlike CLASSIFY's shared categories). Solved when every part is secured.
+  CONTROLLERS.HARDEN = function (root, cfg) {
+    if (cfg.prompt) root.appendChild(el("p", "cy-act__prompt", cfg.prompt));
+    var total = cfg.steps.length;
+    var done = 0;
+
+    var counter = el("p", "cy-harden__count");
+    counter.setAttribute("aria-live", "polite");
+    var feedback = el("p", "cy-act__feedback");
+    feedback.setAttribute("aria-live", "polite");
+
+    var listEl = el("div", "cy-harden");
+    cfg.steps.forEach(function (step) {
+      var card = el("div", "cy-harden__step");
+
+      var head = el("div", "cy-harden__head");
+      head.appendChild(el("span", "cy-harden__label", step.label));
+      var status = el("span", "cy-harden__status", "At risk");
+      head.appendChild(status);
+      card.appendChild(head);
+
+      if (step.risk) card.appendChild(el("p", "cy-harden__risk", step.risk));
+
+      var opts = el("div", "cy-harden__opts");
+      var why = el("p", "cy-harden__why");
+      var settled = false;
+
+      step.options.forEach(function (opt) {
+        var b = el("button", "cy-harden__opt", opt.text);
+        b.type = "button";
+        b.addEventListener("click", function () {
+          if (settled) return;
+          if (opt.correct) {
+            settled = true;
+            card.classList.add("is-secured");
+            status.textContent = "Secured";
+            b.classList.add("is-right");
+            why.className = "cy-harden__why is-good";
+            why.textContent = opt.why;
+            Array.prototype.forEach.call(opts.children, function (o) { o.disabled = true; });
+            done += 1;
+            update();
+            if (done === total) {
+              feedback.className = "cy-act__feedback is-good";
+              feedback.textContent = "Workspace secured. Every part locked down.";
+              solved(root);
+            }
+          } else {
+            b.classList.add("is-wrong");
+            b.disabled = true;
+            card.classList.add("is-shake");
+            window.setTimeout(function () { card.classList.remove("is-shake"); }, 400);
+            why.className = "cy-harden__why is-bad";
+            why.textContent = opt.why || "That leaves a gap. Try the more secure option.";
+          }
+        });
+        opts.appendChild(b);
+      });
+
+      card.appendChild(opts);
+      card.appendChild(why);
+      listEl.appendChild(card);
+    });
+
+    root.appendChild(counter);
+    root.appendChild(listEl);
+    root.appendChild(feedback);
+
+    function update() { counter.textContent = done + " of " + total + " secured"; }
+    update();
+  };
+
   // A kind with no controller yet (or a broken config) must never trap the
   // learner: show a gentle note and let them continue.
   function fallback(c) {

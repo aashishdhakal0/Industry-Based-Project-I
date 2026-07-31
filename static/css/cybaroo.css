@@ -5034,6 +5034,79 @@ a.cy-path__link:hover { background: var(--cy-surface-2); }
 .cy-mail__why.is-bad { color: var(--cy-flame); }
 .cy-mail__why:empty { display: none; }
 
+/* --- Activity: harden (Module 4) — secure a workspace step by step --------- */
+
+.cy-harden { display: grid; gap: 0.7rem; }
+.cy-harden__count {
+  color: var(--cy-text-3);
+  font-family: var(--cy-font-mono);
+  font-size: 0.8rem;
+  margin: 0 0 0.75rem;
+}
+.cy-harden__step {
+  background: var(--cy-surface);
+  border: 1px solid var(--cy-border);
+  border-left: 3px solid var(--cy-flame);
+  border-radius: var(--cy-r-sm);
+  padding: 0.85rem 1rem;
+}
+.cy-harden__step.is-secured { border-left-color: var(--cy-cyan); }
+.cy-harden__step.is-shake { animation: cy-shake 0.4s; }
+.cy-harden__head {
+  align-items: center;
+  display: flex;
+  gap: 0.6rem;
+  justify-content: space-between;
+}
+.cy-harden__label { color: var(--cy-text); font-weight: 700; }
+.cy-harden__status {
+  border-radius: 999px;
+  color: var(--cy-flame);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 0.2rem 0.6rem;
+  text-transform: uppercase;
+  white-space: nowrap;
+  border: 1px solid var(--cy-flame);
+}
+.cy-harden__step.is-secured .cy-harden__status {
+  border-color: var(--cy-cyan);
+  color: var(--cy-cyan-soft);
+}
+.cy-harden__risk { color: var(--cy-text-3); font-size: 0.86rem; margin: 0.35rem 0 0; }
+.cy-harden__opts { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.8rem; }
+.cy-harden__opt {
+  background: var(--cy-surface-2);
+  border: 1px solid var(--cy-border-lift);
+  border-radius: 999px;
+  color: var(--cy-text);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 0.4rem 0.95rem;
+  text-align: left;
+  transition: border-color 0.12s ease, background-color 0.12s ease;
+}
+.cy-harden__opt:hover:not(:disabled) { border-color: var(--cy-violet); }
+.cy-harden__opt:disabled { cursor: default; opacity: 0.6; }
+.cy-harden__opt.is-right {
+  background: rgba(34, 211, 238, 0.12);
+  border-color: var(--cy-cyan);
+  color: var(--cy-cyan-soft);
+  opacity: 1;
+}
+.cy-harden__opt.is-wrong {
+  background: rgba(255, 157, 77, 0.12);
+  border-color: var(--cy-flame);
+  color: var(--cy-flame);
+}
+.cy-harden__why { font-size: 0.82rem; margin: 0.65rem 0 0; }
+.cy-harden__why.is-good { color: var(--cy-text-2); }
+.cy-harden__why.is-bad { color: var(--cy-flame); }
+.cy-harden__why:empty { display: none; }
+
 /* --- Activity: live password builder --------------------------------------- */
 
 .cy-pw__input {
@@ -5402,6 +5475,35 @@ a.cy-path__link:hover { background: var(--cy-surface-2); }
   place-items: center;
   width: 64px;
 }
+
+/* Encryption scramble (Module 4) */
+.cy-encrypt__row {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  justify-content: center;
+}
+.cy-encrypt__plain {
+  background: var(--cy-surface);
+  border: 1px solid var(--cy-cyan);
+  border-radius: var(--cy-r-sm);
+  color: var(--cy-cyan-soft);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  padding: 0.5rem 0.9rem;
+}
+.cy-encrypt__cipher {
+  background: var(--cy-surface-3);
+  border: 1px dashed var(--cy-border-lift);
+  border-radius: var(--cy-r-sm);
+  color: var(--cy-text-3);
+  font-family: var(--cy-font-mono);
+  letter-spacing: 0.05em;
+  padding: 0.5rem 0.9rem;
+}
+.cy-encrypt__op { color: var(--cy-violet-soft); display: inline-flex; }
+.cy-encrypt__op .cy-i { height: 18px; width: 18px; }
 
 
 /* --- Room v2: scrollable page of collapsible task panels (TryHackMe format) - */

@@ -246,6 +246,7 @@ class LessonTask(models.Model):
         BRANCH = "BRANCH", "Branching scenario"
         CLASSIFY = "CLASSIFY", "Classify each alert"
         MAILSORT = "MAILSORT", "Triage a mixed inbox"
+        HARDEN = "HARDEN", "Secure a workspace"
 
     lesson = models.ForeignKey(
         Lesson, on_delete=models.CASCADE, related_name="tasks"

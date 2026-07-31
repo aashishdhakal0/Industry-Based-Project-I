@@ -18,7 +18,7 @@ from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 
 from authentication.models import User
-from modules.content import module_one, module_three, module_two
+from modules.content import module_four, module_one, module_three, module_two
 from modules.models import Lesson, LessonTask, Module, Simulation
 from quizzes.models import Answer, Question, Quiz
 
@@ -30,6 +30,7 @@ CONTENT = {
     1: module_one,
     2: module_two,
     3: module_three,
+    4: module_four,
 }
 
 # (title, description, difficulty, four lesson titles)
@@ -69,13 +70,13 @@ MODULES = [
     ),
     (
         "Secure Communication Practices",
-        "Handling passwords, messages and files securely, as routine.",
+        "What secure really means, and how to communicate that way as routine.",
         Module.Difficulty.INTERMEDIATE,
         [
-            "Passwords without the pain",
-            "Two-factor, explained simply",
-            "Sharing files safely",
-            "Keeping conversations private",
+            "What 'secure' really means",
+            "Proving it is you",
+            "Sharing information safely",
+            "Working securely anywhere",
         ],
     ),
     (

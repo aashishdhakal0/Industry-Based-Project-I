@@ -183,4 +183,20 @@
       Social engineering does not attack the computer. It presses these ordinary human instincts until you act.
     </figcaption>
   </figure>
+
+{% elif key == "encryption" %}
+  <figure class="cy-diagram cy-encrypt" role="img"
+          aria-label="Encryption: a readable message is scrambled with a key, travels as gibberish, and is unscrambled with the key at the other end.">
+    <div class="cy-encrypt__row">
+      <span class="cy-encrypt__plain">HELLO</span>
+      <span class="cy-encrypt__op" aria-hidden="true"><svg class="cy-i"><use href="#i-lock"/></svg></span>
+      <span class="cy-encrypt__cipher">8f&#64;3!x9q</span>
+      <span class="cy-encrypt__op" aria-hidden="true"><svg class="cy-i"><use href="#i-lock"/></svg></span>
+      <span class="cy-encrypt__plain">HELLO</span>
+    </div>
+    <figcaption class="cy-diagram__cap">
+      <span><b>With the key</b>, the message scrambles and unscrambles cleanly.</span>
+      <span><b>Without the key</b>, anyone who intercepts it in the middle sees only gibberish.</span>
+    </figcaption>
+  </figure>
 {% endif %}
