@@ -5153,6 +5153,60 @@ a.cy-path__link:hover { background: var(--cy-surface-2); }
 .cy-netmap__why.is-ok { color: var(--cy-text-3); }
 .cy-netmap__why:empty { display: none; }
 
+/* --- Activity: sequence (Module 6) — put steps in order -------------------- */
+
+.cy-seq { display: grid; gap: 0.55rem; list-style: none; margin: 0; padding: 0; }
+.cy-seq__count {
+  color: var(--cy-text-3);
+  font-family: var(--cy-font-mono);
+  font-size: 0.8rem;
+  margin: 0 0 0.75rem;
+}
+.cy-seq__btn {
+  align-items: center;
+  background: var(--cy-surface);
+  border: 1px solid var(--cy-border-lift);
+  border-radius: var(--cy-r-sm);
+  color: var(--cy-text);
+  cursor: pointer;
+  display: flex;
+  font: inherit;
+  gap: 0.8rem;
+  padding: 0.75rem 0.9rem;
+  text-align: left;
+  transition: border-color 0.12s ease, background-color 0.12s ease;
+  width: 100%;
+}
+.cy-seq__btn:hover:not(:disabled) { border-color: var(--cy-violet); }
+.cy-seq__btn.is-wrong { animation: cy-shake 0.4s; border-color: var(--cy-flame); }
+.cy-seq__btn.is-placed {
+  background: rgba(34, 211, 238, 0.1);
+  border-color: var(--cy-cyan);
+  cursor: default;
+}
+.cy-seq__num {
+  align-items: center;
+  border: 1px solid var(--cy-border-lift);
+  border-radius: 50%;
+  color: var(--cy-text-3);
+  display: flex;
+  flex: none;
+  font-family: var(--cy-font-mono);
+  font-size: 0.85rem;
+  font-weight: 700;
+  height: 30px;
+  justify-content: center;
+  width: 30px;
+}
+.cy-seq__btn.is-placed .cy-seq__num {
+  background: var(--cy-grad);
+  border-color: transparent;
+  color: var(--cy-ink);
+}
+.cy-seq__body { display: flex; flex-direction: column; gap: 0.1rem; }
+.cy-seq__label { color: var(--cy-text); font-weight: 700; }
+.cy-seq__detail { color: var(--cy-text-3); font-size: 0.82rem; }
+
 /* --- Activity: live password builder --------------------------------------- */
 
 .cy-pw__input {
@@ -5634,6 +5688,64 @@ a.cy-path__link:hover { background: var(--cy-surface-2); }
   padding: 0.5rem 0.9rem;
 }
 .cy-vpn__tunnel .cy-i { height: 16px; width: 16px; }
+
+/* Incident response lifecycle (Module 6) */
+.cy-ir__ring {
+  display: grid;
+  gap: 0.5rem;
+  grid-template-columns: repeat(3, 1fr);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.cy-ir__phase {
+  align-items: center;
+  background: var(--cy-surface);
+  border: 1px solid var(--cy-border-lift);
+  border-radius: var(--cy-r-sm);
+  color: var(--cy-text);
+  display: flex;
+  font-size: 0.82rem;
+  font-weight: 600;
+  gap: 0.4rem;
+  padding: 0.6rem 0.7rem;
+}
+.cy-ir__phase:last-child { border-color: var(--cy-cyan); color: var(--cy-cyan-soft); }
+.cy-ir__n {
+  align-items: center;
+  background: var(--cy-grad);
+  border-radius: 50%;
+  color: var(--cy-ink);
+  display: flex;
+  flex: none;
+  font-family: var(--cy-font-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  height: 22px;
+  justify-content: center;
+  width: 22px;
+}
+
+/* Breach notification (Module 6) */
+.cy-notify__row {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+}
+.cy-notify__step {
+  background: var(--cy-surface);
+  border: 1px solid var(--cy-border-lift);
+  border-radius: var(--cy-r-sm);
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 0.7rem 0.9rem;
+  text-align: center;
+}
+.cy-notify__step--tell { border-color: var(--cy-cyan); color: var(--cy-cyan-soft); }
+.cy-notify__arrow { color: var(--cy-violet-soft); display: inline-flex; }
+.cy-notify__arrow .cy-i { height: 18px; width: 18px; }
 
 
 /* --- Room v2: scrollable page of collapsible task panels (TryHackMe format) - */

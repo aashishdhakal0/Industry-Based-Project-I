@@ -245,4 +245,34 @@
       One guarded, encrypted door into the network, instead of many systems exposed to the internet.
     </figcaption>
   </figure>
+
+{% elif key == "ir-lifecycle" %}
+  <figure class="cy-diagram cy-ir" role="img"
+          aria-label="The incident response lifecycle: Preparation, Identification, Containment, Eradication, Recovery, Lessons Learned, looping back to Preparation.">
+    <ol class="cy-ir__ring">
+      <li class="cy-ir__phase"><span class="cy-ir__n">1</span> Preparation</li>
+      <li class="cy-ir__phase"><span class="cy-ir__n">2</span> Identification</li>
+      <li class="cy-ir__phase"><span class="cy-ir__n">3</span> Containment</li>
+      <li class="cy-ir__phase"><span class="cy-ir__n">4</span> Eradication</li>
+      <li class="cy-ir__phase"><span class="cy-ir__n">5</span> Recovery</li>
+      <li class="cy-ir__phase"><span class="cy-ir__n">6</span> Lessons Learned</li>
+    </ol>
+    <figcaption class="cy-diagram__cap cy-diagram__cap--single">
+      Six phases in order, and the last loops back to make your preparation stronger for next time.
+    </figcaption>
+  </figure>
+
+{% elif key == "breach-notify" %}
+  <figure class="cy-diagram cy-notify" role="img"
+          aria-label="Breach notification: a breach that is likely to cause serious harm is notified to the affected people and the OAIC.">
+    <div class="cy-notify__row">
+      <span class="cy-notify__step">Breach likely to cause serious harm</span>
+      <span class="cy-notify__arrow" aria-hidden="true"><svg class="cy-i"><use href="#i-arrow-right"/></svg></span>
+      <span class="cy-notify__step cy-notify__step--tell">Tell the affected people</span>
+      <span class="cy-notify__step cy-notify__step--tell">Tell the OAIC</span>
+    </div>
+    <figcaption class="cy-diagram__cap cy-diagram__cap--single">
+      As soon as practicable. General information only, not legal advice: check your own obligations.
+    </figcaption>
+  </figure>
 {% endif %}

@@ -248,6 +248,7 @@ class LessonTask(models.Model):
         MAILSORT = "MAILSORT", "Triage a mixed inbox"
         HARDEN = "HARDEN", "Secure a workspace"
         NETMAP = "NETMAP", "Find network weaknesses"
+        SEQUENCE = "SEQUENCE", "Order the steps"
 
     lesson = models.ForeignKey(
         Lesson, on_delete=models.CASCADE, related_name="tasks"

@@ -22,6 +22,7 @@ from modules.content import (
     module_five,
     module_four,
     module_one,
+    module_six,
     module_three,
     module_two,
 )
@@ -38,6 +39,7 @@ CONTENT = {
     3: module_three,
     4: module_four,
     5: module_five,
+    6: module_six,
 }
 
 # (title, description, difficulty, four lesson titles)
@@ -99,13 +101,13 @@ MODULES = [
     ),
     (
         "Incident Response",
-        "A clear plan for the first hour after something goes wrong.",
+        "A calm, six-phase plan for what to do when something goes wrong.",
         Module.Difficulty.ADVANCED,
         [
-            "The first five minutes",
-            "Who to call, and in what order",
-            "Containing the damage",
-            "Learning from an incident",
+            "Why a plan beats panic",
+            "Spot it and stop it",
+            "Clean up and come back",
+            "The law, and the whole response",
         ],
     ),
 ]

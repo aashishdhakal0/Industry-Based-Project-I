@@ -640,6 +640,71 @@
     update();
   };
 
+  // ------------------------------------------------------------ SEQUENCE ----
+  // Put steps in the correct order: they appear shuffled and you tap them 1..N
+  // in sequence. A wrong tap nudges. Solved when all are placed in order.
+  CONTROLLERS.SEQUENCE = function (root, cfg) {
+    if (cfg.prompt) root.appendChild(el("p", "cy-act__prompt", cfg.prompt));
+    var total = cfg.steps.length;
+    var next = 1; // the order value expected next
+
+    var counter = el("p", "cy-seq__count");
+    counter.setAttribute("aria-live", "polite");
+    var feedback = el("p", "cy-act__feedback");
+    feedback.setAttribute("aria-live", "polite");
+
+    // Shuffle a copy for display so the order is a genuine challenge.
+    var shuffled = cfg.steps.slice();
+    for (var i = shuffled.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var t = shuffled[i]; shuffled[i] = shuffled[j]; shuffled[j] = t;
+    }
+
+    var list = el("ol", "cy-seq");
+    shuffled.forEach(function (step) {
+      var li = el("li", "cy-seq__item");
+      var btn = el("button", "cy-seq__btn");
+      btn.type = "button";
+      var num = el("span", "cy-seq__num");
+      var bodyWrap = el("span", "cy-seq__body");
+      bodyWrap.appendChild(el("span", "cy-seq__label", step.label));
+      if (step.detail) bodyWrap.appendChild(el("span", "cy-seq__detail", step.detail));
+      btn.appendChild(num);
+      btn.appendChild(bodyWrap);
+
+      btn.addEventListener("click", function () {
+        if (btn.disabled) return;
+        if (step.order === next) {
+          btn.disabled = true;
+          btn.classList.add("is-placed");
+          num.textContent = next;
+          next += 1;
+          update();
+          if (next > total) {
+            feedback.className = "cy-act__feedback is-good";
+            feedback.textContent = "That is the lifecycle in order. Well sequenced.";
+            solved(root);
+          }
+        } else {
+          btn.classList.add("is-wrong");
+          window.setTimeout(function () { btn.classList.remove("is-wrong"); }, 400);
+          feedback.className = "cy-act__feedback is-bad";
+          feedback.textContent = "Not the next one. Which phase comes at step " + next + "?";
+        }
+      });
+
+      li.appendChild(btn);
+      list.appendChild(li);
+    });
+
+    root.appendChild(counter);
+    root.appendChild(list);
+    root.appendChild(feedback);
+
+    function update() { counter.textContent = (next - 1) + " of " + total + " in order"; }
+    update();
+  };
+
   // A kind with no controller yet (or a broken config) must never trap the
   // learner: show a gentle note and let them continue.
   function fallback(c) {
