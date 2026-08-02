@@ -233,9 +233,14 @@ def lesson(request, order_index, lesson_number):
         done_ids, _total, lesson_points_done, lesson_points_total = g.lesson_task_stats(
             request.user, lesson
         )
+        current_marked = False
         for t in tasks:
             payload = t.payload or {}
             t.done = t.id in done_ids
+            # The task index highlights the first unfinished task as "current".
+            t.current = not t.done and not current_marked
+            if t.current:
+                current_marked = True
             t.options = payload.get("options", [])
             t.scenario = payload.get("scenario", "")
             t.question = payload.get("question", "")
@@ -261,6 +266,8 @@ def lesson(request, order_index, lesson_number):
             "steps": steps,
             "tasks": tasks,
             "has_tasks": bool(tasks),
+            "tasks_total": len(tasks),
+            "tasks_done_count": sum(1 for t in tasks if getattr(t, "done", False)),
             "lesson_points_done": lesson_points_done,
             "lesson_points_total": lesson_points_total,
             "reward_flash": reward_flash,

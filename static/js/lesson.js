@@ -30,7 +30,52 @@
 
   room.classList.add("is-live");
 
+  // --- Task index rail: numbered tasks with live done/current status, and jump
+  // to any task on click. Kept in sync with the panels below.
+  var tasklistItems = {};
+  Array.prototype.forEach.call(
+    document.querySelectorAll("[data-tasklist-item]"),
+    function (item) { tasklistItems[item.getAttribute("data-for")] = item; }
+  );
+  var tasklistDone = document.querySelector("[data-tasklist-done]");
+
+  function panelById(id) {
+    for (var i = 0; i < panels.length; i++) {
+      if (panels[i].getAttribute("data-task-id") === id) return panels[i];
+    }
+    return null;
+  }
+
   function isDone(p) { return p.getAttribute("data-done") === "1"; }
+
+  function syncTasklist() {
+    var currentSet = false;
+    panels.forEach(function (p) {
+      var item = tasklistItems[p.getAttribute("data-task-id")];
+      if (!item) return;
+      var done = isDone(p);
+      var current = !done && !currentSet;
+      if (current) currentSet = true;
+      item.classList.toggle("is-done", done);
+      item.classList.toggle("is-current", current);
+    });
+    if (tasklistDone) tasklistDone.textContent = doneCount();
+  }
+
+  Array.prototype.forEach.call(
+    document.querySelectorAll("[data-task-jump]"),
+    function (link) {
+      link.addEventListener("click", function (e) {
+        var panel = panelById(link.getAttribute("data-task-jump"));
+        if (!panel) return;
+        e.preventDefault();
+        panel.open = true;
+        var head = panel.querySelector(".cy-panel__head");
+        if (head && head.scrollIntoView) head.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+    }
+  );
+
   function firstOpen() {
     for (var i = 0; i < panels.length; i++) if (!isDone(panels[i])) return i;
     return -1;
@@ -46,6 +91,7 @@
     if (fill) fill.style.width = percent + "%";
     if (pct) pct.textContent = "Progress " + percent + "%";
     if (xpEl && pointsDone != null) xpEl.textContent = pointsDone;
+    syncTasklist();
   }
 
   function toast(points) {

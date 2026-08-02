@@ -31,6 +31,15 @@ def _active_quiz(module):
 
 
 def _all_lessons_done(user, module):
+    # DEBUG-only review switch: in local development the quiz opens without
+    # finishing that module's lessons first, so every quiz can be checked.
+    # Production (DEBUG=False, and the test suite) keeps the gate. Remove this to
+    # restore it locally.
+    from django.conf import settings
+
+    if settings.DEBUG:
+        return True
+
     total = module.lessons.filter(is_active=True).count()
     done = (
         ProgressRecord.objects.filter(

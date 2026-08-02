@@ -28,15 +28,18 @@
     <span class="cy-reader__count">Lesson {{ position }} of {{ total }}</span>
   </div>
 
-  <ol class="cy-stepper" aria-label="Lessons in this module">
-    {% for step in steps %}
-      <li class="cy-stepper__dot {% if step.done %}is-done{% elif step.current %}is-current{% endif %}">
-        <a href="{{ step.url }}" aria-label="Lesson {{ step.number }}{% if step.current %} (current){% elif step.done %} (done){% endif %}">
-          {% if step.done %}<svg class="cy-i" aria-hidden="true"><use href="#i-check"/></svg>{% else %}{{ step.number }}{% endif %}
-        </a>
-      </li>
-    {% endfor %}
-  </ol>
+  {% if not has_tasks %}
+    {# Task lessons put the lesson stepper in the room's task-index rail instead. #}
+    <ol class="cy-stepper" aria-label="Lessons in this module">
+      {% for step in steps %}
+        <li class="cy-stepper__dot {% if step.done %}is-done{% elif step.current %}is-current{% endif %}">
+          <a href="{{ step.url }}" aria-label="Lesson {{ step.number }}{% if step.current %} (current){% elif step.done %} (done){% endif %}">
+            {% if step.done %}<svg class="cy-i" aria-hidden="true"><use href="#i-check"/></svg>{% else %}{{ step.number }}{% endif %}
+          </a>
+        </li>
+      {% endfor %}
+    </ol>
+  {% endif %}
 
   {% if reward_flash %}
     <div class="cy-flash" role="status">
@@ -46,13 +49,50 @@
   {% endif %}
 
   {% if has_tasks %}
-    {# ---------- Room: a scrollable page of collapsible task panels ---------- #}
-    <div class="cy-room2" data-room
+    {# ---------- Room: a task-index rail + a column of collapsible panels ------ #}
+    <div class="cy-room2 cy-room2--indexed" data-room
          data-task-url="{% url 'learn:complete_task' module.order_index lesson.lesson_number %}"
          data-next="{{ next_after_url }}"
          data-next-label="{{ next_after_label }}">
 
+      {# Task index: numbered tasks with live status, jump to any one. #}
+      <aside class="cy-tasklist" aria-label="Tasks in this lesson">
+        <p class="cy-tasklist__head">
+          <span>Tasks</span>
+          <span class="cy-tasklist__count"><b data-tasklist-done>{{ tasks_done_count }}</b> / {{ tasks_total }}</span>
+        </p>
+        <ol class="cy-tasklist__items">
+          {% for task in tasks %}
+            <li class="cy-tasklist__item {% if task.done %}is-done{% elif task.current %}is-current{% endif %}"
+                data-tasklist-item data-for="{{ task.id }}">
+              <a class="cy-tasklist__link" href="#task-{{ task.id }}" data-task-jump="{{ task.id }}">
+                <span class="cy-tasklist__mark" aria-hidden="true">
+                  <span class="cy-tasklist__n">{{ forloop.counter }}</span>
+                  <svg class="cy-i cy-tasklist__tick"><use href="#i-check"/></svg>
+                </span>
+                <span class="cy-tasklist__title">{{ task.title }}</span>
+              </a>
+            </li>
+          {% endfor %}
+        </ol>
+        <div class="cy-tasklist__lessons">
+          <p class="cy-tasklist__sub">Lessons</p>
+          <ol class="cy-stepper" aria-label="Lessons in this module">
+            {% for step in steps %}
+              <li class="cy-stepper__dot {% if step.done %}is-done{% elif step.current %}is-current{% endif %}">
+                <a href="{{ step.url }}" aria-label="Lesson {{ step.number }}{% if step.current %} (current){% elif step.done %} (done){% endif %}">
+                  {% if step.done %}<svg class="cy-i" aria-hidden="true"><use href="#i-check"/></svg>{% else %}{{ step.number }}{% endif %}
+                </a>
+              </li>
+            {% endfor %}
+          </ol>
+        </div>
+      </aside>
+
+      <div class="cy-room2__main">
+
       <div class="cy-room2__bar">
+        <p class="cy-room2__eyebrow">Module {{ module.order_index|stringformat:"02d" }} · {{ module.title }}</p>
         <h1 class="cy-room2__title">{{ lesson.title }}</h1>
         <div class="cy-room2__progress">
           <div class="cy-room2__track"><div class="cy-room2__fill" data-room-fill></div></div>
@@ -67,7 +107,7 @@
       <ol class="cy-panels">
         {% for task in tasks %}
           <li>
-            <details class="cy-panel {% if task.done %}is-done{% endif %}" open
+            <details class="cy-panel {% if task.done %}is-done{% endif %}" id="task-{{ task.id }}" open
                      data-task data-task-id="{{ task.id }}" data-kind="{{ task.kind }}"
                      data-points="{{ task.points }}"{% if task.done %} data-done="1"{% endif %}>
               <summary class="cy-panel__head">
@@ -133,6 +173,7 @@
           </button>
         </form>
       {% endif %}
+      </div>{# /cy-room2__main #}
     </div>
 
   {% else %}
@@ -185,7 +226,7 @@
       lesson.js that 304s keep alive. Bump this when the room JS changes so the
       URL is new and the old cached copy can't win. (Prod hashes it anyway.)
     {% endcomment %}
-    <script src="{% static 'js/lesson.js' %}?v=12" defer></script>
-    <script src="{% static 'js/activities.js' %}?v=12" defer></script>
+    <script src="{% static 'js/lesson.js' %}?v=13" defer></script>
+    <script src="{% static 'js/activities.js' %}?v=13" defer></script>
   {% endif %}
 {% endblock %}

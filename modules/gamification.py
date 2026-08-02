@@ -134,6 +134,15 @@ def module_progress(user):
         ).values_list("quiz__module_id", flat=True)
     )
 
+    # DEBUG-only review switch: in local development every module is unlocked so
+    # the whole course can be walked without completing each one first. Production
+    # (DEBUG=False, e.g. the test suite and any real deploy) keeps the sequential
+    # lock, which the views still enforce as a 403. Remove `settings.DEBUG or` to
+    # restore the lock locally.
+    from django.conf import settings
+
+    review_unlock = bool(settings.DEBUG)
+
     out = []
     prev_complete = True  # the first module is always unlocked
     for m in modules:
@@ -148,7 +157,7 @@ def module_progress(user):
                 total_lessons=total,
                 done_lessons=done,
                 complete=complete,
-                unlocked=prev_complete,
+                unlocked=review_unlock or prev_complete,
                 percent=round(done / total * 100) if total else 0,
             )
         )

@@ -2051,14 +2051,18 @@ body.cy-body {
    No sidebar: a slim focus bar sits on top and the content owns the width,
    centred and balanced with no dead space beside it. */
 .cy-app--focus .cy-app__body { margin-left: 0; }
+/* One contained, centred column that holds the two-column room comfortably and
+   leaves balanced margins on both sides at any width. */
 .cy-app--focus .cy-app__main {
-  max-width: 62rem;
+  max-width: 74rem;
   padding-top: clamp(1rem, 2vw, 1.5rem);
 }
 .cy-app--focus .cy-wrap--narrow { max-width: none; }  /* the reader fills the column */
 .cy-app--focus .cy-reader { padding-top: 0.75rem; }
 .cy-app--focus .cy-reader__meta { display: none; }    /* focus bar owns back + count */
 .cy-app--focus .cy-reader-progress { display: none; } /* room bar shows progress instead */
+/* a task-less lesson (plain reader) keeps a comfortable reading measure */
+.cy-app--focus .cy-reader__body { margin: 0 auto; max-width: 46rem; }
 /* keep the room's sticky bar clear of the focus bar */
 .cy-app--focus .cy-room2__bar { top: calc(var(--cy-focusbar-h) + 0.4rem); }
 
@@ -5915,6 +5919,112 @@ a.cy-path__link:hover { background: var(--cy-surface-2); }
 }
 .cy-room2__xp .cy-i { color: var(--cy-violet-soft); height: 15px; width: 15px; }
 .cy-room2__xp b { color: var(--cy-text); font-family: var(--cy-font-mono); }
+.cy-room2__eyebrow {
+  color: var(--cy-violet-soft);
+  font: 600 0.72rem/1.3 var(--cy-font-mono);
+  letter-spacing: 0.08em;
+  margin: 0 0 0.45rem;
+  text-transform: uppercase;
+}
+.cy-room2__main { min-width: 0; }
+
+/* --- Task index rail: numbered tasks with live status, jump to any one ----- */
+.cy-tasklist {
+  background: linear-gradient(180deg, var(--cy-surface-2), var(--cy-surface));
+  border: 1px solid var(--cy-border);
+  border-radius: var(--cy-r-lg);
+  margin-bottom: 1.25rem;
+  padding: 1rem 0.9rem;
+}
+.cy-tasklist__head {
+  align-items: center;
+  color: var(--cy-text-3);
+  display: flex;
+  font-size: 0.72rem;
+  font-weight: 700;
+  justify-content: space-between;
+  letter-spacing: 0.08em;
+  margin: 0 0.35rem 0.7rem;
+  text-transform: uppercase;
+}
+.cy-tasklist__count { color: var(--cy-text-2); font-family: var(--cy-font-mono); letter-spacing: 0; }
+.cy-tasklist__count b { color: var(--cy-cyan-soft); }
+.cy-tasklist__items { display: grid; gap: 0.15rem; list-style: none; margin: 0; padding: 0; }
+.cy-tasklist__link {
+  align-items: flex-start;
+  border-radius: var(--cy-r);
+  color: var(--cy-text-2);
+  display: flex;
+  gap: 0.6rem;
+  padding: 0.5rem 0.55rem;
+  text-decoration: none;
+  transition: background var(--cy-fast) var(--cy-ease), color var(--cy-fast) var(--cy-ease);
+}
+.cy-tasklist__link:hover { background: var(--cy-surface-3); color: var(--cy-text); }
+.cy-tasklist__mark {
+  align-items: center;
+  border: 1px solid var(--cy-border-lift);
+  border-radius: 50%;
+  color: var(--cy-text-3);
+  display: grid;
+  flex: none;
+  font-family: var(--cy-font-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  height: 24px;
+  margin-top: 0.05rem;
+  place-items: center;
+  width: 24px;
+}
+.cy-tasklist__tick { display: none; height: 14px; width: 14px; }
+/* Titles wrap cleanly onto a second line, never truncated. */
+.cy-tasklist__title { flex: 1; font-size: 0.9rem; line-height: 1.35; }
+.cy-tasklist__xp { display: none; }  /* the panel header carries the XP; the rail stays clean */
+.cy-tasklist__item.is-current .cy-tasklist__link { background: var(--cy-grad-soft); color: var(--cy-text); }
+.cy-tasklist__item.is-current .cy-tasklist__mark { border-color: var(--cy-violet); color: var(--cy-violet-soft); }
+.cy-tasklist__item.is-current .cy-tasklist__title { font-weight: 600; }
+.cy-tasklist__item.is-done .cy-tasklist__n { display: none; }
+.cy-tasklist__item.is-done .cy-tasklist__tick { color: var(--cy-ink); display: block; }
+.cy-tasklist__item.is-done .cy-tasklist__mark { background: var(--cy-grad); border-color: transparent; }
+.cy-tasklist__item.is-done .cy-tasklist__title { color: var(--cy-text-3); }
+.cy-tasklist__lessons { border-top: 1px solid var(--cy-border); margin-top: 0.85rem; padding-top: 0.85rem; }
+.cy-tasklist__sub {
+  color: var(--cy-text-3);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  margin: 0 0.35rem 0.55rem;
+  text-transform: uppercase;
+}
+.cy-tasklist .cy-stepper { flex-wrap: wrap; gap: 0.4rem; padding: 0 0.35rem; }
+
+/* Desktop: a fixed-width rail beside the panels, sticky, both aligned to one
+   grid inside the contained 74rem column so the whole room reads as one piece. */
+@media (min-width: 901px) {
+  .cy-room2--indexed {
+    align-items: start;
+    display: grid;
+    gap: 2rem;
+    grid-template-columns: 19rem minmax(0, 1fr);
+  }
+  .cy-tasklist {
+    margin-bottom: 0;
+    position: sticky;
+    top: calc(var(--cy-focusbar-h) + 0.75rem);
+  }
+  /* jump-to-task lands the panel clear of the sticky focus + room bars */
+  .cy-panel { scroll-margin-top: calc(var(--cy-focusbar-h) + 5.5rem); }
+}
+
+/* Mobile: the rail collapses to a compact, scrollable strip of numbered status
+   markers above the panels, so task navigation stays without dominating. */
+@media (max-width: 900px) {
+  .cy-tasklist { padding: 0.7rem 0.8rem; }
+  .cy-tasklist__items { display: flex; gap: 0.4rem; overflow-x: auto; padding-bottom: 0.15rem; }
+  .cy-tasklist__link { padding: 0.3rem; }
+  .cy-tasklist__title,
+  .cy-tasklist__lessons { display: none; }
+}
 
 /* Panel list */
 .cy-panels { display: grid; gap: 0.85rem; list-style: none; margin: 0; padding: 0; }
