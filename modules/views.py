@@ -265,6 +265,12 @@ def lesson(request, order_index, lesson_number):
             "lesson_points_total": lesson_points_total,
             "reward_flash": reward_flash,
             "active": "modules",
+            # Focused, distraction-free room: the app shell drops the sidebar and
+            # shows a slim focus bar with a clear way back to the module.
+            "focus": True,
+            "focus_back_url": reverse("learn:module", args=[order_index]),
+            "focus_back_label": module.title,
+            "focus_meta": f"Lesson {position + 1} of {len(siblings)}",
         },
     )
 

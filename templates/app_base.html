@@ -16,52 +16,74 @@
 {% endcomment %}
 
 {% block shell %}
-<div class="cy-app">
+{% comment %}
+  `focus` (set by a view, e.g. the lesson room) switches the shell into a
+  distraction-free learning space: the sidebar and mobile appbar are dropped, and
+  a slim focus bar with a clear "back to module" button takes their place so the
+  content owns the screen (TryHackMe-room style). Every other page keeps the
+  normal sidebar shell.
+{% endcomment %}
+<div class="cy-app {% if focus %}cy-app--focus{% endif %}">
 
-  {# Mobile top bar: only shows below the sidebar breakpoint. #}
-  <header class="cy-appbar">
-    <button type="button" class="cy-appbar__toggle" aria-label="Menu"
-            aria-expanded="false" aria-controls="cy-side">
-      <svg class="cy-i cy-i--menu" aria-hidden="true"><use href="#i-menu"/></svg>
-      <svg class="cy-i cy-i--close" aria-hidden="true"><use href="#i-close"/></svg>
-    </button>
-    <a class="cy-wordmark" href="{% url 'dashboard' %}">
-      <span class="cy-mark" aria-hidden="true"></span>
-      {{ site_name }}
-    </a>
-  </header>
+  {% if focus %}
+    {# Focused mode: one slim bar, a clear way back, and the content in the middle. #}
+    <header class="cy-focusbar">
+      <a class="cy-focusbar__back" href="{{ focus_back_url|default:'/learn/' }}">
+        <svg class="cy-i" aria-hidden="true"><use href="#i-chevron-left"/></svg>
+        <span>{{ focus_back_label|default:"Back" }}</span>
+      </a>
+      {% if focus_meta %}<span class="cy-focusbar__meta">{{ focus_meta }}</span>{% endif %}
+      <a class="cy-focusbar__brand" href="{% url 'dashboard' %}" aria-label="{{ site_name }} home">
+        <span class="cy-mark" aria-hidden="true"></span>
+        <span class="cy-focusbar__brand-name">{{ site_name }}</span>
+      </a>
+    </header>
+  {% else %}
+    {# Mobile top bar: only shows below the sidebar breakpoint. #}
+    <header class="cy-appbar">
+      <button type="button" class="cy-appbar__toggle" aria-label="Menu"
+              aria-expanded="false" aria-controls="cy-side">
+        <svg class="cy-i cy-i--menu" aria-hidden="true"><use href="#i-menu"/></svg>
+        <svg class="cy-i cy-i--close" aria-hidden="true"><use href="#i-close"/></svg>
+      </button>
+      <a class="cy-wordmark" href="{% url 'dashboard' %}">
+        <span class="cy-mark" aria-hidden="true"></span>
+        {{ site_name }}
+      </a>
+    </header>
 
-  {# Backdrop behind the open drawer on mobile. #}
-  <div class="cy-side-backdrop" id="cy-side-backdrop" hidden></div>
+    {# Backdrop behind the open drawer on mobile. #}
+    <div class="cy-side-backdrop" id="cy-side-backdrop" hidden></div>
 
-  <aside class="cy-side" id="cy-side" aria-label="Sections">
-    <a class="cy-side__brand" href="{% url 'dashboard' %}">
-      <span class="cy-mark" aria-hidden="true"></span>
-      {{ site_name }}
-    </a>
+    <aside class="cy-side" id="cy-side" aria-label="Sections">
+      <a class="cy-side__brand" href="{% url 'dashboard' %}">
+        <span class="cy-mark" aria-hidden="true"></span>
+        {{ site_name }}
+      </a>
 
-    <nav class="cy-side__nav">
-      <a class="cy-side__item {% if active == 'dashboard' %}is-active{% endif %}" href="{% url 'dashboard' %}">
-        <svg class="cy-i" aria-hidden="true"><use href="#i-grid"/></svg> Dashboard
-      </a>
-      <a class="cy-side__item {% if active == 'modules' %}is-active{% endif %}" href="{% url 'learn:browser' %}">
-        <svg class="cy-i" aria-hidden="true"><use href="#i-layers"/></svg> Modules
-      </a>
-      <a class="cy-side__item {% if active == 'progress' %}is-active{% endif %}" href="{% url 'learn:progress' %}">
-        <svg class="cy-i" aria-hidden="true"><use href="#i-chart"/></svg> My progress
-      </a>
-      <a class="cy-side__item {% if active == 'badges' %}is-active{% endif %}" href="{% url 'learn:badges' %}">
-        <svg class="cy-i" aria-hidden="true"><use href="#i-star"/></svg> Badges
-      </a>
-      <a class="cy-side__item {% if active == 'certificate' %}is-active{% endif %}" href="{% url 'learn:certificate' %}">
-        <svg class="cy-i" aria-hidden="true"><use href="#i-award"/></svg> Certificate
-      </a>
-    </nav>
+      <nav class="cy-side__nav">
+        <a class="cy-side__item {% if active == 'dashboard' %}is-active{% endif %}" href="{% url 'dashboard' %}">
+          <svg class="cy-i" aria-hidden="true"><use href="#i-grid"/></svg> Dashboard
+        </a>
+        <a class="cy-side__item {% if active == 'modules' %}is-active{% endif %}" href="{% url 'learn:browser' %}">
+          <svg class="cy-i" aria-hidden="true"><use href="#i-layers"/></svg> Modules
+        </a>
+        <a class="cy-side__item {% if active == 'progress' %}is-active{% endif %}" href="{% url 'learn:progress' %}">
+          <svg class="cy-i" aria-hidden="true"><use href="#i-chart"/></svg> My progress
+        </a>
+        <a class="cy-side__item {% if active == 'badges' %}is-active{% endif %}" href="{% url 'learn:badges' %}">
+          <svg class="cy-i" aria-hidden="true"><use href="#i-star"/></svg> Badges
+        </a>
+        <a class="cy-side__item {% if active == 'certificate' %}is-active{% endif %}" href="{% url 'learn:certificate' %}">
+          <svg class="cy-i" aria-hidden="true"><use href="#i-award"/></svg> Certificate
+        </a>
+      </nav>
 
-    <div class="cy-side__foot">
-      {% include "_logout_form.html" %}
-    </div>
-  </aside>
+      <div class="cy-side__foot">
+        {% include "_logout_form.html" %}
+      </div>
+    </aside>
+  {% endif %}
 
   <div class="cy-app__body">
     <main id="main" class="cy-app__main">

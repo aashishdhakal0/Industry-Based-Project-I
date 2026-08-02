@@ -313,6 +313,8 @@ def test_learn_pages_render_clean_and_without_emoji(client_student, modules):
 # The app shell — sidebar, active state, new pages
 # --------------------------------------------------------------------------
 
+# The sidebar-shell pages. The lesson is deliberately excluded: it renders the
+# focused, distraction-free room shell (no sidebar) tested separately below.
 STUDENT_PATHS = [
     ("learn:browser", []),
     ("dashboard", []),
@@ -320,7 +322,6 @@ STUDENT_PATHS = [
     ("learn:badges", []),
     ("learn:certificate", []),
     ("learn:module", [1]),
-    ("learn:lesson", [1, 1]),
     ("learn:simulation", [1]),
 ]
 
@@ -332,6 +333,17 @@ def test_every_student_page_lives_in_the_app_shell(client_student, modules):
         assert 'class="cy-side__nav"' in html, name
         # the mobile drawer toggle, wired to the sidebar
         assert 'aria-controls="cy-side"' in html, name
+
+
+@pytest.mark.django_db
+def test_a_lesson_uses_the_focused_room_shell(client_student, modules):
+    """In a lesson the sidebar drops away for a distraction-free room, with a
+    slim focus bar and a clear way back to the module."""
+    html = client_student.get(reverse("learn:lesson", args=[1, 1])).content.decode()
+    assert "cy-app--focus" in html
+    assert "cy-focusbar__back" in html
+    assert reverse("learn:module", args=[1]) in html      # back to the module
+    assert 'class="cy-side__nav"' not in html             # no sidebar to distract
 
 
 @pytest.mark.django_db
