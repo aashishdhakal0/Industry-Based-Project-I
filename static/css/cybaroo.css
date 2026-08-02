@@ -5207,6 +5207,61 @@ a.cy-path__link:hover { background: var(--cy-surface-2); }
 .cy-seq__label { color: var(--cy-text); font-weight: 700; }
 .cy-seq__detail { color: var(--cy-text-3); font-size: 0.82rem; }
 
+/* --- Activity: respond (apply-it decisions with consequences) -------------- */
+
+.cy-respond { display: grid; gap: 0.8rem; }
+.cy-respond__count {
+  color: var(--cy-text-3);
+  font-family: var(--cy-font-mono);
+  font-size: 0.8rem;
+  margin: 0 0 0.75rem;
+}
+.cy-respond__sit {
+  background: var(--cy-surface);
+  border: 1px solid var(--cy-border);
+  border-left: 3px solid var(--cy-border-lift);
+  border-radius: var(--cy-r-sm);
+  padding: 0.9rem 1rem;
+}
+.cy-respond__sit.is-good { border-left-color: var(--cy-cyan); }
+.cy-respond__sit.is-shake { animation: cy-shake 0.4s; }
+.cy-respond__text { color: var(--cy-text); font-weight: 600; margin: 0 0 0.75rem; }
+.cy-respond__opts { display: grid; gap: 0.45rem; }
+.cy-respond__opt {
+  background: var(--cy-surface-2);
+  border: 1px solid var(--cy-border-lift);
+  border-radius: var(--cy-r-sm);
+  color: var(--cy-text);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.9rem;
+  padding: 0.6rem 0.85rem;
+  text-align: left;
+  transition: border-color 0.12s ease, background-color 0.12s ease;
+}
+.cy-respond__opt:hover:not(:disabled) { border-color: var(--cy-violet); }
+.cy-respond__opt:disabled { cursor: default; opacity: 0.6; }
+.cy-respond__opt.is-right {
+  background: rgba(34, 211, 238, 0.12);
+  border-color: var(--cy-cyan);
+  color: var(--cy-cyan-soft);
+  opacity: 1;
+}
+.cy-respond__opt.is-wrong {
+  background: rgba(255, 157, 77, 0.12);
+  border-color: var(--cy-flame);
+  color: var(--cy-flame);
+}
+.cy-respond__opt.is-risky {
+  background: rgba(255, 201, 75, 0.12);
+  border-color: var(--cy-amber, #ffc94b);
+  color: var(--cy-amber, #ffc94b);
+}
+.cy-respond__why { font-size: 0.82rem; margin: 0.65rem 0 0; }
+.cy-respond__why.is-good { color: var(--cy-text-2); }
+.cy-respond__why.is-bad { color: var(--cy-flame); }
+.cy-respond__why:empty { display: none; }
+
 /* --- Activity: live password builder --------------------------------------- */
 
 .cy-pw__input {

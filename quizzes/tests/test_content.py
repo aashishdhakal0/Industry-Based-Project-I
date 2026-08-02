@@ -17,7 +17,14 @@ from quizzes.models import Answer
 User = get_user_model()
 
 # The interactive "do it" kinds — the weight of every lesson should be here.
-ACTIVITY_KINDS = {"SORT", "INBOX", "SPOT", "PASSWORD", "BRANCH"}
+# Module 1 is rebalanced toward DOING: hands-on activities are the centre of most
+# panels, with a few short "apply it" checks and no pure-recall reading panels.
+ACTIVITY_KINDS = {
+    "SORT", "INBOX", "SPOT", "PASSWORD", "BRANCH",
+    "CLASSIFY", "MAILSORT", "HARDEN", "NETMAP", "SEQUENCE", "RESPOND",
+}
+# The classic five must always remain present in Module 1 (the reference module).
+CLASSIC_FIVE = {"SORT", "INBOX", "SPOT", "PASSWORD", "BRANCH"}
 
 
 @pytest.fixture
@@ -54,7 +61,7 @@ def test_module_one_uses_all_five_activity_types(seeded):
     kinds = set(
         LessonTask.objects.filter(lesson__module=seeded).values_list("kind", flat=True)
     )
-    assert ACTIVITY_KINDS <= kinds, f"missing activity types: {ACTIVITY_KINDS - kinds}"
+    assert CLASSIC_FIVE <= kinds, f"missing activity types: {CLASSIC_FIVE - kinds}"
 
 
 # --------------------------------------------------------------------------
@@ -209,25 +216,56 @@ def test_the_seed_is_idempotent(seeded):
 
 
 @pytest.mark.django_db
-def test_every_panel_is_reading_plus_interactive(seeded):
-    """The room format: every task panel is a meaty chunk of reading followed by
-    one interactive (a check or an activity), and every lesson mixes both."""
+def test_every_lesson_is_doing_led(seeded):
+    """The doing-centred standard: the interactive is the centre of each panel.
+    Every panel has a tight setup (not a wall of text), every lesson has at least
+    one genuine hands-on activity, and activity panels are the majority (doing
+    outweighs reading-and-recall)."""
     import re
 
     for lesson in seeded.lessons.order_by("lesson_number"):
         tasks = list(lesson.tasks.order_by("order"))
-        kinds = {t.kind for t in tasks}
-        assert "CHECK" in kinds, f"{lesson.title} has no check panel"
-        assert kinds & ACTIVITY_KINDS, f"{lesson.title} has no hands-on activity"
+        activities = [t for t in tasks if t.kind in ACTIVITY_KINDS]
+        others = [t for t in tasks if t.kind not in ACTIVITY_KINDS]  # checks / concepts
+        assert activities, f"{lesson.title} has no hands-on activity"
+        assert len(activities) >= len(others), f"{lesson.title} is not doing-led"
         for t in tasks:
             words = len(re.sub(r"<[^>]+>", " ", t.body or "").split())
-            assert words >= 40, f"{lesson.title} / {t.task_key} has too little reading ({words} words)"
+            # Tight but real setup: enough to frame the task, not a wall of text.
+            assert words >= 25, f"{lesson.title} / {t.task_key} has too little setup ({words} words)"
 
 
 @pytest.mark.django_db
-def test_inline_check_tasks_are_well_formed(seeded):
+def test_classify_activities_are_well_formed(seeded):
+    for task in LessonTask.objects.filter(lesson__module=seeded, kind="CLASSIFY"):
+        p = task.payload
+        cats = {c["id"] for c in p["categories"]}
+        assert len(cats) >= 2 and len(p["events"]) >= 3, f"{task.task_key} too thin"
+        for e in p["events"]:
+            assert e["category"] in cats and e.get("text") and e.get("why")
+        assert {e["category"] for e in p["events"]} == cats, f"{task.task_key} has a dead category"
+
+
+@pytest.mark.django_db
+def test_respond_activities_are_well_formed(seeded):
+    for task in LessonTask.objects.filter(lesson__module=seeded, kind="RESPOND"):
+        p = task.payload
+        assert p.get("prompt"), f"{task.task_key} needs a prompt"
+        assert len(p["situations"]) >= 2, f"{task.task_key} needs several situations"
+        for s in p["situations"]:
+            assert s.get("id") and s.get("text"), f"{task.task_key} situation needs id and text"
+            assert len(s["options"]) >= 2, f"{task.task_key}/{s['id']} needs choices"
+            goods = [o for o in s["options"] if o["outcome"] == "good"]
+            assert len(goods) == 1, f"{task.task_key}/{s['id']} needs exactly one sound response"
+            for o in s["options"]:
+                assert o.get("text") and o.get("feedback"), f"{task.task_key}/{s['id']} option needs text + feedback"
+                assert o["outcome"] in ("good", "risky", "bad")
+
+
+@pytest.mark.django_db
+def test_apply_it_check_tasks_are_well_formed(seeded):
     checks = LessonTask.objects.filter(lesson__module=seeded, kind="CHECK")
-    assert checks.count() >= 6, "expected checks woven across the lessons"
+    assert checks.count() >= 3, "expected a few apply-it checks across the lessons"
     for task in checks:
         opts = task.payload.get("options", [])
         assert len(opts) == 4, f"{task.task_key} should have four options"

@@ -705,6 +705,74 @@
     update();
   };
 
+  // ------------------------------------------------------------ RESPOND ----
+  // Apply-it: several realistic situations, each with a few possible responses.
+  // Pick the soundest action and see the consequence; a poor pick shows what
+  // would happen and lets you try again. Solved when every situation is handled
+  // on its sound response. The "do the right thing" workhorse.
+  CONTROLLERS.RESPOND = function (root, cfg) {
+    if (cfg.prompt) root.appendChild(el("p", "cy-act__prompt", cfg.prompt));
+    var total = cfg.situations.length;
+    var done = 0;
+
+    var counter = el("p", "cy-respond__count");
+    counter.setAttribute("aria-live", "polite");
+    var feedback = el("p", "cy-act__feedback");
+    feedback.setAttribute("aria-live", "polite");
+
+    var list = el("div", "cy-respond");
+    cfg.situations.forEach(function (sit) {
+      var card = el("div", "cy-respond__sit");
+      card.appendChild(el("p", "cy-respond__text", sit.text));
+
+      var opts = el("div", "cy-respond__opts");
+      var why = el("p", "cy-respond__why");
+      var settled = false;
+
+      sit.options.forEach(function (opt) {
+        var b = el("button", "cy-respond__opt", opt.text);
+        b.type = "button";
+        b.addEventListener("click", function () {
+          if (settled) return;
+          if (opt.outcome === "good") {
+            settled = true;
+            card.classList.add("is-good");
+            b.classList.add("is-right");
+            why.className = "cy-respond__why is-good";
+            why.textContent = opt.feedback;
+            Array.prototype.forEach.call(opts.children, function (o) { o.disabled = true; });
+            done += 1;
+            update();
+            if (done === total) {
+              feedback.className = "cy-act__feedback is-good";
+              feedback.textContent = "Every situation handled well. That is the judgement that keeps a workplace safe.";
+              solved(root);
+            }
+          } else {
+            b.classList.add(opt.outcome === "risky" ? "is-risky" : "is-wrong");
+            b.disabled = true;
+            card.classList.add("is-shake");
+            window.setTimeout(function () { card.classList.remove("is-shake"); }, 400);
+            why.className = "cy-respond__why is-bad";
+            why.textContent = opt.feedback;
+          }
+        });
+        opts.appendChild(b);
+      });
+
+      card.appendChild(opts);
+      card.appendChild(why);
+      list.appendChild(card);
+    });
+
+    root.appendChild(counter);
+    root.appendChild(list);
+    root.appendChild(feedback);
+
+    function update() { counter.textContent = done + " of " + total + " handled"; }
+    update();
+  };
+
   // A kind with no controller yet (or a broken config) must never trap the
   // learner: show a gentle note and let them continue.
   function fallback(c) {

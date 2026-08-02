@@ -249,6 +249,7 @@ class LessonTask(models.Model):
         HARDEN = "HARDEN", "Secure a workspace"
         NETMAP = "NETMAP", "Find network weaknesses"
         SEQUENCE = "SEQUENCE", "Order the steps"
+        RESPOND = "RESPOND", "Respond to situations"
 
     lesson = models.ForeignKey(
         Lesson, on_delete=models.CASCADE, related_name="tasks"
