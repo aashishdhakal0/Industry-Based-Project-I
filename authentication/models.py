@@ -97,11 +97,46 @@ class User(AbstractUser):
     # deviations table in CLAUDE.md.
 
 
+class Organisation(models.Model):
+    """A workplace a cohort of learners belongs to (a council, school, business).
+
+    The canonical record an administrator manages. `UserProfile.organisation`
+    (free text) is kept as a synced mirror of `name` so the existing rollup,
+    search, CSV export and templates keep working unchanged; the FK is the source
+    of truth for management (create, assign, click-into-detail).
+    """
+
+    name = models.CharField(max_length=255, unique=True)
+    sector = models.CharField(
+        max_length=120, blank=True,
+        help_text="e.g. Local council, School, Small business, Not-for-profit.",
+    )
+    contact_email = models.EmailField(blank=True)
+    notes = models.CharField(max_length=500, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = "organisations"
+        ordering = ["name"]
+
+    def __str__(self):
+        return self.name
+
+
 class UserProfile(models.Model):
     """Extended profile and gamification state for a User."""
 
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
     organisation = models.CharField(max_length=255, blank=True)
+    org = models.ForeignKey(
+        Organisation,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="members",
+        help_text="Canonical organisation link. The `organisation` text field "
+        "mirrors this record's name.",
+    )
     avatar = models.ImageField(upload_to="avatars/", blank=True, null=True)
     last_active = models.DateTimeField(null=True, blank=True)
     streak_count = models.PositiveIntegerField(default=0)
@@ -111,6 +146,12 @@ class UserProfile(models.Model):
     badges = models.JSONField(
         default=list, blank=True, help_text="List of earned badge identifiers."
     )
+    flagged = models.BooleanField(
+        default=False,
+        help_text="Marked by an administrator as needing attention "
+        "(e.g. the learner has fallen behind).",
+    )
+    flag_reason = models.CharField(max_length=255, blank=True)
 
     class Meta:
         db_table = "user_profiles"

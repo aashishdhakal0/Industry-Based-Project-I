@@ -1,0 +1,35 @@
+{% extends "staff/base.html" %}
+
+{% block title %}Add a user — {{ site_name }}{% endblock %}
+
+{% block console %}
+<a class="cy-c-back" href="{% url 'staff:learners' %}">
+  <svg class="cy-i" aria-hidden="true"><use href="#i-chevron-left"/></svg> Back to learners
+</a>
+
+<header class="cy-c-head">
+  <div>
+    <p class="cy-c-head__eyebrow">Administrator</p>
+    <h1 class="cy-c-head__title">Add a user</h1>
+    <p class="cy-c-head__sub">Create an account and assign its role. They can sign in straight away.</p>
+  </div>
+</header>
+
+<div class="cy-c-section cy-c-formcard">
+  {% if form.non_field_errors %}
+    <div class="cy-errors" role="alert">{% for error in form.non_field_errors %}<p class="mb-0">{{ error }}</p>{% endfor %}</div>
+  {% endif %}
+  <form method="post" novalidate class="cy-c-form">
+    {% csrf_token %}
+    {% for field in form %}
+      <div class="cy-c-field">
+        <label class="cy-c-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+        {{ field }}
+        {% if field.help_text %}<span class="cy-c-help">{{ field.help_text }}</span>{% endif %}
+        {% for error in field.errors %}<span class="cy-c-error">{{ error }}</span>{% endfor %}
+      </div>
+    {% endfor %}
+    <button type="submit" class="cy-btn cy-btn--primary cy-btn--block">Create user</button>
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,44 @@
+{% extends "authentication/_auth_base.html" %}
+
+{% block title %}Sign in — {{ site_name }}{% endblock %}
+
+{% block auth_content %}
+{% comment %}
+  The role chooser: the primary way in. Two prominent buttons, institutional
+  style (cf. a university "sign in" page). Choosing a role only frames the form
+  you land on — it never grants a role. Authentication is the same secure
+  email + password + 2FA flow underneath; the role you end up with is read from
+  your account, not from the button you pressed.
+{% endcomment %}
+<div class="cy-card cy-auth-single cy-rise">
+  <a class="cy-wordmark cy-auth-wordmark" href="{% url 'landing' %}">
+    <span class="cy-mark" aria-hidden="true"></span>
+    {{ site_name }}
+  </a>
+
+  <h1>Sign in to {{ site_name }}</h1>
+  <p class="cy-lede">Choose how you're signing in.</p>
+
+  <div class="cy-rolepick">
+    {% for key, frame in frames.items %}
+      <a class="cy-rolepick__btn cy-rolepick__btn--{{ frame.accent }}"
+         href="{% url 'authentication:login' %}?as={{ key }}{% if next %}&next={{ next|urlencode }}{% endif %}">
+        <span class="cy-rolepick__icon" aria-hidden="true">
+          <svg class="cy-i"><use href="#{{ frame.icon }}"/></svg>
+        </span>
+        <span class="cy-rolepick__text">
+          <span class="cy-rolepick__title">Log in as {% if key == 'admin' %}Administrator{% else %}Student{% endif %}</span>
+          <span class="cy-rolepick__sub">{{ frame.lede }}</span>
+        </span>
+        <span class="cy-rolepick__go" aria-hidden="true">
+          <svg class="cy-i"><use href="#i-arrow-right"/></svg>
+        </span>
+      </a>
+    {% endfor %}
+  </div>
+
+  <p class="cy-meta">
+    New here? <a href="{% url 'authentication:register' %}">Create an account</a>
+  </p>
+</div>
+{% endblock %}

@@ -1,0 +1,21 @@
+{% extends "app_base.html" %}
+{% load static %}
+
+{% comment %}
+  The Administrator console shell. Every /manage/ page extends this. It wraps the
+  content in .cy-console and loads admin.js. The calm dark theme is scoped by the
+  .cy-app--console class (added by app_base when the view passes console=True), so
+  the student-facing app is untouched. admin.js adds inline confirmation to
+  important actions and auto-dismisses the success toasts — both degrade
+  gracefully to plain form posts if JS is off.
+{% endcomment %}
+
+{% block content %}
+<div class="cy-console">
+  {% block console %}{% endblock %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+  <script src="{% static 'js/admin.js' %}?v=1" defer></script>
+{% endblock %}

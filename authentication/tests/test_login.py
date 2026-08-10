@@ -140,18 +140,20 @@ def test_login_does_not_leak_the_password_back_into_the_page(client, student):
 
 
 @pytest.mark.django_db
-def test_administrator_lands_in_the_admin(client):
+def test_administrator_lands_on_the_in_platform_dashboard(client):
+    """Administrators go to the Cybaroo Administrator dashboard, not Django's
+    raw /admin/ (which stays reachable directly for data management)."""
     admin = User.objects.create_superuser(email="admin@example.com", password=PASSWORD)
 
     from authentication.utils import role_home_url
 
-    assert role_home_url(admin) == reverse("admin:index")
+    assert role_home_url(admin) == reverse("staff:overview")
 
 
 @pytest.mark.django_db
-def test_administrator_without_staff_does_not_land_in_a_dead_end(db):
-    """An ADMINISTRATOR without is_staff would be turned away by the admin's
-    own login. Send them somewhere that works instead."""
+def test_administrator_without_staff_also_lands_on_the_dashboard(db):
+    """The in-platform dashboard is role-gated, not is_staff-gated, so an
+    ADMINISTRATOR without is_staff reaches it just the same (no dead end)."""
     from authentication.utils import role_home_url
 
     user = User.objects.create_user(
@@ -161,7 +163,7 @@ def test_administrator_without_staff_does_not_land_in_a_dead_end(db):
         is_staff=False,
     )
 
-    assert role_home_url(user) == reverse("dashboard")
+    assert role_home_url(user) == reverse("staff:overview")
 
 
 def finish_with_code(client):

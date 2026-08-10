@@ -23,7 +23,7 @@
   content owns the screen (TryHackMe-room style). Every other page keeps the
   normal sidebar shell.
 {% endcomment %}
-<div class="cy-app {% if focus %}cy-app--focus{% endif %}">
+<div class="cy-app {% if focus %}cy-app--focus{% endif %}{% if console %} cy-app--console{% endif %}">
 
   {% if focus %}
     {# Focused mode: one slim bar, a clear way back, and the content in the middle. #}
@@ -46,7 +46,7 @@
         <svg class="cy-i cy-i--menu" aria-hidden="true"><use href="#i-menu"/></svg>
         <svg class="cy-i cy-i--close" aria-hidden="true"><use href="#i-close"/></svg>
       </button>
-      <a class="cy-wordmark" href="{% url 'dashboard' %}">
+      <a class="cy-wordmark" href="{% if user.is_administrator %}{% url 'staff:overview' %}{% else %}{% url 'dashboard' %}{% endif %}">
         <span class="cy-mark" aria-hidden="true"></span>
         {{ site_name }}
       </a>
@@ -56,27 +56,50 @@
     <div class="cy-side-backdrop" id="cy-side-backdrop" hidden></div>
 
     <aside class="cy-side" id="cy-side" aria-label="Sections">
-      <a class="cy-side__brand" href="{% url 'dashboard' %}">
+      <a class="cy-side__brand" href="{% if user.is_administrator %}{% url 'staff:overview' %}{% else %}{% url 'dashboard' %}{% endif %}">
         <span class="cy-mark" aria-hidden="true"></span>
         {{ site_name }}
       </a>
 
       <nav class="cy-side__nav">
-        <a class="cy-side__item {% if active == 'dashboard' %}is-active{% endif %}" href="{% url 'dashboard' %}">
-          <svg class="cy-i" aria-hidden="true"><use href="#i-grid"/></svg> Dashboard
-        </a>
-        <a class="cy-side__item {% if active == 'modules' %}is-active{% endif %}" href="{% url 'learn:browser' %}">
-          <svg class="cy-i" aria-hidden="true"><use href="#i-layers"/></svg> Modules
-        </a>
-        <a class="cy-side__item {% if active == 'progress' %}is-active{% endif %}" href="{% url 'learn:progress' %}">
-          <svg class="cy-i" aria-hidden="true"><use href="#i-chart"/></svg> My progress
-        </a>
-        <a class="cy-side__item {% if active == 'badges' %}is-active{% endif %}" href="{% url 'learn:badges' %}">
-          <svg class="cy-i" aria-hidden="true"><use href="#i-star"/></svg> Badges
-        </a>
-        <a class="cy-side__item {% if active == 'certificate' %}is-active{% endif %}" href="{% url 'learn:certificate' %}">
-          <svg class="cy-i" aria-hidden="true"><use href="#i-award"/></svg> Certificate
-        </a>
+        {% if user.is_administrator %}
+          {% comment %}Administrator: the staff oversight surface. Django's raw
+             /admin/ stays linked below for data management.{% endcomment %}
+          <a class="cy-side__item {% if active == 'admin_overview' %}is-active{% endif %}" href="{% url 'staff:overview' %}">
+            <svg class="cy-i" aria-hidden="true"><use href="#i-grid"/></svg> Overview
+          </a>
+          <a class="cy-side__item {% if active == 'admin_learners' %}is-active{% endif %}" href="{% url 'staff:learners' %}">
+            <svg class="cy-i" aria-hidden="true"><use href="#i-chart"/></svg> Learners
+          </a>
+          <a class="cy-side__item {% if active == 'admin_orgs' %}is-active{% endif %}" href="{% url 'staff:organisations' %}">
+            <svg class="cy-i" aria-hidden="true"><use href="#i-target"/></svg> Organisations
+          </a>
+          <a class="cy-side__item {% if active == 'admin_content' %}is-active{% endif %}" href="{% url 'staff:content' %}">
+            <svg class="cy-i" aria-hidden="true"><use href="#i-book"/></svg> Content
+          </a>
+          <a class="cy-side__item {% if active == 'admin_activity' %}is-active{% endif %}" href="{% url 'staff:activity' %}">
+            <svg class="cy-i" aria-hidden="true"><use href="#i-clock"/></svg> Activity
+          </a>
+          <a class="cy-side__item" href="{% url 'admin:index' %}">
+            <svg class="cy-i" aria-hidden="true"><use href="#i-layers"/></svg> Django admin
+          </a>
+        {% else %}
+          <a class="cy-side__item {% if active == 'dashboard' %}is-active{% endif %}" href="{% url 'dashboard' %}">
+            <svg class="cy-i" aria-hidden="true"><use href="#i-grid"/></svg> Dashboard
+          </a>
+          <a class="cy-side__item {% if active == 'modules' %}is-active{% endif %}" href="{% url 'learn:browser' %}">
+            <svg class="cy-i" aria-hidden="true"><use href="#i-layers"/></svg> Modules
+          </a>
+          <a class="cy-side__item {% if active == 'progress' %}is-active{% endif %}" href="{% url 'learn:progress' %}">
+            <svg class="cy-i" aria-hidden="true"><use href="#i-chart"/></svg> My progress
+          </a>
+          <a class="cy-side__item {% if active == 'badges' %}is-active{% endif %}" href="{% url 'learn:badges' %}">
+            <svg class="cy-i" aria-hidden="true"><use href="#i-star"/></svg> Badges
+          </a>
+          <a class="cy-side__item {% if active == 'certificate' %}is-active{% endif %}" href="{% url 'learn:certificate' %}">
+            <svg class="cy-i" aria-hidden="true"><use href="#i-award"/></svg> Certificate
+          </a>
+        {% endif %}
       </nav>
 
       <div class="cy-side__foot">
@@ -88,9 +111,11 @@
   <div class="cy-app__body">
     <main id="main" class="cy-app__main">
       {% if messages %}
-        {% for message in messages %}
-          <div class="alert alert-{{ message.tags|default:'info' }}" role="status">{{ message }}</div>
-        {% endfor %}
+        <div class="cy-toasts">
+          {% for message in messages %}
+            <div class="alert alert-{{ message.tags|default:'info' }} cy-toast" role="status" data-toast>{{ message }}</div>
+          {% endfor %}
+        </div>
       {% endif %}
       {% block content %}{% endblock %}
     </main>

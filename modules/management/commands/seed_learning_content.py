@@ -282,7 +282,7 @@ def _seed_lesson_tasks(lesson, tasks):
     lesson.tasks.exclude(task_key__in=seen).delete()
 
 
-def _seed_module_quiz(module, content, lessons_by_number):
+def _seed_module_quiz(module, content, lessons_by_number, force=False):
     """Seed a module's real quiz and its question bank, idempotently.
 
     Questions key on (quiz, ordering) and options on (question, option_text). When
@@ -290,6 +290,10 @@ def _seed_module_quiz(module, content, lessons_by_number):
     questions beyond the current bank are removed, so re-running mirrors the
     content exactly rather than leaving a question with two "correct" options.
     Every option carries an explanation, the Adaptive Feedback Engine's fuel.
+
+    A question an admin has edited in the console (admin_edited=True) is left
+    exactly as they left it — question row AND its answers — unless the seed is
+    run with --force. This is how a reseed can't silently wipe an admin's edit.
     """
     quiz_data = content.QUIZ
     quiz, _ = Quiz.objects.update_or_create(
@@ -301,7 +305,7 @@ def _seed_module_quiz(module, content, lessons_by_number):
         },
     )
     for ordering, q in enumerate(quiz_data["questions"], start=1):
-        question, _ = Question.objects.update_or_create(
+        question, created = Question.objects.get_or_create(
             quiz=quiz,
             ordering=ordering,
             defaults={
@@ -310,6 +314,16 @@ def _seed_module_quiz(module, content, lessons_by_number):
                 "lesson_reference": lessons_by_number[q["lesson"]],
             },
         )
+        # Admin-locked question: leave it and its answers untouched.
+        if not created and question.admin_edited and not force:
+            continue
+        if not created:
+            question.question_text = q["text"]
+            question.difficulty = q["difficulty"]
+            question.lesson_reference = lessons_by_number[q["lesson"]]
+            if force:
+                question.admin_edited = False
+            question.save()
         current_texts = []
         for option_text, is_correct, explanation in q["options"]:
             Answer.objects.update_or_create(
@@ -331,8 +345,19 @@ def _seed_module_quiz(module, content, lessons_by_number):
 class Command(BaseCommand):
     help = "Create/refresh the six training modules, their lessons and simulations."
 
+    def add_arguments(self, parser):
+        parser.add_argument(
+            "--force",
+            action="store_true",
+            help="Overwrite content even where an admin has edited it in the "
+            "console (admin_edited=True), and clear that flag. Use this to reset "
+            "content back to the authored source in modules/content/. Without it, "
+            "admin-edited modules, lessons and questions are left untouched.",
+        )
+
     @transaction.atomic
     def handle(self, *args, **options):
+        force = options["force"]
         author = (
             User.objects.filter(is_superuser=True).order_by("pk").first()
             or User.objects.order_by("pk").first()
@@ -344,7 +369,7 @@ class Command(BaseCommand):
             )
 
         for index, (title, desc, difficulty, lesson_titles) in enumerate(MODULES, start=1):
-            module, _ = Module.objects.update_or_create(
+            module, created = Module.objects.get_or_create(
                 order_index=index,
                 defaults={
                     "title": title,
@@ -355,6 +380,18 @@ class Command(BaseCommand):
                     "duration_minutes": 40,
                 },
             )
+            # Refresh content on an existing module unless an admin has edited it
+            # in the console. Publish state (is_published) is deliberately set
+            # only on create, so an admin's publish/unpublish also survives a
+            # reseed.
+            if not created and (force or not module.admin_edited):
+                module.title = title
+                module.description = desc
+                module.difficulty = difficulty
+                module.duration_minutes = 40
+                if force:
+                    module.admin_edited = False
+                module.save()
 
             # Registered modules ship with real, finished lesson content; the
             # rest carry the rich placeholder until their turn.
@@ -379,9 +416,21 @@ class Command(BaseCommand):
                         "reading_time_minutes": 8,
                         "is_active": True,
                     }
-                lesson, _ = Lesson.objects.update_or_create(
+                lesson, lesson_created = Lesson.objects.get_or_create(
                     module=module, lesson_number=n, defaults=lesson_defaults
                 )
+                # Refresh an existing lesson's content unless an admin edited it.
+                # is_active is set only on create, so a lesson-level publish/
+                # unpublish also survives a reseed.
+                if not lesson_created and (force or not lesson.admin_edited):
+                    lesson.title = lesson_defaults["title"]
+                    lesson.body_text = lesson_defaults["body_text"]
+                    lesson.reading_time_minutes = lesson_defaults["reading_time_minutes"]
+                    if force:
+                        lesson.admin_edited = False
+                    lesson.save()
+                # Interactive tasks are code-authored (not editable in the
+                # console), so they always mirror the content file.
                 if real_lessons:
                     _seed_lesson_tasks(lesson, spec["tasks"])
                 lessons_by_number[n] = lesson
@@ -397,7 +446,7 @@ class Command(BaseCommand):
             )
 
             if content:
-                quiz = _seed_module_quiz(module, content, lessons_by_number)
+                quiz = _seed_module_quiz(module, content, lessons_by_number, force=force)
                 self.stdout.write(
                     f"  module {index}: {title}  (4 lessons, 1 simulation, "
                     f"quiz with {quiz.questions.count()} questions)"

@@ -1,0 +1,150 @@
+{% extends "staff/base.html" %}
+
+{% block title %}{{ learner.get_full_name|default:learner.email }} — {{ site_name }}{% endblock %}
+
+{% block console %}
+<a class="cy-c-back" href="{{ back_url }}">
+  <svg class="cy-i" aria-hidden="true"><use href="#i-chevron-left"/></svg> Back to learners
+</a>
+
+<header class="cy-c-detailhead">
+  <div>
+    <h1 class="cy-c-detailhead__name">{{ learner.get_full_name|default:learner.email }}</h1>
+    <p class="cy-c-detailhead__email">{{ learner.email }}{% if profile.organisation %} · {{ profile.organisation }}{% endif %}</p>
+    <div class="cy-c-tags">
+      <span class="cy-tierbadge cy-tierbadge--{{ overall_tier.slug }}">{{ overall_tier.name }}{% if overall_score is not None %} · {{ overall_score }}%{% endif %}</span>
+      <span class="cy-pill">{{ learner.get_role_display }}</span>
+      {% if learner.is_active %}<span class="cy-pill cy-pill--ok">Active</span>{% else %}<span class="cy-pill cy-pill--off">Deactivated</span>{% endif %}
+      {% if learner.is_verified %}<span class="cy-pill cy-pill--ok">Verified</span>{% else %}<span class="cy-pill cy-pill--warn">Unverified</span>{% endif %}
+      {% if profile.flagged %}<span class="cy-pill cy-pill--warn">Flagged{% if profile.flag_reason %}: {{ profile.flag_reason }}{% endif %}</span>{% endif %}
+    </div>
+  </div>
+  <div class="cy-c-mini">
+    <div><span class="cy-c-mini__v">{{ level.level }}</span><span class="cy-c-mini__l">Level</span></div>
+    <div><span class="cy-c-mini__v">{{ profile.points }}</span><span class="cy-c-mini__l">Points</span></div>
+    <div><span class="cy-c-mini__v">{{ streak.display }}</span><span class="cy-c-mini__l">Streak</span></div>
+    <div><span class="cy-c-mini__v">{{ badges_earned }}/{{ badges_total }}</span><span class="cy-c-mini__l">Badges</span></div>
+  </div>
+</header>
+
+<div class="cy-c-detail">
+  <div class="cy-c-detail__main">
+    <section class="cy-c-section">
+      <div class="cy-c-section__head"><h2 class="cy-c-section__title">Progress by module</h2></div>
+      <div class="cy-c-tablewrap">
+        <table class="cy-c-table">
+          <thead><tr><th>Module</th><th>Lessons</th><th>Best quiz</th><th>Grade</th></tr></thead>
+          <tbody>
+            {% for m in modules %}
+              <tr>
+                <td><span class="cy-c-learner__name">{{ m.module.title }}</span>{% if m.complete %} <span class="cy-pill cy-pill--ok">Complete</span>{% endif %}</td>
+                <td><span class="cy-c-mod"><span class="cy-c-mod__count">{{ m.done_lessons }}/{{ m.total_lessons }}</span><span class="cy-c-bar__track cy-c-mod__track"><span class="cy-c-bar__fill" style="width: {{ m.percent }}%;"></span></span></span></td>
+                <td>{% if m.best_score is not None %}{{ m.best_score }}%{% else %}<span class="cy-c-muted">—</span>{% endif %}</td>
+                <td><span class="cy-tierbadge cy-tierbadge--{{ m.tier.slug }}">{{ m.tier.name }}</span></td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="cy-c-section">
+      <div class="cy-c-section__head"><h2 class="cy-c-section__title">Quiz attempts</h2><span class="cy-c-section__note">{{ attempts|length }} total</span></div>
+      {% if attempts %}
+        <ul class="cy-c-list">
+          {% for a in attempts %}
+            <li class="cy-c-attempt">
+              <span class="cy-c-attempt__mod">{{ a.quiz.module.title }}</span>
+              <span class="cy-c-attempt__score">{{ a.score }}%</span>
+              <span class="cy-pill {% if a.passed %}cy-pill--ok{% else %}cy-pill--warn{% endif %}">{% if a.passed %}Passed{% else %}Not yet{% endif %}</span>
+              <span class="cy-c-muted">{{ a.submitted_at|date:"j M Y" }}</span>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}<p class="cy-c-muted">No quiz attempts yet.</p>{% endif %}
+    </section>
+
+    <section class="cy-c-section">
+      <div class="cy-c-section__head"><h2 class="cy-c-section__title">Badges</h2></div>
+      <ul class="cy-c-badges">
+        {% for b in badges %}
+          <li class="cy-c-badge {% if b.earned %}is-earned{% endif %}" title="{{ b.badge.description }}">{{ b.badge.name }}</li>
+        {% endfor %}
+      </ul>
+    </section>
+
+    <section class="cy-c-section">
+      <div class="cy-c-section__head"><h2 class="cy-c-section__title">Activity timeline</h2></div>
+      {% if timeline %}
+        <ul class="cy-c-feed">
+          {% for e in timeline %}
+            <li class="cy-c-feed__row">
+              <span class="cy-c-feed__what">{{ e.label }} <span class="cy-c-muted">· {{ e.detail }}</span></span>
+              <span class="cy-c-feed__meta">{{ e.when|date:"j M, H:i" }}</span>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}<p class="cy-c-muted">Nothing here yet.</p>{% endif %}
+    </section>
+  </div>
+
+  <aside class="cy-c-detail__side">
+    <div class="cy-c-section cy-c-actions">
+      <h2 class="cy-c-section__title">Manage account</h2>
+
+      <form class="cy-c-actions__group" method="post" action="{% url 'staff:change_role' learner.pk %}"
+            data-confirm="Change this learner's role?">
+        {% csrf_token %}
+        <label class="cy-c-label" for="role-select">Role</label>
+        <div class="cy-c-actions__inline">
+          <select class="cy-c-input" id="role-select" name="role">
+            {% for value, label in roles %}<option value="{{ value }}" {% if learner.role == value %}selected{% endif %}>{{ label }}</option>{% endfor %}
+          </select>
+          <button type="submit" class="cy-btn cy-btn--ghost cy-btn--sm">Update</button>
+        </div>
+      </form>
+
+      <div class="cy-c-actions__group">
+        <form method="post" action="{% url 'staff:toggle_active' learner.pk %}"
+              {% if learner.is_active %}data-confirm="Deactivate this account? They won't be able to sign in." data-confirm-yes="Deactivate"{% endif %}>
+          {% csrf_token %}
+          {% if learner.is_active %}
+            <button type="submit" class="cy-btn cy-btn--danger cy-btn--block cy-btn--sm">Deactivate account</button>
+          {% else %}
+            <button type="submit" class="cy-btn cy-btn--primary cy-btn--block cy-btn--sm">Reactivate account</button>
+          {% endif %}
+        </form>
+      </div>
+
+      <div class="cy-c-actions__group">
+        <form method="post" action="{% url 'staff:resend_verification' learner.pk %}">{% csrf_token %}<button type="submit" class="cy-btn cy-btn--ghost cy-btn--block cy-btn--sm">Resend verification</button></form>
+        <form method="post" action="{% url 'staff:nudge' learner.pk %}">{% csrf_token %}<button type="submit" class="cy-btn cy-btn--ghost cy-btn--block cy-btn--sm">Send a nudge</button></form>
+      </div>
+
+      <form class="cy-c-actions__group" method="post" action="{% url 'staff:toggle_flag' learner.pk %}">
+        {% csrf_token %}
+        {% if profile.flagged %}
+          <button type="submit" class="cy-btn cy-btn--ghost cy-btn--block cy-btn--sm">Clear flag</button>
+        {% else %}
+          <input class="cy-c-input" type="text" name="reason" placeholder="Reason (optional)" maxlength="255">
+          <button type="submit" class="cy-btn cy-btn--ghost cy-btn--block cy-btn--sm">Flag as behind</button>
+        {% endif %}
+      </form>
+    </div>
+
+    {% if actions %}
+      <div class="cy-c-section">
+        <div class="cy-c-section__head"><h2 class="cy-c-section__title">History</h2></div>
+        <ul class="cy-c-feed">
+          {% for a in actions %}
+            <li class="cy-c-feed__row">
+              <span class="cy-c-feed__what">{{ a.summary }}</span>
+              <span class="cy-c-feed__meta">{% if a.actor %}{{ a.actor.get_full_name|default:a.actor.email }}{% else %}(removed){% endif %} · {{ a.created_at|date:"j M, H:i" }}</span>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+    {% endif %}
+  </aside>
+</div>
+{% endblock %}

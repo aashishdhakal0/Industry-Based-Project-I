@@ -1,0 +1,41 @@
+{% extends "staff/base.html" %}
+
+{% block title %}Content — {{ site_name }}{% endblock %}
+
+{% block console %}
+<header class="cy-c-head">
+  <div>
+    <p class="cy-c-head__eyebrow">Administrator</p>
+    <h1 class="cy-c-head__title">Content</h1>
+    <p class="cy-c-head__sub">The six modules and their status. Open a module to edit it, or unpublish to hide it from learners without deleting anything.</p>
+  </div>
+</header>
+
+<div class="cy-c-tablewrap">
+  <table class="cy-c-table">
+    <thead><tr><th>Module</th><th>Lessons</th><th>Quiz</th><th>Status</th><th class="cy-c-num">Action</th></tr></thead>
+    <tbody>
+      {% for m in modules %}
+        <tr class="{% if not m.is_published %}is-muted{% endif %}">
+          <td><a class="cy-c-learner" href="{% url 'staff:module_detail' m.order_index %}"><span class="cy-c-learner__name">{{ m.order_index }}. {{ m.title }}</span></a></td>
+          <td>{{ m.active_lessons }}{% if m.active_lessons != m.total_lessons %} <span class="cy-c-muted">of {{ m.total_lessons }}</span>{% endif %}</td>
+          <td>{% if m.has_quiz %}<span class="cy-pill cy-pill--ok">Yes</span>{% else %}<span class="cy-c-muted">—</span>{% endif %}</td>
+          <td>{% if m.is_published %}<span class="cy-pill cy-pill--ok">Published</span>{% else %}<span class="cy-pill cy-pill--off">Unpublished</span>{% endif %}{% if m.admin_edited %} <span class="cy-pill cy-pill--warn">Edited</span>{% endif %}</td>
+          <td class="cy-c-num">
+            <div class="cy-c-rowactions">
+              <a class="cy-btn cy-btn--ghost cy-btn--sm" href="{% url 'staff:module_detail' m.order_index %}">Open</a>
+              <form method="post" action="{% url 'staff:content_publish' m.order_index %}"
+                    {% if m.is_published %}data-confirm="Unpublish “{{ m.title }}”? Learners won't see it." data-confirm-yes="Unpublish"{% endif %}>
+                {% csrf_token %}
+                <button type="submit" class="cy-btn cy-btn--ghost cy-btn--sm">{% if m.is_published %}Unpublish{% else %}Publish{% endif %}</button>
+              </form>
+            </div>
+          </td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="5" class="cy-c-table__empty">No modules yet.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

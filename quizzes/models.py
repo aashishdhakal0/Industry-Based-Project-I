@@ -52,6 +52,11 @@ class Question(models.Model):
         related_name="questions",
         help_text="The lesson that teaches this question's topic.",
     )
+    admin_edited = models.BooleanField(
+        default=False,
+        help_text="An admin has edited this question (or its answers) in the "
+        "console. The seed leaves such rows alone (unless run with --force).",
+    )
 
     class Meta:
         db_table = "questions"

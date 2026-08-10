@@ -1,0 +1,83 @@
+{% extends "staff/base.html" %}
+
+{% block title %}Edit {{ lesson.title }} — {{ site_name }}{% endblock %}
+
+{% block console %}
+<a class="cy-c-back" href="{% url 'staff:module_detail' module.order_index %}">
+  <svg class="cy-i" aria-hidden="true"><use href="#i-chevron-left"/></svg> Back to {{ module.title }}
+</a>
+
+<header class="cy-c-detailhead">
+  <div>
+    <p class="cy-c-head__eyebrow">{{ module.title }} · Lesson {{ lesson.lesson_number }}</p>
+    <h1 class="cy-c-detailhead__name">{{ lesson.title }}</h1>
+    <div class="cy-c-tags">
+      {% if lesson.is_active %}<span class="cy-pill cy-pill--ok">Active</span>{% else %}<span class="cy-pill cy-pill--off">Hidden</span>{% endif %}
+      {% if lesson.admin_edited %}<span class="cy-pill cy-pill--warn">Edited in console</span>{% endif %}
+    </div>
+  </div>
+</header>
+
+<p class="cy-c-note">Saving marks this lesson as edited in the console. A routine reseed will leave it untouched; only a deliberate <code>seed_learning_content --force</code> resets it to the authored source.</p>
+
+<div class="cy-c-detail">
+  <div class="cy-c-detail__main">
+    <section class="cy-c-section">
+      <div class="cy-c-section__head"><h2 class="cy-c-section__title">Lesson content</h2></div>
+      <form method="post" class="cy-c-form">
+        {% csrf_token %}
+        {% if form.non_field_errors %}<div class="cy-errors" role="alert">{{ form.non_field_errors }}</div>{% endif %}
+        {% for field in form %}
+          <div class="cy-c-field">
+            <label class="cy-c-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+            {% if field.name == "body_text" %}<span class="cy-c-help">HTML. Only safe tags survive (headings, paragraphs, lists, links, images, tables). Scripts and event handlers are stripped automatically on save. On task-based lessons this is the short intro; the interactive panels live in the tasks below.</span>{% endif %}
+            {% if field.help_text %}<span class="cy-c-help">{{ field.help_text }}</span>{% endif %}
+            {% for error in field.errors %}<span class="cy-c-error">{{ error }}</span>{% endfor %}
+          </div>
+        {% endfor %}
+        <button type="submit" class="cy-btn cy-btn--primary">Save lesson</button>
+      </form>
+    </section>
+
+    <section class="cy-c-section">
+      <div class="cy-c-section__head">
+        <h2 class="cy-c-section__title">Interactive tasks</h2>
+        <span class="cy-c-section__note">read-only</span>
+      </div>
+      {% if tasks %}
+        <ul class="cy-c-list">
+          {% for t in tasks %}
+            <li class="cy-c-attempt">
+              <span class="cy-c-attempt__mod">{{ forloop.counter }}. {{ t.title|default:t.task_key }}</span>
+              <span class="cy-pill">{{ t.get_kind_display }}</span>
+              <span class="cy-c-muted">{{ t.points }} XP</span>
+            </li>
+          {% endfor %}
+        </ul>
+        <p class="cy-c-help">Task content and activity data are authored in code and seeded. Editing them is a future step.</p>
+      {% else %}
+        <p class="cy-c-muted">This lesson has no interactive tasks.</p>
+      {% endif %}
+    </section>
+  </div>
+
+  <aside class="cy-c-detail__side">
+    <div class="cy-c-section cy-c-actions">
+      <h2 class="cy-c-section__title">Visibility</h2>
+      <div class="cy-c-actions__group">
+        <form method="post" action="{% url 'staff:lesson_publish' lesson.pk %}"
+              {% if lesson.is_active %}data-confirm="Hide this lesson from learners?" data-confirm-yes="Unpublish"{% endif %}>
+          {% csrf_token %}
+          {% if lesson.is_active %}
+            <button type="submit" class="cy-btn cy-btn--danger cy-btn--block cy-btn--sm">Unpublish lesson</button>
+          {% else %}
+            <button type="submit" class="cy-btn cy-btn--primary cy-btn--block cy-btn--sm">Publish lesson</button>
+          {% endif %}
+        </form>
+        <p class="cy-c-help">Unpublishing hides the lesson from learners without deleting it or its records.</p>
+      </div>
+    </div>
+  </aside>
+</div>
+{% endblock %}

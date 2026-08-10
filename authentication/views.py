@@ -227,9 +227,46 @@ def _complete_login(request, user):
     return redirect(next_url or role_home_url(user))
 
 
+# The two doors on the login page. Choosing one only sets the heading on the
+# form you land on — it is cosmetic framing, NOT a role you get to grant
+# yourself. The role that actually decides where you land after signing in is
+# read from your account in role_home_url(), never from this. So "log in as
+# Administrator" and then typing a Student's credentials signs you in as that
+# Student, exactly as it should.
+LOGIN_FRAMES = {
+    "student": {
+        "title": "Student sign-in",
+        "lede": "Your lessons, quizzes and progress.",
+        "icon": "i-book",
+        "accent": "student",
+    },
+    "admin": {
+        "title": "Administrator sign-in",
+        "lede": "Manage the platform.",
+        "icon": "i-shield",
+        "accent": "admin",
+    },
+}
+
+
+def _requested_frame(request):
+    """The role framing asked for via ?as=, or None for the chooser.
+
+    Validated against the fixed keys, so an unknown or hand-typed value falls
+    back to the chooser rather than being trusted. Never influences auth.
+    """
+    key = request.POST.get("as") or request.GET.get("as")
+    return key if key in LOGIN_FRAMES else None
+
+
 @ratelimit(key="ip", rate="10/h", method="POST", block=False)
 def login_view(request):
-    """Email + password, then a code we email them.
+    """Role chooser, then email + password, then a code we email them.
+
+    The page leads with two institutional "Log in as Student / Administrator"
+    buttons (the primary way in). Each opens this same secure form, framed for
+    that role. Authentication is unchanged: password, then a code, then a
+    session — and the granted role comes from the account, not the button.
 
     Every account gets the code — see the deviations table in CLAUDE.md. The
     spec asks for an authenticator app; we deviate on the method, not on the
@@ -240,28 +277,43 @@ def login_view(request):
     bare. block=False so we can render a plain-language 429 rather than
     django-ratelimit's bare 403.
     """
-    if request.method == "POST" and getattr(request, "limited", False):
-        return render(request, "authentication/rate_limited.html", status=429)
+    frame_key = _requested_frame(request)
+    next_target = safe_redirect_target(request) or ""
 
     if request.method == "POST":
+        if getattr(request, "limited", False):
+            return render(request, "authentication/rate_limited.html", status=429)
+
         form = LoginForm(request, data=request.POST)
         if form.is_valid():
             user = form.get_user()
 
             code = make_login_code()
-            _start_pending(
-                request, user, safe_redirect_target(request), hash_login_code(code)
-            )
+            _start_pending(request, user, next_target, hash_login_code(code))
             _send_login_code(request, user, code)
 
             return redirect("authentication:login_code")
+        # Invalid: fall through and re-render the form, keeping its framing.
     else:
+        # A fresh GET with no role picked yet is the chooser — the two big
+        # role buttons that are the main way in.
+        if frame_key is None:
+            return render(
+                request,
+                "authentication/login_choose.html",
+                {"next": next_target, "frames": LOGIN_FRAMES},
+            )
         form = LoginForm(request)
 
     return render(
         request,
         "authentication/login.html",
-        {"form": form, "next": safe_redirect_target(request) or ""},
+        {
+            "form": form,
+            "next": next_target,
+            "frame": LOGIN_FRAMES.get(frame_key),
+            "frame_key": frame_key or "",
+        },
     )
 
 

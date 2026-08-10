@@ -1,0 +1,40 @@
+{% extends "staff/base.html" %}
+
+{% block title %}Organisations — {{ site_name }}{% endblock %}
+
+{% block console %}
+<header class="cy-c-head">
+  <div>
+    <p class="cy-c-head__eyebrow">Administrator</p>
+    <h1 class="cy-c-head__title">Organisations</h1>
+    <p class="cy-c-head__sub">{{ orgs|length }} organisation{{ orgs|length|pluralize }} · {{ total_learners }} learner{{ total_learners|pluralize }}</p>
+  </div>
+</header>
+
+<div class="cy-c-tablewrap">
+  <table class="cy-c-table">
+    <thead>
+      <tr><th>Organisation</th><th class="cy-c-num">Learners</th><th class="cy-c-num">Active</th><th>Completion</th><th class="cy-c-num">Avg score</th><th class="cy-c-num">Attention</th></tr>
+    </thead>
+    <tbody>
+      {% for o in orgs %}
+        <tr>
+          <td><a class="cy-c-learner" href="{% url 'staff:learners' %}?q={{ o.name|urlencode }}"><span class="cy-c-learner__name">{{ o.name }}</span></a></td>
+          <td class="cy-c-num">{{ o.learners }}</td>
+          <td class="cy-c-num">{{ o.started }}</td>
+          <td>
+            <span class="cy-c-mod">
+              <span class="cy-c-mod__count">{{ o.completion }}%</span>
+              <span class="cy-c-bar__track cy-c-mod__track"><span class="cy-c-bar__fill" style="width: {{ o.completion }}%;"></span></span>
+            </span>
+          </td>
+          <td class="cy-c-num">{% if o.avg_score is None %}—{% else %}{{ o.avg_score }}%{% endif %}</td>
+          <td class="cy-c-num">{% if o.attention %}<span class="cy-pill cy-pill--warn">{{ o.attention }}</span>{% else %}<span class="cy-c-muted">0</span>{% endif %}</td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="6" class="cy-c-table__empty">No learners yet.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

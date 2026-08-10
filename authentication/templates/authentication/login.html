@@ -1,6 +1,6 @@
 {% extends "authentication/_auth_base.html" %}
 
-{% block title %}Log in — {{ site_name }}{% endblock %}
+{% block title %}{% if frame %}{{ frame.title }}{% else %}Log in{% endif %} — {{ site_name }}{% endblock %}
 
 {% block auth_content %}
 <div class="cy-card cy-auth-single cy-rise">
@@ -15,8 +15,23 @@
     {{ site_name }}
   </a>
 
-  <h1>Welcome back</h1>
-  <p class="cy-lede">Pick up where you left off.</p>
+  {% comment %}
+    Framed for the role picked on the chooser. This is presentation only: the
+    role a user actually gets is read from their account after they
+    authenticate (see authentication.utils.role_home_url), never from the
+    ?as= they arrived with. The back link returns to the two-button chooser.
+  {% endcomment %}
+  {% if frame %}
+    <a class="cy-backlink" href="{% url 'authentication:login' %}{% if next %}?next={{ next|urlencode }}{% endif %}">
+      <svg class="cy-i" aria-hidden="true"><use href="#i-chevron-left"/></svg>
+      Choose a different sign-in
+    </a>
+    <h1>{{ frame.title }}</h1>
+    <p class="cy-lede">{{ frame.lede }}</p>
+  {% else %}
+    <h1>Welcome back</h1>
+    <p class="cy-lede">Pick up where you left off.</p>
+  {% endif %}
 
   {% if form.non_field_errors %}
     <div class="cy-errors" role="alert">
@@ -35,6 +50,12 @@
       next is an open redirect.
     {% endcomment %}
     <input type="hidden" name="next" value="{{ next }}">
+    {% comment %}
+      Carries the role framing through a failed submit so the form re-renders
+      with the same heading. Cosmetic only — the view validates it against a
+      fixed set and it never touches authentication.
+    {% endcomment %}
+    <input type="hidden" name="as" value="{{ frame_key }}">
 
     <div class="cy-field">
       <label for="{{ form.username.id_for_label }}" class="cy-label">{{ form.username.label }}</label>

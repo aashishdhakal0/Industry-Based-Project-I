@@ -1,0 +1,39 @@
+{% extends "staff/base.html" %}
+
+{% block title %}Activity log — {{ site_name }}{% endblock %}
+
+{% block console %}
+<header class="cy-c-head">
+  <div>
+    <p class="cy-c-head__eyebrow">Administrator</p>
+    <h1 class="cy-c-head__title">Activity log</h1>
+    <p class="cy-c-head__sub">Every administrator action, newest first.</p>
+  </div>
+</header>
+
+<section class="cy-c-section">
+  {% if actions %}
+    <ul class="cy-c-feed cy-c-feed--full">
+      {% for a in actions %}
+        <li class="cy-c-feed__row">
+          <span class="cy-c-feed__what">{{ a.summary }}</span>
+          <span class="cy-c-feed__meta">
+            {% if a.actor %}{{ a.actor.get_full_name|default:a.actor.email }}{% else %}(removed){% endif %}
+            · {{ a.created_at|date:"j M Y, H:i" }}
+          </span>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="cy-c-muted">No admin actions recorded yet.</p>
+  {% endif %}
+</section>
+
+{% if page_obj.paginator.num_pages > 1 %}
+  <nav class="cy-c-pager" aria-label="Pagination">
+    {% if page_obj.has_previous %}<a class="cy-btn cy-btn--ghost cy-btn--sm" href="?page={{ page_obj.previous_page_number }}">Previous</a>{% else %}<span class="cy-btn cy-btn--ghost cy-btn--sm is-disabled">Previous</span>{% endif %}
+    <span class="cy-c-pager__info">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+    {% if page_obj.has_next %}<a class="cy-btn cy-btn--ghost cy-btn--sm" href="?page={{ page_obj.next_page_number }}">Next</a>{% else %}<span class="cy-btn cy-btn--ghost cy-btn--sm is-disabled">Next</span>{% endif %}
+  </nav>
+{% endif %}
+{% endblock %}

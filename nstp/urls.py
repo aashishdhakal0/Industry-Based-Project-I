@@ -38,6 +38,9 @@ urlpatterns = [
     path("dashboard/", modules_views.dashboard, name="dashboard"),
     # The student learning experience — browse, lessons, simulation.
     path("learn/", include("modules.urls")),
+    # The Administrator dashboard — the in-platform staff experience. Django's
+    # own /admin/ stays available above for raw data management.
+    path("manage/", include("staff.urls")),
     path("", include("authentication.urls")),
 ]
 

@@ -1,0 +1,44 @@
+{% extends "staff/base.html" %}
+
+{% block title %}{{ module.title }} quiz — {{ site_name }}{% endblock %}
+
+{% block console %}
+<a class="cy-c-back" href="{% url 'staff:module_detail' module.order_index %}">
+  <svg class="cy-i" aria-hidden="true"><use href="#i-chevron-left"/></svg> Back to {{ module.title }}
+</a>
+
+<header class="cy-c-head">
+  <div>
+    <p class="cy-c-head__eyebrow">{{ module.title }}</p>
+    <h1 class="cy-c-head__title">Quiz questions</h1>
+    <p class="cy-c-head__sub">{{ questions|length }} question{{ questions|length|pluralize }} in the bank · pass mark {{ quiz.pass_mark }}% · 10 drawn per attempt.</p>
+  </div>
+</header>
+
+<p class="cy-c-note">Editing a question marks it as edited in the console. A routine reseed will leave it untouched; only a deliberate <code>seed_learning_content --force</code> resets it to the authored source.</p>
+
+<ol class="cy-c-qlist">
+  {% for q in questions %}
+    <li class="cy-c-qcard">
+      <div class="cy-c-qcard__head">
+        <span class="cy-c-qcard__q">{{ q.question_text }}{% if q.admin_edited %} <span class="cy-pill cy-pill--warn">Edited</span>{% endif %}</span>
+        <a class="cy-btn cy-btn--ghost cy-btn--sm" href="{% url 'staff:question_edit' q.pk %}">Edit</a>
+      </div>
+      <ul class="cy-c-opts">
+        {% for a in q.answers.all %}
+          <li class="cy-c-opt {% if a.correct_answer %}is-correct{% endif %}">
+            <span class="cy-c-opt__mark">{% if a.correct_answer %}<svg class="cy-i" aria-hidden="true"><use href="#i-check"/></svg>{% endif %}</span>
+            <span class="cy-c-opt__body">
+              <span class="cy-c-opt__text">{{ a.option_text }}</span>
+              <span class="cy-c-opt__exp">{{ a.explanation_text }}</span>
+            </span>
+          </li>
+        {% endfor %}
+      </ul>
+      {% if q.lesson_reference %}<p class="cy-c-qcard__ref">Teaches: {{ q.lesson_reference.title }}</p>{% endif %}
+    </li>
+  {% empty %}
+    <li class="cy-c-muted">No questions in this quiz yet.</li>
+  {% endfor %}
+</ol>
+{% endblock %}

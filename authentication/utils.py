@@ -55,11 +55,12 @@ def role_home_url(user):
     does an Instructor land" has exactly one answer.
     """
     User = user.__class__
-    if user.role == User.Role.ADMINISTRATOR and user.is_staff:
-        return reverse("admin:index")
+    if user.role == User.Role.ADMINISTRATOR:
+        # The in-platform Administrator dashboard, not Django's raw /admin/.
+        # /admin/ is still reachable directly (and linked from the sidebar) for
+        # raw data management, but the polished oversight surface is home.
+        return reverse("staff:overview")
     # Instructors land on the dashboard for now; their CMS arrives in Sprint 2.
-    # An Administrator without is_staff would be bounced by the admin's own
-    # login, so they come here too rather than into a dead end.
     return reverse("dashboard")
 
 

@@ -65,6 +65,12 @@ class Module(models.Model):
         help_text="Unpublishing is our soft delete — never hard-delete a module, "
         "it would orphan historical quiz results.",
     )
+    admin_edited = models.BooleanField(
+        default=False,
+        help_text="An admin has edited this module's content in the console. The "
+        "seed leaves such rows alone (unless run with --force) so a reseed can't "
+        "silently wipe the edit.",
+    )
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.PROTECT,
@@ -96,6 +102,11 @@ class Lesson(models.Model):
         default=0, help_text="Used by the adaptive feedback engine to estimate revision time."
     )
     is_active = models.BooleanField(default=True)
+    admin_edited = models.BooleanField(
+        default=False,
+        help_text="An admin has edited this lesson in the console. The seed leaves "
+        "such rows alone (unless run with --force).",
+    )
 
     class Meta:
         db_table = "lessons"

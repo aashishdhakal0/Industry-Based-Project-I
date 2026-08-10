@@ -1,0 +1,57 @@
+{% extends "staff/base.html" %}
+
+{% block title %}Edit question — {{ site_name }}{% endblock %}
+
+{% block console %}
+<a class="cy-c-back" href="{% url 'staff:quiz_view' module.order_index %}">
+  <svg class="cy-i" aria-hidden="true"><use href="#i-chevron-left"/></svg> Back to {{ module.title }} quiz
+</a>
+
+<header class="cy-c-head">
+  <div>
+    <p class="cy-c-head__eyebrow">{{ module.title }} · Quiz</p>
+    <h1 class="cy-c-head__title">Edit question</h1>
+    <p class="cy-c-head__sub">Pick exactly one correct answer. Every explanation is required: it is what a learner sees when they choose that option.</p>
+  </div>
+</header>
+
+<div class="cy-c-section cy-c-formcard cy-c-formcard--wide">
+  {% if form.non_field_errors %}<div class="cy-errors" role="alert">{% for error in form.non_field_errors %}<p class="mb-0">{{ error }}</p>{% endfor %}</div>{% endif %}
+  <form method="post" class="cy-c-form">
+    {% csrf_token %}
+
+    <div class="cy-c-field">
+      <label class="cy-c-label" for="{{ form.question_text.id_for_label }}">{{ form.question_text.label }}</label>
+      {{ form.question_text }}
+      {% for error in form.question_text.errors %}<span class="cy-c-error">{{ error }}</span>{% endfor %}
+    </div>
+
+    {% if form.correct.errors %}<div class="cy-c-error" role="alert">{% for error in form.correct.errors %}{{ error }} {% endfor %}</div>{% endif %}
+
+    <div class="cy-c-answers">
+      {% for row in form.answer_rows %}
+        <fieldset class="cy-c-answer">
+          <legend class="cy-c-answer__legend">
+            <label class="cy-c-radio">
+              <input type="radio" name="correct" value="{{ row.index }}" {% if form.correct.value == row.index %}checked{% endif %}>
+              <span>Option {{ row.letter }}</span>
+            </label>
+            <span class="cy-c-answer__hint">select to mark correct</span>
+          </legend>
+          <div class="cy-c-field">
+            {{ row.option }}
+            {% for error in row.option.errors %}<span class="cy-c-error">{{ error }}</span>{% endfor %}
+          </div>
+          <div class="cy-c-field">
+            <label class="cy-c-label" for="{{ row.explanation.id_for_label }}">Explanation</label>
+            {{ row.explanation }}
+            {% for error in row.explanation.errors %}<span class="cy-c-error">{{ error }}</span>{% endfor %}
+          </div>
+        </fieldset>
+      {% endfor %}
+    </div>
+
+    <button type="submit" class="cy-btn cy-btn--primary">Save question</button>
+  </form>
+</div>
+{% endblock %}
