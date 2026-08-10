@@ -104,6 +104,19 @@
         </div>
       </form>
 
+      <form class="cy-c-actions__group" method="post" action="{% url 'staff:assign_org' learner.pk %}">
+        {% csrf_token %}
+        <label class="cy-c-label" for="org-select">Organisation</label>
+        <div class="cy-c-actions__inline">
+          <select class="cy-c-input" id="org-select" name="org">
+            <option value="">No organisation</option>
+            {% for o in organisations %}<option value="{{ o.pk }}" {% if profile.org_id == o.pk %}selected{% endif %}>{{ o.name }}</option>{% endfor %}
+          </select>
+          <button type="submit" class="cy-btn cy-btn--ghost cy-btn--sm">Update</button>
+        </div>
+        <a class="cy-c-help" href="{% url 'staff:org_new' %}">Add a new organisation</a>
+      </form>
+
       <div class="cy-c-actions__group">
         <form method="post" action="{% url 'staff:toggle_active' learner.pk %}"
               {% if learner.is_active %}data-confirm="Deactivate this account? They won't be able to sign in." data-confirm-yes="Deactivate"{% endif %}>

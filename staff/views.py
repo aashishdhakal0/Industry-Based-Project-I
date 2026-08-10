@@ -15,12 +15,18 @@ from django.urls import reverse
 from django.views.decorators.http import require_POST
 
 from authentication.decorators import administrator_required
-from authentication.models import User
+from authentication.models import Organisation, User
 from modules.models import Lesson, Module
 from quizzes.models import Question, Quiz
 
 from . import services
-from .forms import AddUserForm, LessonEditForm, ModuleEditForm, QuestionEditForm
+from .forms import (
+    AddUserForm,
+    LessonEditForm,
+    ModuleEditForm,
+    OrganisationForm,
+    QuestionEditForm,
+)
 from .models import AdminAction
 
 PER_PAGE = 25
@@ -104,15 +110,67 @@ def learners(request):
 
 @administrator_required
 def organisations(request):
-    """Learners grouped by organisation, with aggregate stats."""
-    rows = services.collect_learners()
+    """Managed organisations, each with its learner stats. Create + drill in."""
+    orgs = services.managed_organisations()
     return _render(
         request,
         "staff/organisations.html",
         {
             "active": "admin_orgs",
-            "orgs": services.organisation_rollup(rows),
-            "total_learners": len(rows),
+            "orgs": orgs,
+            "total_orgs": len(orgs),
+            "total_learners": sum(o["learners"] for o in orgs),
+        },
+    )
+
+
+@administrator_required
+def org_new(request):
+    """Create a new organisation."""
+    if request.method == "POST":
+        form = OrganisationForm(request.POST)
+        if form.is_valid():
+            org = form.save()
+            services.log_action(
+                request.user, AdminAction.Kind.CREATE_ORG,
+                f"Created organisation “{org.name}”",
+            )
+            messages.success(request, f"Created “{org.name}”.")
+            return redirect("staff:org_detail", org_id=org.pk)
+    else:
+        form = OrganisationForm()
+    return _render(
+        request, "staff/org_new.html", {"active": "admin_orgs", "form": form}
+    )
+
+
+@administrator_required
+def org_detail(request, org_id):
+    """One organisation: its details (editable) and its members."""
+    org = get_object_or_404(Organisation, pk=org_id)
+
+    if request.method == "POST":
+        form = OrganisationForm(request.POST, instance=org)
+        if form.is_valid():
+            org = form.save()
+            services.log_action(
+                request.user, AdminAction.Kind.EDIT_ORG,
+                f"Edited organisation “{org.name}”",
+            )
+            messages.success(request, "Saved organisation details.")
+            return redirect("staff:org_detail", org_id=org.pk)
+    else:
+        form = OrganisationForm(instance=org)
+
+    members = services.organisation_members(org)
+    return _render(
+        request,
+        "staff/org_detail.html",
+        {
+            "active": "admin_orgs",
+            "org": org,
+            "form": form,
+            "members": members,
         },
     )
 
@@ -186,6 +244,7 @@ def learner_detail(request, user_id):
         {
             "active": "admin_learners",
             "roles": User.Role.choices,
+            "organisations": Organisation.objects.all(),
             "actions": AdminAction.objects.filter(target_user=learner)[:8],
             "back_url": back_url,
         }

@@ -490,6 +490,17 @@ def dashboard(request):
     current_index = step.module.order_index if step else None
 
     level = g.level_for_points(profile.points)
+    tier = g.tier_for_points(profile.points)
+
+    # One-time tier-up celebration: fire only when the student has genuinely
+    # climbed past the highest tier we've congratulated them for, then record it
+    # so it never repeats. Points only ever rise, so this can't fire falsely.
+    celebrate_tier = None
+    if tier.index > profile.celebrated_tier:
+        celebrate_tier = tier.tier
+        profile.celebrated_tier = tier.index
+        profile.save(update_fields=["celebrated_tier"])
+
     stats = g.student_stats(request.user)
     lessons_done = stats["lessons_completed"]
 
@@ -512,6 +523,9 @@ def dashboard(request):
             "profile": profile,
             "greeting": g.greeting(),
             "rank": g.rank_for_level(level.level),
+            "tier": tier,
+            "tiers": g.TIERS,
+            "celebrate_tier": celebrate_tier,
             "level": level,
             "streak": g.streak_status(profile),
             "progress": progress,

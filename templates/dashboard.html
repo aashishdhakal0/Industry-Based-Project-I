@@ -37,12 +37,44 @@
   {% include "modules/_roadmap.html" %}
 
 {% else %}
+  {# ---------------- Tier-up celebration (fires once, server-tracked) ------- #}
+  {% if celebrate_tier %}
+    <div class="cy-celebrate cy-tier--{{ celebrate_tier.slug }}" role="status">
+      <div class="cy-celebrate__spark" aria-hidden="true"></div>
+      <div class="cy-celebrate__emblem cy-tier">{% include "modules/_tier_emblem.html" with slug=celebrate_tier.slug name=celebrate_tier.name %}</div>
+      <div class="cy-celebrate__text">
+        <p class="cy-celebrate__eyebrow">New rank unlocked</p>
+        <p class="cy-celebrate__title">You reached {{ celebrate_tier.name }}</p>
+      </div>
+    </div>
+  {% endif %}
+
   {# ---------------- Identity header ---------------- #}
   <header class="cy-dash-head cy-rise">
-    <div>
-      <p class="cy-dash-head__greet">{{ greeting }}{% if request.user.first_name %}, {{ request.user.first_name }}{% endif %}</p>
-      <h1 class="cy-dash-head__rank">{{ rank }}</h1>
+    <div class="cy-dash-head__id">
+      {# Tier emblem — Bronze…Diamond, a distinct silhouette per tier, from real points #}
+      <div class="cy-tier cy-tier--{{ tier.tier.slug }}">
+        <div class="cy-tier__emblem">{% include "modules/_tier_emblem.html" with slug=tier.tier.slug name=tier.tier.name %}</div>
+        <ol class="cy-tier__pips" aria-hidden="true">
+          {% for t in tiers %}<li class="cy-tier__pip cy-tier__pip--{{ t.slug }}{% if forloop.counter0 <= tier.index %} is-lit{% endif %}" title="{{ t.name }}"></li>{% endfor %}
+        </ol>
+      </div>
+
+      <div class="cy-dash-head__text">
+        <p class="cy-dash-head__greet">{{ greeting }}{% if request.user.first_name %}, {{ request.user.first_name }}{% endif %}</p>
+        <h1 class="cy-dash-head__tier">{{ tier.tier.name }}<span class="cy-dash-head__of"> · Tier {{ tier.index|add:1 }} of {{ tier.total }}</span></h1>
+        <p class="cy-dash-head__caption">Level {{ level.level }} · {{ rank }}</p>
+        {% if tier.is_max %}
+          <p class="cy-tier__next cy-tier__next--max"><svg class="cy-i" aria-hidden="true"><use href="#i-crown"/></svg> Top tier reached — course mastered</p>
+        {% else %}
+          <div class="cy-tier__track" role="progressbar" aria-valuenow="{{ tier.into_tier }}" aria-valuemin="0" aria-valuemax="{{ tier.band_span }}" aria-label="Progress to {{ tier.next_tier.name }}">
+            <div class="cy-tier__fill" style="--cy-value: {{ tier.percent }}%;"></div>
+          </div>
+          <p class="cy-tier__next"><strong>{{ tier.to_next }} point{{ tier.to_next|pluralize }}</strong> to {{ tier.next_tier.name }}</p>
+        {% endif %}
+      </div>
     </div>
+
     <div class="cy-dash-head__level">
       <div class="cy-level cy-level--lg" style="--cy-level-progress: {{ level.percent }};">
         <div class="cy-level__inner">
@@ -60,10 +92,10 @@
       <span class="cy-tile__value">{{ profile.points }}</span>
       <span class="cy-tile__label">points</span>
     </div>
-    <div class="cy-tile">
-      <div class="cy-tile__icon"><svg class="cy-i" aria-hidden="true"><use href="#i-shield"/></svg></div>
-      <span class="cy-tile__value">Lvl {{ level.level }}</span>
-      <span class="cy-tile__label">{{ rank }}</span>
+    <div class="cy-tile cy-tile--tier cy-tier--{{ tier.tier.slug }}">
+      <div class="cy-tile__icon"><svg class="cy-i" aria-hidden="true"><use href="#i-gem"/></svg></div>
+      <span class="cy-tile__value">{{ tier.tier.name }}</span>
+      <span class="cy-tile__label">rank tier</span>
     </div>
     <div class="cy-tile">
       <div class="cy-tile__icon"><svg class="cy-i" aria-hidden="true"><use href="#i-book"/></svg></div>
@@ -164,17 +196,25 @@
           {% for week in calendar.weeks %}
             <div class="cy-cal__row" role="row">
               {% for d in week %}
-                <span class="cy-cal__day{% if not d.in_month %} is-out{% endif %}{% if d.active %} is-active{% endif %}{% if d.is_today %} is-today{% endif %}"
+                <span class="cy-cal__day{% if not d.in_month %} is-out{% endif %}{% if d.active %} is-active is-l{{ d.level }}{% endif %}{% if d.is_today %} is-today{% endif %}"
                       role="gridcell"
-                      {% if d.active %}aria-label="{{ d.date|date:'j F' }}, active"{% endif %}>{{ d.day }}</span>
+                      {% if d.active %}aria-label="{{ d.date|date:'j F' }}, {{ d.count }} activit{{ d.count|pluralize:'y,ies' }}"{% endif %}>{{ d.day }}</span>
               {% endfor %}
             </div>
           {% endfor %}
         </div>
 
         <div class="cy-cal__foot">
-          <span class="cy-cal__key" aria-hidden="true"></span>
-          <span class="cy-cal__summary">{{ calendar.active_count }} active day{{ calendar.active_count|pluralize }} this month</span>
+          <div class="cy-cal__legend" aria-hidden="true">
+            <span class="cy-cal__legend-label">Less</span>
+            <span class="cy-cal__heatkey is-l0"></span>
+            <span class="cy-cal__heatkey is-l1"></span>
+            <span class="cy-cal__heatkey is-l2"></span>
+            <span class="cy-cal__heatkey is-l3"></span>
+            <span class="cy-cal__heatkey is-l4"></span>
+            <span class="cy-cal__legend-label">More</span>
+          </div>
+          <span class="cy-cal__summary"><strong>{{ calendar.active_count }}</strong> active day{{ calendar.active_count|pluralize }} this month</span>
         </div>
       </div>
 

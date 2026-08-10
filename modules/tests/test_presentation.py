@@ -33,6 +33,64 @@ def test_rank_caps_at_the_top():
 
 
 # --------------------------------------------------------------------------
+# Tier / rank emblems (Bronze … Diamond)
+# --------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    "points,slug",
+    [
+        (0, "bronze"), (99, "bronze"),
+        (100, "silver"), (219, "silver"),
+        (220, "gold"), (379, "gold"),
+        (380, "platinum"), (539, "platinum"),
+        (540, "diamond"), (9999, "diamond"),
+    ],
+)
+def test_tier_lands_in_the_right_band(points, slug):
+    assert g.tier_for_points(points).tier.slug == slug
+
+
+def test_tier_progress_points_to_next():
+    t = g.tier_for_points(160)          # in Silver (100), next Gold (220)
+    assert t.tier.slug == "silver"
+    assert t.next_tier.slug == "gold"
+    assert t.to_next == 60              # 220 - 160
+    assert t.into_tier == 60            # 160 - 100
+    assert t.band_span == 120           # 220 - 100
+    assert t.percent == 50              # 60 / 120
+
+
+def test_top_tier_is_maxed_out():
+    t = g.tier_for_points(540)
+    assert t.is_max is True
+    assert t.next_tier is None
+    assert t.to_next == 0
+    assert t.percent == 100
+
+
+def test_negative_points_clamp_to_bronze():
+    t = g.tier_for_points(-50)
+    assert t.tier.slug == "bronze"
+    assert t.points == 0
+
+
+def test_tier_never_decreases_as_points_rise():
+    """Tier is a monotonic function of points, so it can't contradict level."""
+    last = -1
+    for p in range(0, 560, 7):
+        idx = g.tier_for_points(p).index
+        assert idx >= last
+        last = idx
+
+
+def test_tier_matches_points_ceiling():
+    """Only a full course (all lessons + quizzes = 540) reaches Diamond."""
+    assert g.tier_for_points(539).tier.slug != "diamond"
+    assert g.tier_for_points(540).tier.slug == "diamond"
+
+
+# --------------------------------------------------------------------------
 # Streak status — the emotional flame
 # --------------------------------------------------------------------------
 
@@ -67,7 +125,7 @@ def test_active_yesterday_is_at_risk(student):
     status = g.streak_status(profile, today=TODAY)
     assert status.state == "at_risk"
     assert status.display == 7
-    assert "keep your 7-day streak" in status.message and "Resets at midnight" in status.message
+    assert "Don't break your 7-day streak" in status.message and "before midnight" in status.message
 
 
 @pytest.mark.django_db

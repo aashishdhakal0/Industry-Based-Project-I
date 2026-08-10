@@ -1,0 +1,52 @@
+{% comment %}
+Distinct metal insignia per tier — a different silhouette for each, not one shape
+recoloured. Metal stops come from the --tier-* CSS vars set by .cy-tier--<slug>
+on the wrapper, so the same shape file reads as bronze/silver/gold/platinum/
+diamond depending on context. Pass `slug` and `name`.
+
+  bronze  → shield        silver → hex crest      gold → sunburst star
+  platinum → octagon rosette                      diamond → brilliant-cut gem
+{% endcomment %}
+<svg class="cy-tier__art" viewBox="0 0 64 64" role="img" aria-label="{{ name }} tier emblem">
+  <defs>
+    <radialGradient id="tg-{{ slug }}" cx="34%" cy="26%" r="78%">
+      <stop offset="0" style="stop-color: var(--tier-hi);"/>
+      <stop offset="54%" style="stop-color: var(--tier-mid);"/>
+      <stop offset="100%" style="stop-color: var(--tier-lo);"/>
+    </radialGradient>
+  </defs>
+
+  {% if slug == "bronze" %}
+    {# Shield — the defender's starting badge #}
+    <path d="M32 5 L55 13 V31 C55 44 45 54 32 60 C19 54 9 44 9 31 V13 Z"
+          fill="url(#tg-{{ slug }})" stroke="rgba(0,0,0,.3)" stroke-width="1.6" stroke-linejoin="round"/>
+    <path d="M32 11 L49 17 V31 C49 40 42 48 32 53 Z" fill="rgba(255,255,255,.16)"/>
+    <path d="M23 27 l7 7 12 -13" fill="none" stroke="rgba(20,10,4,.5)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  {% elif slug == "silver" %}
+    {# Hex crest — angular, sharper than bronze #}
+    <polygon points="32,5 55,18 55,46 32,59 9,46 9,18"
+             fill="url(#tg-{{ slug }})" stroke="rgba(0,0,0,.3)" stroke-width="1.6" stroke-linejoin="round"/>
+    <polygon points="32,12 48,21 48,32 32,25" fill="rgba(255,255,255,.18)"/>
+    <polygon points="32,22 42,28 42,39 32,45 22,39 22,28" fill="none" stroke="rgba(20,24,32,.45)" stroke-width="2.4"/>
+  {% elif slug == "gold" %}
+    {# Sunburst star — radiant #}
+    <polygon points="32,4 38.5,23.1 57.7,23.7 42.5,35.4 47.9,53.8 32,43 16.1,53.8 21.5,35.4 6.3,23.7 25.5,23.1"
+             fill="url(#tg-{{ slug }})" stroke="rgba(0,0,0,.28)" stroke-width="1.6" stroke-linejoin="round"/>
+    <polygon points="32,14 35.6,25 47,25.4 37.8,32 41,43 32,36.5 23,43 26.2,32 17,25.4 28.4,25" fill="rgba(255,255,255,.16)"/>
+    <circle cx="32" cy="30" r="4.2" fill="rgba(120,80,10,.5)"/>
+  {% elif slug == "platinum" %}
+    {# Octagon rosette — prestige #}
+    <polygon points="56.9,42.3 42.3,56.9 21.7,56.9 7.1,42.3 7.1,21.7 21.7,7.1 42.3,7.1 56.9,21.7"
+             fill="url(#tg-{{ slug }})" stroke="rgba(0,0,0,.3)" stroke-width="1.6" stroke-linejoin="round"/>
+    <polygon points="47.5,25 39,16.5 25,16.5 16.5,25 16.5,32 32,24" fill="rgba(255,255,255,.18)"/>
+    <circle cx="32" cy="32" r="12.5" fill="none" stroke="rgba(30,44,54,.45)" stroke-width="2.4"/>
+    <circle cx="32" cy="32" r="4" fill="rgba(30,44,54,.4)"/>
+  {% elif slug == "diamond" %}
+    {# Brilliant-cut gem — the pinnacle #}
+    <path d="M20 15 H44 L55 27 L32 60 L9 27 Z"
+          fill="url(#tg-{{ slug }})" stroke="rgba(0,0,0,.28)" stroke-width="1.6" stroke-linejoin="round"/>
+    <path d="M9 27 H55" fill="none" stroke="rgba(6,40,52,.4)" stroke-width="1.6"/>
+    <path d="M20 15 L26 27 L32 60 M44 15 L38 27 L32 60 M26 27 H38" fill="none" stroke="rgba(255,255,255,.4)" stroke-width="1.4"/>
+    <path d="M20 15 L26 27 H38 L44 15 Z" fill="rgba(255,255,255,.2)"/>
+  {% endif %}
+</svg>

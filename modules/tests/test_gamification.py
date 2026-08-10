@@ -360,6 +360,34 @@ def test_only_the_chosen_month_is_counted(student, modules):
     assert {d.day for week in cal.weeks for d in week if d.active} == {15}
 
 
+# --- Heat-map intensity ----------------------------------------------------
+
+
+def test_heat_level_buckets():
+    assert g.heat_level(0) == 0
+    assert g.heat_level(1) == 1
+    assert g.heat_level(2) == 2
+    assert g.heat_level(3) == 3
+    assert g.heat_level(4) == 4
+    assert g.heat_level(9) == 4          # caps at the top bucket
+
+
+@pytest.mark.django_db
+def test_calendar_days_carry_a_heat_level_from_how_much_was_done(student, modules):
+    # One lesson on the 3rd, two on the 15th -> a hotter cell on the 15th.
+    # (Distinct lessons: ProgressRecord is unique per (user, lesson).)
+    _study_on(student, modules[0], 1, datetime.date(2026, 7, 3))
+    _study_on(student, modules[0], 2, datetime.date(2026, 7, 15))
+    _study_on(student, modules[0], 3, datetime.date(2026, 7, 15))
+
+    cal = g.activity_calendar(student, year=2026, month=7, today=datetime.date(2026, 7, 24))
+    by_day = {d.day: d for week in cal.weeks for d in week if d.in_month}
+    assert by_day[3].level == 1 and by_day[3].count == 1
+    assert by_day[15].level == 2 and by_day[15].count == 2
+    # A quiet day is level 0 and not active.
+    assert by_day[8].level == 0 and by_day[8].active is False
+
+
 @pytest.mark.django_db
 def test_today_is_flagged_only_in_its_own_month(student, modules):
     today = datetime.date(2026, 7, 24)

@@ -381,6 +381,84 @@ def rank_for_level(level):
     return RANKS[min(max(level, 1), len(RANKS)) - 1]
 
 
+# --------------------------------------------------------------------------
+# Tier / rank emblems — Bronze … Diamond
+# --------------------------------------------------------------------------
+#
+# A coarse, game-style tier the student climbs. Computed from the SAME
+# profile.points that drives Level and Streak (points = lessons·10 +
+# passed_quizzes·50, recomputed from records, never incremented) — so it is
+# honest and can never contradict the level. Points cap at 540 (all 24 lessons +
+# 6 quizzes), and Diamond sits exactly there, so the top tier means the whole
+# course is done. Tiers are coarser than levels and both rise with points, so
+# they stay consistent by construction.
+
+
+@dataclass(frozen=True)
+class Tier:
+    slug: str        # "bronze" … "diamond" (also the CSS accent key)
+    name: str
+    min_points: int
+
+
+TIERS = [
+    Tier("bronze", "Bronze", 0),
+    Tier("silver", "Silver", 100),
+    Tier("gold", "Gold", 220),
+    Tier("platinum", "Platinum", 380),
+    Tier("diamond", "Diamond", 540),
+]
+
+
+@dataclass(frozen=True)
+class TierStatus:
+    tier: Tier               # the tier the student is in now
+    next_tier: Tier | None   # the tier above, or None at the top
+    index: int               # 0-based position of the current tier
+    total: int               # how many tiers there are
+    is_max: bool             # True at Diamond
+    points: int              # the student's points
+    into_tier: int           # points earned within the current tier's band
+    band_span: int           # points the current band spans (0 at the top)
+    to_next: int             # points remaining to the next tier (0 at the top)
+    percent: int             # progress across the current band, 0–100
+
+
+def tier_for_points(points):
+    """Where the student sits on the Bronze→Diamond ladder, with progress to next."""
+    points = max(0, int(points))
+
+    index = 0
+    for i, t in enumerate(TIERS):
+        if points >= t.min_points:
+            index = i
+    tier = TIERS[index]
+    is_max = index == len(TIERS) - 1
+    next_tier = None if is_max else TIERS[index + 1]
+
+    if is_max:
+        into = band_span = to_next = 0
+        percent = 100
+    else:
+        band_span = next_tier.min_points - tier.min_points
+        into = points - tier.min_points
+        to_next = next_tier.min_points - points
+        percent = round(into / band_span * 100) if band_span else 0
+
+    return TierStatus(
+        tier=tier,
+        next_tier=next_tier,
+        index=index,
+        total=len(TIERS),
+        is_max=is_max,
+        points=points,
+        into_tier=into,
+        band_span=band_span,
+        to_next=to_next,
+        percent=percent,
+    )
+
+
 # Streak milestones that map to real, earnable badges (streak_3/7/30).
 STREAK_MILESTONES = [3, 7, 30]
 
@@ -422,7 +500,7 @@ def streak_status(profile, today=None):
         msg = f"Locked in for today — see you tomorrow to make it {count + 1}."
     elif (today - last).days == 1:
         state, display = "at_risk", count
-        msg = f"Resets at midnight — finish a lesson today to keep your {count}-day streak."
+        msg = f"Don't break your {count}-day streak — finish a lesson today before midnight."
     else:
         # Older than yesterday: the next activity resets it, so it's gone.
         state, display, msg = "none", 0, "Your streak lapsed — start a fresh one today."
@@ -591,12 +669,27 @@ _ACTIVITY_SOURCES = (
 )
 
 
+# Heat buckets: how many things (lessons completed / quizzes / simulations) a
+# student did on a day, mapped to a 0–4 intensity for the heat-map. The unit is
+# "things finished", so the gradient means real work, not mere logins.
+HEAT_MAX_LEVEL = 4
+
+
+def heat_level(count):
+    """Map a day's activity count to a 0–4 heat level."""
+    if count <= 0:
+        return 0
+    return min(count, HEAT_MAX_LEVEL)
+
+
 @dataclass
 class CalendarDay:
     date: object       # datetime.date
     day: int           # day-of-month number to print
     in_month: bool     # False for the leading/trailing days of adjacent months
     active: bool       # the student did something on this day
+    count: int         # how many things they finished that day
+    level: int         # 0–4 heat intensity (0 = nothing)
     is_today: bool
 
 
@@ -615,14 +708,16 @@ class ActivityCalendar:
     can_go_next: bool          # False once showing the current month (no future)
 
 
-def _active_dates_in_range(user, start_dt, end_dt):
-    """The set of local dates in [start_dt, end_dt) on which the user was active.
+def _activity_counts_in_range(user, start_dt, end_dt):
+    """local date -> count of things finished, for [start_dt, end_dt).
 
     One student's activity in a single month is a handful of rows, so loading the
     timestamps and bucketing in Python is both correct (honours the Melbourne
-    clock at month boundaries) and cheap.
+    clock at month boundaries) and cheap. The count drives the heat-map intensity.
     """
-    dates = set()
+    from collections import Counter
+
+    counts = Counter()
     for model, field in _ACTIVITY_SOURCES:
         stamps = (
             model.objects.filter(
@@ -631,8 +726,8 @@ def _active_dates_in_range(user, start_dt, end_dt):
             .values_list(field, flat=True)
         )
         for stamp in stamps:
-            dates.add(timezone.localdate(stamp))
-    return dates
+            counts[timezone.localdate(stamp)] += 1
+    return counts
 
 
 def activity_calendar(user, *, year=None, month=None, today=None):
@@ -656,7 +751,7 @@ def activity_calendar(user, *, year=None, month=None, today=None):
         end_dt = timezone.make_aware(datetime.datetime(year + 1, 1, 1))
     else:
         end_dt = timezone.make_aware(datetime.datetime(year, month + 1, 1))
-    active = _active_dates_in_range(user, start_dt, end_dt)
+    counts = _activity_counts_in_range(user, start_dt, end_dt)
 
     cal = _calendar.Calendar(firstweekday=0)  # 0 = Monday
     weeks = [
@@ -665,7 +760,9 @@ def activity_calendar(user, *, year=None, month=None, today=None):
                 date=d,
                 day=d.day,
                 in_month=d.month == month,
-                active=d.month == month and d in active,
+                active=d.month == month and counts.get(d, 0) > 0,
+                count=counts.get(d, 0) if d.month == month else 0,
+                level=heat_level(counts.get(d, 0)) if d.month == month else 0,
                 is_today=d == today,
             )
             for d in week
@@ -684,7 +781,7 @@ def activity_calendar(user, *, year=None, month=None, today=None):
         label=f"{_calendar.month_name[month]} {year}",
         weekday_names=list(_calendar.day_abbr),  # Mon … Sun (firstweekday=0)
         weeks=weeks,
-        active_count=len(active),
+        active_count=sum(1 for d, c in counts.items() if d.month == month and c > 0),
         prev_year=prev_year,
         prev_month=prev_month,
         next_year=next_year,

@@ -2305,6 +2305,19 @@ body.cy-body {
   justify-content: flex-start;
   width: 100%;
 }
+.cy-side__adv {
+  align-items: center;
+  color: var(--cy-text-3);
+  display: flex;
+  font-size: 0.78rem;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  opacity: 0.7;
+  padding: 0.4rem 0.5rem;
+  text-decoration: none;
+}
+.cy-side__adv:hover { color: var(--cy-text); opacity: 1; }
+.cy-side__adv .cy-i { height: 15px; width: 15px; }
 
 /* --- Body + appbar ------------------------------------------------------- */
 
@@ -3663,25 +3676,43 @@ body.cy-body {
   color: #fff;
 }
 
-/* Footer: divided from the grid, a muted summary beside a gradient key. */
+/* A consistency "trail": consecutive active days in a week are bridged across
+   the column gap, so a streak reads as a connected run rather than loose chips. */
+.cy-cal__day { position: relative; }
+.cy-cal__day.is-active + .cy-cal__day.is-active::before {
+  background: var(--cy-violet-deep);
+  border-radius: 2px;
+  content: "";
+  height: 6px;
+  left: -6px;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 9px;
+  z-index: -1;
+}
+
+/* Footer: legend on the left, the motivating count on the right. */
 .cy-cal__foot {
   align-items: center;
   border-top: 1px solid var(--cy-border);
   color: var(--cy-text-3);
   display: flex;
-  gap: 0.55rem;
+  gap: 0.75rem;
+  justify-content: space-between;
   margin-top: 1rem;
   padding-top: 0.9rem;
 }
-.cy-cal__key {
+.cy-cal__legend { display: flex; gap: 0.85rem; }
+.cy-cal__legend-item { align-items: center; color: var(--cy-text-3); display: flex; font-size: 0.72rem; gap: 0.32rem; }
+.cy-cal__swatch { border-radius: 4px; flex: none; height: 13px; width: 13px; }
+.cy-cal__swatch--active {
   background: var(--cy-grad-cta);
-  border-radius: 5px;
   box-shadow: 0 0 0 1px rgba(155, 123, 248, 0.4);
-  flex: none;
-  height: 13px;
-  width: 13px;
 }
+.cy-cal__swatch--today { box-shadow: inset 0 0 0 1.5px var(--cy-violet); }
 .cy-cal__summary { font-size: 0.82rem; }
+.cy-cal__summary strong { color: var(--cy-cyan-soft); font-family: var(--cy-font-mono); }
 
 /* Cells shrink evenly on a narrow rail; the grid never breaks (fr columns). */
 @media (max-width: 380px) {
@@ -3721,6 +3752,146 @@ body.cy-body {
   letter-spacing: -0.03em;
   margin: 0.1rem 0 0;
 }
+
+/* --- Tier / rank emblem (Bronze … Diamond) -------------------------------- */
+/* Per-tier metal palette. Set on .cy-tier--<slug>; cascades to the emblem in
+   the header and the tier tile, so both read as the same metal. */
+.cy-tier--bronze   { --tier-hi:#efc39a; --tier-mid:#c98a5e; --tier-lo:#7c4327; --tier-glow:rgba(201,138,94,.45); }
+.cy-tier--silver   { --tier-hi:#f3f6fb; --tier-mid:#c3cad6; --tier-lo:#828b9b; --tier-glow:rgba(180,190,205,.40); }
+.cy-tier--gold     { --tier-hi:#ffe9a6; --tier-mid:#f0c150; --tier-lo:#a9781a; --tier-glow:rgba(240,193,80,.45); }
+.cy-tier--platinum { --tier-hi:#eef7fb; --tier-mid:#c0d2dc; --tier-lo:#7f95a3; --tier-glow:rgba(150,190,205,.42); }
+.cy-tier--diamond  { --tier-hi:#ecffff; --tier-mid:#7fe8f6; --tier-lo:#2aa7bd; --tier-glow:rgba(61,220,240,.50); }
+
+.cy-dash-head__id { align-items: center; display: flex; gap: 1.1rem; min-width: 0; }
+.cy-dash-head__text { min-width: 0; }
+
+.cy-tier { align-items: center; display: flex; flex-direction: column; flex: none; gap: 0.5rem; }
+/* The emblem is now a distinct SVG silhouette per tier (see _tier_emblem.html);
+   the metal comes from the --tier-* vars, the depth from a soft drop-shadow. */
+.cy-tier__emblem { height: 84px; width: 84px; }
+.cy-tier__art { aspect-ratio: 1; display: block; height: auto; width: 100%; filter: drop-shadow(0 7px 16px var(--tier-glow)); }
+
+.cy-tier__pips { display: flex; gap: 5px; list-style: none; margin: 0; padding: 0; }
+.cy-tier__pip {
+  background: var(--cy-surface-3);
+  border-radius: 2px;
+  box-shadow: inset 0 0 0 1px var(--cy-border);
+  height: 7px;
+  transform: rotate(45deg);
+  width: 7px;
+}
+.cy-tier__pip.is-lit { box-shadow: none; }
+.cy-tier__pip--bronze.is-lit   { background: #c98a5e; }
+.cy-tier__pip--silver.is-lit   { background: #c3cad6; }
+.cy-tier__pip--gold.is-lit     { background: #f0c150; }
+.cy-tier__pip--platinum.is-lit { background: #c0d2dc; }
+.cy-tier__pip--diamond.is-lit  { background: #7fe8f6; box-shadow: 0 0 6px rgba(61, 220, 240, 0.7); }
+
+.cy-dash-head__tier {
+  font-size: clamp(1.55rem, 3.6vw, 2.2rem);
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+  margin: 0.1rem 0 0;
+  background: linear-gradient(120deg, var(--tier-hi), var(--tier-mid) 60%, var(--tier-lo));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.cy-dash-head__of { color: var(--cy-text-3); font-size: 0.85rem; font-weight: 500; letter-spacing: 0; -webkit-text-fill-color: var(--cy-text-3); }
+.cy-dash-head__caption { color: var(--cy-text-3); font-size: 0.82rem; margin: 0.2rem 0 0.55rem; }
+
+.cy-tier__track {
+  background: var(--cy-surface-3);
+  border-radius: 999px;
+  box-shadow: inset 0 0 0 1px var(--cy-border);
+  height: 7px;
+  max-width: 17rem;
+  overflow: hidden;
+}
+.cy-tier__fill {
+  background: linear-gradient(90deg, var(--tier-lo), var(--tier-mid), var(--tier-hi));
+  border-radius: 999px;
+  height: 100%;
+  width: var(--cy-value, 0%);
+}
+.cy-tier__next { color: var(--cy-text-2); font-size: 0.82rem; margin: 0.4rem 0 0; }
+.cy-tier__next strong { color: var(--cy-text); }
+.cy-tier__next--max { align-items: center; color: var(--cy-cyan-soft); display: flex; gap: 0.4rem; }
+.cy-tier__next--max .cy-i { height: 15px; width: 15px; }
+
+/* The tier stat tile echoes the metal. */
+.cy-tile--tier .cy-tile__icon { color: var(--tier-mid); }
+.cy-tile--tier .cy-tile__value {
+  background: linear-gradient(120deg, var(--tier-hi), var(--tier-mid) 65%, var(--tier-lo));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .cy-tier__fill { transition: width 0.5s ease; }
+  .cy-tier__art { transition: filter 0.3s ease; }
+  .cy-dash-head__id:hover .cy-tier__art { filter: drop-shadow(0 9px 20px var(--tier-glow)); }
+}
+
+@media (max-width: 560px) {
+  .cy-dash-head__id { gap: 0.85rem; }
+  .cy-tier__emblem { height: 68px; width: 68px; }
+}
+
+/* --- Activity heat-map (calendar day intensity) --------------------------- */
+/* Active days deepen with how much was done: a faint violet for a light day up
+   to a bright violet→cyan for a big one. White numerals stay readable on all. */
+.cy-cal__day.is-active { color: #fff; font-weight: 600; box-shadow: 0 0 0 1px rgba(155, 123, 248, 0.35); }
+.cy-cal__day.is-l1 { background: #372c5e; }
+.cy-cal__day.is-l2 { background: #533aa6; }
+.cy-cal__day.is-l3 { background: linear-gradient(140deg, #6d28d9, #4f2ba8); }
+.cy-cal__day.is-l4 { background: linear-gradient(140deg, #7b3ff0, #1f8fb0); box-shadow: 0 0 0 1px rgba(93, 231, 247, 0.5), 0 3px 14px rgba(109, 40, 217, 0.4); }
+/* Today keeps its ring on top of whatever heat it carries. */
+.cy-cal__day.is-today { box-shadow: inset 0 0 0 1.5px var(--cy-violet); color: var(--cy-text); font-weight: 700; }
+.cy-cal__day.is-active.is-today { box-shadow: inset 0 0 0 1.5px var(--cy-cyan-soft), 0 3px 12px rgba(109, 40, 217, 0.35); color: #fff; }
+
+.cy-cal__legend { align-items: center; display: flex; gap: 0.3rem; }
+.cy-cal__legend-label { color: var(--cy-text-3); font-size: 0.7rem; }
+.cy-cal__heatkey { border-radius: 3px; height: 12px; width: 12px; }
+.cy-cal__heatkey.is-l0 { background: var(--cy-surface-3); box-shadow: inset 0 0 0 1px var(--cy-border); }
+.cy-cal__heatkey.is-l1 { background: #372c5e; }
+.cy-cal__heatkey.is-l2 { background: #533aa6; }
+.cy-cal__heatkey.is-l3 { background: #6d28d9; }
+.cy-cal__heatkey.is-l4 { background: linear-gradient(140deg, #7b3ff0, #1f8fb0); }
+
+/* --- Tier-up celebration -------------------------------------------------- */
+.cy-celebrate {
+  align-items: center;
+  background:
+    radial-gradient(120% 140% at 12% 0%, color-mix(in srgb, var(--tier-mid) 22%, transparent), transparent 60%),
+    var(--cy-surface-2);
+  border: 1px solid var(--cy-border);
+  border-radius: 16px;
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+  overflow: hidden;
+  padding: 1rem 1.25rem;
+  position: relative;
+}
+.cy-celebrate__emblem { width: 52px; flex: none; }
+.cy-celebrate__eyebrow { color: var(--tier-mid); font-size: 0.72rem; letter-spacing: 0.14em; margin: 0; text-transform: uppercase; }
+.cy-celebrate__title { color: var(--cy-text); font-size: 1.15rem; font-weight: 700; margin: 0.1rem 0 0; letter-spacing: -0.01em; }
+.cy-celebrate__spark { position: absolute; inset: 0; pointer-events: none;
+  background:
+    radial-gradient(3px 3px at 30% 40%, var(--tier-hi), transparent 60%),
+    radial-gradient(2px 2px at 62% 25%, var(--cy-cyan-soft), transparent 60%),
+    radial-gradient(2.5px 2.5px at 80% 60%, var(--tier-hi), transparent 60%),
+    radial-gradient(2px 2px at 45% 72%, var(--cy-violet-soft), transparent 60%);
+  opacity: 0.8;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .cy-celebrate { animation: cy-celebrate-in 0.5s ease both; }
+  .cy-celebrate__spark { animation: cy-celebrate-twinkle 2.4s ease-in-out infinite; }
+}
+@keyframes cy-celebrate-in { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes cy-celebrate-twinkle { 0%, 100% { opacity: 0.35; } 50% { opacity: 0.9; } }
 
 /* Five stat tiles across; the existing .cy-tile carries the depth. */
 .cy-tiles--5 { grid-template-columns: repeat(auto-fit, minmax(8.5rem, 1fr)); }
@@ -7125,6 +7296,8 @@ a.cy-path__link:hover { background: var(--cy-surface-2); }
 .cy-c-empty__title { font-size: 1.2rem; margin: 0 0 0.5rem; }
 .cy-c-empty__body { color: var(--cy-text-2); margin: 0 auto 1.4rem; max-width: 34rem; }
 .cy-c-empty__actions { display: flex; flex-wrap: wrap; gap: 0.6rem; justify-content: center; }
+.cy-c-empty--tight { background: transparent; border-style: dashed; padding: 1.75rem 1.25rem; }
+.cy-c-empty--tight .cy-c-empty__title { font-size: 1rem; }
 
 /* --- Search + quick filters ----------------------------------------------- */
 .cy-c-search { align-items: center; display: flex; gap: 0.5rem; margin-bottom: 0.9rem; }

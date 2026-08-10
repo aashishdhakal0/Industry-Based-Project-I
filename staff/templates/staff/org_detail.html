@@ -1,0 +1,94 @@
+{% extends "staff/base.html" %}
+
+{% block title %}{{ org.name }} — {{ site_name }}{% endblock %}
+
+{% block console %}
+<a class="cy-c-back" href="{% url 'staff:organisations' %}">
+  <svg class="cy-i" aria-hidden="true"><use href="#i-chevron-left"/></svg> Back to organisations
+</a>
+
+<header class="cy-c-detailhead">
+  <div>
+    <p class="cy-c-head__eyebrow">Organisation</p>
+    <h1 class="cy-c-detailhead__name">{{ org.name }}</h1>
+    <div class="cy-c-tags">
+      {% if org.sector %}<span class="cy-pill">{{ org.sector }}</span>{% endif %}
+      <span class="cy-pill">{{ members|length }} learner{{ members|length|pluralize }}</span>
+      {% if org.contact_email %}<span class="cy-c-muted">{{ org.contact_email }}</span>{% endif %}
+    </div>
+  </div>
+</header>
+
+<div class="cy-c-detail">
+  <div class="cy-c-detail__main">
+    <section class="cy-c-section">
+      <div class="cy-c-section__head">
+        <h2 class="cy-c-section__title">Members</h2>
+        <a class="cy-c-section__link" href="{% url 'staff:learners' %}?q={{ org.name|urlencode }}">View in learners</a>
+      </div>
+      {% if members %}
+        <div class="cy-c-tablewrap">
+          <table class="cy-c-table">
+            <thead><tr><th>Learner</th><th>Grade</th><th>Completion</th><th>Last active</th><th class="cy-c-num">Action</th></tr></thead>
+            <tbody>
+              {% for r in members %}
+                <tr>
+                  <td>
+                    <a class="cy-c-learner" href="{% url 'staff:learner_detail' r.user.pk %}">
+                      <span class="cy-c-learner__name">{{ r.name }}</span>
+                      <span class="cy-c-learner__email">{{ r.user.email }}</span>
+                    </a>
+                  </td>
+                  <td><span class="cy-tierbadge cy-tierbadge--{{ r.tier.slug }}">{{ r.tier.name }}</span></td>
+                  <td>
+                    <span class="cy-c-mod">
+                      <span class="cy-c-mod__count">{{ r.modules_completed }}/{{ r.modules_total }}</span>
+                      <span class="cy-c-bar__track cy-c-mod__track"><span class="cy-c-bar__fill" style="width: {{ r.completion_percent }}%;"></span></span>
+                    </span>
+                  </td>
+                  <td>{% if r.last_active %}{{ r.last_active|date:"j M Y" }}{% else %}<span class="cy-c-muted">Never</span>{% endif %}</td>
+                  <td class="cy-c-num">
+                    <form method="post" action="{% url 'staff:assign_org' r.user.pk %}"
+                          data-confirm="Remove {{ r.name }} from {{ org.name }}?" data-confirm-yes="Remove">
+                      {% csrf_token %}
+                      <input type="hidden" name="org" value="">
+                      <input type="hidden" name="from_org" value="{{ org.pk }}">
+                      <button type="submit" class="cy-btn cy-btn--ghost cy-btn--sm">Remove</button>
+                    </form>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <div class="cy-c-empty cy-c-empty--tight">
+          <h3 class="cy-c-empty__title">No members yet</h3>
+          <p class="cy-c-empty__body">Open a learner's profile and set their organisation to {{ org.name }} to add them here.</p>
+          <div class="cy-c-empty__actions">
+            <a class="cy-btn cy-btn--ghost cy-btn--sm" href="{% url 'staff:learners' %}">View learners</a>
+          </div>
+        </div>
+      {% endif %}
+    </section>
+  </div>
+
+  <aside class="cy-c-detail__side">
+    <div class="cy-c-section">
+      <div class="cy-c-section__head"><h2 class="cy-c-section__title">Details</h2></div>
+      <form method="post" class="cy-c-form">
+        {% csrf_token %}
+        {% if form.non_field_errors %}<div class="cy-errors" role="alert">{{ form.non_field_errors }}</div>{% endif %}
+        {% for field in form %}
+          <div class="cy-c-field">
+            <label class="cy-c-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+            {% for error in field.errors %}<span class="cy-c-error">{{ error }}</span>{% endfor %}
+          </div>
+        {% endfor %}
+        <button type="submit" class="cy-btn cy-btn--primary cy-btn--block cy-btn--sm">Save details</button>
+      </form>
+    </div>
+  </aside>
+</div>
+{% endblock %}

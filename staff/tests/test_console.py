@@ -19,12 +19,17 @@ PASSWORD = "correct-horse-battery"
 
 
 def student(email, first, org="", points=0, days=None):
+    from authentication.models import Organisation
+
     u = User.objects.create_user(
         email=email, password=PASSWORD, first_name=first, last_name="Doe",
         role=User.Role.STUDENT, is_verified=True,
     )
     last = timezone.now() - timedelta(days=days) if days is not None else None
-    UserProfile.objects.create(user=u, organisation=org, points=points, last_active=last)
+    org_obj = Organisation.objects.get_or_create(name=org)[0] if org else None
+    UserProfile.objects.create(
+        user=u, organisation=org, org=org_obj, points=points, last_active=last
+    )
     return u
 
 

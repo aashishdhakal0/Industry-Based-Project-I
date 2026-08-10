@@ -205,13 +205,20 @@ class Command(BaseCommand):
 
         # Set activity/streak, THEN recompute points + badges from the records
         # (refresh_profile preserves the streak/last_active we set here).
-        profile.organisation = p["org"]
+        # Route the org through the resolver so a managed Organisation record
+        # (and the FK) exists, keeping the console's org list coherent.
+        from staff import services
+
+        org = services.resolve_organisation(p["org"])
+        profile.org = org
+        profile.organisation = org.name if org else ""
         profile.flagged = bool(p["flag"])
         profile.flag_reason = p["flag"] or ""
         profile.last_active = last_active
         profile.streak_count = p["streak"]
         profile.save(
-            update_fields=["organisation", "flagged", "flag_reason", "last_active", "streak_count"]
+            update_fields=["org", "organisation", "flagged", "flag_reason",
+                           "last_active", "streak_count"]
         )
 
         g.refresh_profile(user, bump_streak=False)

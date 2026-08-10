@@ -63,8 +63,9 @@
 
       <nav class="cy-side__nav">
         {% if user.is_administrator %}
-          {% comment %}Administrator: the staff oversight surface. Django's raw
-             /admin/ stays linked below for data management.{% endcomment %}
+          {% comment %}Administrator: the polished console is the whole surface.
+             Django's raw /admin/ sits de-emphasised in the sidebar foot for the
+             rare time an admin needs raw data, not as a peer of these.{% endcomment %}
           <a class="cy-side__item {% if active == 'admin_overview' %}is-active{% endif %}" href="{% url 'staff:overview' %}">
             <svg class="cy-i" aria-hidden="true"><use href="#i-grid"/></svg> Overview
           </a>
@@ -79,9 +80,6 @@
           </a>
           <a class="cy-side__item {% if active == 'admin_activity' %}is-active{% endif %}" href="{% url 'staff:activity' %}">
             <svg class="cy-i" aria-hidden="true"><use href="#i-clock"/></svg> Activity
-          </a>
-          <a class="cy-side__item" href="{% url 'admin:index' %}">
-            <svg class="cy-i" aria-hidden="true"><use href="#i-layers"/></svg> Django admin
           </a>
         {% else %}
           <a class="cy-side__item {% if active == 'dashboard' %}is-active{% endif %}" href="{% url 'dashboard' %}">
@@ -103,6 +101,11 @@
       </nav>
 
       <div class="cy-side__foot">
+        {% if user.is_administrator %}
+          <a class="cy-side__adv" href="{% url 'admin:index' %}">
+            <svg class="cy-i" aria-hidden="true"><use href="#i-layers"/></svg> Raw data · Django admin
+          </a>
+        {% endif %}
         {% include "_logout_form.html" %}
       </div>
     </aside>

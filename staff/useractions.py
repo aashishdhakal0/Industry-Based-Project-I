@@ -20,7 +20,7 @@ from django.urls import reverse
 from django.views.decorators.http import require_POST
 
 from authentication.decorators import administrator_required
-from authentication.models import User
+from authentication.models import Organisation, User
 
 from . import services
 from .models import AdminAction
@@ -175,4 +175,35 @@ def toggle_flag(request, user_id):
         request.user, kind, f"{verb} {target.email}", target_user=target
     )
     messages.success(request, f"{verb} {target.email}.")
+    return _back(target)
+
+
+@administrator_required
+@require_POST
+def assign_org(request, user_id):
+    """Assign a learner to an organisation, reassign, or clear it (empty value).
+
+    Writes through the service helper so the FK and the text mirror stay in step.
+    Redirects back to the org page when the action came from there, otherwise to
+    the learner's profile.
+    """
+    target = get_object_or_404(User, pk=user_id)
+    profile = services.g.get_profile(target)
+
+    org_id = (request.POST.get("org") or "").strip()
+    org = get_object_or_404(Organisation, pk=org_id) if org_id else None
+    services.assign_learner_org(profile, org)
+
+    if org:
+        summary = f"Assigned {target.email} to “{org.name}”"
+    else:
+        summary = f"Removed {target.email} from their organisation"
+    services.log_action(
+        request.user, AdminAction.Kind.ASSIGN_ORG, summary, target_user=target
+    )
+    messages.success(request, summary + ".")
+
+    from_org = (request.POST.get("from_org") or "").strip()
+    if from_org:
+        return redirect(reverse("staff:org_detail", args=[from_org]))
     return _back(target)

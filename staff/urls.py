@@ -12,6 +12,8 @@ urlpatterns = [
     path("learners/export.csv", views.learners_csv, name="learners_csv"),
     path("learners/<int:user_id>/", views.learner_detail, name="learner_detail"),
     path("organisations/", views.organisations, name="organisations"),
+    path("organisations/new/", views.org_new, name="org_new"),
+    path("organisations/<int:org_id>/", views.org_detail, name="org_detail"),
     path("activity/", views.activity, name="activity"),
     path("users/new/", views.user_new, name="user_new"),
     # User-management actions (POST only, admin only, audit-logged).
@@ -24,6 +26,7 @@ urlpatterns = [
     ),
     path("users/<int:user_id>/nudge/", useractions.nudge, name="nudge"),
     path("users/<int:user_id>/flag/", useractions.toggle_flag, name="toggle_flag"),
+    path("users/<int:user_id>/organisation/", useractions.assign_org, name="assign_org"),
     # Content management: list, publish, and drill in to edit.
     path("content/", views.content, name="content"),
     path(

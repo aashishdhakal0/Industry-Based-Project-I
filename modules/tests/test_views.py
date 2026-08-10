@@ -442,7 +442,7 @@ def test_the_streak_nudges_when_a_day_is_at_risk(client_student, student, module
 
     html = client_student.get(reverse("dashboard")).content.decode()
     assert "cy-streakbox--at_risk" in html
-    assert "keep your 4-day streak" in html  # new copy: "...keep your 4-day streak."
+    assert "break your 4-day streak" in html   # loss-aversion framing (apostrophe HTML-escaped)
 
 
 @pytest.mark.django_db
@@ -465,7 +465,7 @@ def test_dashboard_stats_strip_shows_real_totals(client_student, student, module
     html = client_student.get(reverse("dashboard")).content.decode()
     # Five refined stat tiles up top.
     assert 'class="cy-tiles cy-tiles--5' in html
-    assert html.count('class="cy-tile"') == 5
+    assert html.count("cy-tile__value") == 5
 
 
 # --------------------------------------------------------------------------
@@ -478,8 +478,82 @@ def test_returning_dashboard_has_the_identity_header_and_stat_tiles(client_stude
     complete(client_student, modules[0], 1, HTTP_X_REQUESTED_WITH="fetch")
     html = client_student.get(reverse("dashboard")).content.decode()
     assert "cy-dash-head" in html            # identity header
-    assert "cy-dash-head__rank" in html      # proud rank title
-    assert html.count('class="cy-tile"') == 5
+    assert "cy-tier__emblem" in html         # the tier medallion is the hero
+    assert html.count("cy-tile__value") == 5
+
+
+def _set_points(student, points):
+    from modules import gamification as g
+
+    profile = g.get_profile(student)
+    profile.points = points
+    profile.save(update_fields=["points"])
+
+
+@pytest.mark.django_db
+def test_dashboard_shows_the_tier_and_progress_to_next(client_student, student, modules):
+    """The tier emblem, its name and 'points to next' are real, from points."""
+    _set_points(student, 250)             # Gold (220); Platinum at 380
+    html = client_student.get(reverse("dashboard")).content.decode()
+    assert "cy-tier--gold" in html
+    assert "cy-tier__emblem" in html
+    assert "130 points" in html           # 380 - 250
+    assert "to Platinum" in html
+    assert "Tier 3 of 5" in html
+
+
+@pytest.mark.django_db
+def test_dashboard_top_tier_shows_a_mastery_state(client_student, student, modules):
+    _set_points(student, 540)             # Diamond, the ceiling
+    html = client_student.get(reverse("dashboard")).content.decode()
+    assert "cy-tier--diamond" in html
+    assert "course mastered" in html
+    assert "cy-tier__next--max" in html   # the mastery state, not a progress bar
+    assert "cy-tier__fill" not in html     # no 'to next' bar at the top tier
+
+
+@pytest.mark.django_db
+def test_dashboard_calendar_has_a_heat_legend_and_marks_activity(client_student, modules):
+    complete(client_student, modules[0], 1, HTTP_X_REQUESTED_WITH="fetch")
+    html = client_student.get(reverse("dashboard")).content.decode()
+    assert "cy-cal__legend" in html
+    assert "cy-cal__heatkey" in html      # the Less→More heat scale
+    assert "Less" in html and "More" in html
+    assert "is-active is-l" in html       # a real active day carries a heat level
+    assert "active day" in html           # the "X active days this month" summary
+
+
+@pytest.mark.django_db
+def test_tier_emblems_are_distinct_shapes_not_one_recoloured(client_student, student, modules):
+    """Gold renders a star, Diamond a gem — different SVG geometry, not a recolour."""
+    _set_points(student, 250)             # Gold
+    gold = client_student.get(reverse("dashboard")).content.decode()
+    _set_points(student, 540)             # Diamond
+    diamond = client_student.get(reverse("dashboard")).content.decode()
+
+    assert 'points="32,4' in gold          # the sunburst-star polygon
+    assert "M20 15 H44" in diamond          # the brilliant-cut gem path
+    assert 'points="32,4' not in diamond    # the shapes genuinely differ
+
+
+@pytest.mark.django_db
+def test_dashboard_celebrates_a_new_tier_once(client_student, student, modules):
+    from modules import gamification as g
+
+    profile = g.get_profile(student)
+    profile.points = 250                   # Gold (index 2)
+    profile.celebrated_tier = 1            # last congratulated at Silver
+    profile.save(update_fields=["points", "celebrated_tier"])
+
+    first = client_student.get(reverse("dashboard")).content.decode()
+    assert "You reached Gold" in first
+    assert "cy-celebrate" in first
+
+    profile.refresh_from_db()
+    assert profile.celebrated_tier == 2    # marker advanced
+
+    second = client_student.get(reverse("dashboard")).content.decode()
+    assert "You reached Gold" not in second   # never repeats
 
 
 @pytest.mark.django_db
@@ -534,9 +608,9 @@ def test_dashboard_shows_the_activity_calendar_with_todays_study(client_student,
 
     assert "cy-cal" in html
     assert timezone.localdate().strftime("%B %Y") in html   # e.g. "July 2026"
-    assert "1 active day this month" in html
-    # Today's completion is marked both as active and as today.
-    assert "cy-cal__day is-active is-today" in html
+    assert "<strong>1</strong> active day this month" in html
+    # Today's completion is marked active (with a heat level) and as today.
+    assert "cy-cal__day is-active is-l1 is-today" in html
 
 
 @pytest.mark.django_db

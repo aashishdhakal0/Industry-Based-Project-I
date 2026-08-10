@@ -152,6 +152,11 @@ class UserProfile(models.Model):
         "(e.g. the learner has fallen behind).",
     )
     flag_reason = models.CharField(max_length=255, blank=True)
+    celebrated_tier = models.PositiveSmallIntegerField(
+        default=0,
+        help_text="Highest tier index the student has already been congratulated "
+        "for. The dashboard fires a one-time celebration when they climb past it.",
+    )
 
     class Meta:
         db_table = "user_profiles"
