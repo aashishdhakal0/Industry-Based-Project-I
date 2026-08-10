@@ -381,3 +381,42 @@
     }
   });
 })();
+
+
+/* Show/hide password.
+ *
+ * Every password field on the platform (login, registration, both reset
+ * forms) renders the same markup: the input wrapped in a
+ * `.cy-field-control`, with a `<button type="button" data-password-toggle>`
+ * pointed at it via `aria-controls`. type="button" is load-bearing — a
+ * checkbox or a bare button without it would submit the form.
+ *
+ * A real <button> is used rather than a styled <span> or <div> specifically
+ * so Enter and Space work for free: the browser gives a <button> both,
+ * keyboard focus, and its place in the tab order without us wiring any of
+ * that up ourselves.
+ *
+ * State lives only in the DOM (the input's `type` and the button's
+ * aria-pressed/aria-label) and is never written to storage, so every page
+ * load starts hidden — there is nothing to reset.
+ */
+(function () {
+  "use strict";
+
+  var toggles = document.querySelectorAll("[data-password-toggle]");
+  if (!toggles.length) return;
+
+  Array.prototype.forEach.call(toggles, function (btn) {
+    var input = document.getElementById(btn.getAttribute("aria-controls"));
+    var use = btn.querySelector("use");
+    if (!input || !use) return;
+
+    btn.addEventListener("click", function () {
+      var shown = input.type === "text";
+      input.type = shown ? "password" : "text";
+      btn.setAttribute("aria-pressed", shown ? "false" : "true");
+      btn.setAttribute("aria-label", shown ? "Show password" : "Hide password");
+      use.setAttribute("href", shown ? "#i-eye" : "#i-eye-off");
+    });
+  });
+})();
