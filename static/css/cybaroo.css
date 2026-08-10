@@ -724,6 +724,64 @@ body.cy-body {
   margin-top: 0.4rem;
 }
 
+/* Label + "Forgot your password?" on one row, so the link sits right where
+   someone stuck on the password field is already looking. */
+.cy-field__head {
+  align-items: baseline;
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+}
+.cy-field__head .cy-label { margin-bottom: 0.3rem; }
+
+.cy-forgot-link {
+  color: var(--cy-text-3);
+  font-size: 0.9rem;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.cy-forgot-link:hover,
+.cy-forgot-link:focus-visible {
+  color: var(--cy-violet-soft);
+  text-decoration: underline;
+}
+
+/* Show/hide password. The input gets right-padding so typed text never runs
+   under the button; the button is absolutely positioned over it rather than
+   living beside it, so the field keeps the same width as every other field on
+   the form. */
+.cy-field-control {
+  position: relative;
+}
+.cy-field-control .form-control {
+  padding-right: 3rem;
+}
+.cy-password-toggle {
+  align-items: center;
+  background: transparent;
+  border: none;
+  border-radius: var(--cy-r);
+  color: var(--cy-text-3);
+  cursor: pointer;
+  display: flex;
+  height: 2.25rem;
+  justify-content: center;
+  padding: 0;
+  position: absolute;
+  right: 0.55rem;
+  top: 50%;
+  transform: translateY(-50%);
+  transition: color var(--cy-fast) var(--cy-ease);
+  width: 2.25rem;
+}
+.cy-password-toggle .cy-i { height: 20px; width: 20px; }
+.cy-password-toggle:hover { color: var(--cy-text); }
+.cy-password-toggle:focus-visible {
+  color: var(--cy-text);
+  outline: 2px solid var(--cy-violet);
+  outline-offset: 1px;
+}
+
 .cy-errors {
   background: rgba(255, 128, 128, 0.09);
   border: 1px solid rgba(255, 128, 128, 0.32);

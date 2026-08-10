@@ -6,7 +6,12 @@ before they get it wrong rather than after.
 
 from django import forms
 from django.contrib.auth import authenticate
-from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
+from django.contrib.auth.forms import (
+    AuthenticationForm,
+    PasswordResetForm,
+    SetPasswordForm,
+    UserCreationForm,
+)
 
 from .models import User
 
@@ -199,3 +204,46 @@ class LoginCodeForm(forms.Form):
         if not code.isdigit():
             raise forms.ValidationError("The code is 6 numbers, with no letters.")
         return code
+
+
+class ResetRequestForm(PasswordResetForm):
+    """The "forgot my password" form — just the email address.
+
+    Django's base form already looks the account up by
+    `UserModel.get_email_field_name()`, which resolves to `AbstractUser`'s
+    `EMAIL_FIELD = "email"` — the same field our `User.USERNAME_FIELD` points
+    at — so no override is needed for the lookup itself to work correctly. This
+    subclass only restyles the field to match the rest of the platform.
+    """
+
+    email = forms.EmailField(
+        label="Email address",
+        help_text="The address you signed up with. We'll send a link there.",
+        widget=forms.EmailInput(
+            attrs={"autocomplete": "email", "autofocus": True, "class": "form-control"}
+        ),
+    )
+
+
+class SetPasswordStyledForm(SetPasswordForm):
+    """The "pick a new password" step, restyled to match registration.
+
+    Field names (`new_password1` / `new_password2`) are Django's own — kept
+    as-is so `PasswordResetConfirmView` needs no further changes.
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields["new_password1"].label = "New password"
+        self.fields["new_password1"].help_text = (
+            "Eight or more characters — three random words work a treat."
+        )
+        self.fields["new_password2"].label = "Confirm new password"
+        self.fields["new_password2"].help_text = "Just to be sure."
+
+        for field in self.fields.values():
+            field.widget.attrs.setdefault("class", "form-control")
+        self.fields["new_password1"].widget.attrs["autocomplete"] = "new-password"
+        self.fields["new_password1"].widget.attrs["autofocus"] = True
+        self.fields["new_password2"].widget.attrs["autocomplete"] = "new-password"
