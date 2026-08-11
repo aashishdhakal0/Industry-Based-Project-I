@@ -55,6 +55,7 @@ def overview(request):
             "greeting": g.greeting(),
             "recent_actions": services.recent_actions(),
             "content_health": services.content_health(),
+            "charts": services.overview_charts(stats),
         },
     )
 
@@ -218,6 +219,38 @@ def learners_csv(request):
                 r.name,
                 r.user.email,
                 profile.organisation if profile else "",
+                r.modules_completed,
+                r.modules_total,
+                "" if r.overall_score is None else r.overall_score,
+                r.tier.name,
+                r.points,
+                r.last_active.strftime("%Y-%m-%d %H:%M") if r.last_active else "",
+            ]
+        )
+    return response
+
+
+@administrator_required
+def org_learners_csv(request, org_id):
+    """Download one organisation's learners as CSV — a per-client progress report."""
+    org = get_object_or_404(Organisation, pk=org_id)
+    rows = services.organisation_members(org)
+    rows = services.sort_and_filter(rows)
+
+    response = HttpResponse(content_type="text/csv")
+    slug = org.name.lower().replace(" ", "-")
+    response["Content-Disposition"] = f'attachment; filename="cybaroo-{slug}-progress.csv"'
+
+    writer = csv.writer(response)
+    writer.writerow(
+        ["Name", "Email", "Modules completed", "Modules total", "Overall score",
+         "Grade", "Points", "Last active"]
+    )
+    for r in rows:
+        writer.writerow(
+            [
+                r.name,
+                r.user.email,
                 r.modules_completed,
                 r.modules_total,
                 "" if r.overall_score is None else r.overall_score,

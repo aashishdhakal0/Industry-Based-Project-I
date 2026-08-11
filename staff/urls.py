@@ -14,6 +14,7 @@ urlpatterns = [
     path("organisations/", views.organisations, name="organisations"),
     path("organisations/new/", views.org_new, name="org_new"),
     path("organisations/<int:org_id>/", views.org_detail, name="org_detail"),
+    path("organisations/<int:org_id>/export.csv", views.org_learners_csv, name="org_learners_csv"),
     path("activity/", views.activity, name="activity"),
     path("users/new/", views.user_new, name="user_new"),
     # User-management actions (POST only, admin only, audit-logged).

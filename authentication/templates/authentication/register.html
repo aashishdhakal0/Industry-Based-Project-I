@@ -56,7 +56,18 @@
           <span class="cy-hint">{{ field.help_text }}</span>
         {% endif %}
 
-        {{ field }}
+        {% if field.field.widget.input_type == "password" %}
+          <div class="cy-field-control">
+            {{ field }}
+            <button type="button" class="cy-password-toggle" data-password-toggle
+                    aria-controls="{{ field.id_for_label }}" aria-pressed="false"
+                    aria-label="Show password">
+              <svg class="cy-i" aria-hidden="true"><use href="#i-eye"/></svg>
+            </button>
+          </div>
+        {% else %}
+          {{ field }}
+        {% endif %}
 
         {% for error in field.errors %}
           <span class="cy-field-error">{{ error }}</span>

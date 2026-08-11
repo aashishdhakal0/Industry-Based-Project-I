@@ -724,6 +724,64 @@ body.cy-body {
   margin-top: 0.4rem;
 }
 
+/* Label + "Forgot your password?" on one row, so the link sits right where
+   someone stuck on the password field is already looking. */
+.cy-field__head {
+  align-items: baseline;
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+}
+.cy-field__head .cy-label { margin-bottom: 0.3rem; }
+
+.cy-forgot-link {
+  color: var(--cy-text-3);
+  font-size: 0.9rem;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.cy-forgot-link:hover,
+.cy-forgot-link:focus-visible {
+  color: var(--cy-violet-soft);
+  text-decoration: underline;
+}
+
+/* Show/hide password. The input gets right-padding so typed text never runs
+   under the button; the button is absolutely positioned over it rather than
+   living beside it, so the field keeps the same width as every other field on
+   the form. */
+.cy-field-control {
+  position: relative;
+}
+.cy-field-control .form-control {
+  padding-right: 3rem;
+}
+.cy-password-toggle {
+  align-items: center;
+  background: transparent;
+  border: none;
+  border-radius: var(--cy-r);
+  color: var(--cy-text-3);
+  cursor: pointer;
+  display: flex;
+  height: 2.25rem;
+  justify-content: center;
+  padding: 0;
+  position: absolute;
+  right: 0.55rem;
+  top: 50%;
+  transform: translateY(-50%);
+  transition: color var(--cy-fast) var(--cy-ease);
+  width: 2.25rem;
+}
+.cy-password-toggle .cy-i { height: 20px; width: 20px; }
+.cy-password-toggle:hover { color: var(--cy-text); }
+.cy-password-toggle:focus-visible {
+  color: var(--cy-text);
+  outline: 2px solid var(--cy-violet);
+  outline-offset: 1px;
+}
+
 .cy-errors {
   background: rgba(255, 128, 128, 0.09);
   border: 1px solid rgba(255, 128, 128, 0.32);
@@ -7247,6 +7305,62 @@ a.cy-path__link:hover { background: var(--cy-surface-2); }
 .cy-c-kpi--primary .cy-c-kpi__value { color: var(--cy-accent-strong); }
 .cy-c-kpi__bar { background: var(--cy-surface-3); border-radius: 999px; height: 5px; margin-top: 0.35rem; overflow: hidden; }
 .cy-c-kpi__fill { background: var(--cy-accent); border-radius: 999px; display: block; height: 100%; }
+.cy-c-kpi__of { color: var(--cy-text-3); font-family: var(--cy-font-mono); font-size: 1.05rem; }
+
+/* --- Dashboard charts (hand-built inline SVG, real data) ------------------ */
+.cy-c-kpis--spark { grid-template-columns: repeat(4, 1fr); }
+.cy-c-kpi__spark { margin-top: auto; padding-top: 0.7rem; }
+.cy-spark { display: block; height: 30px; width: 100%; overflow: visible; }
+.cy-spark__line { fill: none; stroke: var(--cy-cyan); stroke-width: 1.8; stroke-linejoin: round; stroke-linecap: round; }
+.cy-spark__line.is-flat { stroke: var(--cy-border-lift); stroke-dasharray: 3 3; }
+.cy-spark__area { fill: var(--cy-cyan); opacity: 0.1; }
+.cy-spark__dot { fill: var(--cy-cyan-soft); stroke: var(--cy-surface-2); stroke-width: 1.5; }
+.cy-c-kpi--primary .cy-spark__line { stroke: var(--cy-accent-strong); }
+.cy-c-kpi--primary .cy-spark__area { fill: var(--cy-accent); }
+.cy-c-kpi--primary .cy-spark__dot { fill: var(--cy-accent-strong); }
+
+.cy-c-grid--chart { grid-template-columns: 1.7fr 1fr; }
+.cy-c-panel { margin-bottom: 0; }
+
+.cy-chart__empty { color: var(--cy-text-3); font-size: 0.85rem; padding: 2.5rem 0.5rem; text-align: center; }
+
+/* Area chart */
+.cy-area { display: block; height: auto; width: 100%; }
+.cy-area__grid { stroke: var(--cy-border); stroke-width: 1; }
+.cy-area__line { fill: none; stroke: var(--cy-violet); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.cy-area__dot { fill: var(--cy-cyan-soft); stroke: var(--cy-surface-2); stroke-width: 2; }
+.cy-area__ytick, .cy-area__xtick { fill: var(--cy-text-3); font-family: var(--cy-font-mono); font-size: 9px; }
+
+/* Donut */
+.cy-donutwrap { align-items: center; display: flex; flex-wrap: wrap; gap: 1.25rem; }
+.cy-donut { flex: none; height: 168px; width: 168px; }
+.cy-donut__track { stroke: var(--cy-surface-3); }
+.cy-donut__seg { stroke-linecap: butt; transition: stroke-width 0.15s ease; }
+.cy-donut__total { fill: var(--cy-text); font-family: var(--cy-font-mono); font-size: 30px; font-weight: 600; }
+.cy-donut__totallabel { fill: var(--cy-text-3); font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; }
+.cy-donut__legend { display: flex; flex-direction: column; gap: 0.5rem; flex: 1; list-style: none; margin: 0; min-width: 9rem; padding: 0; }
+.cy-donut__key { align-items: center; display: flex; gap: 0.5rem; font-size: 0.83rem; }
+.cy-donut__swatch { border-radius: 3px; flex: none; height: 11px; width: 11px; }
+.cy-donut__keylabel { color: var(--cy-text-2); }
+.cy-donut__keyval { color: var(--cy-text-3); font-family: var(--cy-font-mono); margin-left: auto; }
+
+/* Grade-tier segment colours (stroke for arcs, background for swatches). */
+.cy-seg--distinction { stroke: #5ee7f7; background: #5ee7f7; }
+.cy-seg--merit { stroke: #a78bfa; background: #a78bfa; }
+.cy-seg--pass { stroke: #6d6ae0; background: #6d6ae0; }
+.cy-seg--not-yet { stroke: #d99a52; background: #d99a52; }
+.cy-seg--not-started { stroke: #454c58; background: #454c58; }
+
+/* Module-completion funnel */
+.cy-c-funnel { display: flex; flex-direction: column; gap: 0.7rem; list-style: none; margin: 0; padding: 0; }
+.cy-c-funnel__row { align-items: center; display: grid; gap: 0.75rem; grid-template-columns: 12rem 1fr 3.5rem; }
+.cy-c-funnel__name { color: var(--cy-text-2); font-size: 0.85rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cy-c-funnel__track { background: var(--cy-surface-3); border-radius: 999px; height: 9px; overflow: hidden; }
+.cy-c-funnel__fill { background: linear-gradient(90deg, var(--cy-accent), var(--cy-cyan)); border-radius: 999px; display: block; height: 100%; min-width: 2px; }
+.cy-c-funnel__val { color: var(--cy-text); font-family: var(--cy-font-mono); font-size: 0.85rem; text-align: right; }
+@media (prefers-reduced-motion: no-preference) {
+  .cy-c-funnel__fill, .cy-c-kpi__fill { transition: width 0.5s ease; }
+}
 
 /* --- Sections + two-column grid ------------------------------------------- */
 .cy-c-grid { display: grid; gap: 1rem; grid-template-columns: 1.5fr 1fr; margin-bottom: 1rem; align-items: start; }
@@ -7440,11 +7554,14 @@ a.cy-path__link:hover { background: var(--cy-surface-2); }
 
 @media (max-width: 900px) {
   .cy-c-kpis { grid-template-columns: repeat(2, 1fr); }
-  .cy-c-grid { grid-template-columns: 1fr; }
+  .cy-c-kpis--spark { grid-template-columns: repeat(2, 1fr); }
+  .cy-c-grid, .cy-c-grid--chart { grid-template-columns: 1fr; }
   .cy-c-detail { grid-template-columns: 1fr; }
   .cy-c-detail__side { position: static; }
 }
 @media (max-width: 560px) {
   .cy-c-bar { grid-template-columns: 6rem 1fr 1.8rem; gap: 0.6rem; }
   .cy-c-mini { gap: 1.1rem; }
+  .cy-c-funnel__row { grid-template-columns: 7rem 1fr 3rem; gap: 0.5rem; }
+  .cy-c-funnel__name { font-size: 0.8rem; }
 }

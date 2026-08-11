@@ -24,7 +24,10 @@
     <section class="cy-c-section">
       <div class="cy-c-section__head">
         <h2 class="cy-c-section__title">Members</h2>
-        <a class="cy-c-section__link" href="{% url 'staff:learners' %}?q={{ org.name|urlencode }}">View in learners</a>
+        <span class="cy-c-section__note">
+          <a class="cy-c-section__link" href="{% url 'staff:learners' %}?q={{ org.name|urlencode }}">View in learners</a>
+          {% if members %}· <a class="cy-c-section__link" href="{% url 'staff:org_learners_csv' org.pk %}">Export CSV</a>{% endif %}
+        </span>
       </div>
       {% if members %}
         <div class="cy-c-tablewrap">

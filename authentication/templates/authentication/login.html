@@ -66,8 +66,18 @@
     </div>
 
     <div class="cy-field">
-      <label for="{{ form.password.id_for_label }}" class="cy-label">{{ form.password.label }}</label>
-      {{ form.password }}
+      <div class="cy-field__head">
+        <label for="{{ form.password.id_for_label }}" class="cy-label">{{ form.password.label }}</label>
+        <a class="cy-forgot-link" href="{% url 'authentication:password_reset' %}">Forgot your password?</a>
+      </div>
+      <div class="cy-field-control">
+        {{ form.password }}
+        <button type="button" class="cy-password-toggle" data-password-toggle
+                aria-controls="{{ form.password.id_for_label }}" aria-pressed="false"
+                aria-label="Show password">
+          <svg class="cy-i" aria-hidden="true"><use href="#i-eye"/></svg>
+        </button>
+      </div>
       {% for error in form.password.errors %}
         <span class="cy-field-error">{{ error }}</span>
       {% endfor %}

@@ -11,7 +11,7 @@ serves one person, so the engine's normal per-user helpers are exactly right.
 """
 
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from django.db.models import Count, Max, Q
 from django.utils import timezone
@@ -412,6 +412,364 @@ def content_health():
         "quizzes": quizzes,
         "questions_total": questions["total"],
         "edited_total": edited_total,
+    }
+
+
+# --- Analytics: weekly trends + hand-built SVG chart geometry -----------------
+#
+# Every chart on the overview is real data rendered as inline SVG. The geometry
+# (points, paths, arcs) is computed HERE, server-side, so templates stay dumb and
+# the maths is unit-tested. No JS charting library, so it is CSP-safe by
+# construction and no number can be fabricated in the browser. Each trend is one
+# grouped query (TruncWeek + aggregate), so the query count never grows with the
+# cohort.
+
+
+def _week_starts(weeks, now=None):
+    """The Monday date starting each of the last `weeks` weeks, oldest first."""
+    now = now or timezone.localdate()
+    this_monday = now - timedelta(days=now.weekday())
+    return [this_monday - timedelta(weeks=(weeks - 1 - i)) for i in range(weeks)]
+
+
+def _bucket_by_week(pairs, starts):
+    """Sum values into week buckets keyed by their Monday start.
+
+    `pairs` is an iterable of (local_date, value); `starts` the ordered Mondays.
+    """
+    index = {monday: i for i, monday in enumerate(starts)}
+    out = [0] * len(starts)
+    first = starts[0]
+    for day, value in pairs:
+        monday = day - timedelta(days=day.weekday())
+        i = index.get(monday)
+        if i is not None and monday >= first:
+            out[i] += value
+    return out
+
+
+def weekly_trends(weeks=12, now=None):
+    """Real weekly series for the dashboard, each a single grouped query.
+
+    Returns signups (cumulative learners), active (distinct learners active that
+    week), completions (lessons + quiz passes that week) and avg_score (mean quiz
+    score that week, carrying forward the last known value for empty weeks).
+    """
+    from django.db.models import Avg
+    from django.db.models.functions import TruncWeek
+
+    starts = _week_starts(weeks, now)
+    window_start = timezone.make_aware(
+        datetime(starts[0].year, starts[0].month, starts[0].day)
+    )
+
+    # New signups per week (students only), plus everyone who joined earlier so
+    # the cumulative line starts from the real base.
+    students = User.objects.filter(role=User.Role.STUDENT)
+    base_before = students.filter(date_joined__lt=window_start).count()
+    signup_rows = [
+        (timezone.localdate(r["w"]), r["n"])
+        for r in students.filter(date_joined__gte=window_start)
+        .annotate(w=TruncWeek("date_joined"))
+        .values("w")
+        .annotate(n=Count("id"))
+    ]
+    weekly_new = _bucket_by_week(signup_rows, starts)
+    signups, running = [], base_before
+    for n in weekly_new:
+        running += n
+        signups.append(running)
+
+    # Completions per week: lessons banked + quiz passes.
+    lesson_rows = [
+        (timezone.localdate(r["w"]), r["n"])
+        for r in ProgressRecord.objects.filter(completed_at__gte=window_start)
+        .annotate(w=TruncWeek("completed_at"))
+        .values("w")
+        .annotate(n=Count("id"))
+    ]
+    quiz_pass_rows = [
+        (timezone.localdate(r["w"]), r["n"])
+        for r in QuizResult.objects.filter(passed=True, submitted_at__gte=window_start)
+        .annotate(w=TruncWeek("submitted_at"))
+        .values("w")
+        .annotate(n=Count("id"))
+    ]
+    completions = [
+        a + b
+        for a, b in zip(
+            _bucket_by_week(lesson_rows, starts),
+            _bucket_by_week(quiz_pass_rows, starts),
+        )
+    ]
+
+    # Distinct active students per week (from lesson completions — the cheapest
+    # honest activity signal that already carries a per-week timestamp).
+    active_pairs = {}
+    for r in (
+        ProgressRecord.objects.filter(completed_at__gte=window_start)
+        .annotate(w=TruncWeek("completed_at"))
+        .values("w", "user")
+        .distinct()
+    ):
+        day = timezone.localdate(r["w"])
+        active_pairs[(day, r["user"])] = 1
+    active = _bucket_by_week(
+        [(day, 1) for (day, _uid) in active_pairs], starts
+    )
+
+    # Average quiz score per week; empty weeks carry the previous value forward
+    # so the sparkline reads as a line, not a cliff to zero.
+    score_by_week = {
+        timezone.localdate(r["w"]): round(r["avg"] or 0)
+        for r in QuizResult.objects.filter(submitted_at__gte=window_start)
+        .annotate(w=TruncWeek("submitted_at"))
+        .values("w")
+        .annotate(avg=Avg("score"))
+    }
+    avg_score, carry = [], 0
+    for monday in starts:
+        if monday in score_by_week:
+            carry = score_by_week[monday]
+        avg_score.append(carry)
+
+    return {
+        "week_starts": starts,
+        "signups": signups,
+        "active": active,
+        "completions": completions,
+        "avg_score": avg_score,
+    }
+
+
+@dataclass
+class Sparkline:
+    line: str        # "x,y x,y …" for a <polyline>
+    area: str        # closed path for the fill
+    dot: tuple       # (x, y) of the latest point
+    width: int
+    height: int
+    flat: bool       # True when there's nothing meaningful to draw
+
+
+def sparkline(values, width=110, height=30, pad=3):
+    """Normalise a series into SVG coordinates for a mini trend line."""
+    n = len(values)
+    if n == 0 or max(values) == min(values):
+        y = height / 2
+        line = f"{pad},{y:.1f} {width - pad},{y:.1f}"
+        return Sparkline(line, "", (width - pad, y), width, height, flat=True)
+
+    lo, hi = min(values), max(values)
+    span = hi - lo
+    step = (width - 2 * pad) / (n - 1) if n > 1 else 0
+    pts = []
+    for i, v in enumerate(values):
+        x = pad + i * step
+        y = height - pad - (v - lo) / span * (height - 2 * pad)
+        pts.append((x, y))
+    line = " ".join(f"{x:.1f},{y:.1f}" for x, y in pts)
+    area = (
+        f"M{pts[0][0]:.1f},{height} "
+        + " ".join(f"L{x:.1f},{y:.1f}" for x, y in pts)
+        + f" L{pts[-1][0]:.1f},{height} Z"
+    )
+    return Sparkline(line, area, pts[-1], width, height, flat=False)
+
+
+@dataclass
+class AreaChart:
+    line: str
+    area: str
+    points: list      # [(x, y, value, label), …] for markers / a11y
+    gridlines: list   # [(y, label), …]
+    xlabels: list     # [(x, label), …]
+    width: int
+    height: int
+    max_value: int
+    empty: bool
+
+
+def area_chart(values, labels, width=560, height=190, pad_l=30, pad_b=22, pad_t=12, pad_r=8):
+    """Geometry for the main completions-over-time area chart."""
+    n = len(values)
+    peak = max(values) if values else 0
+    if n == 0 or peak == 0:
+        return AreaChart("", "", [], [], [], width, height, 0, empty=True)
+
+    # A tidy y-axis top: round the peak up to a "nice" number.
+    def _nice(v):
+        for step in (5, 10, 20, 25, 50, 100, 200, 500, 1000):
+            if v <= step:
+                return step
+        return (v // 1000 + 1) * 1000
+
+    top = _nice(peak)
+    plot_w = width - pad_l - pad_r
+    plot_h = height - pad_t - pad_b
+    step = plot_w / (n - 1) if n > 1 else 0
+
+    pts = []
+    for i, v in enumerate(values):
+        x = pad_l + i * step
+        y = pad_t + (1 - v / top) * plot_h
+        pts.append((x, y))
+
+    line = " ".join(f"{x:.1f},{y:.1f}" for x, y in pts)
+    area = (
+        f"M{pad_l},{pad_t + plot_h} "
+        + " ".join(f"L{x:.1f},{y:.1f}" for x, y in pts)
+        + f" L{pad_l + plot_w:.1f},{pad_t + plot_h} Z"
+    )
+
+    gridlines = []
+    for frac in (0, 0.5, 1):
+        gy = pad_t + frac * plot_h
+        gridlines.append((round(gy, 1), int(top * (1 - frac))))
+
+    # Show a handful of x labels (first, a few middles, last) to avoid crowding.
+    xlabels = []
+    show = {0, n - 1, n // 3, 2 * n // 3} if n > 3 else set(range(n))
+    for i in sorted(show):
+        xlabels.append((round(pad_l + i * step, 1), labels[i]))
+
+    points = [
+        (round(x, 1), round(y, 1), values[i], labels[i]) for i, (x, y) in enumerate(pts)
+    ]
+    return AreaChart(line, area, points, gridlines, xlabels, width, height, top, empty=False)
+
+
+@dataclass
+class DonutSegment:
+    slug: str
+    label: str
+    count: int
+    percent: int
+    dash: float       # arc length for stroke-dasharray
+    offset: float     # negative cumulative offset for stroke-dashoffset
+    gap: float        # remaining circumference
+
+
+@dataclass
+class Donut:
+    segments: list
+    total: int
+    radius: float
+    circumference: float
+    stroke: int
+    size: int
+    empty: bool
+
+
+def donut(pairs, size=168, stroke=22):
+    """Build a donut from [(slug, label, count), …]. Percent-accurate arcs."""
+    radius = (size - stroke) / 2
+    circ = 2 * 3.141592653589793 * radius
+    total = sum(c for _, _, c in pairs)
+    if total == 0:
+        return Donut([], 0, radius, circ, stroke, size, empty=True)
+
+    segments, cursor = [], 0.0
+    for slug, label, count in pairs:
+        frac = count / total
+        dash = frac * circ
+        segments.append(
+            DonutSegment(
+                slug=slug,
+                label=label,
+                count=count,
+                percent=round(frac * 100),
+                dash=round(dash, 2),
+                offset=round(-cursor, 2),
+                gap=round(circ - dash, 2),
+            )
+        )
+        cursor += dash
+    return Donut(segments, total, round(radius, 2), round(circ, 2), stroke, size, empty=False)
+
+
+def module_funnel():
+    """Per-module cohort completion: how many students have finished each module.
+
+    Bounded (a fixed handful of grouped queries, no per-learner loop), it shows
+    where the cohort thins out across the six modules — the training product's
+    most telling report.
+    """
+    modules = list(
+        Module.objects.filter(is_published=True)
+        .order_by("order_index")
+        .annotate(
+            total_lessons=Count(
+                "lessons", filter=Q(lessons__is_active=True), distinct=True
+            )
+        )
+    )
+    gated = set(
+        Quiz.objects.filter(is_active=True, module__in=modules).values_list(
+            "module_id", flat=True
+        )
+    )
+    lessons_map = {}
+    for row in (
+        ProgressRecord.objects.filter(
+            lesson__is_active=True, lesson__module__is_published=True
+        )
+        .values("user_id", "lesson__module_id")
+        .annotate(n=Count("lesson", distinct=True))
+    ):
+        lessons_map[(row["user_id"], row["lesson__module_id"])] = row["n"]
+    passed = {
+        (row["user_id"], row["quiz__module_id"])
+        for row in QuizResult.objects.filter(passed=True)
+        .values("user_id", "quiz__module_id")
+        .distinct()
+    }
+    student_ids = list(
+        User.objects.filter(role=User.Role.STUDENT).values_list("id", flat=True)
+    )
+    total_students = len(student_ids)
+
+    out = []
+    for m in modules:
+        completed = 0
+        for uid in student_ids:
+            lessons_ok = m.total_lessons > 0 and lessons_map.get((uid, m.id), 0) >= m.total_lessons
+            quiz_ok = m.id not in gated or (uid, m.id) in passed
+            if lessons_ok and quiz_ok:
+                completed += 1
+        out.append(
+            {
+                "module": m,
+                "completed": completed,
+                "total": total_students,
+                "percent": round(completed / total_students * 100) if total_students else 0,
+            }
+        )
+    return out
+
+
+def overview_charts(stats, weeks=12):
+    """Bundle every chart's geometry for the overview, from real data."""
+    trends = weekly_trends(weeks)
+    labels = [d.strftime("%-d %b") for d in trends["week_starts"]]
+
+    donut_pairs = [
+        (band["tier"].slug, band["tier"].name, band["count"])
+        for band in stats["distribution"]
+    ]
+    if stats["not_started"]:
+        donut_pairs.append(("not-started", "Not started", stats["not_started"]))
+
+    return {
+        "spark_learners": sparkline(trends["signups"]),
+        "spark_active": sparkline(trends["active"]),
+        "spark_completions": sparkline(trends["completions"]),
+        "spark_avg": sparkline(trends["avg_score"]),
+        "active_now": trends["active"][-1] if trends["active"] else 0,
+        "completions_now": trends["completions"][-1] if trends["completions"] else 0,
+        "completions_chart": area_chart(trends["completions"], labels),
+        "grade_donut": donut(donut_pairs),
+        "funnel": module_funnel(),
     }
 
 

@@ -17,4 +17,25 @@ urlpatterns = [
     path("login/code/", views.login_code, name="login_code"),
     path("login/code/resend/", views.resend_login_code, name="resend_login_code"),
     path("logout/", views.logout_view, name="logout"),
+    # Forgot password (reset, not recovery) — built on Django's own auth views.
+    path(
+        "password-reset/",
+        views.PasswordResetView.as_view(),
+        name="password_reset",
+    ),
+    path(
+        "password-reset/done/",
+        views.PasswordResetDoneView.as_view(),
+        name="password_reset_done",
+    ),
+    path(
+        "reset/<uidb64>/<token>/",
+        views.PasswordResetConfirmView.as_view(),
+        name="password_reset_confirm",
+    ),
+    path(
+        "reset/done/",
+        views.PasswordResetCompleteView.as_view(),
+        name="password_reset_complete",
+    ),
 ]

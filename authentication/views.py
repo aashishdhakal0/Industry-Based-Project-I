@@ -1,20 +1,29 @@
-"""Registration, email verification, sign-in and two-factor authentication."""
+"""Registration, email verification, sign-in, two-factor authentication and
+password reset."""
 
 from datetime import timedelta
 
 from django.conf import settings
 from django.contrib.auth import get_user_model, login, logout
+from django.contrib.auth import views as auth_views
 from django.core import signing
 from django.core.mail import send_mail
 from django.db import transaction
 from django.shortcuts import redirect, render
 from django.template.loader import render_to_string
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from django.utils import timezone
+from django.utils.decorators import method_decorator
 from django.views.decorators.http import require_POST
 from django_ratelimit.decorators import ratelimit
 
-from .forms import LoginCodeForm, LoginForm, RegistrationForm
+from .forms import (
+    LoginCodeForm,
+    LoginForm,
+    RegistrationForm,
+    ResetRequestForm,
+    SetPasswordStyledForm,
+)
 from .models import UserProfile
 from .tokens import make_verification_token, read_verification_token
 from .utils import (
@@ -402,3 +411,77 @@ def resend_login_code(request):
     _send_login_code(request, user, code)
 
     return redirect("authentication:login_code")
+
+
+# --------------------------------------------------------------------------
+# Forgot password (reset, not recovery)
+# --------------------------------------------------------------------------
+#
+# Built entirely on Django's own auth views and SignedTokenGenerator — no
+# hand-rolled token logic. The token embeds the user's pk, a timestamp and a
+# hash of their password + last_login, so it stops working the moment the
+# password actually changes (single-use, in effect) and expires on its own
+# after PASSWORD_RESET_TIMEOUT (Django's default: 3 days).
+#
+# The response for a registered email and an unregistered one is identical:
+# PasswordResetView always redirects to the same "check your inbox" page,
+# whether or not `ResetRequestForm.save()` found an account to actually email.
+# Do not add a branch that reveals which happened — that is Django's default
+# behaviour and it is deliberate (the same enumeration trade-off discussed for
+# registration and login, resolved the other way: here, nothing is revealed).
+
+
+class PasswordResetView(auth_views.PasswordResetView):
+    """Step 1: "forgot your password?" — just the email address.
+
+    Rate limited per IP, the same shape as the login form: a bare reset-request
+    form is a mail-bombing tool otherwise, letting anyone flood a stranger's
+    inbox with reset emails using nothing but their address. block=False so a
+    limited request gets our own plain-language 429 rather than
+    django-ratelimit's bare 403; RATELIMIT_ENABLE (settings, off in tests)
+    governs whether this fires at all.
+    """
+
+    form_class = ResetRequestForm
+    template_name = "authentication/password_reset.html"
+    email_template_name = "authentication/email/password_reset_email.txt"
+    subject_template_name = "authentication/email/password_reset_subject.txt"
+    success_url = reverse_lazy("authentication:password_reset_done")
+    # site_name would otherwise come from RequestSite (django.contrib.sites is
+    # not installed) and read as the raw host, e.g. "127.0.0.1:8000", rather
+    # than the brand name every other email on the platform uses.
+    extra_email_context = {"site_name": settings.SITE_NAME}
+
+    @method_decorator(ratelimit(key="ip", rate="5/h", method="POST", block=False))
+    def post(self, request, *args, **kwargs):
+        if getattr(request, "limited", False):
+            return render(request, "authentication/rate_limited.html", status=429)
+        return super().post(request, *args, **kwargs)
+
+
+class PasswordResetDoneView(auth_views.PasswordResetDoneView):
+    """The "check your inbox" screen, shown after every submission, valid
+    email or not."""
+
+    template_name = "authentication/password_reset_done.html"
+
+
+class PasswordResetConfirmView(auth_views.PasswordResetConfirmView):
+    """Step 2: the emailed link lands here to pick a new password.
+
+    Token validation, the single-use swap (the real token is exchanged for a
+    one-time session placeholder on first load, so it can't be replayed from
+    browser history), and the invalid/expired check are all Django's own —
+    see `validlink` in the template.
+    """
+
+    form_class = SetPasswordStyledForm
+    template_name = "authentication/password_reset_confirm.html"
+    success_url = reverse_lazy("authentication:password_reset_complete")
+
+
+class PasswordResetCompleteView(auth_views.PasswordResetCompleteView):
+    """The "all done" screen — the new password is already saved; send them
+    to log in."""
+
+    template_name = "authentication/password_reset_complete.html"

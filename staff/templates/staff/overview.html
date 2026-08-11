@@ -7,8 +7,10 @@
   <div>
     <p class="cy-c-head__eyebrow">Administrator</p>
     <h1 class="cy-c-head__title">Overview</h1>
+    <p class="cy-c-head__sub">Live from your training data. Trends span the last 12 weeks.</p>
   </div>
   <div class="cy-c-head__actions">
+    <a class="cy-btn cy-btn--ghost cy-btn--sm" href="{% url 'staff:organisations' %}">Organisations</a>
     <a class="cy-btn cy-btn--ghost cy-btn--sm" href="{% url 'staff:user_new' %}">Add user</a>
     <a class="cy-btn cy-btn--primary cy-btn--sm" href="{% url 'staff:learners' %}">View learners</a>
   </div>
@@ -25,37 +27,79 @@
   </div>
 {% else %}
 
-  {# Headline metrics — the primary one (learners) reads first. #}
-  <div class="cy-c-kpis">
+  {# KPI cards, each with a real weekly-trend sparkline. #}
+  <div class="cy-c-kpis cy-c-kpis--spark">
     <div class="cy-c-kpi cy-c-kpi--primary">
       <span class="cy-c-kpi__label">Learners</span>
       <span class="cy-c-kpi__value">{{ stats.total_learners }}</span>
       <span class="cy-c-kpi__sub">{{ stats.active_learners }} making progress</span>
+      <div class="cy-c-kpi__spark">{% include "staff/_sparkline.html" with s=charts.spark_learners %}</div>
+    </div>
+    <div class="cy-c-kpi">
+      <span class="cy-c-kpi__label">Active this week</span>
+      <span class="cy-c-kpi__value">{{ charts.active_now }}</span>
+      <span class="cy-c-kpi__sub">learners studying</span>
+      <div class="cy-c-kpi__spark">{% include "staff/_sparkline.html" with s=charts.spark_active %}</div>
     </div>
     <div class="cy-c-kpi">
       <span class="cy-c-kpi__label">Completed course</span>
-      <span class="cy-c-kpi__value">{{ stats.completed_course }}</span>
-      <span class="cy-c-kpi__sub">of {{ stats.total_learners }}</span>
-    </div>
-    <div class="cy-c-kpi">
-      <span class="cy-c-kpi__label">Completion rate</span>
-      <span class="cy-c-kpi__value">{{ stats.completion_rate }}<span class="cy-c-kpi__unit">%</span></span>
-      <span class="cy-c-kpi__bar"><span class="cy-c-kpi__fill" style="width: {{ stats.completion_rate }}%;"></span></span>
+      <span class="cy-c-kpi__value">{{ stats.completed_course }}<span class="cy-c-kpi__of">/{{ stats.total_learners }}</span></span>
+      <span class="cy-c-kpi__sub">{{ stats.completion_rate }}% completion</span>
+      <div class="cy-c-kpi__spark">{% include "staff/_sparkline.html" with s=charts.spark_completions %}</div>
     </div>
     <div class="cy-c-kpi">
       <span class="cy-c-kpi__label">Average score</span>
       <span class="cy-c-kpi__value">{% if stats.average_score is None %}—{% else %}{{ stats.average_score }}<span class="cy-c-kpi__unit">%</span>{% endif %}</span>
       <span class="cy-c-kpi__sub">across graded quizzes</span>
+      <div class="cy-c-kpi__spark">{% include "staff/_sparkline.html" with s=charts.spark_avg %}</div>
     </div>
   </div>
 
-  {% if stats.any_started %}
-    <div class="cy-c-grid">
-      <section class="cy-c-section">
-        <div class="cy-c-section__head">
-          <h2 class="cy-c-section__title">Learners by organisation</h2>
-          <a class="cy-c-section__link" href="{% url 'staff:organisations' %}">All organisations</a>
-        </div>
+  {# Main chart + grade donut. #}
+  <div class="cy-c-grid cy-c-grid--chart">
+    <section class="cy-c-section cy-c-panel">
+      <div class="cy-c-section__head">
+        <h2 class="cy-c-section__title">Completions over time</h2>
+        <span class="cy-c-section__note">lessons + quiz passes, weekly</span>
+      </div>
+      {% include "staff/_areachart.html" with c=charts.completions_chart %}
+    </section>
+
+    <section class="cy-c-section cy-c-panel">
+      <div class="cy-c-section__head">
+        <h2 class="cy-c-section__title">Grades</h2>
+        <a class="cy-c-section__link" href="{% url 'staff:learners' %}">Learners</a>
+      </div>
+      {% include "staff/_donut.html" with d=charts.grade_donut %}
+    </section>
+  </div>
+
+  {# Cohort module-completion funnel + learners by organisation. #}
+  <div class="cy-c-grid cy-c-grid--chart">
+    <section class="cy-c-section cy-c-panel">
+      <div class="cy-c-section__head">
+        <h2 class="cy-c-section__title">Module completion</h2>
+        <span class="cy-c-section__note">share of learners who finished each module</span>
+      </div>
+      <ul class="cy-c-funnel">
+        {% for f in charts.funnel %}
+          <li class="cy-c-funnel__row">
+            <span class="cy-c-funnel__name">{{ f.module.order_index }}. {{ f.module.title }}</span>
+            <span class="cy-c-funnel__track"><span class="cy-c-funnel__fill" style="width: {{ f.percent }}%;"></span></span>
+            <span class="cy-c-funnel__val">{{ f.completed }}<span class="cy-c-muted">/{{ f.total }}</span></span>
+          </li>
+        {% empty %}
+          <li class="cy-c-muted">No published modules.</li>
+        {% endfor %}
+      </ul>
+    </section>
+
+    <section class="cy-c-section cy-c-panel">
+      <div class="cy-c-section__head">
+        <h2 class="cy-c-section__title">Learners by organisation</h2>
+        <a class="cy-c-section__link" href="{% url 'staff:organisations' %}">All</a>
+      </div>
+      {% if stats.organisations %}
         <ul class="cy-c-bars">
           {% for o in stats.organisations %}
             <li class="cy-c-bar">
@@ -65,80 +109,57 @@
             </li>
           {% endfor %}
         </ul>
-      </section>
+      {% else %}
+        <p class="cy-c-muted">No organisations yet.</p>
+      {% endif %}
+    </section>
+  </div>
 
-      <section class="cy-c-section">
-        <div class="cy-c-section__head">
-          <h2 class="cy-c-section__title">Grades</h2>
-          <span class="cy-c-section__note">{% if stats.not_started %}{{ stats.not_started }} not started{% endif %}</span>
-        </div>
-        <ul class="cy-c-grades">
-          {% for band in stats.distribution %}
-            <li class="cy-c-grade">
-              <span class="cy-tierbadge cy-tierbadge--{{ band.tier.slug }}">{{ band.tier.name }}</span>
-              <span class="cy-c-bar__track"><span class="cy-c-bar__fill cy-c-bar__fill--{{ band.tier.slug }}" style="width: {% widthratio band.count stats.total_learners 100 %}%;"></span></span>
-              <span class="cy-c-bar__val">{{ band.count }}</span>
+  {# Needs attention + recent audit activity. #}
+  <div class="cy-c-grid">
+    <section class="cy-c-section">
+      <div class="cy-c-section__head">
+        <h2 class="cy-c-section__title">Needs attention</h2>
+        <a class="cy-c-section__link" href="{% url 'staff:learners' %}?filter=attention">View</a>
+      </div>
+      {% if stats.attention %}
+        <ul class="cy-c-list">
+          {% for r in stats.attention %}
+            <li>
+              <a class="cy-c-list__row" href="{% url 'staff:learner_detail' r.user.pk %}">
+                <span class="cy-c-list__name">{{ r.name }}</span>
+                <span class="cy-c-list__meta">
+                  {% if r.flagged %}<span class="cy-pill cy-pill--warn">Flagged</span>{% endif %}
+                  {% if r.inactive %}<span class="cy-pill">{{ r.days_inactive }}d quiet</span>{% endif %}
+                </span>
+              </a>
             </li>
           {% endfor %}
         </ul>
-      </section>
-    </div>
+      {% else %}
+        <p class="cy-c-muted">Nobody's fallen behind.</p>
+      {% endif %}
+    </section>
 
-    <div class="cy-c-grid">
-      <section class="cy-c-section">
-        <div class="cy-c-section__head">
-          <h2 class="cy-c-section__title">Needs attention</h2>
-          <a class="cy-c-section__link" href="{% url 'staff:learners' %}?filter=attention">View</a>
-        </div>
-        {% if stats.attention %}
-          <ul class="cy-c-list">
-            {% for r in stats.attention %}
-              <li>
-                <a class="cy-c-list__row" href="{% url 'staff:learner_detail' r.user.pk %}">
-                  <span class="cy-c-list__name">{{ r.name }}</span>
-                  <span class="cy-c-list__meta">
-                    {% if r.flagged %}<span class="cy-pill cy-pill--warn">Flagged</span>{% endif %}
-                    {% if r.inactive %}<span class="cy-pill">{{ r.days_inactive }}d quiet</span>{% endif %}
-                  </span>
-                </a>
-              </li>
-            {% endfor %}
-          </ul>
-        {% else %}
-          <p class="cy-c-muted">Nobody's fallen behind.</p>
-        {% endif %}
-      </section>
-
-      <section class="cy-c-section">
-        <div class="cy-c-section__head">
-          <h2 class="cy-c-section__title">Recent activity</h2>
-          <a class="cy-c-section__link" href="{% url 'staff:activity' %}">View all</a>
-        </div>
-        {% if recent_actions %}
-          <ul class="cy-c-feed">
-            {% for a in recent_actions %}
-              <li class="cy-c-feed__row">
-                <span class="cy-c-feed__what">{{ a.summary }}</span>
-                <span class="cy-c-feed__meta">{% if a.actor %}{{ a.actor.get_full_name|default:a.actor.email }}{% else %}(removed){% endif %} · {{ a.created_at|date:"j M, H:i" }}</span>
-              </li>
-            {% endfor %}
-          </ul>
-        {% else %}
-          <p class="cy-c-muted">Admin actions will appear here.</p>
-        {% endif %}
-      </section>
-    </div>
-
-  {% else %}
-    <div class="cy-c-empty">
-      <h2 class="cy-c-empty__title">Nobody's started yet</h2>
-      <p class="cy-c-empty__body">{{ stats.total_learners }} account{{ stats.total_learners|pluralize }} ready to go. Grades and activity will appear here as learners begin. You can nudge a learner from their profile.</p>
-      <div class="cy-c-empty__actions">
-        <a class="cy-btn cy-btn--primary cy-btn--sm" href="{% url 'staff:learners' %}">View learners</a>
-        <a class="cy-btn cy-btn--ghost cy-btn--sm" href="{% url 'staff:user_new' %}">Add a user</a>
+    <section class="cy-c-section">
+      <div class="cy-c-section__head">
+        <h2 class="cy-c-section__title">Recent activity</h2>
+        <a class="cy-c-section__link" href="{% url 'staff:activity' %}">View all</a>
       </div>
-    </div>
-  {% endif %}
+      {% if recent_actions %}
+        <ul class="cy-c-feed">
+          {% for a in recent_actions %}
+            <li class="cy-c-feed__row">
+              <span class="cy-c-feed__what">{{ a.summary }}</span>
+              <span class="cy-c-feed__meta">{% if a.actor %}{{ a.actor.get_full_name|default:a.actor.email }}{% else %}(removed){% endif %} · {{ a.created_at|date:"j M, H:i" }}</span>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="cy-c-muted">Admin actions will appear here.</p>
+      {% endif %}
+    </section>
+  </div>
 {% endif %}
 
 <section class="cy-c-section">

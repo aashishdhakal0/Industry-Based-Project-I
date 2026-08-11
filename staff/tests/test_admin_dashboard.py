@@ -122,8 +122,9 @@ def test_overview_page_renders_headline_numbers(client, world):
     client.force_login(world["admin"])
     body = client.get(reverse("staff:overview")).content.decode()
     assert "Learners" in body
-    assert "Completion rate" in body
-    assert "cy-app--console" in body        # the calm console theme is scoped on
+    assert "Completed course" in body
+    assert "Average score" in body
+    assert "cy-app--console" in body        # the console theme is scoped on
 
 
 def test_overview_has_an_organisation_breakdown(client, world):
