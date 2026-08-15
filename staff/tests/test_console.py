@@ -136,11 +136,12 @@ def test_pagination_splits_and_preserves_params(client, db):
         student(f"s{i:02d}@example.com", f"S{i:02d}")
     client.force_login(admin)
 
-    p1 = client.get(reverse("staff:learners") + "?sort=name")
+    # Pagination lives in the flat "list" view (grouped is the default).
+    p1 = client.get(reverse("staff:learners") + "?view=list&sort=name")
     assert p1.context["page_obj"].paginator.num_pages == 2
     assert len(p1.context["page_obj"].object_list) == 25
 
-    p2 = client.get(reverse("staff:learners") + "?sort=name&page=2")
+    p2 = client.get(reverse("staff:learners") + "?view=list&sort=name&page=2")
     assert len(p2.context["page_obj"].object_list) == 5
     # Sort param carried into the page-2 links.
     assert "sort=name" in p2.content.decode()

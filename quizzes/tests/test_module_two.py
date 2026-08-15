@@ -1,11 +1,13 @@
-"""Module 2 (Recognising Cyber Threats) meets the Module 1 gold standard.
+"""Module 2 (Recognising Cyber Threats): two DEEP lessons on the house standard.
 
-Mirrors the Module 1 content contracts against order_index=2: every panel is deep
-reading plus an interactive, points sum to 10, checks carry hints, the voice is
-em-dash-free, and the quiz is a substantial, well-formed bank feeding the AFE.
-Adds the new `classify` activity contract, and a full interactive journey that
-proves the room, the points banking, the quiz gate and the module-complete moment
-all fit together for the second module too.
+Module 2 is deliberately two lessons, not four, each carrying the weight of the
+old pairs. Both follow the same five-task room shape as Module 1's rebuilt
+lessons: a Core CHECK, a real-world RESPOND, a realistic picture-question CHECK,
+a mixed QUIZSET, and an applied CHECK. This file pins that shape against
+order_index=2, the realistic threat visuals, the deep bodies, an em-dash-free
+voice, a balanced quiz bank feeding the AFE, and a full interactive journey that
+proves the room, the points banking, the quiz gate and the module-complete
+moment all fit together for the second module too.
 """
 
 import json as _json
@@ -24,8 +26,10 @@ from quizzes.models import Answer, Quiz, QuizResult
 
 User = get_user_model()
 
-# The interactive "do it" kinds Module 2 draws on (the new classify included).
-ACTIVITY_KINDS = {"SORT", "INBOX", "SPOT", "PASSWORD", "BRANCH", "CLASSIFY"}
+# The five-task house pattern every rebuilt lesson follows.
+FIVE_TASK_PATTERN = ["CHECK", "RESPOND", "CHECK", "QUIZSET", "CHECK"]
+# The realistic picture visuals Module 2 reads from (two reused, two new).
+PICTURE_DIAGRAMS = {"malware-family", "data-breach", "fake-update", "ransom-screen"}
 DASHES = ("—", "–")  # em-dash, en-dash: banned by the house voice
 
 
@@ -43,26 +47,29 @@ def _content_blob(task):
 
 
 # --------------------------------------------------------------------------
-# Shape: deep, interactive, points sum to 10
+# Shape: exactly two deep lessons, each the five-task pattern summing to 40 XP
 # --------------------------------------------------------------------------
 
 
 @pytest.mark.django_db
-def test_each_lesson_sums_to_ten_and_has_four_to_eight_panels(seeded):
-    for lesson in seeded.lessons.order_by("lesson_number"):
-        tasks = list(lesson.tasks.order_by("order"))
-        assert 4 <= len(tasks) <= 8, f"{lesson.title} has {len(tasks)} panels"
-        assert sum(t.points for t in tasks) == POINTS_PER_LESSON, f"{lesson.title} != 10 XP"
+def test_module_two_is_two_deep_lessons(seeded):
+    assert seeded.lessons.count() == 2
 
 
 @pytest.mark.django_db
-def test_every_panel_is_deep_reading_plus_interactive(seeded):
+def test_every_lesson_follows_the_five_task_format(seeded):
     for lesson in seeded.lessons.order_by("lesson_number"):
         tasks = list(lesson.tasks.order_by("order"))
-        kinds = {t.kind for t in tasks}
-        assert "CHECK" in kinds, f"{lesson.title} has no check panel"
-        assert kinds & ACTIVITY_KINDS, f"{lesson.title} has no hands-on activity"
-        for t in tasks:
+        assert [t.kind for t in tasks] == FIVE_TASK_PATTERN, f"{lesson.title}: {[t.kind for t in tasks]}"
+        assert sum(t.points for t in tasks) == POINTS_PER_LESSON, f"{lesson.title} != {POINTS_PER_LESSON} XP"
+        # The picture-question sits at task three and reads from a diagram.
+        assert tasks[2].diagram_key, f"{lesson.title} task 3 has no diagram"
+
+
+@pytest.mark.django_db
+def test_every_panel_is_deep_reading(seeded):
+    for lesson in seeded.lessons.order_by("lesson_number"):
+        for t in lesson.tasks.order_by("order"):
             words = len(re.sub(r"<[^>]+>", " ", t.body or "").split())
             assert words >= 40, f"{lesson.title}/{t.task_key} too thin ({words} words)"
 
@@ -70,7 +77,7 @@ def test_every_panel_is_deep_reading_plus_interactive(seeded):
 @pytest.mark.django_db
 def test_every_check_and_inline_check_is_well_formed_with_a_hint(seeded):
     checks = LessonTask.objects.filter(lesson__module=seeded, kind="CHECK")
-    assert checks.count() >= 6
+    assert checks.count() == 6  # three CHECK panels per lesson
     for task in checks:
         opts = task.payload.get("options", [])
         assert len(opts) == 4, f"{task.task_key} needs four options"
@@ -80,12 +87,11 @@ def test_every_check_and_inline_check_is_well_formed_with_a_hint(seeded):
         for o in opts:
             assert o["explanation"].strip(), f"{task.task_key} option needs feedback"
 
-    # Every mid-panel check is a real, hinted, four-option question too.
     inline = [
         t for t in LessonTask.objects.filter(lesson__module=seeded)
         if t.payload.get("inline_check")
     ]
-    assert len(inline) >= 4, "expected mid-panel checks woven across the module"
+    assert len(inline) >= 2, "expected mid-panel checks woven across the module"
     for t in inline:
         ic = t.payload["inline_check"]
         assert ic.get("question") and ic.get("hint", "").strip()
@@ -107,77 +113,73 @@ def test_lesson_and_quiz_content_have_no_em_dashes(seeded):
 
 
 # --------------------------------------------------------------------------
-# Topic + activities: true to "Recognising Cyber Threats"
+# Activities: the realistic picture visuals, respond and quizset
 # --------------------------------------------------------------------------
 
 
 @pytest.mark.django_db
-def test_uses_its_planned_activity_set_including_the_new_classify(seeded):
-    kinds = set(
-        LessonTask.objects.filter(lesson__module=seeded).values_list("kind", flat=True)
-    )
-    assert {"SORT", "INBOX", "BRANCH", "CLASSIFY"} <= kinds, f"missing: {kinds}"
-
-
-@pytest.mark.django_db
-def test_uses_the_new_threat_diagrams(seeded):
+def test_uses_the_realistic_picture_visuals(seeded):
     keys = set(
         LessonTask.objects.filter(lesson__module=seeded)
         .exclude(diagram_key="")
         .values_list("diagram_key", flat=True)
     )
-    assert {"malware-family", "ddos", "data-breach"} <= keys
+    assert PICTURE_DIAGRAMS <= keys, f"missing: {PICTURE_DIAGRAMS - keys}"
 
 
 @pytest.mark.django_db
-def test_classify_activities_are_well_formed_and_solvable(seeded):
-    tasks = LessonTask.objects.filter(lesson__module=seeded, kind="CLASSIFY")
-    assert tasks.count() >= 1
+def test_respond_activities_are_well_formed(seeded):
+    tasks = LessonTask.objects.filter(lesson__module=seeded, kind="RESPOND")
+    assert tasks.count() == 2  # one per lesson
     for task in tasks:
         p = task.payload
         assert p.get("prompt"), f"{task.task_key} needs a prompt"
-        cats = {c["id"] for c in p["categories"]}
-        assert len(cats) >= 2, f"{task.task_key} needs at least two categories"
-        assert len(p["events"]) >= 3, f"{task.task_key} needs several events"
-        for e in p["events"]:
-            assert e["category"] in cats, f"{task.task_key}/{e['id']} category not offered"
-            assert e.get("text") and e.get("why"), f"{task.task_key}/{e['id']} needs text and why"
-        # Every offered category should be the right answer for at least one event,
-        # so no category is a dead decoy.
-        used = {e["category"] for e in p["events"]}
-        assert used == cats, f"{task.task_key} has unused categories {cats - used}"
+        assert len(p["situations"]) >= 3, f"{task.task_key} needs several situations"
+        for s in p["situations"]:
+            assert s.get("text"), f"{task.task_key}/{s.get('id')} needs text"
+            goods = [o for o in s["options"] if o["outcome"] == "good"]
+            assert len(goods) == 1, f"{task.task_key}/{s['id']} needs exactly one good option"
+            for o in s["options"]:
+                assert o.get("feedback", "").strip(), f"{task.task_key}/{s['id']} option needs feedback"
 
 
 @pytest.mark.django_db
-def test_sort_and_inbox_activities_are_well_formed(seeded):
-    for task in LessonTask.objects.filter(lesson__module=seeded, kind="SORT"):
-        p = task.payload
-        bucket_ids = {b["id"] for b in p["buckets"]}
-        assert len(p["items"]) >= 4
-        for item in p["items"]:
-            assert item["bucket"] in bucket_ids and item["why"]
-    for task in LessonTask.objects.filter(lesson__module=seeded, kind="INBOX"):
-        p = task.payload
-        assert any(part["bad"] for part in p["parts"]), "an inbox needs at least one tell"
-        for part in p["parts"]:
-            assert part["why"], "every inbox part needs an explanation"
+def test_quizset_activities_are_well_formed(seeded):
+    tasks = LessonTask.objects.filter(lesson__module=seeded, kind="QUIZSET")
+    assert tasks.count() == 2  # one per lesson
+    for task in tasks:
+        qs = task.payload["questions"]
+        assert 3 <= len(qs) <= 4, f"{task.task_key} needs three or four questions"
+        types = {q["type"] for q in qs}
+        assert len(types) >= 3, f"{task.task_key} needs a mix of question types ({types})"
+        for q in qs:
+            if q["type"] == "mcq":
+                assert sum(1 for o in q["options"] if o[1]) == 1
+                for o in q["options"]:
+                    assert o[2].strip(), f"{task.task_key} mcq option needs an explanation"
+            elif q["type"] == "truefalse":
+                assert isinstance(q["answer"], bool) and q.get("why", "").strip()
+            elif q["type"] == "fill":
+                assert q.get("answer", "").strip()
+            elif q["type"] == "match":
+                assert len(q["pairs"]) >= 2
 
 
 # --------------------------------------------------------------------------
-# Quiz: a substantial, well-formed bank for the engine and the AFE
+# Quiz: a substantial, balanced bank for the engine and the AFE
 # --------------------------------------------------------------------------
 
 
 @pytest.mark.django_db
-def test_quiz_is_a_substantial_evenly_spread_bank(seeded):
+def test_quiz_is_a_substantial_balanced_bank(seeded):
     quiz = seeded.quiz
     assert quiz.pass_mark == 70
     assert quiz.questions.count() >= 40
     per_lesson = Counter(
         quiz.questions.values_list("lesson_reference__lesson_number", flat=True)
     )
-    for n in (1, 2, 3, 4):
-        assert per_lesson[n] >= 8, f"lesson {n} is thin in the quiz bank"
+    for n in (1, 2):
+        assert per_lesson[n] >= 15, f"lesson {n} is thin in the quiz bank ({per_lesson[n]})"
 
 
 @pytest.mark.django_db
@@ -190,6 +192,17 @@ def test_every_question_is_well_formed_and_traces_to_a_lesson(seeded):
         for a in answers:
             assert a.explanation_text.strip(), f"{q} option needs an explanation"
         assert q.lesson_reference_id in lesson_ids, f"{q} points outside Module 2"
+
+
+@pytest.mark.django_db
+def test_the_module_covers_its_planned_topics(seeded):
+    corpus = " ".join(
+        (t.body or "") + _json.dumps(t.payload or {})
+        for t in LessonTask.objects.filter(lesson__module=seeded)
+    ).lower()
+    for term in ("malware", "worm", "trojan", "spyware", "ransomware",
+                 "confidentiality", "availability", "optus", "medibank"):
+        assert term in corpus, f"expected the module to cover {term!r}"
 
 
 # --------------------------------------------------------------------------
@@ -241,13 +254,13 @@ def test_full_interactive_module_two_journey(learner_at_module_two):
     page = client.get(reverse("learn:lesson", args=[2, first.lesson_number])).content.decode()
     assert "data-room" in page and "activities.js" in page
 
-    # Work through all four lessons task by task; each banks on its last task.
+    # Work through both deep lessons task by task; each banks on its last task.
     for lesson in m2.lessons.order_by("lesson_number"):
         final = _work_through_lesson(client, m2, lesson)
         assert final["lesson_completed"] is True
-        assert final["lesson_points_done"] == final["lesson_points_total"] == 10
+        assert final["lesson_points_done"] == final["lesson_points_total"] == 40
 
-    assert ProgressRecord.objects.filter(user=student, lesson__module=m2).count() == 4
+    assert ProgressRecord.objects.filter(user=student, lesson__module=m2).count() == 2
 
     # The overview now offers the quiz.
     overview = client.get(reverse("learn:module", args=[2])).content.decode()

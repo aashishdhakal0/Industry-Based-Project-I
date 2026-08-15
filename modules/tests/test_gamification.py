@@ -27,17 +27,17 @@ def complete_module(student, module, *, today=TODAY):
 
 @pytest.mark.parametrize(
     "points,level",
-    [(0, 1), (10, 1), (39, 1), (40, 2), (100, 3), (180, 4), (540, 7)],
+    [(0, 1), (40, 1), (159, 1), (160, 2), (400, 3), (720, 4), (2160, 7)],
 )
 def test_level_thresholds(points, level):
     assert g.level_for_points(points).level == level
 
 
 def test_level_reports_progress_within_the_level():
-    lv = g.level_for_points(20)  # halfway from 0 to 40
+    lv = g.level_for_points(80)  # halfway from 0 to 160
     assert lv.level == 1
     assert lv.percent == 50
-    assert lv.to_next == 20
+    assert lv.to_next == 80
 
 
 # --------------------------------------------------------------------------
@@ -46,9 +46,9 @@ def test_level_reports_progress_within_the_level():
 
 
 @pytest.mark.django_db
-def test_a_completed_lesson_is_worth_ten_points(student, modules):
+def test_a_completed_lesson_is_worth_its_points(student, modules):
     _, reward = g.complete_lesson(student, modules[0].lessons.first())
-    assert reward.points == 10
+    assert reward.points == g.POINTS_PER_LESSON
 
 
 @pytest.mark.django_db
@@ -60,7 +60,7 @@ def test_completing_a_lesson_twice_awards_it_once(student, modules):
 
     assert created_first is True
     assert created_again is False
-    assert r2.points == 10
+    assert r2.points == g.POINTS_PER_LESSON
     assert ProgressRecord.objects.filter(user=student).count() == 1
 
 
@@ -68,16 +68,16 @@ def test_completing_a_lesson_twice_awards_it_once(student, modules):
 def test_points_are_recomputed_from_records_not_incremented(student, modules):
     """The cache is rewritten from the records, so a stray edit to the stored
     value is corrected on the next reconcile rather than compounding."""
-    complete_module(student, modules[0])  # 4 lessons → 40
+    complete_module(student, modules[0])  # 4 lessons → 160
     profile = g.get_profile(student)
-    assert profile.points == 40
+    assert profile.points == 160
 
     profile.points = 9999  # simulate drift
     profile.save(update_fields=["points"])
 
     g.refresh_profile(student)
     profile.refresh_from_db()
-    assert profile.points == 40
+    assert profile.points == 160
 
 
 # --------------------------------------------------------------------------
@@ -388,6 +388,46 @@ def test_calendar_days_carry_a_heat_level_from_how_much_was_done(student, module
     assert by_day[8].level == 0 and by_day[8].active is False
 
 
+def test_activity_phrase_reads_by_type_and_pluralises():
+    # Fixed order (lessons, quizzes, simulations); zero counts skipped; singular vs plural.
+    assert g._activity_phrase({"lessons": 2, "quizzes": 1, "simulations": 0}) == "2 lessons, 1 quiz"
+    assert g._activity_phrase({"lessons": 1, "quizzes": 0, "simulations": 1}) == "1 lesson, 1 simulation"
+    assert g._activity_phrase({"lessons": 0, "quizzes": 3, "simulations": 0}) == "3 quizzes"
+    assert g._activity_phrase({"lessons": 0, "quizzes": 0, "simulations": 0}) == ""
+
+
+def _quiz_on(student, module, when, *, score=90):
+    """Record a passed quiz stamped onto a specific local date (for the calendar)."""
+    from quizzes.models import Quiz, QuizResult
+
+    quiz, _ = Quiz.objects.get_or_create(
+        module=module, defaults={"is_active": True, "pass_mark": 70}
+    )
+    result = QuizResult.objects.create(
+        user=student, quiz=quiz, score=score, passed=score >= 70, attempt_number=1
+    )
+    aware = timezone.make_aware(datetime.datetime.combine(when, datetime.time(12, 0)))
+    QuizResult.objects.filter(pk=result.pk).update(submitted_at=aware)
+
+
+@pytest.mark.django_db
+def test_calendar_day_carries_a_typed_breakdown_for_the_tooltip(student, modules):
+    # Two lessons and a quiz on one day → a tooltip clause naming each type.
+    day = datetime.date(2026, 7, 15)
+    _study_on(student, modules[0], 1, day)
+    _study_on(student, modules[0], 2, day)
+    _quiz_on(student, modules[0], day)
+
+    cal = g.activity_calendar(student, year=2026, month=7, today=datetime.date(2026, 7, 24))
+    d15 = next(d for week in cal.weeks for d in week if d.in_month and d.day == 15)
+    assert d15.breakdown["lessons"] == 2 and d15.breakdown["quizzes"] == 1
+    assert d15.count == 3
+    assert d15.summary == "2 lessons, 1 quiz"
+    # A quiet day has an empty tooltip clause.
+    d8 = next(d for week in cal.weeks for d in week if d.in_month and d.day == 8)
+    assert d8.summary == ""
+
+
 @pytest.mark.django_db
 def test_today_is_flagged_only_in_its_own_month(student, modules):
     today = datetime.date(2026, 7, 24)
@@ -433,7 +473,7 @@ def _add_tasks(lesson, points_list):
 
 
 @pytest.mark.django_db
-def test_completing_every_task_banks_the_lesson_and_awards_ten(student, modules):
+def test_completing_every_task_banks_the_lesson(student, modules):
     lesson = modules[0].lessons.order_by("lesson_number").first()
     tasks = _add_tasks(lesson, [2, 2, 2, 2, 2])
 
@@ -442,7 +482,7 @@ def test_completing_every_task_banks_the_lesson_and_awards_ten(student, modules)
     # No banking until the final task lands.
     assert all(r.lesson_completed is False for r in results[:-1])
     assert results[-1].lesson_completed is True
-    assert results[-1].reward.points == 10                 # POINTS_PER_LESSON, banked once
+    assert results[-1].reward.points == g.POINTS_PER_LESSON   # banked once
     assert ProgressRecord.objects.filter(user=student, lesson=lesson).count() == 1
 
 
@@ -485,4 +525,4 @@ def test_a_task_is_idempotent_and_does_not_re_bank(student, modules):
     assert again.task_created is False
     assert again.lesson_completed is False
     assert TaskProgress.objects.filter(user=student, task=tasks[1]).count() == 1
-    assert g.get_profile(student).points == 10
+    assert g.get_profile(student).points == g.POINTS_PER_LESSON

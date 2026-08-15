@@ -263,7 +263,7 @@ def test_full_journey_completes_the_course_and_offers_the_certificate(learner_at
     for lesson in m6.lessons.order_by("lesson_number"):
         final = _work_through_lesson(client, m6, lesson)
         assert final["lesson_completed"] is True
-        assert final["lesson_points_done"] == final["lesson_points_total"] == 10
+        assert final["lesson_points_done"] == final["lesson_points_total"] == 40
 
     assert ProgressRecord.objects.filter(user=student, lesson__module=m6).count() == 4
 

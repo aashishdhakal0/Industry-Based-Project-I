@@ -14,7 +14,7 @@
   </div>
 </header>
 
-{% if total_orgs == 0 %}
+{% if total_orgs == 0 and unassigned_count == 0 %}
   <div class="cy-c-empty">
     <h2 class="cy-c-empty__title">No organisations yet</h2>
     <p class="cy-c-empty__body">Create your first organisation, then assign learners to it from their profile. You'll see per-organisation progress and grades here.</p>
@@ -27,7 +27,7 @@
   <div class="cy-c-tablewrap">
     <table class="cy-c-table">
       <thead>
-        <tr><th>Organisation</th><th class="cy-c-num">Learners</th><th class="cy-c-num">Active</th><th>Completion</th><th class="cy-c-num">Avg score</th><th class="cy-c-num">Attention</th></tr>
+        <tr><th>Organisation</th><th class="cy-c-num">Students</th><th class="cy-c-num">Active</th><th>Completion</th><th class="cy-c-num">Avg score</th><th class="cy-c-num">Attention</th></tr>
       </thead>
       <tbody>
         {% for o in orgs %}
@@ -52,6 +52,18 @@
             <td class="cy-c-num">{% if o.attention %}<span class="cy-pill cy-pill--warn">{{ o.attention }}</span>{% else %}<span class="cy-c-muted">0</span>{% endif %}</td>
           </tr>
         {% endfor %}
+        {% if unassigned_count %}
+          <tr class="is-muted">
+            <td>
+              <a class="cy-c-learner" href="{% url 'staff:unassigned' %}">
+                <span class="cy-c-learner__name">No organisation</span>
+              </a>
+              <span class="cy-c-muted"> · people not yet assigned</span>
+            </td>
+            <td class="cy-c-num">{{ unassigned_count }}</td>
+            <td class="cy-c-num">—</td><td><span class="cy-c-muted">—</span></td><td class="cy-c-num">—</td><td class="cy-c-num">—</td>
+          </tr>
+        {% endif %}
       </tbody>
     </table>
   </div>

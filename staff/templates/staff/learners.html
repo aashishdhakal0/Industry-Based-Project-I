@@ -10,16 +10,21 @@
     <p class="cy-c-head__sub">{{ match_count }} of {{ total_all }} shown</p>
   </div>
   <div class="cy-c-head__actions">
+    <div class="cy-c-viewtoggle" role="group" aria-label="Layout">
+      <a class="cy-c-metric {% if view == 'grouped' %}is-active{% endif %}" href="?view=grouped{% if q %}&q={{ q|urlencode }}{% endif %}{% if filter %}&filter={{ filter }}{% endif %}">By organisation</a>
+      <a class="cy-c-metric {% if view == 'list' %}is-active{% endif %}" href="?view=list{% if q %}&q={{ q|urlencode }}{% endif %}{% if filter %}&filter={{ filter }}{% endif %}&sort={{ sort }}">List</a>
+    </div>
     <a class="cy-btn cy-btn--ghost cy-btn--sm" href="{% url 'staff:user_new' %}">Add user</a>
     <a class="cy-btn cy-btn--ghost cy-btn--sm" href="{% url 'staff:learners_csv' %}">Export CSV</a>
   </div>
 </header>
 
-{# Search — keeps the current sort and filter. #}
+{# Search — keeps the current view, sort and filter. #}
 <form class="cy-c-search" method="get" action="{% url 'staff:learners' %}" role="search">
   <svg class="cy-i cy-c-search__icon" aria-hidden="true"><use href="#i-eye"/></svg>
   <input class="cy-c-search__input" type="search" name="q" value="{{ q }}"
          placeholder="Search name, email or organisation" aria-label="Search learners">
+  <input type="hidden" name="view" value="{{ view }}">
   {% if sort %}<input type="hidden" name="sort" value="{{ sort }}">{% endif %}
   {% if filter %}<input type="hidden" name="filter" value="{{ filter }}">{% endif %}
   <button type="submit" class="cy-btn cy-btn--primary cy-btn--sm">Search</button>
@@ -28,71 +33,136 @@
 {# Quick filters — one click each. #}
 <div class="cy-c-chips" role="group" aria-label="Quick filters">
   <a class="cy-c-chip {% if not filter %}is-active{% endif %}"
-     href="?{% if q %}q={{ q|urlencode }}&{% endif %}sort={{ sort }}">All</a>
+     href="?view={{ view }}{% if q %}&q={{ q|urlencode }}{% endif %}&sort={{ sort }}">All</a>
   {% for key, label in status_chips %}
     <a class="cy-c-chip {% if filter == key %}is-active{% endif %}"
-       href="?filter={{ key }}{% if q %}&q={{ q|urlencode }}{% endif %}&sort={{ sort }}">{{ label }}</a>
+       href="?view={{ view }}&filter={{ key }}{% if q %}&q={{ q|urlencode }}{% endif %}&sort={{ sort }}">{{ label }}</a>
   {% endfor %}
   <span class="cy-c-chips__sep" aria-hidden="true"></span>
   {% for key, label in grade_chips %}
     <a class="cy-c-chip {% if filter == key %}is-active{% endif %}"
-       href="?filter={{ key }}{% if q %}&q={{ q|urlencode }}{% endif %}&sort={{ sort }}">{{ label }}</a>
+       href="?view={{ view }}&filter={{ key }}{% if q %}&q={{ q|urlencode }}{% endif %}&sort={{ sort }}">{{ label }}</a>
   {% endfor %}
 </div>
 
-<div class="cy-c-tablewrap">
-  <table class="cy-c-table">
-    <thead>
-      <tr>
-        <th><a class="cy-c-th {% if sort == 'name' %}is-sorted{% endif %}" href="?sort=name{% if q %}&q={{ q|urlencode }}{% endif %}{% if filter %}&filter={{ filter }}{% endif %}">Learner</a></th>
-        <th><a class="cy-c-th {% if sort == 'completion' %}is-sorted{% endif %}" href="?sort=completion{% if q %}&q={{ q|urlencode }}{% endif %}{% if filter %}&filter={{ filter }}{% endif %}">Modules</a></th>
-        <th><a class="cy-c-th {% if sort == 'grade' %}is-sorted{% endif %}" href="?sort=grade{% if q %}&q={{ q|urlencode }}{% endif %}{% if filter %}&filter={{ filter }}{% endif %}">Grade</a></th>
-        <th class="cy-c-num">Points</th>
-        <th><a class="cy-c-th {% if sort == 'activity' %}is-sorted{% endif %}" href="?sort=activity{% if q %}&q={{ q|urlencode }}{% endif %}{% if filter %}&filter={{ filter }}{% endif %}">Last active</a></th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for row in rows %}
-        <tr>
-          <td>
-            <a class="cy-c-learner" href="{% url 'staff:learner_detail' row.user.pk %}?back={{ base_qs|urlencode }}">
-              <span class="cy-c-learner__name">
-                {{ row.name }}
-                {% if row.flagged %}<span class="cy-dot cy-dot--warn" title="Flagged"></span>{% endif %}
-                {% if row.inactive %}<span class="cy-dot" title="{{ row.days_inactive }} days inactive"></span>{% endif %}
-              </span>
-              <span class="cy-c-learner__email">{{ row.user.email }}</span>
-            </a>
-          </td>
-          <td>
-            <span class="cy-c-mod">
-              <span class="cy-c-mod__count">{{ row.modules_completed }}/{{ row.modules_total }}</span>
-              <span class="cy-c-bar__track cy-c-mod__track"><span class="cy-c-bar__fill" style="width: {{ row.completion_percent }}%;"></span></span>
-            </span>
-          </td>
-          <td>
-            <span class="cy-tierbadge cy-tierbadge--{{ row.tier.slug }}">{{ row.tier.name }}</span>
-            {% if row.overall_score is not None %}<span class="cy-c-score">{{ row.overall_score }}%</span>{% endif %}
-          </td>
-          <td class="cy-c-num">{{ row.points }}</td>
-          <td>{% if row.last_active %}<span title="{{ row.last_active|date:'j M Y, H:i' }}">{{ row.last_active|date:"j M Y" }}</span>{% else %}<span class="cy-c-muted">Never</span>{% endif %}</td>
-        </tr>
-      {% empty %}
-        <tr><td colspan="5" class="cy-c-table__empty">No learners match. <a href="{% url 'staff:learners' %}">Clear</a>.</td></tr>
-      {% endfor %}
-    </tbody>
-  </table>
-</div>
+{% if view == "grouped" %}
+  {# --------- Grouped by organisation --------- #}
+  {% for g in groups %}
+    <details class="cy-c-org" open>
+      <summary class="cy-c-org__head">
+        <svg class="cy-c-org__chevron" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>
+        <span class="cy-c-org__name">{{ g.name }}</span>
+        <span class="cy-c-org__stats">
+          {{ g.count }} member{{ g.count|pluralize }}
+          <span class="cy-c-muted">·</span> {{ g.students }} student{{ g.students|pluralize }}
+          <span class="cy-c-muted">·</span> {{ g.avg_completion }}% avg completion
+        </span>
+        {% if g.org_id %}<a class="cy-c-org__csv" href="{% url 'staff:org_learners_csv' g.org_id %}">Export CSV</a>{% endif %}
+      </summary>
+      <div class="cy-c-tablewrap">
+        <table class="cy-c-table">
+          <thead><tr><th>Person</th><th>Role</th><th>Modules</th><th>Grade</th><th>Status</th><th>Last active</th></tr></thead>
+          <tbody>
+            {% for row in g.members %}
+              <tr>
+                <td>
+                  <a class="cy-c-learner" href="{% url 'staff:learner_detail' row.user.pk %}?back={{ base_qs|urlencode }}">
+                    <span class="cy-c-learner__name">
+                      {{ row.name }}
+                      {% if row.flagged %}<span class="cy-dot cy-dot--warn" title="Flagged"></span>{% endif %}
+                    </span>
+                    <span class="cy-c-learner__email">{{ row.user.email }}</span>
+                  </a>
+                </td>
+                <td><span class="cy-role cy-role--{{ row.user.role|lower }}">{{ row.role_label }}</span></td>
+                <td>
+                  {% if row.is_student %}
+                    <span class="cy-c-mod">
+                      <span class="cy-c-mod__count">{{ row.modules_completed }}/{{ row.modules_total }}</span>
+                      <span class="cy-c-bar__track cy-c-mod__track"><span class="cy-c-bar__fill" style="width: {{ row.completion_percent }}%;"></span></span>
+                    </span>
+                  {% else %}<span class="cy-c-muted">—</span>{% endif %}
+                </td>
+                <td>
+                  {% if row.is_student and row.overall_score is not None %}
+                    <span class="cy-tierbadge cy-tierbadge--{{ row.tier.slug }}">{{ row.tier.name }}</span>
+                    <span class="cy-c-score">{{ row.overall_score }}%</span>
+                  {% else %}<span class="cy-c-muted">—</span>{% endif %}
+                </td>
+                <td><span class="cy-status cy-status--{{ row.status }}">{{ row.status_label }}</span></td>
+                <td>{% if row.last_active %}<span title="{{ row.last_active|date:'j M Y, H:i' }}">{{ row.last_active|date:"j M Y" }}</span>{% else %}<span class="cy-c-muted">Never</span>{% endif %}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </details>
+  {% empty %}
+    <div class="cy-c-empty">
+      <h2 class="cy-c-empty__title">No people match</h2>
+      <p class="cy-c-empty__body">Try a different search or filter.</p>
+      <div class="cy-c-empty__actions"><a class="cy-btn cy-btn--ghost cy-btn--sm" href="{% url 'staff:learners' %}">Clear filters</a></div>
+    </div>
+  {% endfor %}
 
-{% if page_obj.paginator.num_pages > 1 %}
-  <nav class="cy-c-pager" aria-label="Pagination">
-    {% if page_obj.has_previous %}
-      <a class="cy-btn cy-btn--ghost cy-btn--sm" href="?{% if base_qs %}{{ base_qs }}&{% endif %}page={{ page_obj.previous_page_number }}">Previous</a>
-    {% else %}<span class="cy-btn cy-btn--ghost cy-btn--sm is-disabled" aria-disabled="true">Previous</span>{% endif %}
-    <span class="cy-c-pager__info">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
-    {% if page_obj.has_next %}
-      <a class="cy-btn cy-btn--ghost cy-btn--sm" href="?{% if base_qs %}{{ base_qs }}&{% endif %}page={{ page_obj.next_page_number }}">Next</a>
-    {% else %}<span class="cy-btn cy-btn--ghost cy-btn--sm is-disabled" aria-disabled="true">Next</span>{% endif %}
-  </nav>
+{% else %}
+  {# --------- Flat list: sortable + paginated --------- #}
+  <div class="cy-c-tablewrap">
+    <table class="cy-c-table">
+      <thead>
+        <tr>
+          <th><a class="cy-c-th {% if sort == 'name' %}is-sorted{% endif %}" href="?view=list&sort=name{% if q %}&q={{ q|urlencode }}{% endif %}{% if filter %}&filter={{ filter }}{% endif %}">Learner</a></th>
+          <th><a class="cy-c-th {% if sort == 'completion' %}is-sorted{% endif %}" href="?view=list&sort=completion{% if q %}&q={{ q|urlencode }}{% endif %}{% if filter %}&filter={{ filter }}{% endif %}">Modules</a></th>
+          <th><a class="cy-c-th {% if sort == 'grade' %}is-sorted{% endif %}" href="?view=list&sort=grade{% if q %}&q={{ q|urlencode }}{% endif %}{% if filter %}&filter={{ filter }}{% endif %}">Grade</a></th>
+          <th>Status</th>
+          <th class="cy-c-num">Points</th>
+          <th><a class="cy-c-th {% if sort == 'activity' %}is-sorted{% endif %}" href="?view=list&sort=activity{% if q %}&q={{ q|urlencode }}{% endif %}{% if filter %}&filter={{ filter }}{% endif %}">Last active</a></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in rows %}
+          <tr>
+            <td>
+              <a class="cy-c-learner" href="{% url 'staff:learner_detail' row.user.pk %}?back={{ base_qs|urlencode }}">
+                <span class="cy-c-learner__name">
+                  {{ row.name }}
+                  {% if row.flagged %}<span class="cy-dot cy-dot--warn" title="Flagged"></span>{% endif %}
+                  {% if row.inactive %}<span class="cy-dot" title="{{ row.days_inactive }} days inactive"></span>{% endif %}
+                </span>
+                <span class="cy-c-learner__email">{{ row.user.email }}</span>
+              </a>
+            </td>
+            <td>
+              <span class="cy-c-mod">
+                <span class="cy-c-mod__count">{{ row.modules_completed }}/{{ row.modules_total }}</span>
+                <span class="cy-c-bar__track cy-c-mod__track"><span class="cy-c-bar__fill" style="width: {{ row.completion_percent }}%;"></span></span>
+              </span>
+            </td>
+            <td>
+              <span class="cy-tierbadge cy-tierbadge--{{ row.tier.slug }}">{{ row.tier.name }}</span>
+              {% if row.overall_score is not None %}<span class="cy-c-score">{{ row.overall_score }}%</span>{% endif %}
+            </td>
+            <td><span class="cy-status cy-status--{{ row.status }}">{{ row.status_label }}</span></td>
+            <td class="cy-c-num">{{ row.points }}</td>
+            <td>{% if row.last_active %}<span title="{{ row.last_active|date:'j M Y, H:i' }}">{{ row.last_active|date:"j M Y" }}</span>{% else %}<span class="cy-c-muted">Never</span>{% endif %}</td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="6" class="cy-c-table__empty">No learners match. <a href="?view=list">Clear</a>.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% if page_obj.paginator.num_pages > 1 %}
+    <nav class="cy-c-pager" aria-label="Pagination">
+      {% if page_obj.has_previous %}
+        <a class="cy-btn cy-btn--ghost cy-btn--sm" href="?{% if base_qs %}{{ base_qs }}&{% endif %}page={{ page_obj.previous_page_number }}">Previous</a>
+      {% else %}<span class="cy-btn cy-btn--ghost cy-btn--sm is-disabled" aria-disabled="true">Previous</span>{% endif %}
+      <span class="cy-c-pager__info">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+      {% if page_obj.has_next %}
+        <a class="cy-btn cy-btn--ghost cy-btn--sm" href="?{% if base_qs %}{{ base_qs }}&{% endif %}page={{ page_obj.next_page_number }}">Next</a>
+      {% else %}<span class="cy-btn cy-btn--ghost cy-btn--sm is-disabled" aria-disabled="true">Next</span>{% endif %}
+    </nav>
+  {% endif %}
 {% endif %}
 {% endblock %}

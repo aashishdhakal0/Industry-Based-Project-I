@@ -773,6 +773,194 @@
     update();
   };
 
+  // ------------------------------------------------------------ QUIZSET ----
+  // A mixed knowledge-check: several sub-questions of different types (mcq,
+  // truefalse, fill, match). Each grades on its own with instant feedback, a
+  // hint and retry. Solved once every sub-question has been answered correctly.
+  CONTROLLERS.QUIZSET = function (root, cfg) {
+    if (cfg.prompt) root.appendChild(el("p", "cy-act__prompt", cfg.prompt));
+    var qs = cfg.questions || [];
+    var total = qs.length;
+    var done = 0;
+
+    var counter = el("p", "cy-qz__count");
+    counter.setAttribute("aria-live", "polite");
+    var feedback = el("p", "cy-act__feedback");
+    feedback.setAttribute("aria-live", "polite");
+    var list = el("div", "cy-qz");
+
+    function update() { counter.textContent = done + " of " + total + " correct"; }
+    function onCorrect() {
+      done += 1;
+      update();
+      if (done === total) {
+        feedback.className = "cy-act__feedback is-good";
+        feedback.textContent = "Every one correct. That is the whole idea pulled together.";
+        solved(root);
+      }
+    }
+    function norm(s) { return String(s == null ? "" : s).trim().toLowerCase().replace(/\s+/g, " "); }
+    function nudge(node, cls) {
+      node.classList.add(cls || "is-shake");
+      window.setTimeout(function () { node.classList.remove("is-shake"); }, 400);
+    }
+
+    function hintRow(card, hint) {
+      if (!hint) return;
+      var btn = el("button", "cy-qz__hint-toggle"); btn.type = "button";
+      btn.appendChild(icon("i-star"));
+      btn.appendChild(el("span", null, " Need a hint?"));
+      var note = el("p", "cy-qz__hint"); note.hidden = true; note.textContent = hint;
+      btn.addEventListener("click", function () { note.hidden = !note.hidden; });
+      card.appendChild(btn);
+      card.appendChild(note);
+    }
+
+    function makeMCQ(card, q) {
+      var opts = el("div", "cy-qz__opts");
+      var why = el("p", "cy-qz__why");
+      var settled = false;
+      (q.options || []).forEach(function (o) {
+        var b = el("button", "cy-qz__opt", o[0]); b.type = "button";
+        b.addEventListener("click", function () {
+          if (settled) return;
+          if (o[1]) {
+            settled = true; b.classList.add("is-right");
+            Array.prototype.forEach.call(opts.children, function (x) { x.disabled = true; });
+            why.className = "cy-qz__why is-good"; why.textContent = o[2] || "Correct.";
+            card.classList.add("is-good"); onCorrect();
+          } else {
+            b.classList.add("is-wrong"); b.disabled = true;
+            why.className = "cy-qz__why is-bad"; why.textContent = o[2] || "Not quite. Try another.";
+            nudge(card);
+          }
+        });
+        opts.appendChild(b);
+      });
+      card.appendChild(opts); card.appendChild(why);
+    }
+
+    function makeTF(card, q) {
+      var opts = el("div", "cy-qz__opts cy-qz__opts--tf");
+      var why = el("p", "cy-qz__why");
+      var settled = false;
+      [["True", true], ["False", false]].forEach(function (pair) {
+        var b = el("button", "cy-qz__opt", pair[0]); b.type = "button";
+        b.addEventListener("click", function () {
+          if (settled) return;
+          if (pair[1] === !!q.answer) {
+            settled = true; b.classList.add("is-right");
+            Array.prototype.forEach.call(opts.children, function (x) { x.disabled = true; });
+            why.className = "cy-qz__why is-good"; why.textContent = q.why || "Correct.";
+            card.classList.add("is-good"); onCorrect();
+          } else {
+            b.classList.add("is-wrong"); b.disabled = true;
+            why.className = "cy-qz__why is-bad"; why.textContent = q.why_wrong || q.why || "Not quite. Think it through and try the other.";
+            nudge(card);
+          }
+        });
+        opts.appendChild(b);
+      });
+      card.appendChild(opts); card.appendChild(why);
+    }
+
+    function makeFill(card, q) {
+      var row = el("div", "cy-qz__fill");
+      var input = document.createElement("input");
+      input.type = "text"; input.className = "cy-qz__input";
+      input.setAttribute("aria-label", "Your answer");
+      if (q.placeholder) input.placeholder = q.placeholder;
+      var b = el("button", "cy-btn cy-btn--primary cy-qz__check", "Check"); b.type = "button";
+      var why = el("p", "cy-qz__why");
+      var accept = [q.answer].concat(q.accept || []).map(norm);
+      var settled = false;
+      function grade() {
+        if (settled) return;
+        if (accept.indexOf(norm(input.value)) !== -1) {
+          settled = true; input.disabled = true; b.disabled = true;
+          input.classList.add("is-right");
+          why.className = "cy-qz__why is-good"; why.textContent = q.why || ("Correct: " + q.answer + ".");
+          card.classList.add("is-good"); onCorrect();
+        } else {
+          nudge(input);
+          why.className = "cy-qz__why is-bad"; why.textContent = "Not quite. Check the spelling and try again.";
+        }
+      }
+      b.addEventListener("click", grade);
+      input.addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); grade(); } });
+      row.appendChild(input); row.appendChild(b);
+      card.appendChild(row); card.appendChild(why);
+    }
+
+    function makeMatch(card, q) {
+      var pairs = q.pairs || [];
+      var totalPairs = pairs.length, matched = 0;
+      var sel = null;
+      var why = el("p", "cy-qz__why");
+      var grid = el("div", "cy-qz__match");
+      var left = el("div", "cy-qz__col"), right = el("div", "cy-qz__col");
+
+      function attempt(a, b) {
+        if (a.i === b.i) {
+          [a, b].forEach(function (x) { x.node.disabled = true; x.node.classList.remove("is-sel"); x.node.classList.add("is-matched"); });
+          matched += 1; sel = null;
+          if (matched === totalPairs) {
+            why.className = "cy-qz__why is-good"; why.textContent = q.why || "All matched.";
+            card.classList.add("is-good"); onCorrect();
+          }
+        } else {
+          [a, b].forEach(function (x) { x.node.classList.add("is-wrong"); });
+          (function (na, nb) { window.setTimeout(function () { na.classList.remove("is-wrong", "is-sel"); nb.classList.remove("is-wrong", "is-sel"); }, 450); })(a.node, b.node);
+          sel = null;
+          why.className = "cy-qz__why is-bad"; why.textContent = "Not a match. Try again.";
+        }
+      }
+      function tap(col, i, node) {
+        if (node.disabled) return;
+        if (!sel) { sel = { col: col, i: i, node: node }; node.classList.add("is-sel"); return; }
+        if (sel.node === node) { node.classList.remove("is-sel"); sel = null; return; }
+        if (sel.col === col) { sel.node.classList.remove("is-sel"); sel = { col: col, i: i, node: node }; node.classList.add("is-sel"); return; }
+        attempt(sel, { col: col, i: i, node: node });
+      }
+      pairs.forEach(function (p, idx) {
+        var term = el("button", "cy-qz__term", p[0]); term.type = "button";
+        term.addEventListener("click", function () { tap("L", idx, term); });
+        left.appendChild(term);
+      });
+      var rights = pairs.map(function (p, i) { return { i: i, text: p[1] }; });
+      for (var i = rights.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = rights[i]; rights[i] = rights[j]; rights[j] = t; }
+      rights.forEach(function (r) {
+        var def = el("button", "cy-qz__def", r.text); def.type = "button";
+        def.addEventListener("click", function () { tap("R", r.i, def); });
+        right.appendChild(def);
+      });
+      grid.appendChild(left); grid.appendChild(right);
+      card.appendChild(grid); card.appendChild(why);
+    }
+
+    if (total === 0) { solved(root); return; }
+
+    qs.forEach(function (q, idx) {
+      var card = el("div", "cy-qz__card");
+      var head = el("p", "cy-qz__q");
+      head.appendChild(el("span", "cy-qz__n", String(idx + 1)));
+      head.appendChild(el("span", "cy-qz__qtext", q.q || q.instruction || ""));
+      card.appendChild(head);
+      var type = (q.type || "mcq").toLowerCase();
+      if (type === "truefalse" || type === "tf") makeTF(card, q);
+      else if (type === "fill") makeFill(card, q);
+      else if (type === "match") makeMatch(card, q);
+      else makeMCQ(card, q);
+      hintRow(card, q.hint);
+      list.appendChild(card);
+    });
+
+    root.appendChild(counter);
+    root.appendChild(list);
+    root.appendChild(feedback);
+    update();
+  };
+
   // A kind with no controller yet (or a broken config) must never trap the
   // learner: show a gentle note and let them continue.
   function fallback(c) {

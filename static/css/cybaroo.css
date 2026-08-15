@@ -2215,7 +2215,7 @@ body.cy-body {
 /* One contained, centred column that holds the two-column room comfortably and
    leaves balanced margins on both sides at any width. */
 .cy-app--focus .cy-app__main {
-  max-width: 74rem;
+  max-width: 92rem;   /* the lesson room uses far more width now */
   padding-top: clamp(1rem, 2vw, 1.5rem);
 }
 .cy-app--focus .cy-wrap--narrow { max-width: none; }  /* the reader fills the column */
@@ -3892,10 +3892,124 @@ body.cy-body {
   .cy-dash-head__id:hover .cy-tier__art { filter: drop-shadow(0 9px 20px var(--tier-glow)); }
 }
 
+/* --- Avatar portrait + name-first identity -------------------------------- */
+/* A game-profile portrait: the student's initial ringed in the tier metal, with
+   the distinct tier emblem pinned on as a rank badge. Leads the header so the
+   NAME (not the tier) is the headline. */
+.cy-avatar {
+  align-items: center;
+  aspect-ratio: 1;
+  background: radial-gradient(120% 120% at 30% 22%, var(--cy-surface-3), var(--cy-surface-2));
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 2px var(--tier-mid), 0 6px 18px var(--tier-glow);
+  display: flex;
+  flex: none;
+  justify-content: center;
+  height: 84px;
+  position: relative;
+  width: 84px;
+}
+.cy-avatar__initial {
+  background: linear-gradient(120deg, var(--tier-hi), var(--tier-mid) 62%, var(--tier-lo));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  font-size: 2.1rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+.cy-avatar__badge {
+  background: var(--cy-surface);
+  border-radius: 50%;
+  bottom: -5px;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.45);
+  height: 32px;
+  padding: 3px;
+  position: absolute;
+  right: -5px;
+  width: 32px;
+}
+.cy-avatar__badge .cy-tier__art { filter: none; }
+
+.cy-dash-head__name {
+  color: var(--cy-text);
+  font-size: clamp(1.55rem, 3.6vw, 2.2rem);
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+  margin: 0.12rem 0 0;
+  text-wrap: balance;
+}
+.cy-dash-head__tierline {
+  align-items: baseline;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0.32rem 0 0.5rem;
+}
+.cy-dash-head__tiername {
+  background: linear-gradient(120deg, var(--tier-hi), var(--tier-mid) 62%, var(--tier-lo));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+.cy-dash-head__text .cy-tier__pips { margin: 0 0 0.6rem; }
+
 @media (max-width: 560px) {
   .cy-dash-head__id { gap: 0.85rem; }
-  .cy-tier__emblem { height: 68px; width: 68px; }
+  .cy-avatar { height: 68px; width: 68px; }
+  .cy-avatar__initial { font-size: 1.7rem; }
+  .cy-avatar__badge { height: 27px; width: 27px; bottom: -3px; right: -3px; }
 }
+
+/* --- Calendar day tooltip ("14 Jul · 2 lessons, 1 quiz") ------------------- */
+/* Active days are focusable (keyboard + tap on mobile) and reveal a typed
+   breakdown on hover or focus. The aria-label carries the same for readers. */
+.cy-cal__day[data-tip] { cursor: default; }
+.cy-cal__day[data-tip]::after {
+  background: var(--cy-surface-3);
+  border: 1px solid var(--cy-border-lift, var(--cy-border));
+  border-radius: 8px;
+  bottom: calc(100% + 8px);
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.5);
+  color: var(--cy-text);
+  content: attr(data-tip);
+  font-family: var(--cy-font);
+  font-size: 0.74rem;
+  font-weight: 500;
+  left: 50%;
+  opacity: 0;
+  padding: 0.4rem 0.6rem;
+  pointer-events: none;
+  position: absolute;
+  transform: translateX(-50%) translateY(3px);
+  transition: opacity 0.14s ease, transform 0.14s ease;
+  white-space: nowrap;
+  z-index: 30;
+}
+.cy-cal__day[data-tip]:hover::after,
+.cy-cal__day[data-tip]:focus-visible::after {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+.cy-cal__day[data-tip]:focus-visible { outline: 2px solid var(--cy-cyan-soft); outline-offset: 2px; }
+
+/* --- Streak nudge under the calendar -------------------------------------- */
+.cy-cal__streak {
+  align-items: center;
+  color: var(--cy-text-2);
+  display: flex;
+  font-size: 0.82rem;
+  gap: 0.42rem;
+  margin: 0.7rem 0 0;
+}
+.cy-cal__streak .cy-i { color: #ff9d4d; height: 15px; width: 15px; }
+.cy-cal__streak strong { color: var(--cy-text); }
+.cy-cal__streak--none { color: var(--cy-text-3); }
+.cy-cal__streak--none .cy-i { color: var(--cy-text-3); opacity: 0.6; }
 
 /* --- Activity heat-map (calendar day intensity) --------------------------- */
 /* Active days deepen with how much was done: a faint violet for a light day up
@@ -7239,24 +7353,63 @@ a.cy-path__link:hover { background: var(--cy-surface-2); }
    red appear only as status. No gradients on data surfaces, no donut, no pie.
    ========================================================================== */
 
+/* ==========================================================================
+   Administrator console — the design-token system.
+   Rich, layered DARK by default; a calm premium LIGHT under [data-theme=light].
+   Every surface, text, border, accent, badge and chart colour reads from these
+   tokens, so a theme switch recolours the whole console cohesively. Accent is a
+   refined indigo (Linear/Stripe family), tuned per theme.
+   ========================================================================== */
 .cy-app--console {
-  --cy-surface: #0f1216;
-  --cy-surface-2: #14181d;
-  --cy-surface-3: #1b2028;
-  --cy-border: #242a31;
-  --cy-border-lift: #323a45;
-  --cy-text: #e6e9ee;
-  --cy-text-2: #a6aeb9;
-  --cy-text-3: #737b86;
-  --cy-accent: #6b8bd0;
-  --cy-accent-strong: #86a2e0;
-  --cy-accent-tint: rgba(107, 139, 208, 0.14);
-  --cy-accent-line: rgba(107, 139, 208, 0.4);
+  /* ONE typeface for the whole console — text AND numbers. Overriding the mono
+     token to the sans (with tabular figures below) removes the sans/mono clash
+     so every label and every figure share one voice. */
+  --cy-font: "Instrument Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --cy-font-mono: "Instrument Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+
+  /* DARK — one coordinated cool-neutral ramp, near-black to soft-white. */
+  --cy-surface: #0a0b0d;          /* page */
+  --cy-surface-2: #121316;        /* cards, panels */
+  --cy-surface-3: #1a1c20;        /* insets, tracks, table headers */
+  --cy-surface-hover: #212429;    /* row / control hover */
+  --cy-border: #23262b;           /* hairline */
+  --cy-border-lift: #30343b;      /* stronger dividers, inputs */
+  --cy-text: #f2f3f5;             /* primary — crisp near-white */
+  --cy-text-2: #b4b9c2;           /* secondary */
+  --cy-text-3: #838994;           /* muted (AA 5.3:1) */
+
+  /* Accent — one refined indigo, used sparingly. */
+  --cy-accent: #5b63d3;
+  --cy-accent-strong: #9297f5;
+  --cy-accent-tint: rgba(123, 130, 240, 0.15);
+  --cy-accent-line: rgba(123, 130, 240, 0.38);
   --cy-good: #6fae86;
   --cy-warnc: #c2a15e;
   --cy-badc: #c77b7b;
+
+  /* Semantic badge tokens (fg / tint bg / border). Muted + uniform, so tiers and
+     statuses read as one restrained set, not a rainbow. */
+  --cy-info-fg: #9297f5;  --cy-info-bg: rgba(123, 130, 240, 0.14); --cy-info-ln: rgba(123, 130, 240, 0.34);
+  --cy-teal-fg: #63bcc7;  --cy-teal-bg: rgba(90, 175, 186, 0.13);  --cy-teal-ln: rgba(90, 175, 186, 0.32);
+  --cy-good-fg: #72bd97;  --cy-good-bg: rgba(96, 168, 128, 0.13);  --cy-good-ln: rgba(96, 168, 128, 0.32);
+  --cy-warn-fg: #d0a75f;  --cy-warn-bg: rgba(196, 162, 84, 0.13);  --cy-warn-ln: rgba(196, 162, 84, 0.32);
+  --cy-bad-fg: #d18a8a;   --cy-bad-bg: rgba(196, 118, 118, 0.13);  --cy-bad-ln: rgba(196, 118, 118, 0.32);
+  --cy-neutral-fg: var(--cy-text-2); --cy-neutral-bg: var(--cy-surface-3); --cy-neutral-ln: var(--cy-border-lift);
+
+  /* Elevation + shape. Dark shadow-1 carries a faint top highlight so cards read
+     as layered surfaces rather than flat panels. */
+  --cy-shadow-1: inset 0 1px 0 rgba(255, 255, 255, 0.035), 0 1px 2px rgba(0, 0, 0, 0.4), 0 1px 3px rgba(0, 0, 0, 0.24);
+  --cy-shadow-2: 0 8px 26px rgba(0, 0, 0, 0.46);
+  --cy-r: 12px;
+  --cy-r-sm: 8px;
+  --cy-r-lg: 16px;
   background: var(--cy-surface);
+  color: var(--cy-text);
+  font-family: var(--cy-font);
+  font-variant-numeric: tabular-nums;   /* aligned figures without a mono face */
+  color-scheme: dark;   /* native controls (inputs, selects, scrollbars) match */
 }
+.cy-app--console[data-theme="light"] { color-scheme: light; }
 
 /* Sidebar active item + primary button use the one accent, flat. */
 .cy-app--console .cy-side__item.is-active {
@@ -7289,9 +7442,9 @@ a.cy-path__link:hover { background: var(--cy-surface-2); }
   margin-bottom: 1.5rem;
   padding-bottom: 1.1rem;
 }
-.cy-c-head__eyebrow { color: var(--cy-text-3); font-size: 0.72rem; font-weight: 600; letter-spacing: 0.09em; margin: 0 0 0.25rem; text-transform: uppercase; }
-.cy-c-head__title { font-size: 1.5rem; margin: 0; letter-spacing: -0.01em; }
-.cy-c-head__sub { color: var(--cy-text-3); font-size: 0.9rem; margin: 0.35rem 0 0; }
+.cy-c-head__eyebrow { color: var(--cy-accent-strong); font-size: 0.72rem; font-weight: 600; letter-spacing: 0.08em; margin: 0 0 0.3rem; text-transform: uppercase; }
+.cy-c-head__title { color: var(--cy-text); font-size: 1.6rem; font-weight: 600; margin: 0; letter-spacing: -0.021em; line-height: 1.12; }
+.cy-c-head__sub { color: var(--cy-text-3); font-size: 0.9rem; margin: 0.4rem 0 0; }
 .cy-c-head__actions { display: flex; flex-wrap: wrap; gap: 0.5rem; }
 
 /* --- KPI row (headline metrics; primary reads first) ---------------------- */
@@ -7356,17 +7509,174 @@ a.cy-path__link:hover { background: var(--cy-surface-2); }
 .cy-c-funnel__row { align-items: center; display: grid; gap: 0.75rem; grid-template-columns: 12rem 1fr 3.5rem; }
 .cy-c-funnel__name { color: var(--cy-text-2); font-size: 0.85rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .cy-c-funnel__track { background: var(--cy-surface-3); border-radius: 999px; height: 9px; overflow: hidden; }
-.cy-c-funnel__fill { background: linear-gradient(90deg, var(--cy-accent), var(--cy-cyan)); border-radius: 999px; display: block; height: 100%; min-width: 2px; }
+.cy-c-funnel__fill { background: linear-gradient(90deg, var(--cy-accent), var(--cy-accent-strong)); border-radius: 999px; display: block; height: 100%; min-width: 2px; }
 .cy-c-funnel__val { color: var(--cy-text); font-family: var(--cy-font-mono); font-size: 0.85rem; text-align: right; }
 @media (prefers-reduced-motion: no-preference) {
-  .cy-c-funnel__fill, .cy-c-kpi__fill { transition: width 0.5s ease; }
+  .cy-c-funnel__fill, .cy-c-kpi__fill, .cy-c-goal__fill { transition: width 0.5s ease; }
 }
+
+/* --- SaaS shell: top bar, theme toggle ------------------------------------ */
+.cy-topbar { align-items: center; display: flex; gap: 1rem; justify-content: space-between; margin-bottom: 1.5rem; }
+.cy-topbar__search { align-items: center; background: var(--cy-surface-2); border: 1px solid var(--cy-border); border-radius: 10px; color: var(--cy-text-3); display: flex; flex: 1; gap: 0.5rem; max-width: 26rem; padding: 0.5rem 0.75rem; }
+.cy-topbar__search .cy-i { flex: none; height: 16px; width: 16px; }
+.cy-topbar__search input { background: transparent; border: 0; color: var(--cy-text); font-family: inherit; font-size: 0.9rem; outline: none; width: 100%; }
+.cy-topbar__search input::placeholder { color: var(--cy-text-3); }
+.cy-topbar__actions { align-items: center; display: flex; gap: 0.5rem; }
+.cy-themetoggle { margin: 0; }
+.cy-topbar__btn { align-items: center; background: var(--cy-surface-2); border: 1px solid var(--cy-border); border-radius: 9px; color: var(--cy-text-2); cursor: pointer; display: inline-flex; height: 34px; justify-content: center; width: 34px; }
+.cy-topbar__btn:hover { border-color: var(--cy-border-lift); color: var(--cy-text); }
+.cy-topbar__btn .cy-i { height: 17px; width: 17px; }
+/* Show the icon for the CURRENT theme (moon at night, sun by day). */
+.cy-icon-sun { display: none; }
+.cy-icon-moon { display: inline-flex; }
+.cy-app--console[data-theme="light"] .cy-icon-sun { display: inline-flex; }
+.cy-app--console[data-theme="light"] .cy-icon-moon { display: none; }
+
+/* --- KPI delta pills + metric toggle + goals ------------------------------ */
+.cy-c-kpi__row { align-items: center; display: flex; gap: 0.5rem; justify-content: space-between; }
+.cy-c-delta { border-radius: 999px; font-family: var(--cy-font-mono); font-size: 0.7rem; font-weight: 600; padding: 0.1rem 0.42rem; white-space: nowrap; }
+.cy-c-delta--up { background: var(--cy-good-bg); color: var(--cy-good-fg); }
+.cy-c-delta--down { background: var(--cy-bad-bg); color: var(--cy-bad-fg); }
+.cy-c-delta--flat { background: var(--cy-surface-3); color: var(--cy-text-3); }
+
+.cy-c-metrictoggle { background: var(--cy-surface-3); border-radius: 8px; display: inline-flex; gap: 2px; padding: 2px; }
+.cy-c-metric { background: transparent; border: 0; border-radius: 6px; color: var(--cy-text-3); cursor: pointer; font-family: inherit; font-size: 0.78rem; padding: 0.3rem 0.65rem; }
+.cy-c-metric:hover { color: var(--cy-text-2); }
+.cy-c-metric.is-active { background: var(--cy-surface-2); box-shadow: 0 1px 2px rgba(0, 0, 0, 0.18); color: var(--cy-text); }
+.cy-c-chartpane.is-hidden { display: none; }
+
+.cy-c-goals { display: flex; flex-direction: column; gap: 1.05rem; list-style: none; margin: 0; padding: 0; }
+.cy-c-goal__top { align-items: baseline; display: flex; justify-content: space-between; margin-bottom: 0.4rem; }
+.cy-c-goal__label { color: var(--cy-text-2); font-size: 0.85rem; }
+.cy-c-goal__val { color: var(--cy-text); font-family: var(--cy-font-mono); font-size: 0.83rem; }
+.cy-c-goal__track { background: var(--cy-surface-3); border-radius: 999px; display: block; height: 8px; overflow: hidden; }
+.cy-c-goal__fill { background: linear-gradient(90deg, var(--cy-accent), var(--cy-accent-strong)); border-radius: 999px; display: block; height: 100%; min-width: 2px; }
+.cy-c-goal__pct { color: var(--cy-text-3); display: block; font-size: 0.74rem; margin-top: 0.32rem; }
+
+.cy-c-grid--three { grid-template-columns: repeat(3, 1fr); }
+
+/* --- Grade list (plain counts, no chart) ---------------------------------- */
+.cy-c-gradelist { display: flex; flex-direction: column; gap: 0.55rem; list-style: none; margin: 0; padding: 0; }
+.cy-c-gradelist__row { align-items: center; display: flex; justify-content: space-between; }
+.cy-c-gradelist__count { color: var(--cy-text); font-weight: 600; }
+
+/* --- Admin activity calendar ---------------------------------------------- */
+.cy-cal2__head { align-items: center; display: flex; justify-content: space-between; margin-bottom: 0.85rem; }
+.cy-cal2__title { color: var(--cy-text); font-weight: 600; }
+.cy-cal2__nav { align-items: center; border: 1px solid var(--cy-border); border-radius: 8px; color: var(--cy-text-2); display: inline-flex; height: 28px; justify-content: center; text-decoration: none; width: 28px; }
+.cy-cal2__nav:hover { background: var(--cy-surface-3); color: var(--cy-text); }
+.cy-cal2__nav.is-disabled { opacity: 0.35; pointer-events: none; }
+.cy-cal2__nav .cy-i { height: 15px; width: 15px; }
+.cy-cal2__row { display: grid; gap: 4px; grid-template-columns: repeat(7, 1fr); }
+.cy-cal2__row + .cy-cal2__row { margin-top: 4px; }
+.cy-cal2__row--head { margin-bottom: 0.4rem; }
+.cy-cal2__wd { color: var(--cy-text-3); font-size: 0.64rem; font-weight: 600; letter-spacing: 0.04em; text-align: center; text-transform: uppercase; }
+.cy-cal2__day { align-items: center; aspect-ratio: 1; border-radius: 8px; color: var(--cy-text-2); display: flex; font-size: 0.8rem; justify-content: center; }
+.cy-cal2__day.is-out { color: var(--cy-text-3); opacity: 0.4; }
+.cy-cal2__day.is-active { background: var(--cy-accent-tint); color: var(--cy-accent-strong); font-weight: 600; box-shadow: inset 0 0 0 1px var(--cy-accent-line); }
+.cy-cal2__day.is-today { box-shadow: inset 0 0 0 1.5px var(--cy-accent); color: var(--cy-text); font-weight: 700; }
+.cy-cal2__day.is-active.is-today { box-shadow: inset 0 0 0 1.5px var(--cy-accent); }
+.cy-cal2__foot { align-items: center; border-top: 1px solid var(--cy-border); color: var(--cy-text-3); display: flex; font-size: 0.8rem; gap: 0.75rem; justify-content: space-between; margin-top: 0.9rem; padding-top: 0.8rem; }
+.cy-cal2__foot strong { color: var(--cy-text); }
+.cy-cal2__key { align-items: center; display: flex; gap: 0.4rem; }
+.cy-cal2__swatch { background: var(--cy-accent-tint); border-radius: 4px; box-shadow: inset 0 0 0 1px var(--cy-accent-line); height: 12px; width: 12px; }
+
+/* --- LIGHT theme (a designed light, not an inversion) --------------------- */
+.cy-app--console[data-theme="light"] {
+  /* LIGHT — soft neutral page, white cards, one coordinated grey ramp. */
+  --cy-surface: #f7f8fa;          /* soft off-white page */
+  --cy-surface-2: #ffffff;        /* cards — lifted by shadow, never harsh */
+  --cy-surface-3: #f2f3f6;        /* insets, tracks, table headers */
+  --cy-surface-hover: #eaecf0;
+  --cy-border: #e6e8ec;
+  --cy-border-lift: #d3d7dd;
+  --cy-text: #14161a;
+  --cy-text-2: #5a616b;
+  --cy-text-3: #6b717b;
+  --cy-accent: #5b63d3;
+  --cy-accent-strong: #4d51c4;
+  --cy-accent-tint: rgba(91, 99, 211, 0.09);
+  --cy-accent-line: rgba(91, 99, 211, 0.30);
+  --cy-good: #2f9e6b;
+  --cy-warnc: #b5852f;
+  --cy-badc: #c9524f;
+
+  /* Light values: DARK text on a pale tint, for AA contrast on white cards. */
+  --cy-info-fg: #4d51c4;  --cy-info-bg: rgba(91, 99, 211, 0.09);   --cy-info-ln: rgba(91, 99, 211, 0.30);
+  --cy-teal-fg: #0f6f80;  --cy-teal-bg: rgba(23, 150, 171, 0.09);  --cy-teal-ln: rgba(23, 150, 171, 0.30);
+  --cy-good-fg: #1f7a4d;  --cy-good-bg: rgba(47, 158, 107, 0.09);  --cy-good-ln: rgba(47, 158, 107, 0.30);
+  --cy-warn-fg: #8a5d12;  --cy-warn-bg: rgba(181, 133, 47, 0.11);  --cy-warn-ln: rgba(181, 133, 47, 0.32);
+  --cy-bad-fg: #a83a37;   --cy-bad-bg: rgba(201, 82, 79, 0.09);    --cy-bad-ln: rgba(201, 82, 79, 0.28);
+  --cy-neutral-fg: var(--cy-text-2); --cy-neutral-bg: var(--cy-surface-3); --cy-neutral-ln: var(--cy-border-lift);
+
+  /* Soft, layered shadows lift the white cards off the grey page. */
+  --cy-shadow-1: 0 1px 2px rgba(16, 24, 40, 0.05), 0 1px 2px rgba(16, 24, 40, 0.04);
+  --cy-shadow-2: 0 10px 28px rgba(16, 24, 40, 0.10);
+}
+
+/* --- Depth: every console card carries the theme's shadow-1 --------------- */
+.cy-app--console .cy-c-section,
+.cy-app--console .cy-c-kpis,
+.cy-app--console .cy-c-org,
+.cy-app--console .cy-topbar__search,
+.cy-app--console .cy-topbar__btn {
+  box-shadow: var(--cy-shadow-1);
+}
+
+/* --- Chart colours: tied to the accent + tier palette, per theme ---------- */
+/* Sparklines use teal so they read as data, distinct from the indigo accent. */
+.cy-spark__line { stroke: var(--cy-teal-fg); }
+.cy-spark__area { fill: var(--cy-teal-fg); }
+.cy-spark__dot { fill: var(--cy-teal-fg); }
+.cy-area__line { stroke: var(--cy-accent-strong); }
+.cy-area__dot { fill: var(--cy-accent-strong); }
+/* Donut segments echo the grade-tier hues so the ring matches its legend. */
+.cy-seg--distinction { stroke: var(--cy-info-fg); background: var(--cy-info-fg); }
+.cy-seg--merit { stroke: var(--cy-teal-fg); background: var(--cy-teal-fg); }
+.cy-seg--pass { stroke: var(--cy-good-fg); background: var(--cy-good-fg); }
+.cy-seg--not-yet { stroke: var(--cy-warn-fg); background: var(--cy-warn-fg); }
+.cy-seg--not-started { stroke: var(--cy-text-3); background: var(--cy-text-3); }
+
+/* --- Clean, consistent console font (no decorative display face) ---------- */
+.cy-app--console,
+.cy-app--console h1, .cy-app--console h2, .cy-app--console h3,
+.cy-app--console .cy-c-head__title, .cy-app--console .cy-c-detailhead__name {
+  font-family: "Instrument Sans", system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* --- Status pills + role badges: token-driven, so both themes flip together */
+.cy-status { border-radius: 999px; display: inline-block; font-size: 0.72rem; font-weight: 600; padding: 0.14rem 0.55rem; white-space: nowrap; }
+.cy-status--completed { background: var(--cy-good-bg); color: var(--cy-good-fg); }
+.cy-status--progress { background: var(--cy-warn-bg); color: var(--cy-warn-fg); }
+.cy-status--not_started { background: var(--cy-neutral-bg); color: var(--cy-text-2); }
+.cy-status--staff { background: var(--cy-info-bg); color: var(--cy-info-fg); }
+
+.cy-role { border: 1px solid var(--cy-neutral-ln); border-radius: 6px; color: var(--cy-text-2); display: inline-block; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.02em; padding: 0.1rem 0.45rem; }
+.cy-role--administrator { border-color: var(--cy-info-ln); color: var(--cy-info-fg); }
+.cy-role--instructor { border-color: var(--cy-warn-ln); color: var(--cy-warn-fg); }
+
+/* --- Learners grouped by organisation ------------------------------------- */
+.cy-c-viewtoggle { background: var(--cy-surface-3); border-radius: 8px; display: inline-flex; gap: 2px; padding: 2px; }
+.cy-c-viewtoggle .cy-c-metric { text-decoration: none; }
+.cy-c-org { background: var(--cy-surface-2); border: 1px solid var(--cy-border); border-radius: 12px; margin-bottom: 0.85rem; overflow: hidden; }
+.cy-app--console[data-theme="light"] .cy-c-org { box-shadow: 0 1px 2px rgba(16, 24, 40, 0.06); }
+.cy-c-org__head { align-items: center; cursor: pointer; display: flex; flex-wrap: wrap; gap: 0.6rem; list-style: none; padding: 0.9rem 1.1rem; }
+.cy-c-org__head::-webkit-details-marker { display: none; }
+.cy-c-org__head:hover { background: var(--cy-surface-3); }
+.cy-c-org__chevron { color: var(--cy-text-3); flex: none; height: 16px; transition: transform 0.15s ease; width: 16px; }
+.cy-c-org[open] .cy-c-org__chevron { transform: rotate(90deg); }
+.cy-c-org__name { color: var(--cy-text); font-size: 0.95rem; font-weight: 600; }
+.cy-c-org__stats { color: var(--cy-text-3); font-size: 0.8rem; }
+.cy-c-org__csv { color: var(--cy-accent-strong); font-size: 0.8rem; margin-left: auto; text-decoration: none; }
+.cy-c-org__csv:hover { text-decoration: underline; }
+.cy-c-org .cy-c-tablewrap { border-top: 1px solid var(--cy-border); }
+@media (prefers-reduced-motion: reduce) { .cy-c-org__chevron { transition: none; } }
 
 /* --- Sections + two-column grid ------------------------------------------- */
 .cy-c-grid { display: grid; gap: 1rem; grid-template-columns: 1.5fr 1fr; margin-bottom: 1rem; align-items: start; }
 .cy-c-section { background: var(--cy-surface-2); border: 1px solid var(--cy-border); border-radius: 12px; margin-bottom: 1rem; padding: 1.2rem 1.3rem 1.3rem; }
 .cy-c-section__head { align-items: baseline; display: flex; gap: 0.75rem; justify-content: space-between; margin-bottom: 1rem; }
-.cy-c-section__title { color: var(--cy-text); font-size: 0.82rem; font-weight: 600; letter-spacing: 0.05em; margin: 0; text-transform: uppercase; }
+.cy-c-section__title { color: var(--cy-text-2); font-size: 0.76rem; font-weight: 600; letter-spacing: 0.06em; margin: 0; text-transform: uppercase; }
 .cy-c-section__link { color: var(--cy-accent-strong); font-size: 0.82rem; text-decoration: none; }
 .cy-c-section__link:hover { text-decoration: underline; }
 .cy-c-section__note { color: var(--cy-text-3); font-size: 0.82rem; }
@@ -7459,25 +7769,27 @@ a.cy-path__link:hover { background: var(--cy-surface-2); }
 .cy-c-pager { align-items: center; display: flex; gap: 1rem; justify-content: center; margin-top: 1.2rem; }
 .cy-c-pager__info { color: var(--cy-text-3); font-size: 0.85rem; }
 
-/* --- Tier badges + pills (muted, status only) ----------------------------- */
+/* --- Tier badges + pills: token-driven, one rule per variant -------------- */
+/* Each reads --cy-<family>-fg/bg/ln, which the theme blocks redefine, so light
+   and dark both get accessible contrast from a single source of truth. */
 .cy-app--console .cy-tierbadge { border-radius: 6px; display: inline-block; font-size: 0.74rem; font-weight: 600; padding: 0.15rem 0.5rem; }
-.cy-app--console .cy-tierbadge--distinction { background: rgba(143, 154, 214, 0.14); border: 1px solid rgba(143, 154, 214, 0.4); color: #a3adde; }
-.cy-app--console .cy-tierbadge--merit { background: rgba(111, 163, 168, 0.14); border: 1px solid rgba(111, 163, 168, 0.4); color: #8fbcc0; }
-.cy-app--console .cy-tierbadge--pass { background: rgba(111, 174, 134, 0.14); border: 1px solid rgba(111, 174, 134, 0.4); color: #8bc4a0; }
-.cy-app--console .cy-tierbadge--not-yet { background: rgba(194, 161, 94, 0.14); border: 1px solid rgba(194, 161, 94, 0.4); color: #d0b273; }
-.cy-app--console .cy-tierbadge--not-started { background: var(--cy-surface-3); border: 1px solid var(--cy-border-lift); color: var(--cy-text-3); }
+.cy-app--console .cy-tierbadge--distinction { background: var(--cy-info-bg); border: 1px solid var(--cy-info-ln); color: var(--cy-info-fg); }
+.cy-app--console .cy-tierbadge--merit { background: var(--cy-teal-bg); border: 1px solid var(--cy-teal-ln); color: var(--cy-teal-fg); }
+.cy-app--console .cy-tierbadge--pass { background: var(--cy-good-bg); border: 1px solid var(--cy-good-ln); color: var(--cy-good-fg); }
+.cy-app--console .cy-tierbadge--not-yet { background: var(--cy-warn-bg); border: 1px solid var(--cy-warn-ln); color: var(--cy-warn-fg); }
+.cy-app--console .cy-tierbadge--not-started { background: var(--cy-neutral-bg); border: 1px solid var(--cy-neutral-ln); color: var(--cy-text-3); }
 
 .cy-app--console .cy-pill { background: var(--cy-surface-3); border: 1px solid var(--cy-border-lift); border-radius: 6px; color: var(--cy-text-2); display: inline-block; font-size: 0.72rem; font-weight: 600; padding: 0.12rem 0.5rem; white-space: nowrap; }
-.cy-app--console .cy-pill--ok { background: rgba(111, 174, 134, 0.13); border-color: rgba(111, 174, 134, 0.38); color: #8bc4a0; }
-.cy-app--console .cy-pill--warn { background: rgba(194, 161, 94, 0.13); border-color: rgba(194, 161, 94, 0.38); color: #d0b273; }
-.cy-app--console .cy-pill--off { background: rgba(199, 123, 123, 0.13); border-color: rgba(199, 123, 123, 0.36); color: #d69090; }
+.cy-app--console .cy-pill--ok { background: var(--cy-good-bg); border-color: var(--cy-good-ln); color: var(--cy-good-fg); }
+.cy-app--console .cy-pill--warn { background: var(--cy-warn-bg); border-color: var(--cy-warn-ln); color: var(--cy-warn-fg); }
+.cy-app--console .cy-pill--off { background: var(--cy-bad-bg); border-color: var(--cy-bad-ln); color: var(--cy-bad-fg); }
 
 /* --- Detail page ---------------------------------------------------------- */
 .cy-c-back { align-items: center; color: var(--cy-text-3); display: inline-flex; font-size: 0.85rem; gap: 0.25rem; margin-bottom: 1rem; text-decoration: none; }
 .cy-c-back:hover { color: var(--cy-accent-strong); }
 .cy-c-back .cy-i { height: 15px; width: 15px; }
 .cy-c-detailhead { align-items: flex-start; border-bottom: 1px solid var(--cy-border); display: flex; flex-wrap: wrap; gap: 1rem; justify-content: space-between; margin-bottom: 1.3rem; padding-bottom: 1.2rem; }
-.cy-c-detailhead__name { font-size: 1.45rem; margin: 0; }
+.cy-c-detailhead__name { color: var(--cy-text); font-size: 1.55rem; font-weight: 600; letter-spacing: -0.02em; line-height: 1.12; margin: 0; }
 .cy-c-detailhead__email { color: var(--cy-text-3); margin: 0.25rem 0 0.7rem; }
 .cy-c-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: center; }
 .cy-c-mini { display: flex; gap: 1.5rem; }
@@ -7555,9 +7867,11 @@ a.cy-path__link:hover { background: var(--cy-surface-2); }
 @media (max-width: 900px) {
   .cy-c-kpis { grid-template-columns: repeat(2, 1fr); }
   .cy-c-kpis--spark { grid-template-columns: repeat(2, 1fr); }
-  .cy-c-grid, .cy-c-grid--chart { grid-template-columns: 1fr; }
+  .cy-c-grid, .cy-c-grid--chart, .cy-c-grid--three { grid-template-columns: 1fr; }
   .cy-c-detail { grid-template-columns: 1fr; }
   .cy-c-detail__side { position: static; }
+  .cy-topbar { flex-wrap: wrap; }
+  .cy-topbar__search { max-width: none; order: 2; width: 100%; }
 }
 @media (max-width: 560px) {
   .cy-c-bar { grid-template-columns: 6rem 1fr 1.8rem; gap: 0.6rem; }
@@ -7565,3 +7879,695 @@ a.cy-path__link:hover { background: var(--cy-surface-2); }
   .cy-c-funnel__row { grid-template-columns: 7rem 1fr 3rem; gap: 0.5rem; }
   .cy-c-funnel__name { font-size: 0.8rem; }
 }
+
+
+/* ===================================================================
+   Compact single-viewport student dashboard  (cy-dash)
+   Deliberately restrained after the old gradient-tile look read as
+   templated: flat surfaces, hairline borders, mono numerals, and the
+   accent held back for the tier, the one action, and progress fills.
+   =================================================================== */
+
+.cy-dash { display: flex; flex-direction: column; gap: 0.9rem; }
+
+/* Pull the shell in tighter so the whole dashboard lands in one viewport. */
+.cy-app__main:has(.cy-dash) {
+  padding-top: clamp(1rem, 2.2vw, 1.6rem);
+  padding-bottom: 1.5rem;
+}
+
+/* --- Row 1: profile (clickable) + one clear action ----------------------- */
+.cy-dash__bar { align-items: center; display: flex; flex-wrap: wrap; gap: 0.8rem; justify-content: space-between; }
+
+.cy-prof { position: relative; }
+.cy-prof__trigger {
+  align-items: center;
+  background: var(--cy-surface);
+  border: 1px solid var(--cy-border);
+  border-radius: var(--cy-r);
+  cursor: pointer;
+  display: flex;
+  gap: 0.7rem;
+  list-style: none;
+  padding: 0.45rem 0.85rem 0.45rem 0.45rem;
+  transition: border-color var(--cy-fast) var(--cy-ease), background var(--cy-fast) var(--cy-ease);
+}
+.cy-prof__trigger::-webkit-details-marker { display: none; }
+.cy-prof__trigger:hover,
+.cy-prof[open] .cy-prof__trigger { background: var(--cy-surface-2); border-color: var(--cy-border-lift); }
+
+.cy-prof__avatar {
+  align-items: center;
+  background: radial-gradient(120% 120% at 30% 22%, var(--cy-surface-3), var(--cy-surface));
+  border-radius: 9px;
+  box-shadow: inset 0 0 0 1.5px var(--tier-mid);
+  color: var(--cy-text);
+  display: flex;
+  flex: none;
+  font-size: 1.05rem;
+  font-weight: 700;
+  height: 40px;
+  justify-content: center;
+  width: 40px;
+}
+.cy-prof__meta { display: flex; flex-direction: column; gap: 3px; min-width: 0; text-align: left; }
+.cy-prof__name { color: var(--cy-text); font-size: 0.95rem; font-weight: 600; letter-spacing: -0.01em; line-height: 1; white-space: nowrap; }
+.cy-prof__sub { align-items: center; display: flex; gap: 0.45rem; line-height: 1; }
+.cy-prof__rank { color: var(--cy-text-3); font-size: 0.78rem; }
+.cy-prof__chev { color: var(--cy-text-3); flex: none; height: 15px; transform: rotate(90deg); transition: transform var(--cy-fast) var(--cy-ease); width: 15px; }
+.cy-prof[open] .cy-prof__chev { transform: rotate(-90deg); }
+
+.cy-tierpill {
+  background: var(--cy-surface-3);
+  border: 1px solid var(--cy-border-lift);
+  border-radius: var(--cy-r-pill);
+  color: var(--tier-mid);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  padding: 2px 9px;
+  text-transform: uppercase;
+}
+
+.cy-prof__menu {
+  background: var(--cy-surface-2);
+  border: 1px solid var(--cy-border-lift);
+  border-radius: var(--cy-r);
+  box-shadow: var(--cy-shadow-lift);
+  display: flex;
+  flex-direction: column;
+  left: 0;
+  min-width: 210px;
+  padding: 6px;
+  position: absolute;
+  top: calc(100% + 6px);
+  z-index: 40;
+}
+.cy-prof__menu form { display: block; width: 100%; }
+.cy-prof__item {
+  align-items: center;
+  background: none;
+  border: 0;
+  border-radius: var(--cy-r-sm);
+  color: var(--cy-text-2);
+  cursor: pointer;
+  display: flex;
+  font-size: 0.9rem;
+  gap: 0.6rem;
+  padding: 0.5rem 0.6rem;
+  text-align: left;
+  width: 100%;
+}
+.cy-prof__item .cy-i { color: var(--cy-text-3); height: 16px; width: 16px; }
+.cy-prof__item:hover { background: var(--cy-surface-3); color: var(--cy-text); }
+.cy-prof__item:hover .cy-i { color: var(--cy-violet); }
+.cy-prof__sep { background: var(--cy-border); height: 1px; margin: 5px 4px; }
+.cy-prof__item--btn { color: var(--cy-danger); font-family: inherit; }
+.cy-prof__item--btn:hover { background: rgba(255, 128, 128, 0.1); color: var(--cy-danger); }
+
+/* The single primary action. Rides cy-btn--primary for colour; relaid out. */
+.cy-cta { align-items: center; border-radius: var(--cy-r); display: inline-flex; gap: 0.85rem; padding: 0.5rem 1.05rem; text-align: left; }
+.cy-cta__text { display: flex; flex-direction: column; gap: 2px; }
+.cy-cta__k { font-size: 0.72rem; font-weight: 600; opacity: 0.82; }
+.cy-cta__v { font-size: 0.95rem; font-weight: 700; letter-spacing: -0.01em; }
+.cy-cta .cy-i { flex: none; height: 18px; width: 18px; }
+
+/* --- Slim tier-progress line --------------------------------------------- */
+.cy-tierbar { align-items: center; background: var(--cy-surface); border: 1px solid var(--cy-border); border-radius: var(--cy-r); display: flex; gap: 0.85rem; padding: 0.5rem 0.9rem; }
+.cy-tierbar__from { color: var(--tier-mid); flex: none; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; }
+.cy-tierbar__track { background: var(--cy-surface-3); border-radius: var(--cy-r-pill); box-shadow: inset 0 0 0 1px var(--cy-border); flex: 1; height: 6px; overflow: hidden; }
+.cy-tierbar__fill { background: linear-gradient(90deg, var(--cy-violet-deep), var(--cy-violet)); border-radius: inherit; display: block; height: 100%; width: var(--cy-value, 0%); }
+.cy-tierbar__label { color: var(--cy-text-3); flex: none; font-size: 0.8rem; }
+.cy-tierbar__label strong { color: var(--cy-text); font-family: var(--cy-font-mono); }
+
+/* --- Row 2: dense stats, hairline-separated, streak folded in ------------ */
+.cy-dstats {
+  background: var(--cy-border);   /* shows through the 1px grid gaps as hairlines */
+  border: 1px solid var(--cy-border);
+  border-radius: var(--cy-r);
+  display: grid;
+  gap: 1px;
+  grid-template-columns: repeat(6, 1fr);
+  overflow: hidden;
+}
+.cy-dstat { background: var(--cy-surface); color: inherit; display: flex; flex-direction: column; gap: 4px; padding: 0.7rem 0.95rem; text-decoration: none; }
+.cy-dstat__v { align-items: baseline; color: var(--cy-text); display: flex; font-family: var(--cy-font-mono); font-size: 1.45rem; font-variant-numeric: tabular-nums; font-weight: 700; gap: 1px; letter-spacing: -0.02em; line-height: 1; }
+.cy-dstat__v small { color: var(--cy-text-3); font-size: 0.82rem; font-weight: 600; }
+.cy-dstat__k { color: var(--cy-text-3); font-size: 0.68rem; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; }
+.cy-dstat--link { transition: background var(--cy-fast) var(--cy-ease); }
+.cy-dstat--link:hover { background: var(--cy-surface-2); }
+.cy-dstat__flame { color: var(--cy-text-3); height: 15px; margin-right: 3px; width: 15px; align-self: center; }
+.cy-dstat--streak.cy-dstat--safe .cy-dstat__flame,
+.cy-dstat--streak.cy-dstat--at_risk .cy-dstat__flame { color: var(--cy-flame); }
+.cy-dstat--streak.cy-dstat--at_risk .cy-dstat__v { color: var(--cy-flame); }
+
+/* --- Row 3: course progress | activity calendar -------------------------- */
+.cy-dash__grid { align-items: start; display: grid; gap: 0.9rem; grid-template-columns: 1fr minmax(300px, 340px); }
+
+.cy-dpanel { background: var(--cy-surface); border: 1px solid var(--cy-border); border-radius: var(--cy-r); }
+.cy-dpanel__head { align-items: center; border-bottom: 1px solid var(--cy-border); display: flex; justify-content: space-between; padding: 0.8rem 1.1rem; }
+.cy-dpanel__title { color: var(--cy-text); font-family: var(--cy-font-display); font-size: 1rem; font-weight: 600; letter-spacing: -0.01em; margin: 0; }
+.cy-dpanel__link { color: var(--cy-text-3); font-size: 0.82rem; }
+.cy-dpanel__link:hover { color: var(--cy-violet); }
+
+.cy-course__list { display: flex; flex-direction: column; gap: 2px; list-style: none; margin: 0; padding: 6px; }
+.cy-course__hit { align-items: center; border-radius: var(--cy-r-sm); color: inherit; display: flex; gap: 0.8rem; padding: 0.5rem 0.65rem; text-decoration: none; transition: background var(--cy-fast) var(--cy-ease); }
+a.cy-course__hit:hover { background: var(--cy-surface-2); }
+.cy-course__ix { align-items: center; background: var(--cy-surface-3); border: 1px solid var(--cy-border); border-radius: 8px; color: var(--cy-text-2); display: flex; flex: none; font-family: var(--cy-font-mono); font-size: 0.85rem; font-weight: 700; height: 30px; justify-content: center; width: 30px; }
+.cy-course__ix .cy-i { height: 15px; width: 15px; }
+.cy-course__body { display: flex; flex: 1; flex-direction: column; gap: 6px; min-width: 0; }
+.cy-course__name { align-items: center; color: var(--cy-text); display: flex; font-size: 0.9rem; font-weight: 500; gap: 0.5rem; line-height: 1.1; }
+.cy-course__now { background: var(--cy-grad-soft); border: 1px solid rgba(167, 139, 250, 0.3); border-radius: var(--cy-r-pill); color: var(--cy-violet-soft); flex: none; font-size: 0.64rem; font-weight: 700; letter-spacing: 0.05em; padding: 1px 7px; text-transform: uppercase; }
+.cy-course__track { background: var(--cy-surface-3); border-radius: var(--cy-r-pill); height: 5px; overflow: hidden; width: 100%; }
+.cy-course__fill { background: linear-gradient(90deg, var(--cy-violet-deep), var(--cy-violet)); border-radius: inherit; display: block; height: 100%; width: var(--cy-value, 0%); }
+.cy-course__meta { color: var(--cy-text-3); flex: none; font-family: var(--cy-font-mono); font-size: 0.8rem; }
+
+.cy-course__row--complete .cy-course__ix { background: rgba(34, 211, 238, 0.12); border-color: rgba(34, 211, 238, 0.4); color: var(--cy-cyan-soft); }
+.cy-course__row--complete .cy-course__fill { background: linear-gradient(90deg, var(--cy-cyan), var(--cy-cyan-soft)); }
+.cy-course__row--locked { opacity: 0.5; }
+.cy-course__row--locked .cy-course__ix .cy-i { color: var(--cy-text-3); }
+.cy-course__row.is-current .cy-course__ix { border-color: var(--cy-violet); box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.14); color: var(--cy-violet-soft); }
+
+/* Calendar, compacted for the dashboard column. */
+.cy-dash .cy-cal { padding: 0.7rem 0.9rem; }
+.cy-dash .cy-cal__head { margin-bottom: 0.55rem; }
+.cy-dash .cy-cal__title { font-size: 0.95rem; }
+.cy-dash .cy-cal__day { border-radius: 7px; font-size: 0.76rem; }
+.cy-dash .cy-cal__foot { margin-top: 0.7rem; padding-top: 0.7rem; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .cy-cta { transition: transform var(--cy-fast) var(--cy-ease); }
+  .cy-cta:hover { transform: translateY(-1px); }
+  .cy-tierbar__fill, .cy-course__fill { transition: width var(--cy-slow) var(--cy-ease); }
+}
+
+@media (max-width: 860px) { .cy-dash__grid { grid-template-columns: 1fr; } }
+@media (max-width: 760px) {
+  .cy-dstats { grid-template-columns: repeat(3, 1fr); }
+  .cy-dash__bar { flex-direction: column; align-items: stretch; }
+  .cy-cta { justify-content: space-between; }
+}
+@media (max-width: 420px) { .cy-dstats { grid-template-columns: repeat(2, 1fr); } }
+
+
+/* ===================================================================
+   Student dashboard v3 — composed cards with real depth.
+   Confident dark violet/cyan; depth from cy-elev (gradient surface,
+   soft shadow, a faint top glow line) plus sparing accent glows and
+   hover lifts. ONE layout for every student (no first-time fork).
+   =================================================================== */
+
+.cy-dash { display: flex; flex-direction: column; gap: 1.1rem; }
+
+.cy-dash__top { align-items: center; display: flex; flex-wrap: wrap; gap: 0.8rem 1rem; justify-content: space-between; }
+.cy-dash__greet { color: var(--cy-text-3); font-size: 0.9rem; margin: 0; }
+
+/* --- Continue hero + tier panel ------------------------------------------ */
+.cy-dash__hero { align-items: stretch; display: grid; gap: 1.1rem; grid-template-columns: 1.65fr 1fr; }
+
+.cy-dhero {
+  align-items: center;
+  border: 1px solid var(--cy-border);
+  border-radius: var(--cy-r-lg);
+  color: inherit;
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+  overflow: hidden;
+  padding: 1.5rem 1.6rem;
+  position: relative;
+  text-decoration: none;
+}
+.cy-dhero__glow {
+  background: radial-gradient(closest-side, var(--cy-glow-violet), transparent 72%);
+  bottom: -55%; height: 150%; pointer-events: none; position: absolute; right: -12%; width: 55%;
+}
+.cy-dhero--done .cy-dhero__glow { background: radial-gradient(closest-side, var(--cy-glow-cyan), transparent 72%); }
+.cy-dhero__body { display: flex; flex-direction: column; gap: 0.35rem; min-width: 0; position: relative; z-index: 1; }
+.cy-dhero__eyebrow { color: var(--cy-violet-soft); font-size: 0.75rem; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; }
+.cy-dhero__title { color: var(--cy-text); font-family: var(--cy-font-display); font-size: 1.4rem; font-weight: 600; letter-spacing: -0.01em; line-height: 1.15; }
+.cy-dhero__sub { color: var(--cy-text-2); font-size: 0.9rem; }
+.cy-dhero__cta { flex: none; position: relative; z-index: 1; }
+
+.cy-tierpanel {
+  align-items: center;
+  border: 1px solid var(--cy-border);
+  border-radius: var(--cy-r-lg);
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  overflow: hidden;
+  padding: 1.4rem 1.3rem;
+  position: relative;
+  text-align: center;
+}
+.cy-tierpanel::after {
+  background: radial-gradient(120% 80% at 50% -10%, var(--tier-glow), transparent 60%);
+  content: ""; inset: 0; opacity: 0.45; pointer-events: none; position: absolute;
+}
+.cy-tierpanel > * { position: relative; z-index: 1; }
+.cy-tierpanel__emblem { height: 78px; width: 78px; }
+.cy-tierpanel__emblem .cy-tier__art { filter: drop-shadow(0 6px 16px var(--tier-glow)); }
+.cy-tierpanel__name {
+  background: linear-gradient(120deg, var(--tier-hi), var(--tier-mid) 62%, var(--tier-lo));
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  font-size: 1.35rem; font-weight: 700; letter-spacing: -0.01em;
+}
+.cy-tierpanel__sub { color: var(--cy-text-3); font-size: 0.82rem; }
+.cy-tierpanel__prog { display: flex; flex-direction: column; gap: 7px; margin-top: 0.55rem; width: 100%; }
+.cy-tierpanel__track { background: var(--cy-surface-3); border-radius: 999px; box-shadow: inset 0 0 0 1px var(--cy-border); height: 7px; overflow: hidden; }
+.cy-tierpanel__fill { background: linear-gradient(90deg, var(--tier-lo), var(--tier-mid), var(--tier-hi)); border-radius: inherit; display: block; height: 100%; width: var(--cy-value, 0%); }
+.cy-tierpanel__to { color: var(--cy-text-3); font-size: 0.78rem; }
+.cy-tierpanel__to strong { color: var(--cy-text); font-family: var(--cy-font-mono); }
+.cy-tierpanel__max { align-items: center; color: var(--cy-cyan-soft); display: inline-flex; font-size: 0.85rem; gap: 0.4rem; margin-top: 0.35rem; }
+.cy-tierpanel__max .cy-i { height: 15px; width: 15px; }
+
+/* --- Stat cards (composed, not flat bars) -------------------------------- */
+.cy-scards { display: grid; gap: 0.85rem; grid-template-columns: repeat(6, 1fr); }
+.cy-scard {
+  border: 1px solid var(--cy-border);
+  border-radius: var(--cy-r);
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  padding: 1.05rem 1.1rem;
+  position: relative;
+  text-decoration: none;
+}
+.cy-scard__icon {
+  align-items: center; background: var(--cy-grad-soft); border: 1px solid rgba(167, 139, 250, 0.25);
+  border-radius: 9px; color: var(--cy-violet-soft); display: flex; height: 34px; justify-content: center; width: 34px;
+}
+.cy-scard__icon .cy-i { height: 17px; width: 17px; }
+.cy-scard__v { align-items: baseline; color: var(--cy-text); display: flex; font-family: var(--cy-font-mono); font-size: 1.55rem; font-variant-numeric: tabular-nums; font-weight: 700; gap: 2px; letter-spacing: -0.02em; line-height: 1; }
+.cy-scard__v small { color: var(--cy-text-3); font-size: 0.9rem; font-weight: 600; }
+.cy-scard__k { color: var(--cy-text-3); font-size: 0.74rem; font-weight: 600; letter-spacing: 0.03em; }
+.cy-scard--streak .cy-scard__icon { background: rgba(255, 157, 77, 0.14); border-color: rgba(255, 157, 77, 0.34); color: var(--cy-flame); }
+.cy-scard--streak.cy-scard--at_risk { border-color: rgba(255, 157, 77, 0.4); }
+.cy-scard--at_risk .cy-scard__v { color: var(--cy-flame); }
+
+/* --- Calendar + next-badge nudge ----------------------------------------- */
+.cy-dash__grid2 { align-items: stretch; display: grid; gap: 1.1rem; grid-template-columns: 1.65fr 1fr; }
+.cy-dash .cy-cal { border: 1px solid var(--cy-border); border-radius: var(--cy-r-lg); padding: 1.15rem 1.3rem; }
+.cy-dash .cy-cal__day { border-radius: 8px; }
+
+.cy-dnudge { border: 1px solid var(--cy-border); border-radius: var(--cy-r-lg); display: flex; flex-direction: column; gap: 0.7rem; padding: 1.4rem; }
+.cy-dnudge__eyebrow { color: var(--cy-text-3); font-size: 0.72rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; }
+.cy-dnudge__badge {
+  align-items: center; background: var(--cy-grad-soft); border: 1px solid rgba(167, 139, 250, 0.3);
+  border-radius: 12px; box-shadow: 0 6px 18px var(--cy-glow-violet-soft); color: var(--cy-violet-soft);
+  display: flex; height: 46px; justify-content: center; width: 46px;
+}
+.cy-dnudge__badge .cy-i { height: 22px; width: 22px; }
+.cy-dnudge__phrase { color: var(--cy-text); font-size: 0.98rem; line-height: 1.3; margin: 0; }
+.cy-dnudge__link { align-items: center; color: var(--cy-violet-soft); display: inline-flex; font-size: 0.84rem; font-weight: 600; gap: 0.3rem; margin-top: auto; text-decoration: none; }
+.cy-dnudge__link .cy-i { height: 14px; width: 14px; }
+
+/* --- Depth motion, sparing and gated ------------------------------------- */
+@media (prefers-reduced-motion: no-preference) {
+  .cy-dhero, .cy-scard { transition: transform var(--cy-fast) var(--cy-ease), border-color var(--cy-fast) var(--cy-ease), box-shadow var(--cy-fast) var(--cy-ease); }
+  .cy-dhero:hover, .cy-scard:hover { border-color: var(--cy-border-lift); box-shadow: var(--cy-shadow-lift); transform: translateY(-3px); }
+  .cy-tierpanel__fill { transition: width var(--cy-slow) var(--cy-ease); }
+  .cy-dnudge__link { transition: gap var(--cy-fast) var(--cy-ease); }
+  .cy-dnudge__link:hover { gap: 0.5rem; }
+}
+
+@media (max-width: 900px) {
+  .cy-dash__hero, .cy-dash__grid2 { grid-template-columns: 1fr; }
+  .cy-scards { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 520px) { .cy-scards { grid-template-columns: repeat(2, 1fr); } }
+
+
+/* --- Activity: QUIZSET (mixed knowledge-check) ---------------------------- */
+/* A set of sub-questions of different types (mcq / true-false / fill / match),
+   each graded on its own. Shares the room's dark violet/cyan language. */
+.cy-qz__count { color: var(--cy-text-3); font-family: var(--cy-font-mono); font-size: 0.8rem; margin: 0 0 0.75rem; }
+.cy-qz { display: grid; gap: 0.85rem; }
+.cy-qz__card {
+  background: var(--cy-surface);
+  border: 1px solid var(--cy-border);
+  border-left: 3px solid var(--cy-border-lift);
+  border-radius: var(--cy-r-sm);
+  padding: 0.9rem 1rem;
+}
+.cy-qz__card.is-good { border-left-color: var(--cy-cyan); }
+.cy-qz__card.is-shake { animation: cy-shake 0.4s; }
+.cy-qz__q { align-items: baseline; color: var(--cy-text); display: flex; font-weight: 600; gap: 0.55rem; margin: 0 0 0.75rem; }
+.cy-qz__n {
+  align-items: center; background: var(--cy-surface-3); border-radius: 6px; color: var(--cy-violet-soft);
+  display: inline-flex; flex: none; font-family: var(--cy-font-mono); font-size: 0.75rem; font-weight: 700;
+  height: 22px; justify-content: center; min-width: 22px;
+}
+.cy-qz__opts { display: grid; gap: 0.45rem; }
+.cy-qz__opts--tf { grid-template-columns: 1fr 1fr; }
+.cy-qz__opt {
+  background: var(--cy-surface-2); border: 1px solid var(--cy-border-lift); border-radius: var(--cy-r-sm);
+  color: var(--cy-text); cursor: pointer; font: inherit; font-size: 0.9rem; padding: 0.6rem 0.85rem;
+  text-align: left; transition: border-color 0.12s ease, background-color 0.12s ease;
+}
+.cy-qz__opt:hover:not(:disabled) { border-color: var(--cy-violet); }
+.cy-qz__opt:disabled { cursor: default; opacity: 0.6; }
+.cy-qz__opt.is-right { background: rgba(34, 211, 238, 0.12); border-color: var(--cy-cyan); color: var(--cy-cyan-soft); opacity: 1; }
+.cy-qz__opt.is-wrong { background: rgba(255, 157, 77, 0.12); border-color: var(--cy-flame); color: var(--cy-flame); }
+
+/* fill-in-the-blank */
+.cy-qz__fill { display: flex; gap: 0.5rem; }
+.cy-qz__input {
+  background: var(--cy-field-bg); border: 1px solid var(--cy-field-line); border-radius: var(--cy-r-sm);
+  color: var(--cy-text); flex: 1; font: inherit; font-size: 0.9rem; min-width: 0; padding: 0.55rem 0.75rem;
+}
+.cy-qz__input:focus { border-color: var(--cy-violet); outline: none; }
+.cy-qz__input.is-right { border-color: var(--cy-cyan); color: var(--cy-cyan-soft); }
+.cy-qz__input.is-wrong { animation: cy-shake 0.4s; border-color: var(--cy-flame); }
+.cy-qz__check { flex: none; }
+
+/* drag / tap to match */
+.cy-qz__match-instr { color: var(--cy-text-2); font-size: 0.85rem; margin: 0 0 0.6rem; }
+.cy-qz__match { display: grid; gap: 0.7rem; grid-template-columns: 1fr 1fr; }
+.cy-qz__col { display: grid; gap: 0.45rem; align-content: start; }
+.cy-qz__term, .cy-qz__def {
+  background: var(--cy-surface-2); border: 1px solid var(--cy-border-lift); border-radius: var(--cy-r-sm);
+  color: var(--cy-text); cursor: pointer; font: inherit; font-size: 0.86rem; padding: 0.55rem 0.7rem;
+  text-align: left; transition: border-color 0.12s ease, background-color 0.12s ease;
+}
+.cy-qz__term:hover:not(:disabled), .cy-qz__def:hover:not(:disabled) { border-color: var(--cy-violet); }
+.cy-qz__term.is-sel, .cy-qz__def.is-sel { border-color: var(--cy-violet); background: var(--cy-grad-soft); }
+.cy-qz__term.is-matched, .cy-qz__def.is-matched {
+  background: rgba(34, 211, 238, 0.12); border-color: var(--cy-cyan); color: var(--cy-cyan-soft); cursor: default; opacity: 1;
+}
+.cy-qz__term.is-wrong, .cy-qz__def.is-wrong { animation: cy-shake 0.4s; border-color: var(--cy-flame); color: var(--cy-flame); }
+
+.cy-qz__why { font-size: 0.82rem; margin: 0.6rem 0 0; }
+.cy-qz__why.is-good { color: var(--cy-text-2); }
+.cy-qz__why.is-bad { color: var(--cy-flame); }
+.cy-qz__why:empty { display: none; }
+.cy-qz__hint-toggle {
+  background: none; border: 0; color: var(--cy-violet-soft); cursor: pointer; font: inherit; font-size: 0.8rem;
+  margin-top: 0.55rem; padding: 0; display: inline-flex; align-items: center; gap: 0.3rem;
+}
+.cy-qz__hint-toggle .cy-i { height: 14px; width: 14px; }
+.cy-qz__hint { color: var(--cy-text-3); font-size: 0.82rem; margin: 0.4rem 0 0; }
+
+
+/* --- Diagram: annotated network path (device -> router -> internet -> server) */
+.cy-netpath__track { align-items: stretch; display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; }
+.cy-netpath__hop {
+  background: var(--cy-surface);
+  border: 1px solid var(--cy-border-lift);
+  border-radius: var(--cy-r);
+  display: flex;
+  flex: 1 1 9rem;
+  flex-direction: column;
+  gap: 0.35rem;
+  max-width: 12rem;
+  padding: 0.85rem 0.8rem;
+  text-align: center;
+}
+.cy-netpath__node {
+  align-items: center;
+  background: var(--cy-grad-soft);
+  border: 1px solid rgba(167, 139, 250, 0.3);
+  border-radius: 50%;
+  color: var(--cy-violet-soft);
+  display: inline-flex;
+  height: 34px;
+  justify-content: center;
+  margin: 0 auto 0.15rem;
+  width: 34px;
+}
+.cy-netpath__node--open { background: rgba(255, 157, 77, 0.12); border-color: rgba(255, 157, 77, 0.4); color: var(--cy-flame); }
+.cy-netpath__n { font-family: var(--cy-font-mono); font-size: 0.85rem; font-weight: 700; }
+.cy-netpath__name { color: var(--cy-text); font-size: 0.9rem; font-weight: 600; }
+.cy-netpath__note { color: var(--cy-text-3); font-size: 0.76rem; line-height: 1.3; }
+.cy-netpath__arrow { align-items: center; color: var(--cy-violet-soft); display: inline-flex; }
+.cy-netpath__arrow .cy-i { height: 18px; width: 18px; }
+@media (max-width: 620px) {
+  .cy-netpath__track { flex-direction: column; }
+  .cy-netpath__hop { max-width: none; }
+  .cy-netpath__arrow { transform: rotate(90deg); }
+}
+
+
+/* --- Lesson photo (real image served from our own static, CSP-safe) ------- */
+.cy-photo { margin: 0 auto 1.25rem; max-width: 30rem; }
+.cy-photo__img {
+  background: var(--cy-surface-2);
+  border: 1px solid var(--cy-border);
+  border-radius: var(--cy-r);
+  display: block;
+  height: auto;
+  max-width: 100%;
+  width: 100%;
+}
+.cy-photo__cap {
+  align-items: baseline;
+  color: var(--cy-text-3);
+  display: flex;
+  flex-wrap: wrap;
+  font-size: 0.82rem;
+  gap: 0.3rem 0.9rem;
+  justify-content: space-between;
+  margin-top: 0.55rem;
+}
+.cy-photo__text { color: var(--cy-text-2); flex: 1 1 62%; line-height: 1.4; }
+.cy-photo__credit { color: var(--cy-text-3); font-size: 0.72rem; white-space: nowrap; }
+
+
+/* --- Diagram: browser address bars (secure vs not) — a read-the-image Q ---- */
+.cy-addrbar { display: grid; gap: 0.65rem; }
+.cy-addrbar__row { align-items: center; display: flex; gap: 0.7rem; }
+.cy-addrbar__tag { color: var(--cy-text-3); flex: none; font-family: var(--cy-font-mono); font-weight: 700; text-align: center; width: 1.1rem; }
+.cy-addrbar__bar {
+  align-items: center; background: var(--cy-surface-3); border: 1px solid var(--cy-border-lift);
+  border-radius: 999px; display: flex; flex: 1; gap: 0.55rem; min-width: 0; padding: 0.5rem 0.9rem;
+}
+.cy-addrbar__row--good .cy-addrbar__bar { border-color: rgba(34, 211, 238, 0.45); }
+.cy-addrbar__row--bad .cy-addrbar__bar { border-color: rgba(255, 157, 77, 0.45); }
+.cy-addrbar__state--bad {
+  background: rgba(255, 157, 77, 0.16); border-radius: 5px; color: var(--cy-flame); flex: none;
+  font-size: 0.68rem; font-weight: 700; letter-spacing: 0.02em; padding: 2px 7px; text-transform: uppercase;
+}
+.cy-addrbar__lock { color: var(--cy-cyan-soft); display: inline-flex; flex: none; }
+.cy-addrbar__lock .cy-i { height: 15px; width: 15px; }
+.cy-addrbar__url { color: var(--cy-text); font-family: var(--cy-font-mono); font-size: 0.9rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cy-addrbar__scheme--good { color: var(--cy-cyan-soft); }
+.cy-addrbar__scheme--bad { color: var(--cy-flame); }
+.cy-addrbar__flag { color: var(--cy-flame); }
+
+
+/* --- Diagram: practical CIA pillars (read-and-apply) ---------------------- */
+.cy-cia3__grid { display: grid; gap: 0.7rem; grid-template-columns: repeat(3, 1fr); }
+.cy-cia3__pillar {
+  background: var(--cy-surface); border: 1px solid var(--cy-border);
+  border-top: 3px solid var(--cy-border-lift); border-radius: var(--cy-r-sm);
+  display: flex; flex-direction: column; gap: 0.3rem; padding: 0.85rem 0.9rem;
+}
+.cy-cia3__pillar--c { border-top-color: var(--cy-violet); }
+.cy-cia3__pillar--i { border-top-color: var(--cy-cyan); }
+.cy-cia3__pillar--a { border-top-color: var(--cy-gold); }
+.cy-cia3__letter {
+  align-items: center; background: var(--cy-surface-3); border-radius: 7px; color: var(--cy-text);
+  display: inline-flex; font-family: var(--cy-font-mono); font-size: 0.95rem; font-weight: 700;
+  height: 26px; justify-content: center; width: 26px;
+}
+.cy-cia3__pillar--c .cy-cia3__letter { color: var(--cy-violet-soft); }
+.cy-cia3__pillar--i .cy-cia3__letter { color: var(--cy-cyan-soft); }
+.cy-cia3__pillar--a .cy-cia3__letter { color: var(--cy-gold); }
+.cy-cia3__name { color: var(--cy-text); font-weight: 700; font-size: 0.92rem; }
+.cy-cia3__q { color: var(--cy-text-2); font-size: 0.82rem; }
+.cy-cia3__eg { color: var(--cy-text-3); font-size: 0.75rem; line-height: 1.35; margin-top: 0.15rem; }
+@media (max-width: 560px) { .cy-cia3__grid { grid-template-columns: 1fr; } }
+
+/* --- Diagram: spot-the-gap network map ------------------------------------ */
+.cy-nmap { align-items: center; display: flex; flex-direction: column; }
+.cy-nmap__cloud {
+  background: var(--cy-surface-3); border: 1px dashed var(--cy-border-lift); border-radius: 999px;
+  color: var(--cy-text-2); font-size: 0.8rem; font-weight: 600; padding: 0.35rem 1.1rem;
+}
+.cy-nmap__wire { background: var(--cy-border-lift); height: 18px; width: 2px; }
+.cy-nmap__router {
+  align-items: center; background: var(--cy-surface); border: 1px solid var(--cy-flame);
+  border-radius: var(--cy-r-sm); box-shadow: 0 0 0 3px rgba(255, 157, 77, 0.1);
+  display: flex; flex-direction: column; gap: 0.35rem; padding: 0.7rem 1.1rem; text-align: center;
+}
+.cy-nmap__name { color: var(--cy-text); font-size: 0.86rem; font-weight: 700; }
+.cy-nmap__chip {
+  border-radius: 5px; font-size: 0.72rem; font-weight: 600; padding: 2px 8px; white-space: nowrap;
+}
+.cy-nmap__chip--bad { background: rgba(255, 157, 77, 0.16); color: var(--cy-flame); }
+.cy-nmap__chip--ok { background: rgba(34, 211, 238, 0.12); color: var(--cy-cyan-soft); }
+.cy-nmap__devices { display: grid; gap: 0.6rem; grid-template-columns: repeat(3, 1fr); width: 100%; }
+.cy-nmap__dev {
+  align-items: center; background: var(--cy-surface); border: 1px solid var(--cy-border);
+  border-radius: var(--cy-r-sm); display: flex; flex-direction: column; gap: 0.35rem; padding: 0.65rem 0.6rem; text-align: center;
+}
+@media (max-width: 520px) { .cy-nmap__devices { grid-template-columns: 1fr; } }
+
+
+/* ===================================================================
+   Lesson room v2 — a distinct "lab" theme, a much wider column, and a
+   clear reading-vs-question mode. Scoped to the focus (in-lesson) shell.
+   =================================================================== */
+
+/* Subtle lab grid behind the room, so entering a module feels different
+   from the flat dashboard. */
+.cy-app--focus .cy-app__body{
+  background-image:
+    radial-gradient(120% 42% at 50% 0%, rgba(109,40,217,.10), transparent 62%),
+    linear-gradient(rgba(167,139,250,.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(167,139,250,.04) 1px, transparent 1px);
+  background-size:auto, 46px 46px, 46px 46px;
+  background-attachment:fixed;
+}
+/* Keep prose readable even though the room is wide. */
+.cy-panel__body .cy-prose{ max-width:62rem; }
+
+/* --- Question mode: checks + activities become a distinct, tinted card --- */
+.cy-panel__do, .cy-check{
+  position:relative; margin-top:1.25rem;
+  background:
+    radial-gradient(120% 100% at 100% 0%, rgba(61,220,240,.05), transparent 55%),
+    linear-gradient(180deg, rgba(167,139,250,.07), rgba(18,15,30,.34));
+  border:1px solid rgba(167,139,250,.28); border-radius:var(--cy-r);
+  padding:1.1rem 1.2rem 1.2rem; box-shadow:0 12px 34px rgba(0,0,0,.26);
+}
+.cy-panel__do::before, .cy-check::before{
+  content:""; position:absolute; inset:0 0 auto; height:3px;
+  border-radius:var(--cy-r) var(--cy-r) 0 0;
+  background:linear-gradient(90deg,var(--cy-violet),var(--cy-cyan));
+}
+/* the little label ("Your task" / "Answer the question") reads as a mode badge */
+.cy-panel__do-label{
+  display:inline-flex; align-items:center; gap:.4rem;
+  background:rgba(61,220,240,.12); border:1px solid rgba(61,220,240,.35); color:var(--cy-cyan-soft);
+  font-family:var(--cy-font-mono); font-size:.68rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
+  padding:.25rem .6rem; border-radius:7px; margin:0 0 .85rem; width:max-content;
+}
+.cy-panel__do-label::before{ content:"\25C6"; font-size:.7em; }
+
+/* ===== Realistic screenshot visuals (custom, CSP-safe, our own origin) ===== */
+
+/* Phishing email — looks like a real email client */
+.cy-mail{ background:#fff; color:#202124; border-radius:12px; overflow:hidden; border:1px solid #d5d8dc; box-shadow:0 14px 44px rgba(0,0,0,.45); max-width:44rem; }
+.cy-mail__bar{ display:flex; align-items:center; gap:.55rem; padding:.55rem .9rem; border-bottom:1px solid #eef0f3; color:#5f6368; }
+.cy-mail__ic{ width:26px; height:26px; border-radius:50%; background:#f1f3f4; display:inline-flex; align-items:center; justify-content:center; font-size:.85rem; }
+.cy-mail__spam{ margin-left:auto; font-size:.72rem; color:#5f6368; border:1px solid #dadce0; border-radius:6px; padding:.15rem .5rem; }
+.cy-mail__subj{ padding:.9rem 1.1rem .35rem; font-size:1.1rem; font-weight:600; }
+.cy-mail__meta{ display:flex; align-items:center; gap:.7rem; padding:.2rem 1.1rem .9rem; border-bottom:1px solid #eef0f3; }
+.cy-mail__av{ width:38px; height:38px; flex:none; border-radius:50%; background:#c5221f; color:#fff; display:inline-flex; align-items:center; justify-content:center; font-weight:600; }
+.cy-mail__who{ font-size:.9rem; line-height:1.35; } .cy-mail__who .em{ color:#5f6368; }
+.cy-mail__to{ color:#5f6368; font-size:.78rem; } .cy-mail__date{ margin-left:auto; color:#5f6368; font-size:.78rem; white-space:nowrap; }
+.cy-mail__body{ padding:1.1rem; color:#3c4043; font-size:.94rem; line-height:1.65; }
+.cy-mail__cta{ display:inline-block; background:#1a73e8; color:#fff; padding:.6rem 1.15rem; border-radius:6px; font-weight:600; text-decoration:none; margin:.7rem 0 .3rem; }
+.cy-mail__url{ display:block; color:#1a73e8; font-size:.82rem; margin-top:.5rem; word-break:break-all; font-family:var(--cy-font-mono); }
+
+/* Browser windows — secure vs not */
+.cy-brz{ display:grid; gap:.7rem; max-width:46rem; }
+.cy-brz__w{ background:#202124; border-radius:11px; overflow:hidden; border:1px solid #000; box-shadow:0 10px 34px rgba(0,0,0,.4); }
+.cy-brz__top{ display:flex; align-items:center; gap:.4rem; padding:.45rem .7rem; background:#2b2c30; }
+.cy-brz__d{ width:11px; height:11px; border-radius:50%; } .cy-brz__d--r{ background:#ff5f57; } .cy-brz__d--y{ background:#febc2e; } .cy-brz__d--g{ background:#28c840; }
+.cy-brz__omni{ display:flex; align-items:center; gap:.5rem; padding:.5rem .7rem; background:#202124; }
+.cy-brz__ctrl{ color:#9aa0a6; font-size:.9rem; }
+.cy-brz__url{ flex:1; display:flex; align-items:center; gap:.5rem; background:#35363a; border-radius:999px; padding:.35rem .85rem; color:#e8eaed; font-size:.86rem; font-family:var(--cy-font-mono); min-width:0; }
+.cy-brz__url .sc{ color:#9aa0a6; } .cy-brz__url .txt{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.cy-brz__lock{ color:#81c995; } .cy-brz__nsec{ display:inline-flex; align-items:center; gap:.3rem; color:#f28b82; font-size:.7rem; font-weight:600; border:1px solid rgba(242,139,130,.6); border-radius:5px; padding:1px 6px; white-space:nowrap; }
+.cy-brz__page{ padding:.7rem .9rem; color:#9aa0a6; font-size:.78rem; background:#17181b; }
+
+/* Router admin page */
+.cy-radmin{ background:#0e1524; border:1px solid #1e2b45; border-radius:12px; overflow:hidden; box-shadow:0 10px 34px rgba(0,0,0,.4); max-width:42rem; }
+.cy-radmin__top{ display:flex; align-items:center; gap:.6rem; padding:.6rem .9rem; background:#122036; color:#cfe0ff; border-bottom:1px solid #1e2b45; font-size:.85rem; }
+.cy-radmin__brand{ font-weight:700; color:#7cc0ff; }
+.cy-radmin__wrap{ display:grid; grid-template-columns:8.5rem 1fr; }
+.cy-radmin__menu{ background:#0b1120; border-right:1px solid #1e2b45; padding:.6rem; display:flex; flex-direction:column; gap:.15rem; }
+.cy-radmin__mi{ color:#8aa0c4; font-size:.82rem; padding:.4rem .55rem; border-radius:7px; } .cy-radmin__mi.is-on{ background:#12233d; color:#cfe0ff; }
+.cy-radmin__form{ padding:1rem 1.1rem; }
+.cy-radmin__row{ display:flex; align-items:center; justify-content:space-between; gap:1rem; padding:.6rem 0; border-bottom:1px solid #172439; }
+.cy-radmin__k{ color:#8aa0c4; font-size:.85rem; } .cy-radmin__v{ font-family:var(--cy-font-mono); font-size:.85rem; color:#e6eefb; }
+.cy-radmin__pill{ font-size:.72rem; font-weight:700; padding:1px 8px; border-radius:5px; }
+.cy-radmin__pill--on{ background:rgba(129,201,149,.16); color:#81c995; } .cy-radmin__pill--open{ background:rgba(255,157,77,.16); color:#ffb15a; }
+@media(max-width:560px){ .cy-radmin__wrap{ grid-template-columns:1fr; } }
+
+/* CIA status board + incident */
+.cy-ciab{ display:grid; gap:.6rem; grid-template-columns:repeat(3,1fr); }
+.cy-ciab__c{ background:#0f1320; border:1px solid #222a3d; border-top:3px solid; border-radius:11px; padding:.8rem .85rem; }
+.cy-ciab__c--c{ border-top-color:var(--cy-violet); } .cy-ciab__c--i{ border-top-color:var(--cy-cyan); } .cy-ciab__c--a{ border-top-color:var(--cy-gold); }
+.cy-ciab__t{ display:flex; align-items:center; gap:.5rem; font-weight:700; color:#e6eefb; font-size:.9rem; }
+.cy-ciab__b{ width:22px; height:22px; border-radius:6px; display:inline-flex; align-items:center; justify-content:center; font-family:var(--cy-font-mono); font-weight:700; font-size:.78rem; background:#182031; }
+.cy-ciab__c--c .cy-ciab__b{ color:var(--cy-violet-soft); } .cy-ciab__c--i .cy-ciab__b{ color:var(--cy-cyan-soft); } .cy-ciab__c--a .cy-ciab__b{ color:var(--cy-gold); }
+.cy-ciab__q{ color:#9fb0cc; font-size:.78rem; margin:.35rem 0 0; }
+.cy-ticket{ margin:.9rem 0 0; background:#0f1320; border:1px solid #222a3d; border-left:3px solid var(--cy-cyan); border-radius:9px; padding:.75rem .9rem; }
+.cy-ticket__h{ font-family:var(--cy-font-mono); font-size:.68rem; letter-spacing:.06em; text-transform:uppercase; color:var(--cy-text-3); }
+.cy-ticket__b{ color:var(--cy-text-2); font-size:.9rem; margin:.3rem 0 0; }
+@media(max-width:600px){ .cy-ciab{ grid-template-columns:1fr; } }
+
+
+/* --- Lesson rail: reliable jump offset + a clear "you are here" state ------ */
+/* The jump scrolls the panel element; this offset clears both sticky bars at
+   every width (the desktop media query set the same value, this covers mobile). */
+.cy-panel { scroll-margin-top: calc(var(--cy-focusbar-h) + 5.5rem); }
+/* The task currently in view / just clicked: a clear cyan spine + brightened. */
+.cy-tasklist__item.is-active .cy-tasklist__link { background: var(--cy-surface-3); box-shadow: inset 3px 0 0 var(--cy-cyan); }
+.cy-tasklist__item.is-active .cy-tasklist__title { color: var(--cy-text); }
+.cy-tasklist__item.is-active .cy-tasklist__mark { border-color: var(--cy-cyan-soft); }
+
+
+/* --- Realistic visuals: email attachment, account settings, device checklist */
+/* attachment chip inside the light email client (cy-mail) */
+.cy-mail__att { align-items: center; background: #f1f3f4; border: 1px solid #dadce0; border-radius: 6px; color: #3c4043; display: inline-flex; font-size: 0.82rem; gap: 0.4rem; margin-top: 0.9rem; padding: 0.4rem 0.7rem; }
+.cy-mail__att .cy-i { color: #5f6368; height: 15px; width: 15px; }
+
+/* account security settings screen */
+.cy-settings { background: var(--cy-surface); border: 1px solid var(--cy-border); border-radius: 12px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); max-width: 40rem; overflow: hidden; }
+.cy-settings__top { align-items: center; background: var(--cy-surface-2); border-bottom: 1px solid var(--cy-border); color: var(--cy-text); display: flex; font-size: 0.92rem; font-weight: 600; gap: 0.5rem; padding: 0.75rem 1rem; }
+.cy-settings__top .cy-i { color: var(--cy-violet-soft); height: 18px; width: 18px; }
+.cy-settings__rows { padding: 0.4rem 1rem 1rem; }
+.cy-settings__row { align-items: center; border-bottom: 1px solid var(--cy-border); display: flex; gap: 1rem; justify-content: space-between; padding: 0.7rem 0; }
+.cy-settings__row:last-child { border-bottom: 0; }
+.cy-settings__k { color: var(--cy-text-2); font-size: 0.88rem; }
+.cy-settings__v { color: var(--cy-text); font-family: var(--cy-font-mono); font-size: 0.82rem; }
+.cy-settings__pill { border-radius: 5px; font-size: 0.72rem; font-weight: 700; padding: 2px 9px; }
+.cy-settings__pill--off { background: rgba(255, 157, 77, 0.16); color: var(--cy-flame); }
+.cy-settings__pill--on { background: rgba(129, 201, 149, 0.16); color: #81c995; }
+
+/* device security checklist */
+.cy-devchk { background: var(--cy-surface); border: 1px solid var(--cy-border); border-radius: 12px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); max-width: 36rem; overflow: hidden; }
+.cy-devchk__top { background: var(--cy-surface-2); border-bottom: 1px solid var(--cy-border); color: var(--cy-text); font-size: 0.92rem; font-weight: 600; padding: 0.75rem 1rem; }
+.cy-devchk__list { list-style: none; margin: 0; padding: 0.5rem 0.6rem; }
+.cy-devchk__row { align-items: center; border-radius: 8px; color: var(--cy-text); display: flex; font-size: 0.9rem; gap: 0.6rem; padding: 0.6rem 0.5rem; }
+.cy-devchk__mk { align-items: center; border-radius: 7px; display: inline-flex; flex: none; height: 26px; justify-content: center; width: 26px; }
+.cy-devchk__mk .cy-i { height: 15px; width: 15px; }
+.cy-devchk__row--ok .cy-devchk__mk { background: rgba(34, 211, 238, 0.14); color: var(--cy-cyan-soft); }
+.cy-devchk__row--bad .cy-devchk__mk { background: rgba(255, 157, 77, 0.16); color: var(--cy-flame); }
+.cy-devchk__row--bad { background: rgba(255, 157, 77, 0.06); }
+.cy-devchk__s { color: var(--cy-text-3); font-family: var(--cy-font-mono); font-size: 0.8rem; margin-left: auto; }
+.cy-devchk__row--bad .cy-devchk__s { color: var(--cy-flame); }
+
+/* fake "software update" pop-up (a malware delivery route) */
+.cy-fupd { background: var(--cy-surface); border: 1px solid var(--cy-border); border-radius: 12px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); max-width: 38rem; overflow: hidden; }
+.cy-fupd__addr { align-items: center; background: var(--cy-surface-2); border-bottom: 1px solid var(--cy-border); display: flex; gap: 0.5rem; padding: 0.55rem 0.9rem; }
+.cy-fupd__lock { color: var(--cy-flame); flex: none; height: 14px; width: 14px; }
+.cy-fupd__url { color: var(--cy-text-3); font-family: var(--cy-font-mono); font-size: 0.8rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cy-fupd__pop { margin: 1.1rem; border: 1px solid rgba(255, 128, 128, 0.4); border-radius: 10px; overflow: hidden; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35); }
+.cy-fupd__head { align-items: center; background: linear-gradient(135deg, rgba(220, 70, 70, 0.95), rgba(180, 45, 45, 0.95)); color: #fff; display: flex; font-size: 0.9rem; font-weight: 700; gap: 0.5rem; padding: 0.6rem 0.9rem; }
+.cy-fupd__head .cy-i { height: 16px; width: 16px; }
+.cy-fupd__body { background: var(--cy-surface-2); padding: 1rem; text-align: center; }
+.cy-fupd__body p { color: var(--cy-text-2); font-size: 0.88rem; margin: 0 0 0.7rem; }
+.cy-fupd__body b { color: var(--cy-text); }
+.cy-fupd__count { color: var(--cy-flame) !important; font-family: var(--cy-font-mono); font-size: 0.8rem; }
+.cy-fupd__btn { background: linear-gradient(180deg, #4ea94e, #3c8f3c); border: 0; border-radius: 8px; box-shadow: 0 3px 10px rgba(60, 143, 60, 0.4); color: #fff; cursor: pointer; display: block; font-size: 0.95rem; font-weight: 700; margin: 0.2rem auto 0.6rem; padding: 0.6rem 1.6rem; width: 80%; }
+.cy-fupd__later { color: var(--cy-text-3); cursor: pointer; font-size: 0.8rem; text-decoration: underline; }
+
+/* ransomware lock screen */
+.cy-ransom { background: radial-gradient(120% 90% at 50% -10%, rgba(120, 20, 20, 0.55), transparent 60%), #17100f; border: 1px solid rgba(255, 128, 128, 0.32); border-radius: 12px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45); max-width: 38rem; overflow: hidden; padding: 1.6rem 1.4rem 1.3rem; text-align: center; }
+.cy-ransom__lock { align-items: center; background: rgba(220, 70, 70, 0.14); border: 1px solid rgba(255, 128, 128, 0.4); border-radius: 50%; color: #ff8080; display: inline-flex; height: 52px; justify-content: center; margin-bottom: 0.7rem; width: 52px; }
+.cy-ransom__lock .cy-i { height: 24px; width: 24px; }
+.cy-ransom__head { color: #ffd9d9; font-size: 1.25rem; font-weight: 800; letter-spacing: 0.01em; margin-bottom: 0.5rem; }
+.cy-ransom__text { color: rgba(255, 220, 220, 0.72); font-size: 0.88rem; line-height: 1.5; margin: 0 auto 1rem; max-width: 30rem; }
+.cy-ransom__grid { display: flex; gap: 0.7rem; justify-content: center; margin-bottom: 0.9rem; }
+.cy-ransom__cell { background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 128, 128, 0.28); border-radius: 9px; min-width: 8rem; padding: 0.55rem 0.9rem; }
+.cy-ransom__k { color: rgba(255, 200, 200, 0.6); display: block; font-size: 0.7rem; letter-spacing: 0.08em; text-transform: uppercase; }
+.cy-ransom__v { color: #ff9a9a; display: block; font-family: var(--cy-font-mono); font-size: 1.15rem; font-weight: 700; }
+.cy-ransom__pay { color: rgba(255, 220, 220, 0.8); font-size: 0.82rem; }
+.cy-ransom__pay code { background: rgba(0, 0, 0, 0.35); border-radius: 5px; color: #ffb3b3; font-size: 0.76rem; padding: 2px 6px; word-break: break-all; }

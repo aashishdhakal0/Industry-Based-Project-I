@@ -157,6 +157,12 @@ class UserProfile(models.Model):
         help_text="Highest tier index the student has already been congratulated "
         "for. The dashboard fires a one-time celebration when they climb past it.",
     )
+    console_theme = models.CharField(
+        max_length=5,
+        choices=[("dark", "Dark"), ("light", "Light")],
+        default="dark",
+        help_text="An administrator's remembered light/dark choice for the console.",
+    )
 
     class Meta:
         db_table = "user_profiles"

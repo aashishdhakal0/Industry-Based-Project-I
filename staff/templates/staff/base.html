@@ -12,10 +12,29 @@
 
 {% block content %}
 <div class="cy-console">
+  <div class="cy-topbar">
+    <form class="cy-topbar__search" method="get" action="{% url 'staff:learners' %}" role="search">
+      <svg class="cy-i" aria-hidden="true"><use href="#i-eye"/></svg>
+      <input type="search" name="q" placeholder="Search learners, organisations…" aria-label="Search learners" value="{{ q|default:'' }}">
+    </form>
+    <div class="cy-topbar__actions">
+      <form class="cy-themetoggle" method="post" action="{% url 'staff:set_theme' %}" data-theme-toggle>
+        {% csrf_token %}
+        <input type="hidden" name="theme" value="{% if console_theme == 'light' %}dark{% else %}light{% endif %}">
+        <input type="hidden" name="next" value="{{ request.get_full_path }}">
+        <button type="submit" class="cy-topbar__btn" aria-label="Switch theme" title="Switch light / dark">
+          <svg class="cy-i cy-icon-sun" aria-hidden="true"><use href="#i-sun"/></svg>
+          <svg class="cy-i cy-icon-moon" aria-hidden="true"><use href="#i-moon"/></svg>
+        </button>
+      </form>
+      <a class="cy-btn cy-btn--ghost cy-btn--sm" href="{% url 'staff:user_new' %}">Add user</a>
+      <a class="cy-btn cy-btn--primary cy-btn--sm" href="{% url 'staff:learners' %}">View learners</a>
+    </div>
+  </div>
   {% block console %}{% endblock %}
 </div>
 {% endblock %}
 
 {% block scripts %}
-  <script src="{% static 'js/admin.js' %}?v=1" defer></script>
+  <script src="{% static 'js/admin.js' %}?v=2" defer></script>
 {% endblock %}

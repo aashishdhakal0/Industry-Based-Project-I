@@ -259,8 +259,8 @@ def test_overview_empty_state_when_no_learners(client, db):
 
 
 def test_overview_renders_gracefully_when_nobody_has_started(client, db):
-    """Learners exist but none have progress: the dashboard still renders, with
-    the charts showing empty states rather than crashing or faking numbers."""
+    """Learners exist but none have progress: the dashboard still renders clean
+    stat cards + the activity calendar, no charts, no crash."""
     admin = make_user("q-admin@example.com", "Q", role=User.Role.ADMINISTRATOR)
     admin.is_staff = True
     admin.save(update_fields=["is_staff"])
@@ -270,8 +270,9 @@ def test_overview_renders_gracefully_when_nobody_has_started(client, db):
     resp = client.get(reverse("staff:overview"))
     assert resp.status_code == 200
     body = resp.content.decode()
-    assert "cy-c-kpis--spark" in body             # KPI cards still shown
-    assert "No completions yet" in body           # area chart empty state (no fake data)
+    assert "cy-c-kpis" in body                    # stat cards
+    assert "Activity calendar" in body            # calendar widget
+    assert "cy-cal2__grid" in body
 
 
 def test_overview_uses_the_scoped_console_theme(client, env):

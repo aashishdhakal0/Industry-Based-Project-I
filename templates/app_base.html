@@ -23,7 +23,7 @@
   content owns the screen (TryHackMe-room style). Every other page keeps the
   normal sidebar shell.
 {% endcomment %}
-<div class="cy-app {% if focus %}cy-app--focus{% endif %}{% if console %} cy-app--console{% endif %}">
+<div class="cy-app {% if focus %}cy-app--focus{% endif %}{% if console %} cy-app--console{% endif %}"{% if console %} data-theme="{{ console_theme|default:'dark' }}" data-bs-theme="{{ console_theme|default:'dark' }}"{% endif %}>
 
   {% if focus %}
     {# Focused mode: one slim bar, a clear way back, and the content in the middle. #}

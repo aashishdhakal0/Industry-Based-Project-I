@@ -5,7 +5,7 @@ account, no chat history) should be able to continue seamlessly from this file
 alone. Work from this file; read the full spec in `docs/` only when this is
 genuinely insufficient.
 
-Last updated: 2026-08-02. Branch: `feature/login-and-2fa`.
+Last updated: 2026-08-15. Branch: `feature/login-and-2fa`.
 
 ---
 
@@ -148,7 +148,7 @@ panel shape, payload contracts, voice rules). Copy it to add/extend a module.
 ### Quiz engine + Adaptive Feedback Engine
 - `quizzes/services.py` draws 10 questions, grades **server-side** against the
   stored `correct_answer` flag (never trusts the client), pass mark **70%**,
-  records a `QuizResult` (+ `WrongAnswer` rows), awards +50 on a first pass.
+  records a `QuizResult` (+ `WrongAnswer` rows), awards +200 on a first pass.
 - `quizzes/feedback.py` (the AFE) reads the `WrongAnswer`/`explanation_text` rows
   and builds a per-lesson **study plan** shown on the result page: which lessons
   to revise (ranked by where mistakes clustered) and why each answer was wrong.
@@ -156,13 +156,16 @@ panel shape, payload contracts, voice rules). Copy it to add/extend a module.
 ### Gamification engine (`modules/gamification.py`)
 - **Records are the truth.** `UserProfile.points` is a **cache recomputed** from
   `ProgressRecord` (lessons) + distinct passed `QuizResult` (quizzes) on every
-  completion — never incremented, so it cannot drift. Points = lessons×10 +
-  passed_quizzes×50.
+  completion — never incremented, so it cannot drift. Points = lessons×40 +
+  passed_quizzes×200 (all 24 lessons + 6 quizzes = 2160, the ceiling). The
+  constants live in `gamification.py` (`POINTS_PER_LESSON`/`POINTS_PER_QUIZ`); the
+  level curve `_points_to_reach` and the Bronze→Diamond `TIERS` scale with them.
+  Tier thresholds: Bronze 0 · Silver 200 · Gold 500 · Platinum 1000 · Diamond 2000.
 - **Level** is a pure function of points. **Streak** advances on activity (date
   injected for tests). **Badges**: catalogue in code (`modules/badges.py`), earned
   ids in `UserProfile.badges` (jsonb), awarded one-way from `student_stats`.
 - **Per-panel progress:** `LessonTask` + `TaskProgress` record each panel done;
-  the engine banks the lesson (+10 via `ProgressRecord`) when all a lesson's tasks
+  the engine banks the lesson (+40 via `ProgressRecord`) when all a lesson's tasks
   are complete. `SimulationResult` records the separate simulation exercise.
 - **Module complete** = all lessons done AND (if gated) its quiz passed → unlocks
   the next module; the module overview shows a "Module complete" moment with a

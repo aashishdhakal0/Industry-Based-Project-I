@@ -78,4 +78,62 @@
       toast.parentNode && toast.parentNode.removeChild(toast);
     }, 220);
   }
+
+  // --- Theme toggle (light / dark) -----------------------------------------
+  // The toggle is a real POST form (works with JS off: it posts and reloads).
+  // With JS, we flip the theme instantly and persist it via fetch, no reload.
+  var root = document.querySelector(".cy-app--console");
+  Array.prototype.forEach.call(
+    document.querySelectorAll("form[data-theme-toggle]"),
+    function (form) {
+      form.addEventListener("submit", function (e) {
+        if (!root || !window.fetch) return; // no root / old browser → normal post
+        e.preventDefault();
+        var current = root.getAttribute("data-theme") === "light" ? "light" : "dark";
+        var next = current === "dark" ? "light" : "dark";
+        root.setAttribute("data-theme", next);
+        var hidden = form.querySelector('input[name="theme"]');
+        if (hidden) hidden.value = current; // keep the no-JS fallback correct
+        var token = form.querySelector('input[name="csrfmiddlewaretoken"]');
+        fetch(form.getAttribute("action"), {
+          method: "POST",
+          headers: {
+            "X-CSRFToken": token ? token.value : "",
+            "X-Requested-With": "fetch",
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+          body: "theme=" + next,
+        });
+      });
+    }
+  );
+
+  // --- Metric toggle on the main chart -------------------------------------
+  // Buttons [data-metric] show the matching [data-series] pane; no data fetch,
+  // every series is already rendered server-side.
+  Array.prototype.forEach.call(
+    document.querySelectorAll(".cy-c-metrictoggle"),
+    function (group) {
+      var section = group.closest(".cy-c-section") || document;
+      group.addEventListener("click", function (e) {
+        var btn = e.target.closest("[data-metric]");
+        if (!btn) return;
+        var key = btn.getAttribute("data-metric");
+        Array.prototype.forEach.call(
+          group.querySelectorAll("[data-metric]"),
+          function (b) {
+            var on = b === btn;
+            b.classList.toggle("is-active", on);
+            b.setAttribute("aria-pressed", on ? "true" : "false");
+          }
+        );
+        Array.prototype.forEach.call(
+          section.querySelectorAll("[data-series]"),
+          function (pane) {
+            pane.classList.toggle("is-hidden", pane.getAttribute("data-series") !== key);
+          }
+        );
+      });
+    }
+  );
 })();

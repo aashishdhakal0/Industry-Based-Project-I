@@ -13,7 +13,8 @@
     <h1 class="cy-c-detailhead__name">{{ org.name }}</h1>
     <div class="cy-c-tags">
       {% if org.sector %}<span class="cy-pill">{{ org.sector }}</span>{% endif %}
-      <span class="cy-pill">{{ members|length }} learner{{ members|length|pluralize }}</span>
+      <span class="cy-pill">{{ student_count }} student{{ student_count|pluralize }}</span>
+      <span class="cy-pill">{{ members|length }} member{{ members|length|pluralize }}</span>
       {% if org.contact_email %}<span class="cy-c-muted">{{ org.contact_email }}</span>{% endif %}
     </div>
   </div>
@@ -32,7 +33,7 @@
       {% if members %}
         <div class="cy-c-tablewrap">
           <table class="cy-c-table">
-            <thead><tr><th>Learner</th><th>Grade</th><th>Completion</th><th>Last active</th><th class="cy-c-num">Action</th></tr></thead>
+            <thead><tr><th>Person</th><th>Role</th><th>Grade</th><th>Completion</th><th class="cy-c-num">Action</th></tr></thead>
             <tbody>
               {% for r in members %}
                 <tr>
@@ -42,22 +43,27 @@
                       <span class="cy-c-learner__email">{{ r.user.email }}</span>
                     </a>
                   </td>
-                  <td><span class="cy-tierbadge cy-tierbadge--{{ r.tier.slug }}">{{ r.tier.name }}</span></td>
+                  <td><span class="cy-role cy-role--{{ r.user.role|lower }}">{{ r.role_label }}</span></td>
+                  <td>{% if r.is_student and r.overall_score is not None %}<span class="cy-tierbadge cy-tierbadge--{{ r.tier.slug }}">{{ r.tier.name }}</span>{% else %}<span class="cy-c-muted">—</span>{% endif %}</td>
                   <td>
-                    <span class="cy-c-mod">
-                      <span class="cy-c-mod__count">{{ r.modules_completed }}/{{ r.modules_total }}</span>
-                      <span class="cy-c-bar__track cy-c-mod__track"><span class="cy-c-bar__fill" style="width: {{ r.completion_percent }}%;"></span></span>
-                    </span>
+                    {% if r.is_student %}
+                      <span class="cy-c-mod">
+                        <span class="cy-c-mod__count">{{ r.modules_completed }}/{{ r.modules_total }}</span>
+                        <span class="cy-c-bar__track cy-c-mod__track"><span class="cy-c-bar__fill" style="width: {{ r.completion_percent }}%;"></span></span>
+                      </span>
+                    {% else %}<span class="cy-c-muted">—</span>{% endif %}
                   </td>
-                  <td>{% if r.last_active %}{{ r.last_active|date:"j M Y" }}{% else %}<span class="cy-c-muted">Never</span>{% endif %}</td>
                   <td class="cy-c-num">
-                    <form method="post" action="{% url 'staff:assign_org' r.user.pk %}"
-                          data-confirm="Remove {{ r.name }} from {{ org.name }}?" data-confirm-yes="Remove">
-                      {% csrf_token %}
-                      <input type="hidden" name="org" value="">
-                      <input type="hidden" name="from_org" value="{{ org.pk }}">
-                      <button type="submit" class="cy-btn cy-btn--ghost cy-btn--sm">Remove</button>
-                    </form>
+                    <div class="cy-c-rowactions">
+                      <a class="cy-btn cy-btn--ghost cy-btn--sm" href="{% url 'staff:learner_detail' r.user.pk %}">Note</a>
+                      <form method="post" action="{% url 'staff:assign_org' r.user.pk %}"
+                            data-confirm="Remove {{ r.name }} from {{ org.name }}?" data-confirm-yes="Remove">
+                        {% csrf_token %}
+                        <input type="hidden" name="org" value="">
+                        <input type="hidden" name="from_org" value="{{ org.pk }}">
+                        <button type="submit" class="cy-btn cy-btn--ghost cy-btn--sm">Remove</button>
+                      </form>
+                    </div>
                   </td>
                 </tr>
               {% endfor %}
@@ -90,6 +96,29 @@
           </div>
         {% endfor %}
         <button type="submit" class="cy-btn cy-btn--primary cy-btn--block cy-btn--sm">Save details</button>
+      </form>
+    </div>
+
+    <div class="cy-c-section">
+      <div class="cy-c-section__head"><h2 class="cy-c-section__title">Send a note</h2></div>
+      <p class="cy-c-help">Emails every member of {{ org.name }}.</p>
+      <form method="post" action="{% url 'staff:send_note_org' org.pk %}" class="cy-c-form">
+        {% csrf_token %}
+        <div class="cy-c-field">
+          <label class="cy-c-label" for="org-note">Your note</label>
+          <textarea class="cy-c-input" id="org-note" name="message" rows="4" placeholder="Write a short note to everyone in this organisation…"></textarea>
+        </div>
+        <button type="submit" class="cy-btn cy-btn--ghost cy-btn--block cy-btn--sm"{% if not members %} disabled{% endif %}>Send to {{ members|length }} member{{ members|length|pluralize }}</button>
+      </form>
+    </div>
+
+    <div class="cy-c-section cy-c-actions">
+      <h2 class="cy-c-section__title">Danger zone</h2>
+      <form class="cy-c-actions__group" method="post" action="{% url 'staff:org_delete' org.pk %}"
+            data-confirm="Delete “{{ org.name }}”? Its {{ members|length }} member{{ members|length|pluralize }} will become unassigned (not deleted)." data-confirm-yes="Delete organisation">
+        {% csrf_token %}
+        <button type="submit" class="cy-btn cy-btn--danger cy-btn--block cy-btn--sm">Delete organisation</button>
+        <p class="cy-c-help">Members are kept and become unassigned.</p>
       </form>
     </div>
   </aside>

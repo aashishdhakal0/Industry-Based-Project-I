@@ -4,23 +4,19 @@
 {% endcomment %}
 
 {% if key == "cia-triad" %}
-  <figure class="cy-diagram cy-cia" role="img"
-          aria-label="The CIA triad: Confidentiality at the top, Integrity and Availability at the base.">
-    <svg viewBox="0 0 340 210" class="cy-cia__svg" xmlns="http://www.w3.org/2000/svg">
-      <polygon class="cy-cia__tri" points="170,24 36,180 304,180"/>
-      <circle class="cy-cia__dot" cx="170" cy="24" r="7"/>
-      <circle class="cy-cia__dot" cx="36" cy="180" r="7"/>
-      <circle class="cy-cia__dot" cx="304" cy="180" r="7"/>
-      <text class="cy-cia__c" x="170" y="106">CIA</text>
-      <text class="cy-cia__lab" x="170" y="14" text-anchor="middle">Confidentiality</text>
-      <text class="cy-cia__sub" x="170" y="204" text-anchor="middle">the three things security protects</text>
-      <text class="cy-cia__lab" x="24" y="198" text-anchor="start">Integrity</text>
-      <text class="cy-cia__lab" x="316" y="198" text-anchor="end">Availability</text>
-    </svg>
-    <figcaption class="cy-diagram__cap">
-      <span><b>Confidentiality</b>: only the right people can see it.</span>
-      <span><b>Integrity</b>: it hasn't been tampered with.</span>
-      <span><b>Availability</b>: it works when you need it.</span>
+  <figure class="cy-diagram" role="img"
+          aria-label="The three pillars of security as a status board. Confidentiality: can only the right people see it. Integrity: is it accurate and unaltered. Availability: is it there when you need it. Below, an incident: a supplier invoice arrives with its bank account quietly changed, but the file still opens and nobody is locked out.">
+    <div class="cy-ciab">
+      <div class="cy-ciab__c cy-ciab__c--c"><div class="cy-ciab__t"><span class="cy-ciab__b">C</span> Confidentiality</div><p class="cy-ciab__q">Can only the right people see it?</p></div>
+      <div class="cy-ciab__c cy-ciab__c--i"><div class="cy-ciab__t"><span class="cy-ciab__b">I</span> Integrity</div><p class="cy-ciab__q">Is it accurate and unaltered?</p></div>
+      <div class="cy-ciab__c cy-ciab__c--a"><div class="cy-ciab__t"><span class="cy-ciab__b">A</span> Availability</div><p class="cy-ciab__q">Is it there when you need it?</p></div>
+    </div>
+    <div class="cy-ticket">
+      <span class="cy-ticket__h">Incident &middot; 09:22</span>
+      <p class="cy-ticket__b">A supplier's invoice arrives with its bank account quietly changed. The file still opens fine and nobody is locked out.</p>
+    </div>
+    <figcaption class="cy-diagram__cap cy-diagram__cap--single">
+      Read the three pillars, then the incident. Which pillar has failed?
     </figcaption>
   </figure>
 
@@ -273,6 +269,194 @@
     </div>
     <figcaption class="cy-diagram__cap cy-diagram__cap--single">
       As soon as practicable. General information only, not legal advice: check your own obligations.
+    </figcaption>
+  </figure>
+
+{% elif key == "network-path" %}
+  <figure class="cy-diagram cy-netpath" role="img"
+          aria-label="How your information travels: from your device, through your router, across the internet, to a server, with something to protect at every hop.">
+    <div class="cy-netpath__track">
+      <div class="cy-netpath__hop">
+        <span class="cy-netpath__node"><span class="cy-netpath__n">1</span></span>
+        <span class="cy-netpath__name">Your device</span>
+        <span class="cy-netpath__note">Where you type. Lock it, and keep it updated.</span>
+      </div>
+      <span class="cy-netpath__arrow" aria-hidden="true"><svg class="cy-i"><use href="#i-arrow-right"/></svg></span>
+      <div class="cy-netpath__hop">
+        <span class="cy-netpath__node"><span class="cy-netpath__n">2</span></span>
+        <span class="cy-netpath__name">Your router</span>
+        <span class="cy-netpath__note">The front door. Change the default password.</span>
+      </div>
+      <span class="cy-netpath__arrow" aria-hidden="true"><svg class="cy-i"><use href="#i-arrow-right"/></svg></span>
+      <div class="cy-netpath__hop">
+        <span class="cy-netpath__node cy-netpath__node--open"><span class="cy-netpath__n">3</span></span>
+        <span class="cy-netpath__name">The internet</span>
+        <span class="cy-netpath__note">Shared and public. Anyone could be listening.</span>
+      </div>
+      <span class="cy-netpath__arrow" aria-hidden="true"><svg class="cy-i"><use href="#i-arrow-right"/></svg></span>
+      <div class="cy-netpath__hop">
+        <span class="cy-netpath__node"><span class="cy-netpath__n">4</span></span>
+        <span class="cy-netpath__name">A server</span>
+        <span class="cy-netpath__note">Where your data lands and is stored.</span>
+      </div>
+    </div>
+    <figcaption class="cy-diagram__cap cy-diagram__cap--single">
+      Your information passes through every step. Security is about protecting it at each one, not just the ends.
+    </figcaption>
+  </figure>
+
+{% elif key == "secure-bars" %}
+  <figure class="cy-diagram cy-brz" role="img"
+          aria-label="The same clinic login in two browsers. Window A is marked Not secure and uses http at cybaroo-clinic dot info. Window B shows a padlock and uses https at cybaroo-clinic dot com dot au.">
+    <div class="cy-brz__w">
+      <div class="cy-brz__top"><span class="cy-brz__d cy-brz__d--r"></span><span class="cy-brz__d cy-brz__d--y"></span><span class="cy-brz__d cy-brz__d--g"></span></div>
+      <div class="cy-brz__omni">
+        <span class="cy-brz__ctrl">&#8592; &#8594;</span>
+        <span class="cy-brz__url"><span class="cy-brz__nsec">Not secure</span><span class="txt"><span class="sc">http://</span>cybaroo-clinic.info/login</span></span>
+      </div>
+      <div class="cy-brz__page">Clinic staff login &nbsp;&middot;&nbsp; Username / Password</div>
+    </div>
+    <div class="cy-brz__w">
+      <div class="cy-brz__top"><span class="cy-brz__d cy-brz__d--r"></span><span class="cy-brz__d cy-brz__d--y"></span><span class="cy-brz__d cy-brz__d--g"></span></div>
+      <div class="cy-brz__omni">
+        <span class="cy-brz__ctrl">&#8592; &#8594;</span>
+        <span class="cy-brz__url"><span class="cy-brz__lock"><svg class="cy-i" aria-hidden="true"><use href="#i-lock"/></svg></span><span class="txt"><span class="sc">https://</span>cybaroo-clinic.com.au/login</span></span>
+      </div>
+      <div class="cy-brz__page">Clinic staff login &nbsp;&middot;&nbsp; Username / Password</div>
+    </div>
+    <figcaption class="cy-diagram__cap cy-diagram__cap--single">
+      The same clinic login in two browsers. Read the address bar: only one protects your password.
+    </figcaption>
+  </figure>
+
+{% elif key == "router-admin" %}
+  <figure class="cy-diagram cy-radmin" role="img"
+          aria-label="A router admin settings page. Admin password is still set to admin. Wi-Fi encryption is WPA2 On. The guest network is On and Open with no password. Firmware is up to date.">
+    <div class="cy-radmin__top"><span class="cy-radmin__brand">HG-2400</span> Router admin &nbsp;&middot;&nbsp; 192.168.0.1</div>
+    <div class="cy-radmin__wrap">
+      <div class="cy-radmin__menu">
+        <span class="cy-radmin__mi">Status</span>
+        <span class="cy-radmin__mi is-on">Security</span>
+        <span class="cy-radmin__mi">Wireless</span>
+        <span class="cy-radmin__mi">Devices</span>
+      </div>
+      <div class="cy-radmin__form">
+        <div class="cy-radmin__row"><span class="cy-radmin__k">Admin password</span><span class="cy-radmin__v">admin</span></div>
+        <div class="cy-radmin__row"><span class="cy-radmin__k">Wi-Fi encryption</span><span class="cy-radmin__pill cy-radmin__pill--on">WPA2 On</span></div>
+        <div class="cy-radmin__row"><span class="cy-radmin__k">Guest network</span><span class="cy-radmin__pill cy-radmin__pill--open">On &middot; Open (no password)</span></div>
+        <div class="cy-radmin__row"><span class="cy-radmin__k">Firmware</span><span class="cy-radmin__v">up to date</span></div>
+      </div>
+    </div>
+    <figcaption class="cy-diagram__cap cy-diagram__cap--single">
+      The router's own settings page. Read the four rows: three are fine, one is a wide-open door.
+    </figcaption>
+  </figure>
+
+{% elif key == "scam-email" %}
+  <figure class="cy-diagram cy-mail" role="img"
+          aria-label="A delivery email. Sender AusPost Delivery from support at auspost-au-secure dot info. Subject: your AusPost parcel is on hold, action required. Body asks for a 2.99 dollar redelivery fee within 24 hours with a link to auspost-au-secure dot info.">
+    <div class="cy-mail__bar"><span class="cy-mail__ic">&#8592;</span><span class="cy-mail__spam">Report spam</span></div>
+    <div class="cy-mail__subj">Your AusPost parcel is on hold - action required</div>
+    <div class="cy-mail__meta">
+      <span class="cy-mail__av">A</span>
+      <span class="cy-mail__who"><b>AusPost Delivery</b> <span class="em">&lt;support@auspost-au-secure.info&gt;</span><br><span class="cy-mail__to">to me</span></span>
+      <span class="cy-mail__date">9:14 AM (2 min ago)</span>
+    </div>
+    <div class="cy-mail__body">
+      Dear Customer,<br><br>
+      We attempted to deliver your parcel today but a small redelivery fee of <b>$2.99</b> remains unpaid. Your parcel will be <b>returned to sender within 24 hours</b> unless the fee is confirmed now.
+      <a class="cy-mail__cta" href="#" onclick="return false">Confirm and pay $2.99</a>
+      <span class="cy-mail__url">http://auspost-au-secure.info/redeliver?id=AU8842</span>
+    </div>
+  </figure>
+
+{% elif key == "email-invoice" %}
+  <figure class="cy-diagram cy-mail" role="img"
+          aria-label="An email from Bunya Office Supplies at accounts at bunya-supplies-billing dot com. Subject: invoice 4471, updated bank details. It says the bank account has changed and asks you to pay a new account by close of business Friday, with an attachment named Invoice 4471 dot pdf.">
+    <div class="cy-mail__bar"><span class="cy-mail__ic">&#8592;</span><span class="cy-mail__spam">Report spam</span></div>
+    <div class="cy-mail__subj">Invoice #4471 - updated bank details, please action</div>
+    <div class="cy-mail__meta">
+      <span class="cy-mail__av">B</span>
+      <span class="cy-mail__who"><b>Bunya Office Supplies</b> <span class="em">&lt;accounts@bunya-supplies-billing.com&gt;</span><br><span class="cy-mail__to">to accounts@yourclinic.com.au</span></span>
+      <span class="cy-mail__date">Thu 4:47 PM</span>
+    </div>
+    <div class="cy-mail__body">
+      Hi,<br><br>
+      Please find this month's invoice attached. <b>Note our bank account has changed</b>, so update your records and pay the new account below by <b>close of business Friday</b> to avoid a late fee.<br><br>
+      New account: BSB 062-000 &nbsp; Acct 1147 8890
+      <span class="cy-mail__att"><svg class="cy-i" aria-hidden="true"><use href="#i-book"/></svg> Invoice_4471.pdf</span>
+    </div>
+  </figure>
+
+{% elif key == "security-settings" %}
+  <figure class="cy-diagram cy-settings" role="img"
+          aria-label="An account security settings page. Two-factor authentication is Off. The password was last changed three years ago. The recovery email is a personal Gmail address. Login alerts are On.">
+    <div class="cy-settings__top"><svg class="cy-i" aria-hidden="true"><use href="#i-shield"/></svg> Account security</div>
+    <div class="cy-settings__rows">
+      <div class="cy-settings__row"><span class="cy-settings__k">Two-factor authentication</span><span class="cy-settings__pill cy-settings__pill--off">Off</span></div>
+      <div class="cy-settings__row"><span class="cy-settings__k">Password</span><span class="cy-settings__v">Last changed 3 years ago</span></div>
+      <div class="cy-settings__row"><span class="cy-settings__k">Recovery email</span><span class="cy-settings__v">personal.name@gmail.com</span></div>
+      <div class="cy-settings__row"><span class="cy-settings__k">Login alerts</span><span class="cy-settings__pill cy-settings__pill--on">On</span></div>
+    </div>
+    <figcaption class="cy-diagram__cap cy-diagram__cap--single">
+      A staff member's account settings. Read each row: which is the weakest link?
+    </figcaption>
+  </figure>
+
+{% elif key == "device-checklist" %}
+  <figure class="cy-diagram cy-devchk" role="img"
+          aria-label="A reception laptop security check. Screen lock is on. Disk encryption is off. Automatic updates are on. Backup is on.">
+    <div class="cy-devchk__top">Reception laptop &middot; security check</div>
+    <ul class="cy-devchk__list">
+      <li class="cy-devchk__row cy-devchk__row--ok"><span class="cy-devchk__mk"><svg class="cy-i" aria-hidden="true"><use href="#i-check"/></svg></span> Screen lock <span class="cy-devchk__s">On</span></li>
+      <li class="cy-devchk__row cy-devchk__row--bad"><span class="cy-devchk__mk"><svg class="cy-i" aria-hidden="true"><use href="#i-close"/></svg></span> Disk encryption <span class="cy-devchk__s">Off</span></li>
+      <li class="cy-devchk__row cy-devchk__row--ok"><span class="cy-devchk__mk"><svg class="cy-i" aria-hidden="true"><use href="#i-check"/></svg></span> Automatic updates <span class="cy-devchk__s">On</span></li>
+      <li class="cy-devchk__row cy-devchk__row--ok"><span class="cy-devchk__mk"><svg class="cy-i" aria-hidden="true"><use href="#i-check"/></svg></span> Backup <span class="cy-devchk__s">On</span></li>
+    </ul>
+    <figcaption class="cy-diagram__cap cy-diagram__cap--single">
+      The clinic's reception laptop. Three checks pass. One does not.
+    </figcaption>
+  </figure>
+
+{% elif key == "fake-update" %}
+  <figure class="cy-diagram cy-fupd" role="img"
+          aria-label="A pop-up on a website. A red warning header reads Warning, your Flash Player is out of date. The address bar shows free-hd-movies-stream dot info. It urges you to download an update now, with a big Download Update button and a scary message that your computer is at risk.">
+    <div class="cy-fupd__addr">
+      <svg class="cy-i cy-fupd__lock" aria-hidden="true"><use href="#i-close"/></svg>
+      <span class="cy-fupd__url">free-hd-movies-stream.info/watch?id=8842</span>
+    </div>
+    <div class="cy-fupd__pop">
+      <div class="cy-fupd__head">
+        <svg class="cy-i" aria-hidden="true"><use href="#i-close"/></svg>
+        <span>Warning: your Flash Player is out of date</span>
+      </div>
+      <div class="cy-fupd__body">
+        <p>Your <b>Adobe Flash Player</b> is out of date and your computer is <b>at risk</b>. You must update now to keep watching and stay protected.</p>
+        <p class="cy-fupd__count">Recommended update expires in 02:58</p>
+        <button type="button" class="cy-fupd__btn">Download Update</button>
+        <span class="cy-fupd__later">Not now</span>
+      </div>
+    </div>
+    <figcaption class="cy-diagram__cap cy-diagram__cap--single">
+      A pop-up on a random streaming site, pushing a download. Nothing here comes from the software maker.
+    </figcaption>
+  </figure>
+
+{% elif key == "ransom-screen" %}
+  <figure class="cy-diagram cy-ransom" role="img"
+          aria-label="A ransomware lock screen. A red padlock and the heading Your files have been encrypted. It says all documents, photos and databases are locked, a countdown of 71 hours 59 minutes remains, and it demands payment of 0.05 Bitcoin to a wallet address to unlock the files.">
+    <div class="cy-ransom__lock" aria-hidden="true">
+      <svg class="cy-i"><use href="#i-lock"/></svg>
+    </div>
+    <div class="cy-ransom__head">Your files have been encrypted</div>
+    <p class="cy-ransom__text">All your documents, photos and databases have been locked with a private key. There is no way to recover them without our decryption tool.</p>
+    <div class="cy-ransom__grid">
+      <div class="cy-ransom__cell"><span class="cy-ransom__k">Time left</span><span class="cy-ransom__v">71:59:04</span></div>
+      <div class="cy-ransom__cell"><span class="cy-ransom__k">Amount</span><span class="cy-ransom__v">0.05 BTC</span></div>
+    </div>
+    <div class="cy-ransom__pay">Send payment to: <code>bc1q7f8a2k9x0m4p3n6r5t8w2y1z0c4v7b</code></div>
+    <figcaption class="cy-diagram__cap cy-diagram__cap--single">
+      A ransomware demand. The files are locked in place, not stolen, and a countdown pressures you to pay.
     </figcaption>
   </figure>
 {% endif %}

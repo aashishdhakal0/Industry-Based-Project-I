@@ -122,12 +122,13 @@ def test_overview_page_renders_headline_numbers(client, world):
     client.force_login(world["admin"])
     body = client.get(reverse("staff:overview")).content.decode()
     assert "Learners" in body
-    assert "Completed course" in body
+    assert "Completion" in body
     assert "Average score" in body
     assert "cy-app--console" in body        # the console theme is scoped on
 
 
-def test_overview_has_an_organisation_breakdown(client, world):
+def test_overview_organisation_rollup(world):
+    """The per-organisation rollup (now surfaced on the Organisations page)."""
     from staff import services
 
     stats = services.overview(services.collect_learners())
@@ -137,10 +138,6 @@ def test_overview_has_an_organisation_breakdown(client, world):
     # All three learners share the one org in this fixture.
     assert orgs[0]["name"] == "Docklands Dental"
     assert orgs[0]["count"] == 3
-
-    client.force_login(world["admin"])
-    body = client.get(reverse("staff:overview")).content.decode()
-    assert "Learners by organisation" in body
 
 
 # --- Learner rows: completion + best-of-attempts grading -------------------

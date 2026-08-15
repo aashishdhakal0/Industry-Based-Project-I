@@ -134,6 +134,13 @@
         <form method="post" action="{% url 'staff:nudge' learner.pk %}">{% csrf_token %}<button type="submit" class="cy-btn cy-btn--ghost cy-btn--block cy-btn--sm">Send a nudge</button></form>
       </div>
 
+      <form class="cy-c-actions__group" method="post" action="{% url 'staff:send_note_user' learner.pk %}">
+        {% csrf_token %}
+        <label class="cy-c-label" for="user-note">Send a note</label>
+        <textarea class="cy-c-input" id="user-note" name="message" rows="3" placeholder="Write a short note to {{ learner.get_full_name|default:learner.email }}…"></textarea>
+        <button type="submit" class="cy-btn cy-btn--ghost cy-btn--block cy-btn--sm">Email this note</button>
+      </form>
+
       <form class="cy-c-actions__group" method="post" action="{% url 'staff:toggle_flag' learner.pk %}">
         {% csrf_token %}
         {% if profile.flagged %}

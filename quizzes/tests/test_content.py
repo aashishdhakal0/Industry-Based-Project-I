@@ -22,9 +22,8 @@ User = get_user_model()
 ACTIVITY_KINDS = {
     "SORT", "INBOX", "SPOT", "PASSWORD", "BRANCH",
     "CLASSIFY", "MAILSORT", "HARDEN", "NETMAP", "SEQUENCE", "RESPOND",
+    "QUIZSET",
 }
-# The classic five must always remain present in Module 1 (the reference module).
-CLASSIC_FIVE = {"SORT", "INBOX", "SPOT", "PASSWORD", "BRANCH"}
 
 
 @pytest.fixture
@@ -57,11 +56,17 @@ def test_each_lesson_is_mostly_interactive_and_sums_to_ten(seeded):
 
 
 @pytest.mark.django_db
-def test_module_one_uses_all_five_activity_types(seeded):
+def test_module_one_offers_interactive_variety(seeded):
+    """The reference module mixes teaching checks, a real-world scenario, read-the-
+    image picture questions, and a hands-on mixed question set. In the 5-task format
+    the granular sort/inbox/etc. live as sub-questions inside the QUIZSET, so the
+    top-level kinds that must be present are the format's own: a CHECK, a RESPOND
+    scenario and a QUIZSET."""
     kinds = set(
         LessonTask.objects.filter(lesson__module=seeded).values_list("kind", flat=True)
     )
-    assert CLASSIC_FIVE <= kinds, f"missing activity types: {CLASSIC_FIVE - kinds}"
+    required = {"CHECK", "RESPOND", "QUIZSET"}
+    assert required <= kinds, f"missing task types: {required - kinds}"
 
 
 # --------------------------------------------------------------------------
@@ -226,9 +231,11 @@ def test_every_lesson_is_doing_led(seeded):
     for lesson in seeded.lessons.order_by("lesson_number"):
         tasks = list(lesson.tasks.order_by("order"))
         activities = [t for t in tasks if t.kind in ACTIVITY_KINDS]
-        others = [t for t in tasks if t.kind not in ACTIVITY_KINDS]  # checks / concepts
+        concepts = [t for t in tasks if t.kind == "CONCEPT"]
         assert activities, f"{lesson.title} has no hands-on activity"
-        assert len(activities) >= len(others), f"{lesson.title} is not doing-led"
+        # Reading is a minority: at most one pure-concept panel per lesson, so a
+        # lesson is never a wall of teaching with a token question at the end.
+        assert len(concepts) <= 1, f"{lesson.title} leans too far into reading"
         for t in tasks:
             words = len(re.sub(r"<[^>]+>", " ", t.body or "").split())
             # Tight but real setup: enough to frame the task, not a wall of text.
@@ -324,13 +331,20 @@ def test_lesson_content_has_no_em_dashes(seeded):
 
 
 @pytest.mark.django_db
-def test_module_one_uses_the_new_diagrams(seeded):
+def test_module_one_uses_the_realistic_picture_visuals(seeded):
+    """Every lesson's Task 3 is a realistic, screenshot-style visual served from
+    our own origin: a router admin page, a browser, an invoice/scam email, an
+    account settings page, a device checklist, and the CIA board."""
     keys = set(
         LessonTask.objects.filter(lesson__module=seeded)
         .exclude(diagram_key="")
         .values_list("diagram_key", flat=True)
     )
-    assert {"two-factor", "defence-in-depth"} <= keys
+    expected = {
+        "router-admin", "secure-bars", "cia-triad", "scam-email",
+        "email-invoice", "security-settings", "device-checklist",
+    }
+    assert expected <= keys, f"missing realistic visuals: {expected - keys}"
 
 
 @pytest.mark.django_db
@@ -357,3 +371,100 @@ def test_reseeding_prunes_stale_quiz_options(seeded):
     q.refresh_from_db()
     assert q.answers.count() == 4
     assert q.answers.filter(correct_answer=True).count() == 1
+
+
+# --------------------------------------------------------------------------
+# The 5-task format (Lesson 1 is the reference) + the mixed QUIZSET
+# --------------------------------------------------------------------------
+
+
+@pytest.mark.django_db
+def test_lesson_one_follows_the_five_task_format(seeded):
+    """Lesson 1 is the reference for the consistent 5-task shape: a Core check, a
+    real-world RESPOND scenario, a read-the-image picture CHECK, a mixed QUIZSET,
+    then an applied CHECK, each worth an equal share of the lesson's XP."""
+    l1 = seeded.lessons.get(lesson_number=1)
+    tasks = list(l1.tasks.order_by("order"))
+    assert len(tasks) == 5, "Lesson 1 must have exactly five tasks"
+    assert [t.kind for t in tasks] == ["CHECK", "RESPOND", "CHECK", "QUIZSET", "CHECK"]
+    assert all(t.points == tasks[0].points for t in tasks), "XP split evenly across the five"
+    assert sum(t.points for t in tasks) == POINTS_PER_LESSON
+    # Task 3 is a read-the-image picture question (the secure-vs-not address bars);
+    # Task 4 is the mixed interactive set.
+    assert tasks[2].diagram_key == "secure-bars"
+    assert tasks[3].payload.get("questions"), "the quizset task carries its questions"
+
+
+@pytest.mark.django_db
+def test_quizset_activities_are_well_formed(seeded):
+    """Every QUIZSET is a solvable mix: 3-4 sub-questions, each a known type with
+    the fields its controller needs (see activities.js CONTROLLERS.QUIZSET)."""
+    tasks = list(LessonTask.objects.filter(lesson__module=seeded, kind="QUIZSET"))
+    assert tasks, "Module 1 should use at least one mixed quizset"
+    for task in tasks:
+        qs = task.payload.get("questions")
+        assert qs and 3 <= len(qs) <= 4, f"{task.task_key} needs 3-4 questions"
+        types = set()
+        for q in qs:
+            kind = q.get("type")
+            assert kind in {"mcq", "truefalse", "fill", "match"}, f"{task.task_key}: bad type {kind}"
+            types.add(kind)
+            if kind == "mcq":
+                assert sum(1 for o in q["options"] if o[1]) == 1, f"{task.task_key}: mcq needs one correct"
+                assert all(o[2] for o in q["options"]), f"{task.task_key}: mcq options need explanations"
+            elif kind == "truefalse":
+                assert isinstance(q["answer"], bool) and q.get("why"), f"{task.task_key}: t/f needs answer+why"
+            elif kind == "fill":
+                assert q.get("answer"), f"{task.task_key}: fill needs an answer"
+            elif kind == "match":
+                assert len(q["pairs"]) >= 2, f"{task.task_key}: match needs at least two pairs"
+        assert len(types) >= 3, f"{task.task_key} should mix at least three question types"
+
+
+# --------------------------------------------------------------------------
+# Read-the-image picture questions (custom CSS/SVG visuals, CSP-safe)
+# --------------------------------------------------------------------------
+
+
+@pytest.mark.django_db
+def test_lesson_one_picture_questions_use_custom_svg_visuals(seeded):
+    """The picture questions read custom, screenshot-style visuals served from our
+    own origin (CSP-safe), not external images: a router admin page, a browser, a
+    scam email, and the CIA status board."""
+    l1 = seeded.lessons.get(lesson_number=1)
+    keys = {t.task_key: t for t in l1.tasks.all()}
+    assert keys["net-basics"].diagram_key == "router-admin"
+    assert keys["secure-login"].diagram_key == "secure-bars"
+    assert keys["l1-quizset"].diagram_key == "cia-triad"
+    assert keys["spot-scam"].diagram_key == "scam-email"
+    # No task leans on an external or uploaded photo anymore.
+    assert all(not t.image for t in l1.tasks.all()), "Lesson 1 uses custom visuals, not photos"
+
+
+@pytest.mark.django_db
+def test_lesson_one_task_one_is_a_read_the_router_picture_question(seeded):
+    """Task 1 pairs the router admin screenshot with two read-the-image checks (a
+    mid-panel inline check and the main check). Each has exactly one correct answer
+    and an explanation on every option, and refers to the router page."""
+    t1 = seeded.lessons.get(lesson_number=1).tasks.get(task_key="net-basics")
+    assert t1.diagram_key == "router-admin"
+    p = t1.payload
+    for q in (p["inline_check"], p):        # the inline check, then the main check
+        opts = q["options"]
+        assert sum(1 for o in opts if o["correct"]) == 1, "exactly one correct option"
+        assert all(o["explanation"] for o in opts), "every option needs an explanation"
+    assert "router" in p["inline_check"]["question"].lower()
+    assert "security problem" in p["question"].lower()
+
+
+@pytest.mark.django_db
+def test_every_module_one_lesson_follows_the_five_task_format(seeded):
+    """All four lessons now share the consistent 5-task shape: a Core CHECK, a
+    RESPOND scenario, a read-the-image picture CHECK, a mixed QUIZSET, then an
+    applied CHECK, each with a picture visual on task 3."""
+    for lesson in seeded.lessons.order_by("lesson_number"):
+        tasks = list(lesson.tasks.order_by("order"))
+        assert len(tasks) == 5, f"{lesson.title}: needs exactly five tasks"
+        assert [t.kind for t in tasks] == ["CHECK", "RESPOND", "CHECK", "QUIZSET", "CHECK"], lesson.title
+        assert sum(t.points for t in tasks) == POINTS_PER_LESSON, lesson.title
+        assert tasks[2].diagram_key, f"{lesson.title}: task 3 needs a picture visual"

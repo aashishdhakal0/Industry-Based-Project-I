@@ -4,6 +4,7 @@ mirror staying in step.
 """
 
 import pytest
+from django.core import mail
 from django.urls import reverse
 
 from authentication.models import Organisation, User, UserProfile
@@ -158,14 +159,16 @@ def test_organisation_members_lists_only_that_org(world):
 
 # --- Empty state + page rendering ------------------------------------------
 
-def test_organisations_empty_state(client, db):
+def test_organisations_page_with_no_orgs_shows_the_no_org_group(client, db):
+    # No organisations, but the admin themselves is unassigned → the page shows
+    # the No-organisation group rather than crashing or hiding everyone.
     admin = make_user("solo@example.com", "Solo", role=User.Role.ADMINISTRATOR)
     admin.is_staff = True
     admin.save(update_fields=["is_staff"])
     client.force_login(admin)
     body = client.get(reverse("staff:organisations")).content.decode()
-    assert "No organisations yet" in body
-    assert "cy-c-empty" in body
+    assert "No organisation" in body
+    assert reverse("staff:unassigned") in body
 
 
 def test_org_detail_lists_members(client, world):
@@ -200,3 +203,94 @@ def test_django_admin_is_demoted_to_the_sidebar_foot(client, world):
     assert "Raw data" in body
     # Exactly one link to /admin/ (the de-emphasised one), not a nav item too.
     assert body.count(reverse("admin:index")) == 1
+
+
+# --- Delete organisation ---------------------------------------------------
+
+def test_delete_org_detaches_members_and_audits(client, world):
+    as_admin(client, world)
+    council = world["council"]
+    resp = client.post(reverse("staff:org_delete", args=[council.pk]))
+    assert resp.status_code == 302 and resp.url == reverse("staff:organisations")
+    assert not Organisation.objects.filter(pk=council.pk).exists()
+    # Sam is kept, but detached (FK cleared AND text mirror blanked).
+    world["sam"].refresh_from_db()
+    profile = world["sam"].profile
+    profile.refresh_from_db()
+    assert User.objects.filter(pk=world["sam"].pk).exists()
+    assert profile.org is None and profile.organisation == ""
+    assert AdminAction.objects.filter(action=AdminAction.Kind.DELETE_ORG).exists()
+
+
+def test_delete_org_is_admin_only(client, world):
+    client.force_login(world["sam"])
+    assert client.post(reverse("staff:org_delete", args=[world["council"].pk])).status_code == 403
+    assert Organisation.objects.filter(pk=world["council"].pk).exists()
+
+
+# --- Send a note to an organisation ----------------------------------------
+
+def test_send_note_to_org_emails_members_and_audits(client, world):
+    as_admin(client, world)
+    resp = client.post(reverse("staff:send_note_org", args=[world["council"].pk]),
+                       {"message": "Well done this week, keep it up."})
+    assert resp.status_code == 302
+    # One member (Sam) → one email, carrying the note.
+    assert len(mail.outbox) == 1
+    assert world["sam"].email in mail.outbox[0].to
+    assert "keep it up" in mail.outbox[0].body
+    assert AdminAction.objects.filter(action=AdminAction.Kind.NOTE_ORG).exists()
+
+
+def test_send_note_to_org_rejects_empty(client, world):
+    as_admin(client, world)
+    client.post(reverse("staff:send_note_org", args=[world["council"].pk]), {"message": "  "})
+    assert len(mail.outbox) == 0
+    assert not AdminAction.objects.filter(action=AdminAction.Kind.NOTE_ORG).exists()
+
+
+def test_send_note_to_org_is_admin_only(client, world):
+    client.force_login(world["sam"])
+    assert client.post(reverse("staff:send_note_org", args=[world["council"].pk]),
+                       {"message": "hi"}).status_code == 403
+
+
+# --- Send a note to an individual ------------------------------------------
+
+def test_send_note_to_user_emails_and_audits(client, world):
+    as_admin(client, world)
+    resp = client.post(reverse("staff:send_note_user", args=[world["sam"].pk]),
+                       {"message": "A quick personal note."})
+    assert resp.status_code == 302
+    assert len(mail.outbox) == 1
+    assert world["sam"].email in mail.outbox[0].to
+    assert AdminAction.objects.filter(
+        action=AdminAction.Kind.NOTE_USER, target_user=world["sam"]
+    ).exists()
+
+
+def test_send_note_to_user_is_admin_only(client, world):
+    client.force_login(world["sam"])
+    assert client.post(reverse("staff:send_note_user", args=[world["sam"].pk]),
+                       {"message": "hi"}).status_code == 403
+
+
+# --- No-organisation group -------------------------------------------------
+
+def test_unassigned_lists_people_with_no_org(client, world):
+    as_admin(client, world)
+    body = client.get(reverse("staff:unassigned")).content.decode()
+    assert "dana@example.com" in body        # unassigned
+    assert "sam@example.com" not in body      # in an org
+
+
+def test_unassigned_is_admin_only(client, world):
+    client.force_login(world["sam"])
+    assert client.get(reverse("staff:unassigned")).status_code == 403
+
+
+def test_org_list_shows_no_organisation_group(client, world):
+    as_admin(client, world)
+    body = client.get(reverse("staff:organisations")).content.decode()
+    assert "No organisation" in body
+    assert reverse("staff:unassigned") in body

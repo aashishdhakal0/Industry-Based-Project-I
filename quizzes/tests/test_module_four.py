@@ -237,7 +237,7 @@ def test_full_interactive_module_four_journey(learner_at_module_four):
     for lesson in m4.lessons.order_by("lesson_number"):
         final = _work_through_lesson(client, m4, lesson)
         assert final["lesson_completed"] is True
-        assert final["lesson_points_done"] == final["lesson_points_total"] == 10
+        assert final["lesson_points_done"] == final["lesson_points_total"] == 40
 
     assert ProgressRecord.objects.filter(user=student, lesson__module=m4).count() == 4
 

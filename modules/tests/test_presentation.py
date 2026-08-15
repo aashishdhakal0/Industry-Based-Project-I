@@ -40,11 +40,11 @@ def test_rank_caps_at_the_top():
 @pytest.mark.parametrize(
     "points,slug",
     [
-        (0, "bronze"), (99, "bronze"),
-        (100, "silver"), (219, "silver"),
-        (220, "gold"), (379, "gold"),
-        (380, "platinum"), (539, "platinum"),
-        (540, "diamond"), (9999, "diamond"),
+        (0, "bronze"), (199, "bronze"),
+        (200, "silver"), (499, "silver"),
+        (500, "gold"), (999, "gold"),
+        (1000, "platinum"), (1999, "platinum"),
+        (2000, "diamond"), (9999, "diamond"),
     ],
 )
 def test_tier_lands_in_the_right_band(points, slug):
@@ -52,17 +52,17 @@ def test_tier_lands_in_the_right_band(points, slug):
 
 
 def test_tier_progress_points_to_next():
-    t = g.tier_for_points(160)          # in Silver (100), next Gold (220)
+    t = g.tier_for_points(350)          # in Silver (200), next Gold (500)
     assert t.tier.slug == "silver"
     assert t.next_tier.slug == "gold"
-    assert t.to_next == 60              # 220 - 160
-    assert t.into_tier == 60            # 160 - 100
-    assert t.band_span == 120           # 220 - 100
-    assert t.percent == 50              # 60 / 120
+    assert t.to_next == 150             # 500 - 350
+    assert t.into_tier == 150           # 350 - 200
+    assert t.band_span == 300           # 500 - 200
+    assert t.percent == 50              # 150 / 300
 
 
 def test_top_tier_is_maxed_out():
-    t = g.tier_for_points(540)
+    t = g.tier_for_points(2000)
     assert t.is_max is True
     assert t.next_tier is None
     assert t.to_next == 0
@@ -78,16 +78,17 @@ def test_negative_points_clamp_to_bronze():
 def test_tier_never_decreases_as_points_rise():
     """Tier is a monotonic function of points, so it can't contradict level."""
     last = -1
-    for p in range(0, 560, 7):
+    for p in range(0, 2200, 13):
         idx = g.tier_for_points(p).index
         assert idx >= last
         last = idx
 
 
 def test_tier_matches_points_ceiling():
-    """Only a full course (all lessons + quizzes = 540) reaches Diamond."""
-    assert g.tier_for_points(539).tier.slug != "diamond"
-    assert g.tier_for_points(540).tier.slug == "diamond"
+    """A near-complete course reaches Diamond; the 2160 ceiling sits inside it."""
+    assert g.tier_for_points(1999).tier.slug != "diamond"
+    assert g.tier_for_points(2000).tier.slug == "diamond"
+    assert g.tier_for_points(2160).tier.slug == "diamond"   # all lessons + quizzes
 
 
 # --------------------------------------------------------------------------

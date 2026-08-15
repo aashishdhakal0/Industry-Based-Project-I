@@ -1,7 +1,0 @@
-{% comment %}A mini trend line. Expects `s` (a services.Sparkline). Stroke stays
-crisp when the SVG stretches to the card width (non-scaling-stroke).{% endcomment %}
-<svg class="cy-spark" viewBox="0 0 {{ s.width }} {{ s.height }}" preserveAspectRatio="none" aria-hidden="true">
-  {% if not s.flat %}<path class="cy-spark__area" d="{{ s.area }}"/>{% endif %}
-  <polyline class="cy-spark__line{% if s.flat %} is-flat{% endif %}" points="{{ s.line }}" vector-effect="non-scaling-stroke"/>
-  {% if not s.flat %}<circle class="cy-spark__dot" cx="{{ s.dot.0 }}" cy="{{ s.dot.1 }}" r="2.6" vector-effect="non-scaling-stroke"/>{% endif %}
-</svg>

@@ -13,9 +13,13 @@ urlpatterns = [
     path("learners/<int:user_id>/", views.learner_detail, name="learner_detail"),
     path("organisations/", views.organisations, name="organisations"),
     path("organisations/new/", views.org_new, name="org_new"),
+    path("organisations/none/", views.unassigned, name="unassigned"),
     path("organisations/<int:org_id>/", views.org_detail, name="org_detail"),
     path("organisations/<int:org_id>/export.csv", views.org_learners_csv, name="org_learners_csv"),
+    path("organisations/<int:org_id>/delete/", useractions.org_delete, name="org_delete"),
+    path("organisations/<int:org_id>/note/", useractions.send_note_org, name="send_note_org"),
     path("activity/", views.activity, name="activity"),
+    path("theme/", views.set_theme, name="set_theme"),
     path("users/new/", views.user_new, name="user_new"),
     # User-management actions (POST only, admin only, audit-logged).
     path("users/<int:user_id>/role/", useractions.change_role, name="change_role"),
@@ -28,6 +32,7 @@ urlpatterns = [
     path("users/<int:user_id>/nudge/", useractions.nudge, name="nudge"),
     path("users/<int:user_id>/flag/", useractions.toggle_flag, name="toggle_flag"),
     path("users/<int:user_id>/organisation/", useractions.assign_org, name="assign_org"),
+    path("users/<int:user_id>/note/", useractions.send_note_user, name="send_note_user"),
     # Content management: list, publish, and drill in to edit.
     path("content/", views.content, name="content"),
     path(

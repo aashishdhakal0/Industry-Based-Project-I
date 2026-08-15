@@ -31,22 +31,24 @@ from .models import (
     TaskProgress,
 )
 
-POINTS_PER_LESSON = 10
-POINTS_PER_QUIZ = 50
+POINTS_PER_LESSON = 40
+POINTS_PER_QUIZ = 200
 
 
 # --------------------------------------------------------------------------
 # Levels — a pure function of points, so no `level` field is ever stored
 # --------------------------------------------------------------------------
 #
-# XP to first REACH level L is 10·(L−1)·(L+2): 40, 100, 180, 280, 400, 540…
-# Early levels come quickly (level 2 after four lessons), then stretch. All 24
-# lessons + 6 quizzes = 540 XP lands exactly on level 7, so the ceiling maps to
-# finishing the course.
+# XP to first REACH level L is 40·(L−1)·(L+2): 160, 400, 720, 1120, 1600, 2160…
+# Early levels come quickly (level 2 after four lessons), then stretch. The course
+# now has 22 lessons (Module 2 is two deep lessons rather than four) + 6 quizzes =
+# 2080 XP, which lands a fully finished course in the top tier (Diamond, 2000),
+# between levels 6 and 7. (Curve and economy scale together, so the number of
+# lessons/quizzes behind each level is unchanged from the original 10/50 economy.)
 
 
 def _points_to_reach(level):
-    return 10 * (level - 1) * (level + 2)
+    return 40 * (level - 1) * (level + 2)
 
 
 @dataclass(frozen=True)
@@ -386,12 +388,12 @@ def rank_for_level(level):
 # --------------------------------------------------------------------------
 #
 # A coarse, game-style tier the student climbs. Computed from the SAME
-# profile.points that drives Level and Streak (points = lessons·10 +
-# passed_quizzes·50, recomputed from records, never incremented) — so it is
-# honest and can never contradict the level. Points cap at 540 (all 24 lessons +
-# 6 quizzes), and Diamond sits exactly there, so the top tier means the whole
-# course is done. Tiers are coarser than levels and both rise with points, so
-# they stay consistent by construction.
+# profile.points that drives Level and Streak (points = lessons·40 +
+# passed_quizzes·200, recomputed from records, never incremented) — so it is
+# honest and can never contradict the level. Points cap at 2080 (all 22 lessons +
+# 6 quizzes), and Diamond sits at 2000, so the top tier means the course is all
+# but finished. Tiers are coarser than levels and both rise with points, so they
+# stay consistent by construction.
 
 
 @dataclass(frozen=True)
@@ -403,10 +405,10 @@ class Tier:
 
 TIERS = [
     Tier("bronze", "Bronze", 0),
-    Tier("silver", "Silver", 100),
-    Tier("gold", "Gold", 220),
-    Tier("platinum", "Platinum", 380),
-    Tier("diamond", "Diamond", 540),
+    Tier("silver", "Silver", 200),
+    Tier("gold", "Gold", 500),
+    Tier("platinum", "Platinum", 1000),
+    Tier("diamond", "Diamond", 2000),
 ]
 
 
@@ -661,12 +663,34 @@ def complete_task(user, task, *, today=None, now=None):
 
 # Activity is anything the records count as showing up: a lesson completed, a
 # simulation finished, or a quiz submitted. Each carries a timestamp; we bucket
-# them by *local* date (Melbourne), because that's the day the student saw.
+# them by *local* date (Melbourne), because that's the day the student saw. The
+# `kind` labels let the calendar tooltip say *what* was done, not just how much.
 _ACTIVITY_SOURCES = (
-    (ProgressRecord, "completed_at"),
-    (SimulationResult, "completed_at"),
-    (QuizResult, "submitted_at"),
+    (ProgressRecord, "completed_at", "lessons"),
+    (SimulationResult, "completed_at", "simulations"),
+    (QuizResult, "submitted_at", "quizzes"),
 )
+
+# Singular/plural nouns for the tooltip phrase, in the order they should read.
+_ACTIVITY_NOUNS = (
+    ("lessons", "lesson", "lessons"),
+    ("quizzes", "quiz", "quizzes"),
+    ("simulations", "simulation", "simulations"),
+)
+
+
+def _activity_phrase(breakdown):
+    """A human tooltip clause from a per-type breakdown, e.g. "2 lessons, 1 quiz".
+
+    Reads in a fixed order (lessons, quizzes, simulations), skips zero counts,
+    and pluralises each noun. Empty for a day with nothing.
+    """
+    parts = []
+    for key, singular, plural in _ACTIVITY_NOUNS:
+        n = breakdown.get(key, 0)
+        if n:
+            parts.append(f"{n} {singular if n == 1 else plural}")
+    return ", ".join(parts)
 
 
 # Heat buckets: how many things (lessons completed / quizzes / simulations) a
@@ -691,6 +715,8 @@ class CalendarDay:
     count: int         # how many things they finished that day
     level: int         # 0–4 heat intensity (0 = nothing)
     is_today: bool
+    breakdown: dict    # {"lessons": n, "quizzes": n, "simulations": n}
+    summary: str       # "2 lessons, 1 quiz" — the tooltip clause ("" if idle)
 
 
 @dataclass
@@ -709,16 +735,18 @@ class ActivityCalendar:
 
 
 def _activity_counts_in_range(user, start_dt, end_dt):
-    """local date -> count of things finished, for [start_dt, end_dt).
+    """local date -> {"lessons": n, "quizzes": n, "simulations": n, "total": n},
+    for [start_dt, end_dt).
 
     One student's activity in a single month is a handful of rows, so loading the
     timestamps and bucketing in Python is both correct (honours the Melbourne
-    clock at month boundaries) and cheap. The count drives the heat-map intensity.
+    clock at month boundaries) and cheap. `total` drives the heat-map intensity;
+    the per-type counts drive the tooltip ("what did I do that day").
     """
-    from collections import Counter
+    from collections import defaultdict
 
-    counts = Counter()
-    for model, field in _ACTIVITY_SOURCES:
+    counts = defaultdict(lambda: {"lessons": 0, "quizzes": 0, "simulations": 0, "total": 0})
+    for model, field, kind in _ACTIVITY_SOURCES:
         stamps = (
             model.objects.filter(
                 user=user, **{f"{field}__gte": start_dt, f"{field}__lt": end_dt}
@@ -726,7 +754,9 @@ def _activity_counts_in_range(user, start_dt, end_dt):
             .values_list(field, flat=True)
         )
         for stamp in stamps:
-            counts[timezone.localdate(stamp)] += 1
+            bucket = counts[timezone.localdate(stamp)]
+            bucket[kind] += 1
+            bucket["total"] += 1
     return counts
 
 
@@ -753,22 +783,26 @@ def activity_calendar(user, *, year=None, month=None, today=None):
         end_dt = timezone.make_aware(datetime.datetime(year, month + 1, 1))
     counts = _activity_counts_in_range(user, start_dt, end_dt)
 
+    _empty = {"lessons": 0, "quizzes": 0, "simulations": 0, "total": 0}
+
+    def _day(d):
+        in_month = d.month == month
+        bucket = counts.get(d) if in_month else None
+        total = bucket["total"] if bucket else 0
+        return CalendarDay(
+            date=d,
+            day=d.day,
+            in_month=in_month,
+            active=in_month and total > 0,
+            count=total,
+            level=heat_level(total) if in_month else 0,
+            is_today=d == today,
+            breakdown=bucket or dict(_empty),
+            summary=_activity_phrase(bucket) if bucket else "",
+        )
+
     cal = _calendar.Calendar(firstweekday=0)  # 0 = Monday
-    weeks = [
-        [
-            CalendarDay(
-                date=d,
-                day=d.day,
-                in_month=d.month == month,
-                active=d.month == month and counts.get(d, 0) > 0,
-                count=counts.get(d, 0) if d.month == month else 0,
-                level=heat_level(counts.get(d, 0)) if d.month == month else 0,
-                is_today=d == today,
-            )
-            for d in week
-        ]
-        for week in cal.monthdatescalendar(year, month)
-    ]
+    weeks = [[_day(d) for d in week] for week in cal.monthdatescalendar(year, month)]
 
     prev_year, prev_month = (year - 1, 12) if month == 1 else (year, month - 1)
     next_year, next_month = (year + 1, 1) if month == 12 else (year, month + 1)
@@ -781,7 +815,9 @@ def activity_calendar(user, *, year=None, month=None, today=None):
         label=f"{_calendar.month_name[month]} {year}",
         weekday_names=list(_calendar.day_abbr),  # Mon … Sun (firstweekday=0)
         weeks=weeks,
-        active_count=sum(1 for d, c in counts.items() if d.month == month and c > 0),
+        active_count=sum(
+            1 for d, c in counts.items() if d.month == month and c["total"] > 0
+        ),
         prev_year=prev_year,
         prev_month=prev_month,
         next_year=next_year,

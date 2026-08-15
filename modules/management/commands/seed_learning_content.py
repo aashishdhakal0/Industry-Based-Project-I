@@ -26,8 +26,15 @@ from modules.content import (
     module_three,
     module_two,
 )
+from modules.gamification import POINTS_PER_LESSON
 from modules.models import Lesson, LessonTask, Module, Simulation
 from quizzes.models import Answer, Question, Quiz
+
+# Task points are authored against a 10-XP-per-lesson base (each lesson's tasks
+# sum to 10 in the content files). The live economy scales that up, so multiply
+# every task's points by the same factor here — the tasks then sum to
+# POINTS_PER_LESSON exactly, and the in-lesson XP bar matches what the lesson banks.
+_POINTS_SCALE = POINTS_PER_LESSON // 10
 
 # Modules with finished, interactive content (LESSONS + QUIZ), keyed by
 # order_index. Adding a module is data-only: write modules/content/module_N.py in
@@ -57,13 +64,11 @@ MODULES = [
     ),
     (
         "Recognising Cyber Threats",
-        "Malware, ransomware, DDoS and the real Australian breaches, and how to spot them.",
+        "Malware and how it gets in, the real Australian breaches, and how to react.",
         Module.Difficulty.BEGINNER,
         [
-            "The malware family",
-            "Ransomware, and attacks on the whole business",
-            "The big breaches: Optus and Medibank",
-            "Recognising and reacting",
+            "Know the threats: malware, and how it gets in",
+            "When it goes wrong: ransomware, breaches, and reacting",
         ],
     ),
     (
@@ -271,11 +276,12 @@ def _seed_lesson_tasks(lesson, tasks):
             defaults={
                 "order": order,
                 "kind": t["kind"].upper(),
-                "points": t["points"],
+                "points": t["points"] * _POINTS_SCALE,
                 "title": t.get("title", ""),
                 "body": t.get("body", ""),
                 "diagram_key": t.get("diagram", ""),
                 "payload": payload,
+                "image": t.get("image", {}),
             },
         )
         seen.append(t["key"])
@@ -445,19 +451,28 @@ class Command(BaseCommand):
                 },
             )
 
+            n_lessons = len(lesson_titles)
             if content:
                 quiz = _seed_module_quiz(module, content, lessons_by_number, force=force)
+                # Now that every question points at an authored lesson (1..n), any
+                # lesson rows beyond the authored count are unreferenced and safe to
+                # prune, so a reseed mirrors a module that deliberately ships fewer
+                # lessons (for example Module 2's two deep lessons).
+                module.lessons.filter(lesson_number__gt=n_lessons).delete()
                 self.stdout.write(
-                    f"  module {index}: {title}  (4 lessons, 1 simulation, "
+                    f"  module {index}: {title}  ({n_lessons} lessons, 1 simulation, "
                     f"quiz with {quiz.questions.count()} questions)"
                 )
             else:
-                self.stdout.write(f"  module {index}: {title}  (4 lessons, 1 simulation)")
+                self.stdout.write(
+                    f"  module {index}: {title}  ({n_lessons} lessons, 1 simulation)"
+                )
 
+        total_lessons = sum(len(lesson_titles) for *_, lesson_titles in MODULES)
         self.stdout.write(
             self.style.SUCCESS(
                 f"Seeded {len(MODULES)} modules, "
-                f"{len(MODULES) * 4} lessons, {len(MODULES)} simulations, "
+                f"{total_lessons} lessons, {len(MODULES)} simulations, "
                 f"and {len(CONTENT)} interactive quizzes."
             )
         )

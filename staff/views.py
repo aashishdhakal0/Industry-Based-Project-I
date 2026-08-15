@@ -33,10 +33,39 @@ PER_PAGE = 25
 
 
 def _render(request, template, context):
-    """Render a console page. `console=True` scopes the calm admin theme and
-    loads admin.js (see staff/base.html and the .cy-app--console CSS)."""
+    """Render a console page. `console=True` scopes the admin theme and loads
+    admin.js; `console_theme` carries the admin's remembered light/dark choice so
+    the shell renders it on load (no flash of the wrong theme)."""
     context.setdefault("console", True)
+    profile = getattr(request.user, "profile", None)
+    context.setdefault("console_theme", getattr(profile, "console_theme", "dark") or "dark")
     return render(request, template, context)
+
+
+@administrator_required
+@require_POST
+def set_theme(request):
+    """Remember an administrator's light/dark choice. Progressive enhancement:
+    a plain POST redirects back (no-JS); admin.js posts it via fetch and flips the
+    theme instantly. Not audited — it's a personal display preference, not an act
+    on another account or on content."""
+    profile = getattr(request.user, "profile", None)
+    if profile is None:
+        from authentication.models import UserProfile
+
+        profile = UserProfile.objects.create(user=request.user)
+
+    theme = request.POST.get("theme")
+    if theme not in ("dark", "light"):
+        # No explicit value → flip the current one.
+        theme = "light" if profile.console_theme == "dark" else "dark"
+    profile.console_theme = theme
+    profile.save(update_fields=["console_theme"])
+
+    if request.headers.get("X-Requested-With") == "fetch":
+        return HttpResponse(status=204)
+    nxt = request.POST.get("next") or request.META.get("HTTP_REFERER") or reverse("staff:overview")
+    return redirect(nxt)
 
 
 @administrator_required
@@ -46,6 +75,18 @@ def overview(request):
 
     rows = services.collect_learners()
     stats = services.overview(rows)
+
+    def _int(name):
+        try:
+            return int(request.GET.get(name))
+        except (TypeError, ValueError):
+            return None
+
+    cal_month = _int("cal_month")
+    if cal_month is not None and not 1 <= cal_month <= 12:
+        cal_month = None
+    calendar = services.admin_calendar(year=_int("cal_year"), month=cal_month)
+
     return _render(
         request,
         "staff/overview.html",
@@ -55,17 +96,20 @@ def overview(request):
             "greeting": g.greeting(),
             "recent_actions": services.recent_actions(),
             "content_health": services.content_health(),
-            "charts": services.overview_charts(stats),
+            "calendar": calendar,
         },
     )
 
 
 @administrator_required
 def learners(request):
-    """The learner table: search, quick-filter, sort, paginate.
+    """The learners page, in two shapes over one bounded aggregation:
 
-    All four operate on the rows from one collect_learners() call, so the
-    bounded-query aggregation is preserved — no N+1 as the cohort grows.
+    - "grouped" (default): people grouped into their organisation, students AND
+      administrators, each org a collapsible section with quick stats.
+    - "list": the flat, sortable, paginated table (students only).
+
+    Search and quick-filters apply to both; no N+1 as the cohort grows.
     """
     q = request.GET.get("q", "").strip()
     sort = request.GET.get("sort", services.DEFAULT_SORT)
@@ -74,16 +118,27 @@ def learners(request):
     filter_key = request.GET.get("filter", "")
     if filter_key not in services.QUICK_FILTERS:
         filter_key = ""
+    view = request.GET.get("view", "grouped")
+    if view not in ("grouped", "list"):
+        view = "grouped"
 
-    rows = services.collect_learners()
+    if view == "grouped":
+        roles = (User.Role.STUDENT, User.Role.INSTRUCTOR, User.Role.ADMINISTRATOR)
+        rows = services.collect_learners(roles=roles)
+    else:
+        rows = services.collect_learners()   # students only
     total_all = len(rows)
     rows = services.search_learners(rows, q)
     if filter_key:
         rows = services.filter_learners(rows, filter_key)
-    rows = services.sort_and_filter(rows, sort=sort)
     match_count = len(rows)
 
-    page_obj = Paginator(rows, PER_PAGE).get_page(request.GET.get("page"))
+    groups = page_obj = None
+    if view == "grouped":
+        groups = services.group_by_organisation(rows)
+    else:
+        rows = services.sort_and_filter(rows, sort=sort)
+        page_obj = Paginator(rows, PER_PAGE).get_page(request.GET.get("page"))
 
     # Base querystring (minus page) so pagination + row links keep the view.
     params = request.GET.copy()
@@ -95,8 +150,10 @@ def learners(request):
         "staff/learners.html",
         {
             "active": "admin_learners",
+            "view": view,
+            "groups": groups,
             "page_obj": page_obj,
-            "rows": page_obj.object_list,
+            "rows": page_obj.object_list if page_obj else [],
             "match_count": match_count,
             "total_all": total_all,
             "sort": sort,
@@ -121,7 +178,19 @@ def organisations(request):
             "orgs": orgs,
             "total_orgs": len(orgs),
             "total_learners": sum(o["learners"] for o in orgs),
+            "unassigned_count": len(services.unassigned_members()),
         },
+    )
+
+
+@administrator_required
+def unassigned(request):
+    """The 'No organisation' group — everyone (students + staff) with no org."""
+    members = services.unassigned_members()
+    return _render(
+        request,
+        "staff/unassigned.html",
+        {"active": "admin_orgs", "members": members},
     )
 
 
@@ -172,6 +241,7 @@ def org_detail(request, org_id):
             "org": org,
             "form": form,
             "members": members,
+            "student_count": sum(1 for m in members if m.is_student),
         },
     )
 

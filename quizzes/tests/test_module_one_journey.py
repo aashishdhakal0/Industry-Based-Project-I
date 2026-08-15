@@ -58,11 +58,11 @@ def test_the_full_interactive_module_one_journey(seeded_client):
     for lesson in m1.lessons.order_by("lesson_number"):
         final = work_through_lesson(client, m1, lesson)
         assert final["lesson_completed"] is True
-        assert final["lesson_points_done"] == final["lesson_points_total"] == 10
+        assert final["lesson_points_done"] == final["lesson_points_total"] == 40
 
-    # Four lessons banked = 40 points, four ProgressRecords.
+    # Four lessons banked = 160 points, four ProgressRecords.
     assert ProgressRecord.objects.filter(user=student, lesson__module=m1).count() == 4
-    assert g.get_profile(student).points == 40
+    assert g.get_profile(student).points == 160
 
     # The overview now offers the quiz.
     overview = client.get(reverse("learn:module", args=[1])).content.decode()
@@ -82,7 +82,7 @@ def test_the_full_interactive_module_one_journey(seeded_client):
     progress = {mp.module.order_index: mp for mp in g.module_progress(student)}
     assert progress[1].complete is True
     assert progress[2].unlocked is True
-    assert g.get_profile(student).points == 90  # 40 lessons + 50 quiz
+    assert g.get_profile(student).points == 360  # 160 lessons + 200 quiz
 
     # Returning to the module now shows a clear completion moment with a way on
     # to Module 2 — the student is never left wondering what happens next.

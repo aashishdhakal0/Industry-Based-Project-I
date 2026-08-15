@@ -112,12 +112,12 @@ def test_blank_answers_count_against_the_score_but_record_no_wrong_answer(studen
 
 
 @pytest.mark.django_db
-def test_passing_awards_fifty_points_and_the_quiz_badge(student, quiz):
+def test_passing_awards_the_quiz_points_and_badge(student, quiz):
     drawn = svc.draw_questions(quiz)
     result, reward, _ = svc.grade_and_record(
         student, quiz, [q.id for q in drawn], responses_for(drawn, correct=10)
     )
-    assert reward.points == 50                       # one passed quiz, no lessons
+    assert reward.points == g.POINTS_PER_QUIZ        # one passed quiz, no lessons
     assert "first_quiz" in [b.id for b in reward.new_badges]
 
 
@@ -139,7 +139,7 @@ def test_retaking_and_passing_again_does_not_double_the_points(student, quiz):
     second, reward, _ = svc.grade_and_record(student, quiz, ids, responses_for(drawn, correct=10))
 
     assert second.attempt_number == first.attempt_number + 1
-    assert reward.points == 50                       # still one distinct passed quiz
+    assert reward.points == g.POINTS_PER_QUIZ        # still one distinct passed quiz
     assert QuizResult.objects.filter(user=student, passed=True).count() == 2
 
 

@@ -7,12 +7,7 @@
   <div>
     <p class="cy-c-head__eyebrow">Administrator</p>
     <h1 class="cy-c-head__title">Overview</h1>
-    <p class="cy-c-head__sub">Live from your training data. Trends span the last 12 weeks.</p>
-  </div>
-  <div class="cy-c-head__actions">
-    <a class="cy-btn cy-btn--ghost cy-btn--sm" href="{% url 'staff:organisations' %}">Organisations</a>
-    <a class="cy-btn cy-btn--ghost cy-btn--sm" href="{% url 'staff:user_new' %}">Add user</a>
-    <a class="cy-btn cy-btn--primary cy-btn--sm" href="{% url 'staff:learners' %}">View learners</a>
+    <p class="cy-c-head__sub">A clear read on your learners, grades and activity.</p>
   </div>
 </header>
 
@@ -27,91 +22,85 @@
   </div>
 {% else %}
 
-  {# KPI cards, each with a real weekly-trend sparkline. #}
-  <div class="cy-c-kpis cy-c-kpis--spark">
+  {# Headline stats — plain numbers, clean cards, no graphs. #}
+  <div class="cy-c-kpis">
     <div class="cy-c-kpi cy-c-kpi--primary">
       <span class="cy-c-kpi__label">Learners</span>
       <span class="cy-c-kpi__value">{{ stats.total_learners }}</span>
       <span class="cy-c-kpi__sub">{{ stats.active_learners }} making progress</span>
-      <div class="cy-c-kpi__spark">{% include "staff/_sparkline.html" with s=charts.spark_learners %}</div>
-    </div>
-    <div class="cy-c-kpi">
-      <span class="cy-c-kpi__label">Active this week</span>
-      <span class="cy-c-kpi__value">{{ charts.active_now }}</span>
-      <span class="cy-c-kpi__sub">learners studying</span>
-      <div class="cy-c-kpi__spark">{% include "staff/_sparkline.html" with s=charts.spark_active %}</div>
     </div>
     <div class="cy-c-kpi">
       <span class="cy-c-kpi__label">Completed course</span>
       <span class="cy-c-kpi__value">{{ stats.completed_course }}<span class="cy-c-kpi__of">/{{ stats.total_learners }}</span></span>
-      <span class="cy-c-kpi__sub">{{ stats.completion_rate }}% completion</span>
-      <div class="cy-c-kpi__spark">{% include "staff/_sparkline.html" with s=charts.spark_completions %}</div>
+      <span class="cy-c-kpi__sub">finished all modules</span>
+    </div>
+    <div class="cy-c-kpi">
+      <span class="cy-c-kpi__label">Completion rate</span>
+      <span class="cy-c-kpi__value">{{ stats.completion_rate }}<span class="cy-c-kpi__unit">%</span></span>
+      <span class="cy-c-kpi__sub">of learners done</span>
     </div>
     <div class="cy-c-kpi">
       <span class="cy-c-kpi__label">Average score</span>
       <span class="cy-c-kpi__value">{% if stats.average_score is None %}—{% else %}{{ stats.average_score }}<span class="cy-c-kpi__unit">%</span>{% endif %}</span>
       <span class="cy-c-kpi__sub">across graded quizzes</span>
-      <div class="cy-c-kpi__spark">{% include "staff/_sparkline.html" with s=charts.spark_avg %}</div>
     </div>
   </div>
 
-  {# Main chart + grade donut. #}
   <div class="cy-c-grid cy-c-grid--chart">
+    {# Activity calendar — real learner + admin activity, by day. #}
     <section class="cy-c-section cy-c-panel">
       <div class="cy-c-section__head">
-        <h2 class="cy-c-section__title">Completions over time</h2>
-        <span class="cy-c-section__note">lessons + quiz passes, weekly</span>
+        <h2 class="cy-c-section__title">Activity calendar</h2>
+        <span class="cy-c-section__note">learner + admin activity</span>
       </div>
-      {% include "staff/_areachart.html" with c=charts.completions_chart %}
+      <div class="cy-cal2">
+        <div class="cy-cal2__head">
+          <a class="cy-cal2__nav" href="?cal_year={{ calendar.prev_year }}&amp;cal_month={{ calendar.prev_month }}" aria-label="Previous month" rel="nofollow"><svg class="cy-i" aria-hidden="true"><use href="#i-chevron-left"/></svg></a>
+          <span class="cy-cal2__title">{{ calendar.label }}</span>
+          {% if calendar.can_go_next %}
+            <a class="cy-cal2__nav" href="?cal_year={{ calendar.next_year }}&amp;cal_month={{ calendar.next_month }}" aria-label="Next month" rel="nofollow"><svg class="cy-i" aria-hidden="true"><use href="#i-chevron-right"/></svg></a>
+          {% else %}
+            <span class="cy-cal2__nav is-disabled" aria-hidden="true"><svg class="cy-i"><use href="#i-chevron-right"/></svg></span>
+          {% endif %}
+        </div>
+        <div class="cy-cal2__grid" role="grid" aria-label="Activity for {{ calendar.label }}">
+          <div class="cy-cal2__row cy-cal2__row--head" role="row">
+            {% for wd in calendar.weekday_names %}<span class="cy-cal2__wd" role="columnheader">{{ wd }}</span>{% endfor %}
+          </div>
+          {% for week in calendar.weeks %}
+            <div class="cy-cal2__row" role="row">
+              {% for d in week %}
+                <span class="cy-cal2__day{% if not d.in_month %} is-out{% endif %}{% if d.active %} is-active{% endif %}{% if d.is_today %} is-today{% endif %}" role="gridcell"
+                      {% if d.active %}title="{{ d.date|date:'j M' }}: {{ d.count }} event{{ d.count|pluralize }}"{% endif %}>{{ d.day }}</span>
+              {% endfor %}
+            </div>
+          {% endfor %}
+        </div>
+        <div class="cy-cal2__foot">
+          <span class="cy-cal2__key"><span class="cy-cal2__swatch"></span> Active day</span>
+          <span class="cy-c-muted"><strong>{{ calendar.active_days }}</strong> active day{{ calendar.active_days|pluralize }} · {{ calendar.total_events }} event{{ calendar.total_events|pluralize }}</span>
+        </div>
+      </div>
     </section>
 
+    {# Grade distribution — plain counts, not a chart. #}
     <section class="cy-c-section cy-c-panel">
       <div class="cy-c-section__head">
         <h2 class="cy-c-section__title">Grades</h2>
         <a class="cy-c-section__link" href="{% url 'staff:learners' %}">Learners</a>
       </div>
-      {% include "staff/_donut.html" with d=charts.grade_donut %}
-    </section>
-  </div>
-
-  {# Cohort module-completion funnel + learners by organisation. #}
-  <div class="cy-c-grid cy-c-grid--chart">
-    <section class="cy-c-section cy-c-panel">
-      <div class="cy-c-section__head">
-        <h2 class="cy-c-section__title">Module completion</h2>
-        <span class="cy-c-section__note">share of learners who finished each module</span>
-      </div>
-      <ul class="cy-c-funnel">
-        {% for f in charts.funnel %}
-          <li class="cy-c-funnel__row">
-            <span class="cy-c-funnel__name">{{ f.module.order_index }}. {{ f.module.title }}</span>
-            <span class="cy-c-funnel__track"><span class="cy-c-funnel__fill" style="width: {{ f.percent }}%;"></span></span>
-            <span class="cy-c-funnel__val">{{ f.completed }}<span class="cy-c-muted">/{{ f.total }}</span></span>
+      <ul class="cy-c-gradelist">
+        {% for band in stats.distribution %}
+          <li class="cy-c-gradelist__row">
+            <span class="cy-tierbadge cy-tierbadge--{{ band.tier.slug }}">{{ band.tier.name }}</span>
+            <span class="cy-c-gradelist__count">{{ band.count }}</span>
           </li>
-        {% empty %}
-          <li class="cy-c-muted">No published modules.</li>
         {% endfor %}
+        <li class="cy-c-gradelist__row">
+          <span class="cy-tierbadge cy-tierbadge--not-started">Not started</span>
+          <span class="cy-c-gradelist__count">{{ stats.not_started }}</span>
+        </li>
       </ul>
-    </section>
-
-    <section class="cy-c-section cy-c-panel">
-      <div class="cy-c-section__head">
-        <h2 class="cy-c-section__title">Learners by organisation</h2>
-        <a class="cy-c-section__link" href="{% url 'staff:organisations' %}">All</a>
-      </div>
-      {% if stats.organisations %}
-        <ul class="cy-c-bars">
-          {% for o in stats.organisations %}
-            <li class="cy-c-bar">
-              <span class="cy-c-bar__name" title="{{ o.name }}">{{ o.name }}</span>
-              <span class="cy-c-bar__track"><span class="cy-c-bar__fill" style="width: {% widthratio o.count stats.organisations.0.count 100 %}%;"></span></span>
-              <span class="cy-c-bar__val">{{ o.count }}</span>
-            </li>
-          {% endfor %}
-        </ul>
-      {% else %}
-        <p class="cy-c-muted">No organisations yet.</p>
-      {% endif %}
     </section>
   </div>
 

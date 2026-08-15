@@ -1,0 +1,57 @@
+{% extends "staff/base.html" %}
+
+{% block title %}No organisation — {{ site_name }}{% endblock %}
+
+{% block console %}
+<a class="cy-c-back" href="{% url 'staff:organisations' %}">
+  <svg class="cy-i" aria-hidden="true"><use href="#i-chevron-left"/></svg> Back to organisations
+</a>
+
+<header class="cy-c-detailhead">
+  <div>
+    <p class="cy-c-head__eyebrow">Organisation</p>
+    <h1 class="cy-c-detailhead__name">No organisation</h1>
+    <div class="cy-c-tags">
+      <span class="cy-pill">{{ members|length }} person{{ members|length|pluralize:"s" }} not assigned</span>
+    </div>
+  </div>
+</header>
+
+<section class="cy-c-section">
+  <div class="cy-c-section__head">
+    <h2 class="cy-c-section__title">People with no organisation</h2>
+  </div>
+  {% if members %}
+    <div class="cy-c-tablewrap">
+      <table class="cy-c-table">
+        <thead><tr><th>Person</th><th>Role</th><th>Grade</th><th>Completion</th><th class="cy-c-num">Action</th></tr></thead>
+        <tbody>
+          {% for r in members %}
+            <tr>
+              <td>
+                <a class="cy-c-learner" href="{% url 'staff:learner_detail' r.user.pk %}">
+                  <span class="cy-c-learner__name">{{ r.name }}</span>
+                  <span class="cy-c-learner__email">{{ r.user.email }}</span>
+                </a>
+              </td>
+              <td><span class="cy-role cy-role--{{ r.user.role|lower }}">{{ r.role_label }}</span></td>
+              <td>{% if r.is_student and r.overall_score is not None %}<span class="cy-tierbadge cy-tierbadge--{{ r.tier.slug }}">{{ r.tier.name }}</span>{% else %}<span class="cy-c-muted">—</span>{% endif %}</td>
+              <td>
+                {% if r.is_student %}
+                  <span class="cy-c-mod">
+                    <span class="cy-c-mod__count">{{ r.modules_completed }}/{{ r.modules_total }}</span>
+                    <span class="cy-c-bar__track cy-c-mod__track"><span class="cy-c-bar__fill" style="width: {{ r.completion_percent }}%;"></span></span>
+                  </span>
+                {% else %}<span class="cy-c-muted">—</span>{% endif %}
+              </td>
+              <td class="cy-c-num"><a class="cy-btn cy-btn--ghost cy-btn--sm" href="{% url 'staff:learner_detail' r.user.pk %}">Manage</a></td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <p class="cy-c-muted">Everyone is assigned to an organisation.</p>
+  {% endif %}
+</section>
+{% endblock %}

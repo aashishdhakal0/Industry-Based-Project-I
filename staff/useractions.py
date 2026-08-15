@@ -207,3 +207,80 @@ def assign_org(request, user_id):
     if from_org:
         return redirect(reverse("staff:org_detail", args=[from_org]))
     return _back(target)
+
+
+def _email_note(recipients, message, from_admin):
+    """Send a plain note from an administrator to one or more members."""
+    body = (
+        f"{message}\n\n—\nThis note was sent by a {settings.SITE_NAME if hasattr(settings, 'SITE_NAME') else 'Cybaroo'} "
+        f"administrator ({from_admin.get_full_name() or from_admin.email})."
+    )
+    sent = 0
+    for email in recipients:
+        if not email:
+            continue
+        send_mail(
+            subject="A note from your Cybaroo administrator",
+            message=body,
+            from_email=None,               # DEFAULT_FROM_EMAIL
+            recipient_list=[email],
+            fail_silently=False,
+        )
+        sent += 1
+    return sent
+
+
+@administrator_required
+@require_POST
+def org_delete(request, org_id):
+    """Delete an organisation. Its members are detached (they become unassigned),
+    never deleted — people outlive the group. Audited."""
+    org = get_object_or_404(Organisation, pk=org_id)
+    name = org.name
+    # Detach members cleanly: clear the FK AND the text mirror so nobody is left
+    # pointing at a group that no longer exists.
+    for profile in org.members.all():
+        services.assign_learner_org(profile, None)
+    org.delete()
+    services.log_action(request.user, AdminAction.Kind.DELETE_ORG, f"Deleted organisation “{name}”")
+    messages.success(request, f"Deleted “{name}”. Its members are now unassigned.")
+    return redirect(reverse("staff:organisations"))
+
+
+@administrator_required
+@require_POST
+def send_note_org(request, org_id):
+    """Email a note to every member of an organisation. Audited."""
+    org = get_object_or_404(Organisation, pk=org_id)
+    message = (request.POST.get("message") or "").strip()
+    if not message:
+        messages.error(request, "Write a note before sending.")
+        return redirect(reverse("staff:org_detail", args=[org.pk]))
+
+    emails = list(org.members.values_list("user__email", flat=True))
+    sent = _email_note(emails, message, request.user)
+    services.log_action(
+        request.user, AdminAction.Kind.NOTE_ORG,
+        f"Sent a note to “{org.name}” ({sent} member{'' if sent == 1 else 's'})",
+    )
+    messages.success(request, f"Sent your note to {sent} member{'' if sent == 1 else 's'} of “{org.name}”.")
+    return redirect(reverse("staff:org_detail", args=[org.pk]))
+
+
+@administrator_required
+@require_POST
+def send_note_user(request, user_id):
+    """Email a note to a single learner. Audited."""
+    target = get_object_or_404(User, pk=user_id)
+    message = (request.POST.get("message") or "").strip()
+    if not message:
+        messages.error(request, "Write a note before sending.")
+        return _back(target)
+
+    _email_note([target.email], message, request.user)
+    services.log_action(
+        request.user, AdminAction.Kind.NOTE_USER,
+        f"Sent a note to {target.email}", target_user=target,
+    )
+    messages.success(request, f"Sent your note to {target.email}.")
+    return _back(target)

@@ -32,7 +32,10 @@ class AdminAction(models.Model):
         EDIT_QUESTION = "edit_question", "Edited a quiz question"
         CREATE_ORG = "create_org", "Created an organisation"
         EDIT_ORG = "edit_org", "Edited an organisation"
+        DELETE_ORG = "delete_org", "Deleted an organisation"
         ASSIGN_ORG = "assign_org", "Changed a learner's organisation"
+        NOTE_ORG = "note_org", "Sent a note to an organisation"
+        NOTE_USER = "note_user", "Sent a note to a learner"
 
     # SET_NULL, not CASCADE: deleting an admin account must never erase the
     # record of what they did. The trail outlives the actor.

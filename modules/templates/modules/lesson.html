@@ -120,6 +120,7 @@
 
               <div class="cy-panel__body">
                 {% if task.diagram_key %}{% include "modules/_diagram.html" with key=task.diagram_key %}{% endif %}
+                {% if task.image %}{% include "modules/_lesson_image.html" with image=task.image %}{% endif %}
                 {% if task.scenario %}<div class="cy-task__scenario cy-prose">{{ task.scenario|safe }}</div>{% endif %}
                 {% if task.body %}<div class="cy-prose">{{ task.body|safe }}</div>{% endif %}
 
@@ -226,7 +227,7 @@
       lesson.js that 304s keep alive. Bump this when the room JS changes so the
       URL is new and the old cached copy can't win. (Prod hashes it anyway.)
     {% endcomment %}
-    <script src="{% static 'js/lesson.js' %}?v=13" defer></script>
-    <script src="{% static 'js/activities.js' %}?v=13" defer></script>
+    <script src="{% static 'js/lesson.js' %}?v=16" defer></script>
+    <script src="{% static 'js/activities.js' %}?v=16" defer></script>
   {% endif %}
 {% endblock %}

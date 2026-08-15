@@ -100,12 +100,12 @@ def test_a_lesson_renders_its_body(client_student, modules):
 
 
 @pytest.mark.django_db
-def test_marking_complete_records_progress_and_awards_ten(client_student, student, modules):
+def test_marking_complete_records_progress_and_awards_points(client_student, student, modules):
     response = complete(client_student, modules[0], 1, HTTP_X_REQUESTED_WITH="fetch")
     data = json.loads(response.content)
 
-    assert data["points_gained"] == 10
-    assert data["points"] == 10
+    assert data["points_gained"] == 40
+    assert data["points"] == 40
     assert ProgressRecord.objects.filter(user=student, lesson__module=modules[0]).count() == 1
 
 
@@ -116,7 +116,7 @@ def test_marking_complete_twice_awards_once(client_student, student, modules):
     data = json.loads(second.content)
 
     assert data["points_gained"] == 0
-    assert data["points"] == 10
+    assert data["points"] == 40
     assert ProgressRecord.objects.filter(user=student).count() == 1
 
 
@@ -258,8 +258,8 @@ def test_dashboard_shows_real_points_after_completing_lessons(client_student, st
     complete(client_student, modules[0], 2, HTTP_X_REQUESTED_WITH="fetch")
 
     html = client_student.get(reverse("dashboard")).content.decode()
-    # 2 lessons × 10 = 20 points, shown in the points stat tile.
-    assert 'cy-tile__value">20<' in html
+    # 2 lessons × 40 = 80 points, shown in the points stat card.
+    assert 'cy-scard__v">80<' in html
 
 
 @pytest.mark.django_db
@@ -267,8 +267,9 @@ def test_dashboard_reflects_earned_badges(client_student, student, modules):
     complete(client_student, modules[0], 1, HTTP_X_REQUESTED_WITH="fetch")
 
     html = client_student.get(reverse("dashboard")).content.decode()
-    assert "First step" in html          # the badge name
-    assert "cy-badge--earned" in html
+    # The badges stat reflects the one just earned and links to the gallery.
+    assert reverse("learn:badges") in html
+    assert "1<small>/11</small>" in html
 
 
 @pytest.mark.django_db
@@ -277,7 +278,7 @@ def test_dashboard_continue_points_at_the_next_lesson(client_student, modules):
 
     html = client_student.get(reverse("dashboard")).content.decode()
     assert reverse("learn:module", args=[1]) in html
-    assert "Pick up where you left off" in html
+    assert "Continue learning" in html
 
 
 # --------------------------------------------------------------------------
@@ -395,32 +396,40 @@ def test_new_pages_require_login(client, modules):
 
 
 @pytest.mark.django_db
-def test_a_brand_new_student_gets_the_welcome_state_not_bare_zeros(client_student, modules):
+def test_a_zero_progress_student_gets_the_full_dashboard(client_student, modules):
+    """A brand-new, zero-progress Bronze student must get the SAME full dashboard
+    as everyone else (profile card, tier panel, stats, calendar) — not a stripped
+    'welcome' fork. This is the regression guard for that bug."""
     html = client_student.get(reverse("dashboard")).content.decode()
-    assert "cy-welcome" in html
-    assert "Welcome to" in html
-    # exactly one primary action, even here
-    assert html.count("cy-btn--primary") == 1
+    assert "cy-prof__trigger" in html            # the profile card
+    assert "cy-tierpanel" in html                # the tier panel, with its emblem
+    assert "cy-tier--bronze" in html             # Bronze for a 0-point student
+    assert "to Silver" in html                   # progress toward the next tier
+    assert html.count("cy-scard__v") == 6        # the six stat cards
+    assert "cy-cal__grid" in html                # the activity calendar
+    assert "cy-welcome" not in html              # NOT the old welcome fork
+    assert html.count("cy-btn--primary") == 1    # one clear "Start" action
 
 
 @pytest.mark.django_db
-def test_a_returning_student_sees_the_continue_hero_and_rank(client_student, modules):
+def test_a_returning_student_sees_the_continue_action_and_rank(client_student, modules):
     complete(client_student, modules[0], 1, HTTP_X_REQUESTED_WITH="fetch")
 
     html = client_student.get(reverse("dashboard")).content.decode()
-    assert "cy-hero-continue" in html
-    assert "Cyber Aware" in html                 # the rank title
+    assert "cy-dhero" in html                    # the Continue hero card
+    assert "Cyber Aware" in html                 # the rank title, in the profile
     assert html.count("cy-btn--primary") == 1    # the single Continue
 
 
 @pytest.mark.django_db
-def test_the_roadmap_marks_the_current_module(client_student, modules):
+def test_module_checklist_lives_on_the_progress_page_not_the_dashboard(client_student, modules):
     complete(client_student, modules[0], 1, HTTP_X_REQUESTED_WITH="fetch")
 
-    html = client_student.get(reverse("dashboard")).content.decode()
-    assert "cy-road" in html
-    assert "is-current" in html                  # the pulsing "you are here" stop
-    assert "Certified" in html                   # the journey's end
+    dash = client_student.get(reverse("dashboard")).content.decode()
+    assert "cy-course__list" not in dash         # the checklist is relocated off page 1
+    prog = client_student.get(reverse("learn:progress")).content.decode()
+    assert "Module by module" in prog            # it lives on My progress
+    assert modules[0].title in prog
 
 
 @pytest.mark.django_db
@@ -441,21 +450,9 @@ def test_the_streak_nudges_when_a_day_is_at_risk(client_student, student, module
     profile.save(update_fields=["streak_count", "last_active"])
 
     html = client_student.get(reverse("dashboard")).content.decode()
-    assert "cy-streakbox--at_risk" in html
-    assert "break your 4-day streak" in html   # loss-aversion framing (apostrophe HTML-escaped)
-
-
-@pytest.mark.django_db
-def test_dashboard_recent_activity_is_real(client_student, student, modules):
-    """The recent-activity panel lists lessons actually completed, newest first."""
-    complete(client_student, modules[0], 1, HTTP_X_REQUESTED_WITH="fetch")
-    complete(client_student, modules[0], 2, HTTP_X_REQUESTED_WITH="fetch")
-
-    html = client_student.get(reverse("dashboard")).content.decode()
-    assert "Recent activity" in html
-    # both completed lessons appear
-    assert modules[0].lessons.get(lesson_number=1).title in html
-    assert modules[0].lessons.get(lesson_number=2).title in html
+    # Streak is a stat card; its at-risk state and nudge survive.
+    assert "cy-scard--at_risk" in html
+    assert "break your 4-day streak" in html   # loss-aversion framing, in the card title
 
 
 @pytest.mark.django_db
@@ -463,9 +460,9 @@ def test_dashboard_stats_strip_shows_real_totals(client_student, student, module
     complete(client_student, modules[0], 1, HTTP_X_REQUESTED_WITH="fetch")
 
     html = client_student.get(reverse("dashboard")).content.decode()
-    # Five refined stat tiles up top.
-    assert 'class="cy-tiles cy-tiles--5' in html
-    assert html.count("cy-tile__value") == 5
+    # Six composed stat cards: points, level, streak, lessons, modules, badges.
+    assert 'class="cy-scards"' in html
+    assert html.count("cy-scard__v") == 6
 
 
 # --------------------------------------------------------------------------
@@ -474,12 +471,13 @@ def test_dashboard_stats_strip_shows_real_totals(client_student, student, module
 
 
 @pytest.mark.django_db
-def test_returning_dashboard_has_the_identity_header_and_stat_tiles(client_student, modules):
+def test_returning_dashboard_has_the_profile_and_stats(client_student, modules):
     complete(client_student, modules[0], 1, HTTP_X_REQUESTED_WITH="fetch")
     html = client_student.get(reverse("dashboard")).content.decode()
-    assert "cy-dash-head" in html            # identity header
-    assert "cy-tier__emblem" in html         # the tier medallion is the hero
-    assert html.count("cy-tile__value") == 5
+    assert "cy-prof__trigger" in html        # the clickable profile (a disclosure)
+    assert "cy-prof__name" in html           # the student's name
+    assert "cy-tierpill" in html             # tier shown as a clean pill
+    assert html.count("cy-scard__v") == 6
 
 
 def _set_points(student, points):
@@ -493,23 +491,21 @@ def _set_points(student, points):
 @pytest.mark.django_db
 def test_dashboard_shows_the_tier_and_progress_to_next(client_student, student, modules):
     """The tier emblem, its name and 'points to next' are real, from points."""
-    _set_points(student, 250)             # Gold (220); Platinum at 380
+    _set_points(student, 700)             # Gold (500); Platinum at 1000
     html = client_student.get(reverse("dashboard")).content.decode()
-    assert "cy-tier--gold" in html
-    assert "cy-tier__emblem" in html
-    assert "130 points" in html           # 380 - 250
+    assert "cy-tier--gold" in html        # the tier panel carries the metal
+    assert "cy-tierpanel" in html         # the tier panel with its progress
+    assert "200 / 500" in html            # into-band / band-span (700-500 / 1000-500)
     assert "to Platinum" in html
-    assert "Tier 3 of 5" in html
 
 
 @pytest.mark.django_db
-def test_dashboard_top_tier_shows_a_mastery_state(client_student, student, modules):
-    _set_points(student, 540)             # Diamond, the ceiling
+def test_dashboard_top_tier_hides_the_progress_line(client_student, student, modules):
+    _set_points(student, 2000)            # Diamond, the top tier
     html = client_student.get(reverse("dashboard")).content.decode()
-    assert "cy-tier--diamond" in html
-    assert "course mastered" in html
-    assert "cy-tier__next--max" in html   # the mastery state, not a progress bar
-    assert "cy-tier__fill" not in html     # no 'to next' bar at the top tier
+    assert "cy-tier--diamond" in html          # the tier is still shown, cleanly
+    assert "Top tier reached" in html          # a calm mastery state
+    assert "cy-tierpanel__prog" not in html    # no 'to next' bar at the top tier
 
 
 @pytest.mark.django_db
@@ -521,19 +517,22 @@ def test_dashboard_calendar_has_a_heat_legend_and_marks_activity(client_student,
     assert "Less" in html and "More" in html
     assert "is-active is-l" in html       # a real active day carries a heat level
     assert "active day" in html           # the "X active days this month" summary
+    assert "data-tip=" in html            # a hover/tap tooltip on the active day
+    assert "1 lesson" in html             # typed: what was done that day
 
 
 @pytest.mark.django_db
-def test_tier_emblems_are_distinct_shapes_not_one_recoloured(client_student, student, modules):
-    """Gold renders a star, Diamond a gem — different SVG geometry, not a recolour."""
-    _set_points(student, 250)             # Gold
+def test_the_tier_is_shown_distinctly_per_rank(client_student, student, modules):
+    """Each tier carries its own metal via the tier class, so Gold and Diamond
+    read as visibly different ranks (pill + avatar), not the same chip recoloured."""
+    _set_points(student, 700)             # Gold
     gold = client_student.get(reverse("dashboard")).content.decode()
-    _set_points(student, 540)             # Diamond
+    _set_points(student, 2000)            # Diamond
     diamond = client_student.get(reverse("dashboard")).content.decode()
 
-    assert 'points="32,4' in gold          # the sunburst-star polygon
-    assert "M20 15 H44" in diamond          # the brilliant-cut gem path
-    assert 'points="32,4' not in diamond    # the shapes genuinely differ
+    assert "cy-tier--gold" in gold
+    assert "cy-tier--diamond" in diamond
+    assert "cy-tier--gold" not in diamond   # the rank genuinely changes
 
 
 @pytest.mark.django_db
@@ -541,7 +540,7 @@ def test_dashboard_celebrates_a_new_tier_once(client_student, student, modules):
     from modules import gamification as g
 
     profile = g.get_profile(student)
-    profile.points = 250                   # Gold (index 2)
+    profile.points = 700                   # Gold (index 2)
     profile.celebrated_tier = 1            # last congratulated at Silver
     profile.save(update_fields=["points", "celebrated_tier"])
 
@@ -557,41 +556,14 @@ def test_dashboard_celebrates_a_new_tier_once(client_student, student, modules):
 
 
 @pytest.mark.django_db
-def test_the_main_rail_layout_is_present(client_student, modules):
+def test_the_composed_dashboard_sections_are_present(client_student, modules):
     complete(client_student, modules[0], 1, HTTP_X_REQUESTED_WITH="fetch")
     html = client_student.get(reverse("dashboard")).content.decode()
-    assert "cy-dash-grid__main" in html
-    assert "cy-dash-grid__rail" in html
-    assert "cy-streakbox" in html            # streak lives in the rail
-
-
-@pytest.mark.django_db
-def test_the_quest_marks_you_are_here_on_the_current_module(client_student, modules):
-    complete(client_student, modules[0], 1, HTTP_X_REQUESTED_WITH="fetch")
-    html = client_student.get(reverse("dashboard")).content.decode()
-    assert "Your quest" in html
-    assert "You are here" in html
-    assert "is-current" in html
-
-
-@pytest.mark.django_db
-def test_the_streak_shows_its_next_milestone_badge(client_student, student, modules):
-    import datetime
-    from django.utils import timezone
-
-    complete(client_student, modules[0], 1, HTTP_X_REQUESTED_WITH="fetch")
-    p = student.profile
-    p.streak_count = 3
-    p.last_active = timezone.make_aware(
-        datetime.datetime.combine(timezone.localdate(), datetime.time(12, 0))
-    )
-    p.badges = list(p.badges) + ["streak_3"]
-    p.save()
-
-    html = client_student.get(reverse("dashboard")).content.decode()
-    # 3-day earned → next milestone is the 7-day badge, 4 days away
-    assert "7-day badge" in html
-    assert "4 days" in html
+    assert "cy-dash__hero" in html           # Continue hero + tier panel
+    assert "cy-tierpanel" in html            # the tier panel with emblem
+    assert "cy-scards" in html               # the composed stat cards
+    assert "cy-dash__grid2" in html          # calendar + next-badge nudge
+    assert "cy-cal__grid" in html            # the calendar
 
 
 # --------------------------------------------------------------------------
@@ -824,7 +796,7 @@ def test_completing_every_task_banks_the_lesson_and_returns_the_reward(client_st
     post_task(client_student, modules[0], lesson, tasks[1])
     r3 = post_task(client_student, modules[0], lesson, tasks[2]).json()
     assert r3["lesson_completed"] is True
-    assert r3["reward"]["points_gained"] == 10
+    assert r3["reward"]["points_gained"] == 40
     assert ProgressRecord.objects.filter(user=student, lesson=lesson).exists()
 
 
@@ -888,7 +860,14 @@ from django.template.loader import render_to_string
 
 def test_each_diagram_renders_its_content():
     cases = {
-        "cia-triad": "CIA",
+        "cia-triad": "Confidentiality",
+        "network-path": "Your router",
+        "router-admin": "Admin password",
+        "scam-email": "auspost-au-secure.info",
+        "email-invoice": "bunya-supplies-billing.com",
+        "security-settings": "Two-factor authentication",
+        "device-checklist": "Disk encryption",
+        "secure-bars": "cybaroo-clinic.com.au",
         "data-travels": "Your device",
         "phishing-email": "flour-supplier-au.info",
         "two-factor": "code on your phone",
@@ -1098,3 +1077,60 @@ def test_spot_login_variant_config_carries_urls_and_the_fake(client_student, mod
     assert cfg["variant"] == "login"
     assert cfg["fake"] == "right"
     assert "coastline-secure-login.com" in cfg["right"]["url"]
+
+
+# --------------------------------------------------------------------------
+# Lesson rail navigation — anchors point to the right tasks; active states
+# --------------------------------------------------------------------------
+
+
+@pytest.mark.django_db
+def test_lesson_rail_links_point_to_their_own_tasks_in_order(client_student, modules):
+    """Every rail task link (jump + anchor) points to its OWN panel, in order, so
+    clicking a task can never jump to an unrelated / past question."""
+    lesson = modules[0].lessons.order_by("lesson_number").first()
+    tasks = add_tasks(lesson, [("CONCEPT", 3), ("CONCEPT", 3), ("CONCEPT", 4)])
+    html = client_student.get(
+        reverse("learn:lesson", args=[modules[0].order_index, lesson.lesson_number])
+    ).content.decode()
+    ids = [str(t.id) for t in tasks]
+    jumps = re.findall(r'data-task-jump="(\d+)"', html)
+    anchors = re.findall(r'href="#task-(\d+)"', html)
+    panels = re.findall(r'data-task-id="(\d+)"', html)
+    items = re.findall(r'data-tasklist-item data-for="(\d+)"', html)
+    assert jumps == anchors == panels == items == ids
+
+
+@pytest.mark.django_db
+def test_lesson_rail_marks_done_and_current_tasks(client_student, student, modules):
+    """The rail reflects real progress: a completed task is ticked (is-done) and
+    the next unfinished task is highlighted (is-current)."""
+    from modules.models import TaskProgress
+
+    lesson = modules[0].lessons.order_by("lesson_number").first()
+    tasks = add_tasks(lesson, [("CONCEPT", 3), ("CONCEPT", 3), ("CONCEPT", 4)])
+    TaskProgress.objects.create(user=student, task=tasks[0])
+    html = client_student.get(
+        reverse("learn:lesson", args=[modules[0].order_index, lesson.lesson_number])
+    ).content.decode()
+
+    def cls_for(tid):
+        m = re.search(r'cy-tasklist__item ([^"]*)"[^>]*?data-for="%s"' % tid, html, re.S)
+        return m.group(1) if m else "MISSING"
+
+    assert "is-done" in cls_for(tasks[0].id)
+    assert "is-current" in cls_for(tasks[1].id)
+
+
+@pytest.mark.django_db
+def test_lesson_rail_links_to_every_lesson_and_marks_current(client_student, modules):
+    """The rail's Lessons stepper links to every lesson in the module (so clicking
+    a lesson opens that lesson), and marks the current one."""
+    lesson = modules[0].lessons.order_by("lesson_number").first()
+    add_tasks(lesson, [("CONCEPT", 5), ("CONCEPT", 5)])
+    html = client_student.get(
+        reverse("learn:lesson", args=[modules[0].order_index, lesson.lesson_number])
+    ).content.decode()
+    for s in modules[0].lessons.all():
+        assert reverse("learn:lesson", args=[modules[0].order_index, s.lesson_number]) in html
+    assert "cy-stepper__dot is-current" in html

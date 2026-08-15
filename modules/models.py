@@ -261,6 +261,7 @@ class LessonTask(models.Model):
         NETMAP = "NETMAP", "Find network weaknesses"
         SEQUENCE = "SEQUENCE", "Order the steps"
         RESPOND = "RESPOND", "Respond to situations"
+        QUIZSET = "QUIZSET", "Mixed question set"  # 3-4 mixed interactive questions
 
     lesson = models.ForeignKey(
         Lesson, on_delete=models.CASCADE, related_name="tasks"
@@ -283,6 +284,12 @@ class LessonTask(models.Model):
         blank=True,
         help_text="For check/scenario tasks: scenario, question and options "
         "[{text, correct, explanation}].",
+    )
+    image = models.JSONField(
+        default=dict,
+        blank=True,
+        help_text="Optional real photo served from our own static (CSP-safe): "
+        "{src, alt, caption, credit}. Rendered via _lesson_image.html.",
     )
 
     class Meta:

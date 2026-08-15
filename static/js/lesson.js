@@ -62,6 +62,22 @@
     if (tasklistDone) tasklistDone.textContent = doneCount();
   }
 
+  // Jumping to a task: open just that panel, mark it active ("you are here") in
+  // the rail, and scroll to the PANEL element (which carries the scroll-margin
+  // that clears the two sticky bars) so it never lands hidden under them or on a
+  // past question.
+  function openOnly(panel) { panels.forEach(function (p) { p.open = (p === panel); }); }
+  function setActive(panel) {
+    var id = panel.getAttribute("data-task-id");
+    Object.keys(tasklistItems).forEach(function (k) {
+      tasklistItems[k].classList.toggle("is-active", k === id);
+    });
+  }
+  function scrollToPanel(panel, smooth) {
+    window.requestAnimationFrame(function () {
+      if (panel.scrollIntoView) panel.scrollIntoView({ behavior: smooth ? "smooth" : "auto", block: "start" });
+    });
+  }
   Array.prototype.forEach.call(
     document.querySelectorAll("[data-task-jump]"),
     function (link) {
@@ -69,9 +85,9 @@
         var panel = panelById(link.getAttribute("data-task-jump"));
         if (!panel) return;
         e.preventDefault();
-        panel.open = true;
-        var head = panel.querySelector(".cy-panel__head");
-        if (head && head.scrollIntoView) head.scrollIntoView({ behavior: "smooth", block: "start" });
+        openOnly(panel);
+        setActive(panel);
+        scrollToPanel(panel, true);
       });
     }
   );
@@ -138,8 +154,8 @@
     for (var j = i + 1; j < panels.length; j++) {
       if (!isDone(panels[j])) {
         panels[j].open = true;
-        var head = panels[j].querySelector(".cy-panel__head");
-        if (head && head.scrollIntoView) head.scrollIntoView({ block: "nearest" });
+        setActive(panels[j]);
+        scrollToPanel(panels[j], true);
         return;
       }
     }
@@ -247,4 +263,20 @@
   panels.forEach(function (p, i) { p.open = (i === open); });
   if (nojs && open !== -1) nojs.hidden = true;
   updateProgress(null);
+
+  // Scroll-spy: keep the rail's "you are here" highlight on whichever task is in
+  // view, so a learner always sees where they are without clicking.
+  function idOf(p) { return p.getAttribute("data-task-id"); }
+  if (window.IntersectionObserver) {
+    var inView = {};
+    var spy = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) { inView[idOf(en.target)] = en.isIntersecting; });
+      for (var i = 0; i < panels.length; i++) {
+        if (inView[idOf(panels[i])]) { setActive(panels[i]); break; }
+      }
+    }, { rootMargin: "-130px 0px -55% 0px", threshold: 0 });
+    panels.forEach(function (p) { spy.observe(p); });
+  }
+  // Start with the first open (current) task marked active.
+  if (open !== -1) setActive(panels[open]);
 })();

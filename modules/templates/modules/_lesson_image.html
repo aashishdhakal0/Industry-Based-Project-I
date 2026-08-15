@@ -1,0 +1,18 @@
+{% load static %}
+{% comment %}
+  A real photo inside a lesson panel, served from our OWN static so it is not
+  blocked by the Content-Security-Policy (img-src 'self'). Context: `image`, a
+  dict {src, alt, caption, credit}. `src` is a path under static/ (e.g.
+  "img/router.webp"). Rendered as a figure with a caption and a source credit.
+{% endcomment %}
+{% if image.src %}
+  <figure class="cy-photo">
+    <img class="cy-photo__img" src="{% static image.src %}" alt="{{ image.alt }}" loading="lazy" decoding="async">
+    {% if image.caption or image.credit %}
+      <figcaption class="cy-photo__cap">
+        {% if image.caption %}<span class="cy-photo__text">{{ image.caption }}</span>{% endif %}
+        {% if image.credit %}<span class="cy-photo__credit">{{ image.credit }}</span>{% endif %}
+      </figcaption>
+    {% endif %}
+  </figure>
+{% endif %}

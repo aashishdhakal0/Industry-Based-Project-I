@@ -160,7 +160,7 @@ def test_a_passing_submit_records_the_result_and_shows_the_pass_page(
     html = client_student.get(resp.url).content.decode()
     assert "100" in html
     assert "passed" in html.lower()
-    assert "+50 points" in html
+    assert "+200 points" in html
     # the next module is offered
     assert reverse("learn:module", args=[2]) in html
 
@@ -284,7 +284,8 @@ def test_dashboard_points_at_the_quiz_when_lessons_are_done_but_quiz_pending(
 ):
     finish_lessons(student, quiz.module)
     html = client_student.get(reverse("dashboard")).content.decode()
-    assert "Take the quiz" in html
+    assert "Ready when you are" in html                               # the quiz-state CTA
+    assert "quiz" in html.lower()
     assert reverse("learn:quiz", args=[quiz.module.order_index]) in html
 
 
