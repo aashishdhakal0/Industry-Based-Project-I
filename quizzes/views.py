@@ -6,9 +6,10 @@ and every lesson in it is done — learn first, then prove it. Grading and award
 live in services.py; these views are the HTTP shell around it.
 """
 
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.db.models import Prefetch
-from django.http import JsonResponse
+from django.http import Http404, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 
 from modules import gamification as g
@@ -201,6 +202,47 @@ def quiz_result(request, order_index):
             "reward": reward,
             "feedback": feedback,
             "next_module": next_module,
+            "active": "modules",
+        },
+    )
+
+
+@login_required
+def quiz_review(request, order_index):
+    """DEBUG-only preview of every question in a module's quiz, with the correct
+    answer and all explanations shown, for content review by the developer.
+
+    Returns 404 when DEBUG is off (production and the test suite), so it never
+    exists for real students. This is a read-only view and does not touch the
+    real quiz gate (_all_lessons_done), which stays enforced for actual attempts.
+    """
+    if not settings.DEBUG:
+        raise Http404("Quiz review is a development-only tool.")
+    module = _module(order_index)
+    if not g.is_module_unlocked(request.user, module):
+        return render(request, "modules/locked.html", {"module": module}, status=403)
+    quiz = _active_quiz(module)
+    questions = list(
+        quiz.questions.select_related("lesson_reference")
+        .prefetch_related(Prefetch("answers", queryset=Answer.objects.order_by("id")))
+        .order_by("lesson_reference__lesson_number", "ordering")
+    )
+    per_lesson = {}
+    for q in questions:
+        per_lesson.setdefault(
+            q.lesson_reference.lesson_number if q.lesson_reference else 0, []
+        ).append(q)
+    groups = [
+        {"lesson_number": n, "questions": qs} for n, qs in sorted(per_lesson.items())
+    ]
+    return render(
+        request,
+        "quizzes/quiz_review.html",
+        {
+            "module": module,
+            "quiz": quiz,
+            "groups": groups,
+            "total": len(questions),
             "active": "modules",
         },
     )

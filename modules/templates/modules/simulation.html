@@ -18,7 +18,7 @@
   <a class="cy-nav__link" href="{% url 'learn:module' module.order_index %}" style="display:inline-block; margin-bottom:1rem;">← {{ module.title }}</a>
 
   <span class="cy-eyebrow"><span class="cy-eyebrow__dot" aria-hidden="true"></span> Practise</span>
-  <h1 style="font-size: 1.85rem; margin: 0.75rem 0 0.5rem;">Spot the scam</h1>
+  <h1 style="font-size: 1.85rem; margin: 0.75rem 0 0.5rem;">Work the scenario</h1>
   <p class="cy-lede">{{ simulation.scenario_text }}</p>
 
   {{ simulation.decision_points|json_script:"cy-sim-data" }}

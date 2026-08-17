@@ -209,11 +209,18 @@
 })();
 
 
-/* The interactive simulation: a phishing inbox.
+/* The interactive simulation.
  *
  * Reads the scenario from the json_script block and builds the exercise into
- * #cy-sim. Judge each message safe or scam, see why, then a score is posted to
- * the server (which stores the SimulationResult and returns the reward).
+ * #cy-sim. Two kinds are supported:
+ *   - "scenes": a visual, scene-by-scene branching simulation (Modules 1 and 2).
+ *     Each scene has a backdrop illustration, a narrative, and choices; picking
+ *     one reveals its consequence, then a Continue advances to the next scene.
+ *   - "inbox": the older judge-each-message exercise (the Module 3 to 6
+ *     placeholders still use this).
+ * A score/total/path is posted to the server, which stores the SimulationResult
+ * and returns the reward. All markup is built here from our own origin script,
+ * so it stays under script-src 'self' with no inline handlers (CSP-safe).
  */
 (function () {
   "use strict";
@@ -228,120 +235,229 @@
   } catch (e) {
     return;
   }
-  var items = (scenario && scenario.items) || [];
-  if (!items.length) return;
 
-  var path = [];
-  var judged = 0;
-  var score = 0;
-
-  function icon(id) {
-    return '<svg class="cy-i" aria-hidden="true"><use href="#' + id + '"/></svg>';
+  function el(tag, cls, text) {
+    var n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (text != null) n.textContent = text;
+    return n;
   }
-
-  function makeCard(item) {
-    var card = document.createElement("div");
-    card.className = "cy-sim-mail";
-    card.innerHTML =
-      '<div class="cy-sim-mail__head">' +
-      '<span class="cy-sim-mail__from">' + escapeHtml(item.from) + "</span>" +
-      "</div>" +
-      '<div class="cy-sim-mail__subject">' + escapeHtml(item.subject) + "</div>" +
-      '<p class="cy-sim-mail__preview">' + escapeHtml(item.preview) + "</p>" +
-      '<div class="cy-sim-mail__actions">' +
-      '<button type="button" class="cy-btn cy-btn--ghost" data-choice="safe">This is safe</button>' +
-      '<button type="button" class="cy-btn cy-btn--ghost" data-choice="scam">This is a scam</button>' +
-      "</div>" +
-      '<div class="cy-sim-mail__verdict" hidden></div>';
-
-    var verdict = card.querySelector(".cy-sim-mail__verdict");
-    var actions = card.querySelector(".cy-sim-mail__actions");
-
-    actions.querySelectorAll("button").forEach(function (btn) {
-      btn.addEventListener("click", function () {
-        var said = btn.getAttribute("data-choice");
-        var saidScam = said === "scam";
-        var correct = saidScam === !!item.scam;
-        if (correct) score++;
-        judged++;
-        path.push({ id: item.id, said: said, correct: correct });
-
-        actions.querySelectorAll("button").forEach(function (b) {
-          b.disabled = true;
-        });
-        btn.classList.add("is-chosen");
-
-        card.classList.add(correct ? "is-correct" : "is-wrong");
-        var tells = (item.tells || [])
-          .map(function (t) {
-            return "<li>" + escapeHtml(t) + "</li>";
-          })
-          .join("");
-        verdict.innerHTML =
-          '<div class="cy-sim-mail__result">' +
-          icon(correct ? "i-check-circle" : "i-close") +
-          "<span>" +
-          (correct ? "Correct — " : "Not quite — ") +
-          (item.scam ? "this one is a scam." : "this one is safe.") +
-          "</span></div>" +
-          (tells ? "<ul>" + tells + "</ul>" : "");
-        verdict.hidden = false;
-
-        if (judged === items.length) showFinish();
-      });
-    });
-
-    return card;
+  function iconEl(id) {
+    var s = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    s.setAttribute("class", "cy-i");
+    s.setAttribute("aria-hidden", "true");
+    var u = document.createElementNS("http://www.w3.org/2000/svg", "use");
+    u.setAttribute("href", "#" + id);
+    s.appendChild(u);
+    return s;
   }
-
-  function showFinish() {
-    var finish = document.createElement("div");
-    finish.className = "cy-sim-finish";
-    finish.innerHTML =
-      '<p class="cy-sim-finish__score">You spotted <strong>' +
-      score +
-      " of " +
-      items.length +
-      "</strong> correctly.</p>" +
-      '<button type="button" class="cy-btn cy-btn--primary" id="cy-sim-finish-btn">Finish</button>';
-    root.appendChild(finish);
-
-    document.getElementById("cy-sim-finish-btn").addEventListener("click", function () {
-      var btn = this;
-      btn.disabled = true;
-      fetch(root.getAttribute("data-complete-url"), {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-CSRFToken": root.getAttribute("data-csrf"),
-        },
-        body: JSON.stringify({ score: score, total: items.length, path: path }),
-      })
-        .then(function (r) {
-          return r.json();
-        })
-        .then(function () {
-          window.location.href = root.getAttribute("data-module-url");
-        })
-        .catch(function () {
-          window.location.href = root.getAttribute("data-module-url");
-        });
-    });
-  }
-
   function escapeHtml(s) {
     var d = document.createElement("div");
     d.textContent = s == null ? "" : String(s);
     return d.innerHTML;
   }
+  function postResult(score, total, path) {
+    fetch(root.getAttribute("data-complete-url"), {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": root.getAttribute("data-csrf"),
+      },
+      body: JSON.stringify({ score: score, total: total, path: path }),
+    })
+      .then(function (r) { return r.json(); })
+      .then(function () { window.location.href = root.getAttribute("data-module-url"); })
+      .catch(function () { window.location.href = root.getAttribute("data-module-url"); });
+  }
 
-  var list = document.createElement("div");
-  list.className = "cy-sim-list";
-  items.forEach(function (item) {
-    list.appendChild(makeCard(item));
-  });
-  root.innerHTML = "";
-  root.appendChild(list);
+  // The glyph shown on each scene's "screen", so it reads at a glance.
+  var BACKDROP_ICON = {
+    email: "i-mail", attach: "i-book", ransom: "i-lock", win: "i-award",
+    desk: "i-mail", phone: "i-target", wifi: "i-eye", inbox: "i-mail",
+    leak: "i-eye", loss: "i-flame",
+  };
+
+  // ---------------------------------------------------------- scenes -------
+  function runScenes(scenario) {
+    var scenes = scenario.scenes || {};
+    var start = scenario.start;
+    if (!start || !scenes[start]) return;
+
+    // How many decision scenes exist, for the progress stepper and the score.
+    var decisionIds = Object.keys(scenes).filter(function (k) {
+      return (scenes[k].choices || []).length > 0;
+    });
+    var total = decisionIds.length;
+    var score = 0, step = 0, path = [], current = null;
+
+    var stage = el("div", "cy-sc");
+    root.innerHTML = "";
+    root.appendChild(stage);
+
+    function render(id) {
+      var sc = scenes[id];
+      if (!sc) return;
+      current = id;
+      var isDecision = (sc.choices || []).length > 0;
+      if (isDecision) step += 1;
+      stage.innerHTML = "";
+
+      if (total) {
+        var prog = el("div", "cy-sc__prog");
+        for (var i = 1; i <= total; i++) {
+          var cls = "cy-sc__dot" + (i < step ? " is-done" : i === step ? " is-current" : "");
+          prog.appendChild(el("span", cls));
+        }
+        stage.appendChild(prog);
+      }
+
+      // The scene uses a UNIQUE class namespace (cy-scn), NOT cy-scene, which is
+      // the landing-page hero animation and would stack these children into one
+      // overlapping grid cell.
+      var scene = el("div", "cy-scn cy-scn--" + (sc.backdrop || "email"));
+      var art = el("div", "cy-scn__art");
+      art.setAttribute("aria-hidden", "true");
+      // A composed illustration: a small device/window mock with the glyph on its
+      // "screen", so each scene reads as a backdrop rather than a floating icon.
+      var screen = el("div", "cy-scn__screen");
+      var bar = el("div", "cy-scn__bar");
+      bar.appendChild(el("span", "cy-scn__dots"));
+      screen.appendChild(bar);
+      var glass = el("div", "cy-scn__glass");
+      var emblem = iconEl(BACKDROP_ICON[sc.backdrop] || "i-shield");
+      emblem.setAttribute("class", "cy-i cy-scn__emblem");
+      glass.appendChild(emblem);
+      screen.appendChild(glass);
+      art.appendChild(screen);
+      scene.appendChild(art);
+      var body = el("div", "cy-scn__body");
+      if (isDecision) body.appendChild(el("span", "cy-scn__step", "Scene " + step + " of " + total));
+      if (sc.title) body.appendChild(el("h2", "cy-scn__title", sc.title));
+      if (sc.narrative) body.appendChild(el("p", "cy-scn__narrative", sc.narrative));
+      scene.appendChild(body);
+      stage.appendChild(scene);
+
+      if (!isDecision) {
+        var band = score === total ? "good" : score >= Math.ceil(total / 2) ? "ok" : "bad";
+        var outcome = el("div", "cy-sc__outcome cy-sc__outcome--" + band);
+        outcome.appendChild(iconEl(band === "good" ? "i-award" : band === "ok" ? "i-check-circle" : "i-target"));
+        outcome.appendChild(el("p", "cy-sc__score", "You made the sound call on " + score + " of " + total + "."));
+        var done = el("button", "cy-btn cy-btn--primary cy-btn--lg", "Back to the module");
+        done.type = "button";
+        done.addEventListener("click", function () { done.disabled = true; postResult(score, total, path); });
+        outcome.appendChild(done);
+        stage.appendChild(outcome);
+        return;
+      }
+
+      var choices = el("div", "cy-sc__choices");
+      sc.choices.forEach(function (ch) {
+        var b = el("button", "cy-sc__choice", ch.label);
+        b.type = "button";
+        b.addEventListener("click", function () { choose(sc, ch, choices, b); });
+        choices.appendChild(b);
+      });
+      stage.appendChild(choices);
+    }
+
+    function choose(sc, ch, wrap, btn) {
+      Array.prototype.forEach.call(wrap.children, function (b) { b.disabled = true; });
+      btn.classList.add("is-chosen", "is-" + ch.outcome);
+      if (ch.outcome === "good") score += 1;
+      path.push({ scene: current, outcome: ch.outcome });
+
+      var cons = el("div", "cy-sc__consequence cy-sc__consequence--" + ch.outcome);
+      var head = el("div", "cy-sc__consequence-head");
+      head.appendChild(iconEl(ch.outcome === "good" ? "i-check-circle" : ch.outcome === "bad" ? "i-close" : "i-star"));
+      head.appendChild(el("span", "cy-sc__consequence-label",
+        ch.outcome === "good" ? "Sound call" : ch.outcome === "bad" ? "That backfires" : "It depends"));
+      cons.appendChild(head);
+      cons.appendChild(el("p", "cy-sc__consequence-text", ch.consequence || ""));
+      var next = el("button", "cy-btn cy-btn--primary cy-sc__next",
+        scenes[ch.to] && !(scenes[ch.to].choices || []).length ? "See how it went" : "Continue");
+      next.type = "button";
+      next.addEventListener("click", function () { render(ch.to); });
+      cons.appendChild(next);
+      stage.appendChild(cons);
+    }
+
+    render(start);
+  }
+
+  // ---------------------------------------------------------- inbox --------
+  function runInbox(scenario) {
+    var items = (scenario && scenario.items) || [];
+    if (!items.length) return;
+    var path = [], judged = 0, score = 0;
+
+    function makeCard(item) {
+      var card = document.createElement("div");
+      card.className = "cy-sim-mail";
+      card.innerHTML =
+        '<div class="cy-sim-mail__head">' +
+        '<span class="cy-sim-mail__from">' + escapeHtml(item.from) + "</span>" +
+        "</div>" +
+        '<div class="cy-sim-mail__subject">' + escapeHtml(item.subject) + "</div>" +
+        '<p class="cy-sim-mail__preview">' + escapeHtml(item.preview) + "</p>" +
+        '<div class="cy-sim-mail__actions">' +
+        '<button type="button" class="cy-btn cy-btn--ghost" data-choice="safe">This is safe</button>' +
+        '<button type="button" class="cy-btn cy-btn--ghost" data-choice="scam">This is a scam</button>' +
+        "</div>" +
+        '<div class="cy-sim-mail__verdict" hidden></div>';
+
+      var verdict = card.querySelector(".cy-sim-mail__verdict");
+      var actions = card.querySelector(".cy-sim-mail__actions");
+
+      actions.querySelectorAll("button").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          var said = btn.getAttribute("data-choice");
+          var correct = (said === "scam") === !!item.scam;
+          if (correct) score++;
+          judged++;
+          path.push({ id: item.id, said: said, correct: correct });
+          actions.querySelectorAll("button").forEach(function (b) { b.disabled = true; });
+          btn.classList.add("is-chosen");
+          card.classList.add(correct ? "is-correct" : "is-wrong");
+          var tells = (item.tells || []).map(function (t) { return "<li>" + escapeHtml(t) + "</li>"; }).join("");
+          verdict.innerHTML =
+            '<div class="cy-sim-mail__result">' +
+            '<svg class="cy-i" aria-hidden="true"><use href="#' + (correct ? "i-check-circle" : "i-close") + '"/></svg>' +
+            "<span>" + (correct ? "Correct — " : "Not quite — ") +
+            (item.scam ? "this one is a scam." : "this one is safe.") + "</span></div>" +
+            (tells ? "<ul>" + tells + "</ul>" : "");
+          verdict.hidden = false;
+          if (judged === items.length) showFinish();
+        });
+      });
+      return card;
+    }
+
+    function showFinish() {
+      var finish = document.createElement("div");
+      finish.className = "cy-sim-finish";
+      finish.innerHTML =
+        '<p class="cy-sim-finish__score">You spotted <strong>' + score + " of " + items.length +
+        "</strong> correctly.</p>" +
+        '<button type="button" class="cy-btn cy-btn--primary" id="cy-sim-finish-btn">Finish</button>';
+      root.appendChild(finish);
+      document.getElementById("cy-sim-finish-btn").addEventListener("click", function () {
+        this.disabled = true;
+        postResult(score, items.length, path);
+      });
+    }
+
+    var list = document.createElement("div");
+    list.className = "cy-sim-list";
+    items.forEach(function (item) { list.appendChild(makeCard(item)); });
+    root.innerHTML = "";
+    root.appendChild(list);
+  }
+
+  if (scenario && scenario.kind === "scenes") {
+    runScenes(scenario);
+  } else {
+    runInbox(scenario);
+  }
 })();
 
 

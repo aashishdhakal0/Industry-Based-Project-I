@@ -10,15 +10,23 @@ the learner goes deeper rather than wider:
             (ransomware across a whole business, the real Australian breaches
             Optus and Medibank, and how to recognise and react calmly)
 
-Same shape and standard as Module 1 (see modules/content/module_one.py and
-docs/module-authoring.md). Every lesson is a scrollable room of five PANELS in
-the house pattern:
+Same standard as Module 1, but HANDS-ON throughout: every panel is a practical
+exercise, not reading-then-MCQ. Each lesson is a scrollable room of five PANELS,
+and the teaching happens THROUGH the interaction (per-item feedback), not before
+it. Task 3 stays a picture-question CHECK; the rest are drills:
 
-  1 Core content        CHECK    reading + callout + a mid-panel and end check
-  2 Real-world scenario RESPOND  a workplace narrative with a decision to make
-  3 Picture-question    CHECK    a realistic mock visual, read the tell from it
-  4 Question set        QUIZSET  mixed mcq / true-false / fill / match
-  5 Applied wrap-up     CHECK    one applied situation to prove it landed
+  Lesson 1 (malware, and how it gets in)
+    1 Learn by doing   SORT      sort real behaviours to their malware type
+    2 Decision drill   BRANCH    a connected "what do you do next" scenario
+    3 Picture-question CHECK     read the fake-update pop-up (unchanged)
+    4 Simulated inbox  MAILSORT  triage a mixed inbox, genuine vs malicious
+    5 Tabletop         BRANCH    a mini-incident, 2 to 3 connected decisions
+  Lesson 2 (ransomware, breaches, reacting)
+    1 Learn by doing   CLASSIFY  diagnose each scenario: ransomware/breach/glitch
+    2 Decision drill   BRANCH    a ransom-note-on-screen scenario
+    3 Picture-question CHECK     read the ransom screen (unchanged)
+    4 Order the steps  SEQUENCE  put the incident-response steps in order
+    5 Tabletop         BRANCH    a breach mini-incident to resolve
 
 Points sum to 10 per lesson (2 each) and bank at lesson end. Voice: warm,
 confident, human, plain Australian English. No em-dashes, no emoji, no filler.
@@ -28,7 +36,13 @@ factual scenarios for teaching, framed evenly and without blame.
 Panel fields: key, kind, points, title, optional `diagram`, `body` (rich HTML,
 may include a `<div class="cy-callout">`), optional `inline_check`
 {question, hint, options}, optional `body2`, then either a check
-(question/hint/options) or an activity (`payload`). Check option tuples are
+(question/hint/options) or an activity (`payload`). Activity payload contracts
+(mirroring static/js/activities.js): SORT {prompt, buckets:[{id,label}],
+items:[{text,bucket,why}]}; CLASSIFY {prompt, categories:[{id,label}],
+events:[{text,category,why}]}; BRANCH {prompt, start, nodes:{id:{text,
+choices:[{label,outcome,feedback,to}]}}} (an ending node has no choices);
+SEQUENCE {prompt, steps:[{label,detail,order}]}; MAILSORT {prompt,
+emails:[{from,subject,preview,phish,why}]}. Check option tuples are
 (text, is_correct, explanation).
 """
 
@@ -42,110 +56,114 @@ LESSONS = [
         "tasks": [
             {
                 "key": "malware-family",
-                "kind": "check",
+                "kind": "sort",
                 "points": 2,
-                "title": "The malware family, member by member",
+                "title": "Sort the behaviour to its malware type",
                 "diagram": "malware-family",
-                "body": "<p><strong>Malware</strong> simply means malicious "
-                "software: any program built to do harm. People often say virus "
-                "for all of it, but a virus is only one member of a whole "
-                "family, and each member behaves differently. Knowing them apart "
-                "matters, because what stops one does little against another.</p>"
-                "<p>A <strong>virus</strong> hides inside a file and needs a "
-                "person to open it before it can spread. A <strong>worm</strong> "
-                "is the self-spreading one: it copies itself from machine to "
-                "machine across a network with no help at all, which is why it "
-                "can move so fast. A <strong>trojan</strong> is disguised as "
-                "something you want, a handy tool or a free download, so you "
-                "install it yourself. <strong>Spyware</strong> hides and quietly "
-                "records what you do, like the passwords you type. And "
-                "<strong>ransomware</strong>, which the next lesson covers in "
-                "full, locks your files and demands payment.</p>"
-                "<div class=\"cy-callout\">One family, very different habits. A "
-                "worm spreads itself; a virus waits for a click; a trojan wears "
-                "a disguise; spyware stays hidden. The defence changes with the "
-                "member.</div>",
-                "inline_check": {
-                    "question": "Which member spreads across a network by itself, with no person needed?",
-                    "hint": "Think about which one does not wait for a click.",
-                    "options": [
-                        ("A worm", True,
-                         "Yes. A worm copies itself from machine to machine on its own, which is why it can reach a whole network so quickly."),
-                        ("A virus", False,
-                         "A virus needs a person to open the infected file first. The self-spreading one is the worm."),
-                        ("A trojan", False,
-                         "A trojan waits for you to install it, fooled by its disguise. The self-spreader is the worm."),
-                        ("Spyware", False,
-                         "Spyware hides and watches rather than spreading itself. The self-spreader is the worm."),
+                "body": "<p><strong>Malware</strong> means malicious software: any "
+                "program built to do harm. People say virus for all of it, but a "
+                "virus is only one member of a whole family, and each member "
+                "behaves differently. Knowing them apart matters, because what "
+                "stops one does little against another. The fastest way to learn "
+                "the family is to sort real behaviours to the member that fits.</p>"
+                "<div class=\"cy-callout\">Read each behaviour, then tap it and tap "
+                "the malware type it belongs to. The tell is in HOW it behaves: "
+                "does it spread itself, wait for a click, wear a disguise, hide and "
+                "watch, or lock and demand?</div>",
+                "payload": {
+                    "prompt": "Tap a behaviour, then tap the malware type it belongs to. Sort all six to finish.",
+                    "buckets": [
+                        {"id": "virus", "label": "Virus"},
+                        {"id": "worm", "label": "Worm"},
+                        {"id": "trojan", "label": "Trojan"},
+                        {"id": "spyware", "label": "Spyware"},
+                        {"id": "ransomware", "label": "Ransomware"},
+                    ],
+                    "items": [
+                        {"text": "Hides inside a file and only spreads when a person opens it", "bucket": "virus",
+                         "why": "That is a virus. It needs a human to open the infected file before it can do anything or spread."},
+                        {"text": "Copies itself from machine to machine across the network, no clicks needed", "bucket": "worm",
+                         "why": "That is a worm. Spreading by itself with no human action is exactly what lets it move so fast."},
+                        {"text": "Disguised as a free copy of paid software you install yourself", "bucket": "trojan",
+                         "why": "That is a trojan. You let it in because it looks legitimate, and then it does its real work."},
+                        {"text": "Quietly records the passwords you type and sends them to an attacker", "bucket": "spyware",
+                         "why": "That is spyware. It stays hidden and steals information rather than announcing itself."},
+                        {"text": "Locks every file and shows a demand for payment to unlock them", "bucket": "ransomware",
+                         "why": "That is ransomware. It makes itself very much known, holding your files hostage for money."},
+                        {"text": "Spreads to every USB stick and shared drive on its own", "bucket": "worm",
+                         "why": "Still a worm. Self-copying to other drives and machines with no help is the worm's signature."},
                     ],
                 },
-                "question": "What is the defining trait of a trojan?",
-                "hint": "Its power is a disguise, not speed or stealth.",
-                "options": [
-                    ("It looks like something you want, so you install or run it yourself", True,
-                     "Right. A trojan gets in because it appears legitimate, a free tool or a cracked program, and you let it in. Then it does its real work."),
-                    ("It spreads across the network on its own", False,
-                     "That is a worm. A trojan relies on you choosing to run it, fooled by the disguise."),
-                    ("It floods a website with traffic", False,
-                     "That is a denial-of-service attack. A trojan is disguised software you run yourself."),
-                    ("It is harmless once installed", False,
-                     "A trojan is very much harmful. The disguise is exactly what makes it dangerous."),
-                ],
             },
             {
                 "key": "delivery-respond",
-                "kind": "respond",
+                "kind": "branch",
                 "points": 2,
-                "title": "How it tries to get in",
-                "body": "<p>Malware almost never appears on its own. Something "
-                "has to let it in, and that something is usually a person acting "
-                "in a busy moment. The good news is that the same few routes come "
-                "up again and again, so a trained eye closes most of them. Three "
-                "of those routes land in front of you this week. For each, choose "
-                "the safer move and see how it plays out.</p>"
-                "<div class=\"cy-callout\"><strong>The habit:</strong> before you "
-                "open, download or run anything you did not expect, pause and "
-                "ask where it really came from.</div>",
-                "payload": {
-                    "prompt": "Choose the safer move for each. Handle all three to finish.",
-                    "situations": [
-                        {
-                            "id": "popup",
-                            "text": "On a streaming site, a pop-up warns your video player is out of date and you must download an update now to keep watching.",
-                            "options": [
-                                {"text": "Close the pop-up and update software only from the maker or an app store", "outcome": "good",
-                                 "feedback": "Right. Real updates come from the software itself or an official store, never from a scary pop-up on an unrelated website. This one is bait."},
-                                {"text": "Click Download Update so you do not lose the video", "outcome": "bad",
-                                 "feedback": "That download is the trap. A pop-up on a streaming site is a classic way to deliver a trojan."},
-                                {"text": "Pay the small fee it asks for to keep watching", "outcome": "bad",
-                                 "feedback": "Never pay or download from a pop-up like this. Close the tab and carry on."},
-                            ],
-                        },
-                        {
-                            "id": "macro",
-                            "text": "An unexpected invoice arrives by email. When you open it, the document asks you to Enable content or Enable macros to see it properly.",
-                            "options": [
-                                {"text": "Do not enable it, and check with the sender through a number you already have", "outcome": "good",
-                                 "feedback": "Yes. Macros are little programs inside a document, and that Enable prompt is how attackers run malware. When unsure, do not enable it."},
-                                {"text": "Enable content so the invoice displays", "outcome": "bad",
-                                 "feedback": "Enabling macros can run hidden code that installs malware. A genuine invoice does not need you to switch that on."},
-                                {"text": "Forward it to a colleague to open instead", "outcome": "risky",
-                                 "feedback": "That just moves the risk to someone else. Do not enable it, and verify the invoice through a trusted contact."},
-                            ],
-                        },
-                        {
-                            "id": "usb",
-                            "text": "You find a USB stick in the car park with a sticker that reads Staff Bonuses 2026.",
-                            "options": [
-                                {"text": "Do not plug it in, and hand it to IT or your manager", "outcome": "good",
-                                 "feedback": "Yes. A tempting label on a dropped USB is classic bait. Plugging it in can install malware in seconds."},
-                                {"text": "Plug it in to find out whose it is so you can return it", "outcome": "bad",
-                                 "feedback": "That is exactly what the attacker hopes for. The stick can infect your machine the moment it connects."},
-                                {"text": "Try it on a spare computer at reception", "outcome": "bad",
-                                 "feedback": "Same trap, different machine. Do not connect an unknown USB to any computer."},
-                            ],
-                        },
+                "title": "Decision drill: the call, then the car park",
+                "diagram": "download-trap",
+                "body": "<p>Malware almost never appears on its own. Someone has to "
+                "let it in, usually a person tricked in a busy moment. One of the "
+                "commonest tricks is the fake download above: a page dresses up an "
+                "advertisement as a big Download button, hoping you tap it instead "
+                "of the real link. Read the page first, then work through the "
+                "decision drill below, choosing your move and seeing the "
+                "consequence each time.</p>"
+                "<div class=\"cy-callout\"><strong>The habit to build:</strong> "
+                "before you act on anything unexpected, pause and ask where it "
+                "really came from. Verify first, share nothing, plug in nothing.</div>",
+                "inline_check": {
+                    "question": "Looking at the download page above, which is the real download, and how can you tell?",
+                    "hint": "One is an advertisement dressed up as a button. Which one names the actual file?",
+                    "options": [
+                        ("The small plain text link report_2026.pdf, because it names the actual file you asked for", True,
+                         "Right. The real download is the modest link that matches the file name. The giant green button is tagged Ad and Recommended, which is how ads disguise themselves as downloads."),
+                        ("The big green Download Now button, because it is the most obvious one", False,
+                         "That is the trap. Being big and green is exactly the disguise. It is tagged Ad, and tapping it downloads something you did not ask for."),
+                        ("Both are the same, so either is fine", False,
+                         "They are not the same. One is the file you wanted; the other is an advertisement that can deliver malware. Use the plain link."),
+                        ("Neither, you should never download anything", False,
+                         "Downloading the file you actually came for, from the real link, is fine. The skill is telling the real link from the ad."),
                     ],
+                },
+                "payload": {
+                    "prompt": "Read each moment, choose what you do, and see how it plays out.",
+                    "start": "call",
+                    "nodes": {
+                        "call": {
+                            "text": "It is a busy Tuesday. The phone rings. A calm voice says they are from IT support, there is an urgent problem with your account, and they just need your password to fix it before it locks.",
+                            "choices": [
+                                {"label": "Do not give it out. Hang up and call your real IT contact on a number you already have.", "outcome": "good",
+                                 "feedback": "Right. Real IT never needs your password. Verifying on a number you already trust shuts the trick down cold.", "to": "carpark"},
+                                {"label": "Read out your password so the urgent problem gets fixed.", "outcome": "bad",
+                                 "feedback": "That hands your account straight to an attacker. No genuine IT process ever asks you to read out your password.", "to": "call_bad"},
+                                {"label": "Give them a slightly different password, just to be safe.", "outcome": "bad",
+                                 "feedback": "Any password you share is a password you have lost. There is no safe version of handing one over.", "to": "call_bad"},
+                            ],
+                        },
+                        "call_bad": {
+                            "text": "Within the hour, logins from overseas appear on your account and colleagues receive odd emails 'from you'. The password was the only key the caller needed. The lesson: verify first, share nothing.",
+                            "choices": [],
+                        },
+                        "carpark": {
+                            "text": "Later that afternoon, you find a USB stick in the car park. The sticker reads Payroll 2026.",
+                            "choices": [
+                                {"label": "Do not plug it in. Hand it to IT or your manager.", "outcome": "good",
+                                 "feedback": "Yes. A tempting label on a dropped USB is bait, not a lost item. Handing it in is exactly right.", "to": "win"},
+                                {"label": "Plug it in to see whose it is so you can return it.", "outcome": "bad",
+                                 "feedback": "That is what the attacker is counting on. It can infect your machine the moment it connects.", "to": "carpark_bad"},
+                                {"label": "Take it home and check it on your own laptop.", "outcome": "bad",
+                                 "feedback": "Same trap, different computer. Do not connect an unknown USB to any machine.", "to": "carpark_bad"},
+                            ],
+                        },
+                        "carpark_bad": {
+                            "text": "The moment it connects, it quietly installs malware in the background. A dropped USB with a tempting label is a classic delivery trick. Hand unknown USBs to IT, and never plug them in.",
+                            "choices": [],
+                        },
+                        "win": {
+                            "text": "Two classic tricks, both stopped: you verified the caller and refused the bait. That instinct, pause and check before you act, is what keeps malware out in the real world.",
+                            "choices": [],
+                        },
+                    },
                 },
             },
             {
@@ -178,74 +196,122 @@ LESSONS = [
             },
             {
                 "key": "malware-quizset",
-                "kind": "quizset",
+                "kind": "mailsort",
                 "points": 2,
-                "title": "Name the malware, name the route",
-                "body": "<p>Four quick questions to lock in the family and the "
-                "ways it travels. Each one leans on a single clear idea from this "
-                "lesson, so read carefully and pick the tell. Answer all four to "
-                "finish, and a wrong answer simply lets you try again.</p>",
+                "title": "Triage the inbox",
+                "diagram": "attachment-exe",
+                "body": "<p>Before you triage the whole inbox, look closely at the "
+                "one email above and its attachment. The file name hides the real "
+                "trick. Answer the quick check on it, then sort the mixed morning "
+                "inbox below: some messages are genuine, and some are carrying "
+                "malware or trying to trick you into installing it. Read the "
+                "sender, the subject and the preview, then mark each Genuine or "
+                "Phishing. The verdict and the tell are revealed as you go.</p>"
+                "<div class=\"cy-callout\">The tells to weigh: is it expected, who "
+                "is it really from, is it rushing you, and is it pushing an "
+                "attachment, a link or an Enable content prompt?</div>",
+                "inline_check": {
+                    "question": "Look at the attachment on the email above. What is wrong with it?",
+                    "hint": "Read the file name to the very end. How many extensions does it have?",
+                    "options": [
+                        ("It has a double extension, .pdf.exe, so it is actually a program pretending to be a PDF", True,
+                         "Right. The real type is the last extension: .exe means a program that runs code. The .pdf in the middle is padding to make it look like a harmless document. Do not open it."),
+                        ("Nothing, it is a normal PDF invoice", False,
+                         "Look again at the very end of the name: .pdf.exe. The final .exe makes it a program, not a PDF. That is the disguise."),
+                        ("The file is too small to be real", False,
+                         "Size is not the tell. The problem is the double extension: .pdf.exe is a program dressed up as a document."),
+                        ("It should have been sent as a link instead", False,
+                         "The delivery method is not the issue. The issue is that .pdf.exe is an executable disguised as a PDF."),
+                    ],
+                },
                 "payload": {
-                    "prompt": "Answer all four to complete the task. A wrong answer just lets you try again.",
-                    "questions": [
-                        {"type": "mcq",
-                         "q": "A program spreads from computer to computer across the office network on its own, with nobody opening anything. What is it?",
-                         "hint": "Self-spreading, no human needed.",
-                         "options": [
-                             ["A worm", True, "Yes. Spreading by itself across a network with no human action is the defining mark of a worm."],
-                             ["A virus", False, "A virus needs a person to open the infected file. This one spreads on its own, so it is a worm."],
-                             ["A trojan", False, "A trojan waits to be installed by you. The self-spreader is the worm."],
-                             ["Spyware", False, "Spyware hides and watches. The self-spreading one is the worm."]
-                         ]},
-                        {"type": "truefalse",
-                         "q": "True or false: keeping your operating system and apps updated helps stop malware, because updates patch the known holes it uses to get in.",
-                         "answer": True,
-                         "hint": "What does an update actually fix?",
-                         "why": "True. Many attacks rely on flaws the maker has already fixed. Installing updates closes those doors before malware can use them."},
-                        {"type": "fill",
-                         "q": "The umbrella word for all harmful software, of which a virus is just one member, is ___ . (one word)",
-                         "answer": "malware",
-                         "accept": ["malicious software"],
-                         "hint": "Malicious plus software, shortened.",
-                         "why": "Correct. Malware is the whole family: viruses, worms, trojans, spyware and ransomware are all members of it."},
-                        {"type": "match",
-                         "q": "Match each member of the family to what it does.",
-                         "hint": "One spreads itself, one hides, one disguises, one locks.",
-                         "why": "That is the family: a worm self-spreads, spyware hides and watches, a trojan wears a disguise, and ransomware locks your files.",
-                         "pairs": [
-                             ["Worm", "Spreads across a network by itself"],
-                             ["Spyware", "Hides and records what you type"],
-                             ["Trojan", "Disguised as something you want"],
-                             ["Ransomware", "Locks your files for payment"]
-                         ]}
-                    ]
+                    "prompt": "Mark each message Genuine or Phishing. Sort all five to finish.",
+                    "emails": [
+                        {"from": "IT Helpdesk <help@yourclinic.com.au>",
+                         "subject": "Planned maintenance this Saturday, 7am",
+                         "preview": "The email system will be briefly offline for updates. No action needed from you.",
+                         "phish": False,
+                         "why": "An expected notice from your real internal helpdesk, on your own domain, asking nothing of you."},
+                        {"from": "Accounts <billing@invoices-au-secure.net>",
+                         "subject": "OVERDUE invoice, open attached to avoid late fees",
+                         "preview": "Your payment is overdue. Open the attached Invoice.zip within 24 hours or fees apply.",
+                         "phish": True,
+                         "why": "An unexpected, urgent demand with a .zip attachment from a lookalike sender. Opening it can install malware."},
+                        {"from": "Microsoft 365 <no-reply@m365-mailcheck.com>",
+                         "subject": "Your mailbox is full, log in to keep access",
+                         "preview": "Verify your account through the link below or lose access within the hour.",
+                         "phish": True,
+                         "why": "A manufactured deadline pushing you to a login link. Reach the service the way you normally do, never through the link."},
+                        {"from": "Priya (Reception)",
+                         "subject": "Team lunch Friday, who is in?",
+                         "preview": "Booking a table at the cafe on the corner. Reply if you can make it.",
+                         "phish": False,
+                         "why": "A normal, expected message from a colleague you know, with no link, no attachment and no pressure."},
+                        {"from": "Payroll <hr@yourclinic-payroll.com>",
+                         "subject": "Update your bank details, enable macros to view",
+                         "preview": "Open the attached form and click Enable content to update where your pay goes.",
+                         "phish": True,
+                         "why": "The Enable macros trick from a lookalike payroll domain. Enabling content can run hidden malware."},
+                    ],
                 },
             },
             {
                 "key": "malware-applied",
-                "kind": "check",
+                "kind": "branch",
                 "points": 2,
-                "title": "Prove you have got it",
-                "body": "<p>One applied situation to finish. Read it carefully, "
-                "then choose the response that shows you understand both the "
-                "malware family and the routes it uses. There is one clean "
-                "answer, and the reasoning is what matters.</p>"
-                "<div class=\"cy-callout\">A staff member downloads a free copy "
-                "of an expensive design program from a site they found through a "
-                "search. It installs fine and even seems to work, but a week "
-                "later their saved passwords start being used from overseas.</div>",
-                "question": "What most likely happened, and what is the lesson?",
-                "hint": "A disguised free download that quietly steals: which members fit?",
-                "options": [
-                    ("The free program was a trojan carrying spyware, so downloads should come only from official sources", True,
-                     "Right. Cracked or free copies of paid software are a favourite hiding place for a trojan, often bundled with spyware that steals passwords. Install only from the maker or an official store."),
-                    ("A worm spread the moment the program opened, so nothing could be done", False,
-                     "A worm spreads by itself without being installed. Here a person chose to install a disguised download, which is a trojan, and something could absolutely have been done: use official sources."),
-                    ("It was a data breach at the design company", False,
-                     "The passwords leaked from this person's own machine after installing an unofficial download, not from the software maker being breached."),
-                    ("It was a denial-of-service attack", False,
-                     "A denial-of-service attack floods a service with traffic. It does not install a disguised program that steals your passwords."),
-                ],
+                "title": "Tabletop: a bad Monday morning",
+                "body": "<p>Now put it all together. This is a tabletop exercise, "
+                "the kind real teams run: a situation unfolds, and you make a few "
+                "connected decisions to steer it to a good outcome. There is no "
+                "reading first, you learn by handling it. Work through to the end "
+                "and see how your calls play out.</p>"
+                "<div class=\"cy-callout\">Everything you need is from this lesson: "
+                "spot the trick, do not feed it, and when someone has already been "
+                "caught, contain it and report it fast.</div>",
+                "payload": {
+                    "prompt": "Handle the morning as it unfolds. Make each call and see the consequence.",
+                    "start": "morning",
+                    "nodes": {
+                        "morning": {
+                            "text": "It is 9am. Three staff have each forwarded you the same email: a courier 'missed delivery' notice with a link to reschedule. None of them was expecting a parcel. What is your first move?",
+                            "choices": [
+                                {"label": "Warn everyone not to click it, and report it to whoever looks after IT.", "outcome": "good",
+                                 "feedback": "Right. A quick, calm warning plus a report stops it spreading while it is still small.", "to": "clicked"},
+                                {"label": "Delete your own copy and assume the others will sort themselves out.", "outcome": "bad",
+                                 "feedback": "Deleting your copy changes nothing for everyone else. Silence lets the trick keep working.", "to": "ignored_bad"},
+                                {"label": "Click the link yourself to see where it goes.", "outcome": "bad",
+                                 "feedback": "Probing a suspicious link just risks one more infected machine. Report it, do not test it.", "to": "clicked_self_bad"},
+                            ],
+                        },
+                        "ignored_bad": {
+                            "text": "By lunchtime two more staff have clicked the link and entered their logins on a fake page. A quick warning and a report would have stopped it. Speaking up early is the whole game.",
+                            "choices": [],
+                        },
+                        "clicked_self_bad": {
+                            "text": "The link loads a convincing fake page and a quiet background download. Testing a suspicious link yourself just adds one more infected machine to the problem. Report it, do not probe it.",
+                            "choices": [],
+                        },
+                        "clicked": {
+                            "text": "Good: staff are warned and IT is looped in. Then one colleague admits they already clicked the link and typed their password before your warning went out. What now?",
+                            "choices": [
+                                {"label": "Have them disconnect that machine, change the password, turn on two-factor, and report which account.", "outcome": "good",
+                                 "feedback": "Exactly. Contain the one machine, lock the account down, and report it so the right people can watch for misuse.", "to": "win"},
+                                {"label": "Tell them to keep quiet so nobody gets in trouble.", "outcome": "bad",
+                                 "feedback": "Staying quiet lets the attacker use that password freely. Early, blame-free reporting is what limits the damage.", "to": "quiet_bad"},
+                                {"label": "Tell them it is probably fine since the office looks normal.", "outcome": "bad",
+                                 "feedback": "A compromise is often invisible on your own screen while an attacker is already busy. Do not wait and see.", "to": "quiet_bad"},
+                            ],
+                        },
+                        "quiet_bad": {
+                            "text": "Overnight the stolen password is used, and odd emails 'from your colleague' go out to clients, spreading the trick further. Early, blame-free reporting would have contained it in minutes.",
+                            "choices": [],
+                        },
+                        "win": {
+                            "text": "Handled: warned early, reported fast, and contained the one click before it spread. That calm, contain-then-report response is exactly how a small business rides out a bad morning.",
+                            "choices": [],
+                        },
+                    },
+                },
             },
         ],
     },
@@ -258,9 +324,9 @@ LESSONS = [
         "tasks": [
             {
                 "key": "ransomware-and-breaches",
-                "kind": "check",
+                "kind": "classify",
                 "points": 2,
-                "title": "Ransomware, and the breaches that made the news",
+                "title": "Diagnose the trouble: ransomware, breach, or glitch",
                 "diagram": "data-breach",
                 "body": "<p>Two kinds of trouble can strike a whole organisation "
                 "at once, and they fail in opposite ways. <strong>Ransomware</strong> "
@@ -285,89 +351,128 @@ LESSONS = [
                 "stolen data, a stark reminder that once sensitive data is taken "
                 "there are no good options left.</p>"
                 "<div class=\"cy-callout\">Ransomware locks what you have; a "
-                "breach leaks what you hold. One is about getting your access "
-                "back, the other about the fact that private data is now out in "
-                "the world.</div>",
-                "inline_check": {
-                    "question": "Ransomware mainly attacks which of the three security pillars?",
-                    "hint": "The files are unchanged, you just cannot reach them.",
-                    "options": [
-                        ("Availability", True,
-                         "Yes. The files are still there and unchanged, you simply cannot get to them, so the pillar lost is availability."),
-                        ("Confidentiality", False,
-                         "Confidentiality is what a data breach attacks, by exposing private data. Classic ransomware locks files rather than publishing them."),
-                        ("Integrity", False,
-                         "Integrity is about data being secretly altered. Ransomware scrambles files wholesale and locks them, which is an availability hit."),
-                        ("None, ransomware is harmless", False,
-                         "It is among the most damaging attacks a business can face. The pillar it hits hardest is availability."),
+                "breach leaks what you hold; and plenty of everyday trouble is "
+                "just a glitch. Telling them apart is the whole skill. Read each "
+                "situation below and diagnose it.</div>",
+                "payload": {
+                    "prompt": "Read each situation and tap the kind of trouble it is. Diagnose all six to finish.",
+                    "categories": [
+                        {"id": "ransomware", "label": "Ransomware"},
+                        {"id": "breach", "label": "Data breach"},
+                        {"id": "glitch", "label": "Ordinary glitch"},
+                    ],
+                    "events": [
+                        {"text": "Every file on the shared drive is renamed with a .locked ending, and a note on screen demands Bitcoin to unlock them.",
+                         "category": "ransomware",
+                         "why": "Ransomware. Files locked in place plus a payment demand is its signature. Your data is still there, you just cannot reach it."},
+                        {"text": "A customer says the personal details they gave you have turned up for sale on a leak site.",
+                         "category": "breach",
+                         "why": "A data breach. Private information has been exposed to people who should not have it, a failure of confidentiality."},
+                        {"text": "The office laptop is running slowly. You check, and the hard drive is almost completely full.",
+                         "category": "glitch",
+                         "why": "An ordinary glitch. A full drive is a common, harmless cause of slowness, with an everyday fix. Not every problem is an attack."},
+                        {"text": "A supplier emails to say their systems were breached, and the login you saved with them may be exposed.",
+                         "category": "breach",
+                         "why": "A data breach, on their side. Your details are exposed, so change that password anywhere you reused it and turn on two-factor."},
+                        {"text": "The office printer keeps dropping off the network and needs a restart most mornings.",
+                         "category": "glitch",
+                         "why": "An ordinary glitch. Routine equipment trouble with a mundane cause, not a security incident."},
+                        {"text": "A staff PC is locked behind a red countdown screen demanding payment to release the files.",
+                         "category": "ransomware",
+                         "why": "Ransomware. The lock plus the countdown pressure to pay is the tell. Disconnect it, do not pay, report it."},
                     ],
                 },
-                "question": "What is the key difference between ransomware and a data breach?",
-                "hint": "One is about reaching your files; the other about who can see them.",
-                "options": [
-                    ("Ransomware locks your files (availability); a breach exposes private data to the wrong people (confidentiality)", True,
-                     "Right. Ransomware stops you reaching files that are still yours; a breach means private information has leaked out and cannot be recalled. Different failures, different responses."),
-                    ("They are two words for exactly the same attack", False,
-                     "No. They fail in opposite ways: ransomware locks access, a breach exposes data. Telling them apart shapes how you respond."),
-                    ("Both simply make the computer run slowly", False,
-                     "Neither is about speed. Ransomware locks your files; a breach leaks your data."),
-                    ("A breach locks files and ransomware exposes data", False,
-                     "That is backwards. Ransomware locks files; a breach exposes data."),
-                ],
             },
             {
                 "key": "react-respond",
-                "kind": "respond",
+                "kind": "branch",
                 "points": 2,
-                "title": "The morning it goes wrong",
-                "body": "<p>When something big hits, your first move decides how "
-                "far it spreads and how well you recover. None of these needs you "
-                "to be technical. Each needs a calm head and the right instinct. "
-                "Three things go wrong across one rough week. For each, choose "
-                "your first move and see how it plays out.</p>"
+                "title": "Decision drill: a ransom note takes over your screen",
+                "diagram": "locked-files",
+                "body": "<p>Reading about ransomware is one thing. The test is what "
+                "you do in the moment it happens. First, read the file explorer "
+                "above and work out what it is telling you. Then run the decision "
+                "drill below: the situation unfolds, you choose your move, and you "
+                "see the consequence before the next decision. Your first move "
+                "decides how far it spreads and whether you recover cleanly.</p>"
                 "<div class=\"cy-callout\"><strong>The rule:</strong> contain it, "
-                "then report it. Fast and calm beats clever, and reporting early "
-                "is never the thing that gets you in trouble.</div>",
-                "payload": {
-                    "prompt": "Choose the soundest first move for each. Handle all three to finish.",
-                    "situations": [
-                        {
-                            "id": "ransom",
-                            "text": "Monday. Files on your PC are being renamed one after another, and a red screen appears demanding payment to unlock them.",
-                            "options": [
-                                {"text": "Disconnect the computer from the network, then report it straight away", "outcome": "good",
-                                 "feedback": "Exactly. Getting it off the network first stops the ransomware reaching shared drives and other machines. Then report it so the right people act."},
-                                {"text": "Pay the ransom quickly to get the files back", "outcome": "bad",
-                                 "feedback": "Paying is unreliable, funds crime, and marks you as a payer. Contain it first, then recover from backup."},
-                                {"text": "Keep working and hope it stops on its own", "outcome": "bad",
-                                 "feedback": "Every second it stays connected, more files and machines are locked. Disconnect first."},
-                            ],
-                        },
-                        {
-                            "id": "breach-notice",
-                            "text": "Wednesday. A company you have an account with emails to say your details were in a data breach.",
-                            "options": [
-                                {"text": "Change that password, and anywhere you reused it, and turn on two-factor", "outcome": "good",
-                                 "feedback": "Yes. You cannot recall leaked data, but you can lock down the accounts so it is far harder to misuse."},
-                                {"text": "Do nothing, since the data is already out there", "outcome": "bad",
-                                 "feedback": "There is plenty you can still do. Changing reused passwords and turning on two-factor sharply reduces the risk."},
-                                {"text": "Pay the fee the follow-up text message asks for to secure your account", "outcome": "bad",
-                                 "feedback": "That follow-up is the scam. Messages quoting your breached details are usually the next attack, not a fix."},
-                            ],
-                        },
-                        {
-                            "id": "strange-login",
-                            "text": "Friday. Colleagues mention they have had odd emails from you that you never sent, and you get an alert about a login from overseas.",
-                            "options": [
-                                {"text": "Change your password, turn on two-factor, and report it", "outcome": "good",
-                                 "feedback": "Right. Strange emails from you plus an overseas login strongly suggest your account is compromised. Lock it down and report it."},
-                                {"text": "Ignore it, since your own screen looks completely normal", "outcome": "bad",
-                                 "feedback": "A compromise is often invisible on your own screen while obvious to the people getting messages from you. Act on it."},
-                                {"text": "Reply to the odd emails asking recipients to disregard them", "outcome": "risky",
-                                 "feedback": "Warning people is worth doing, but not instead of the real fix: change the password, turn on two-factor, and report it."},
-                            ],
-                        },
+                "report it, and restore from backup. Never lead with the ransom.</div>",
+                "inline_check": {
+                    "question": "Reading the file explorer above, what has happened here?",
+                    "hint": "Look at what has been added to the end of every file name, and the extra file left behind.",
+                    "options": [
+                        ("Ransomware has encrypted the files: every one is renamed with a .locked ending and a read-me demands payment", True,
+                         "Right. A whole folder renamed with the same new ending, plus a READ_ME_TO_UNLOCK file, is the classic ransomware signature. The files are locked in place, not deleted."),
+                        ("The files were simply deleted", False,
+                         "They are not deleted, they are still listed, just renamed with a .locked ending. That points to ransomware encryption, not deletion."),
+                        ("The hard drive is full, so the files were renamed", False,
+                         "A full drive does not rename files or leave a ransom read-me. This pattern is ransomware."),
+                        ("It is a normal Windows update in progress", False,
+                         "Updates do not rename all your documents with a .locked ending or leave an unlock demand. This is ransomware."),
                     ],
+                },
+                "payload": {
+                    "prompt": "The incident unfolds. Make each call and see how it plays out.",
+                    "start": "note",
+                    "nodes": {
+                        "note": {
+                            "text": "You are working when your files start renaming one after another, and a red screen takes over: your files are encrypted, pay 0.05 Bitcoin within 72 hours. What is your first move?",
+                            "choices": [
+                                {"label": "Disconnect the machine from the network straight away.", "outcome": "good",
+                                 "feedback": "Exactly. Getting it off the network first stops the ransomware reaching shared drives and other machines.", "to": "contain"},
+                                {"label": "Pay the 0.05 Bitcoin quickly so you can get back to work.", "outcome": "bad",
+                                 "feedback": "Paying is unreliable, funds crime, and does nothing about the open door. Never lead with the ransom.", "to": "pay_bad"},
+                                {"label": "Keep working on what you can and hope it stops.", "outcome": "bad",
+                                 "feedback": "Every second it stays connected, more files and machines are locked. The first move is to disconnect.", "to": "work_bad"},
+                            ],
+                        },
+                        "pay_bad": {
+                            "text": "You pay, but the files stay locked and the door it came through is still open. Payment is unreliable, funds crime, and marks you as someone who pays. Contain first, never lead with the ransom.",
+                            "choices": [],
+                        },
+                        "work_bad": {
+                            "text": "While you carry on, the ransomware reaches the shared drive and two more machines. Every second connected is more damage. The first move is always to disconnect.",
+                            "choices": [],
+                        },
+                        "contain": {
+                            "text": "Good: the machine is off the network and the spread is stopped. The screen still demands payment. What next?",
+                            "choices": [
+                                {"label": "Report it to whoever looks after IT and leave the machine for them.", "outcome": "good",
+                                 "feedback": "Right. Reporting gets the right people checking every affected machine, not just the one in front of you.", "to": "restore"},
+                                {"label": "Delete the ransom note and quietly try to clean it up yourself.", "outcome": "bad",
+                                 "feedback": "Cleaning it alone can destroy evidence and miss other affected machines. Report it so the whole picture gets checked.", "to": "clean_bad"},
+                                {"label": "Pay after all, now that it is contained.", "outcome": "bad",
+                                 "feedback": "Even contained, paying is the wrong call. With the spread stopped, the answer is report, then restore from backup.", "to": "pay2_bad"},
+                            ],
+                        },
+                        "clean_bad": {
+                            "text": "Cleaning it alone destroys useful evidence and misses a second machine that was also hit. Report it so the right people can check the whole picture, not just the one screen.",
+                            "choices": [],
+                        },
+                        "pay2_bad": {
+                            "text": "Paying rewards the attacker and still leaves the cause unfixed. With the spread already stopped, the clean answer was to report it and restore from a tested backup.",
+                            "choices": [],
+                        },
+                        "restore": {
+                            "text": "Reported. IT confirms last night's backup is clean and tested. How do you get back to work?",
+                            "choices": [
+                                {"label": "Wipe the machine, then restore the files from the clean backup.", "outcome": "good",
+                                 "feedback": "That is the whole point of a backup: it takes away the attacker's leverage entirely. No payment needed.", "to": "win"},
+                                {"label": "Pay the ransom to save the hassle of restoring.", "outcome": "bad",
+                                 "feedback": "With a clean backup in hand, paying makes no sense at all. Restore, do not pay.", "to": "pay2_bad"},
+                                {"label": "Reconnect the infected machine to check if the files came back.", "outcome": "bad",
+                                 "feedback": "Reconnecting an infected machine risks spreading it again. Keep it isolated, wipe it, and restore from the clean backup.", "to": "reconnect_bad"},
+                            ],
+                        },
+                        "reconnect_bad": {
+                            "text": "Reconnecting the infected machine risks spreading the ransomware all over again. Keep it isolated, wipe it, and restore from the clean backup instead.",
+                            "choices": [],
+                        },
+                        "win": {
+                            "text": "Contained, reported, and restored from backup with nothing paid. That is exactly how a business beats ransomware: the backup, not the wallet, is what saves you.",
+                            "choices": [],
+                        },
+                    },
                 },
             },
             {
@@ -400,74 +505,114 @@ LESSONS = [
             },
             {
                 "key": "react-quizset",
-                "kind": "quizset",
+                "kind": "sequence",
                 "points": 2,
-                "title": "Recognise it, react to it",
-                "body": "<p>Four questions to lock in the real cases and the calm "
-                "response. Each one comes straight from this lesson, so think "
-                "about what actually failed and what the right first move is. "
-                "Answer all four to finish, and a wrong answer simply lets you "
-                "try again.</p>",
+                "title": "Put the response in order",
+                "body": "<p>Knowing the steps is not enough; the order is what "
+                "limits the damage. This is the real incident-response sequence a "
+                "small business follows when ransomware hits. The steps below are "
+                "shuffled. Tap them into the correct order, one at a time, and the "
+                "reasoning for each falls into place as you go.</p>"
+                "<div class=\"cy-callout\">Think it through: what has to happen "
+                "first to stop the spread, and what can only come once the machine "
+                "is safe to trust again?</div>",
                 "payload": {
-                    "prompt": "Answer all four to complete the task. A wrong answer just lets you try again.",
-                    "questions": [
-                        {"type": "mcq",
-                         "q": "Files on a machine are suddenly renamed one after another, and a payment demand appears on screen. This is a hallmark of what?",
-                         "hint": "Mass renaming plus a demand for money.",
-                         "options": [
-                             ["Ransomware", True, "Yes. Mass renaming as files are encrypted, with a ransom demand on screen, is the classic ransomware signature."],
-                             ["A slow internet connection", False, "A slow connection would not rename your files or demand payment. This is ransomware."],
-                             ["A data breach", False, "A breach exposes data quietly; it does not lock your files and demand money. This is ransomware."],
-                             ["A normal software update", False, "Updates do not scramble and rename your files or demand payment. This is ransomware."]
-                         ]},
-                        {"type": "truefalse",
-                         "q": "True or false: keeping recent, tested backups lets a business recover from ransomware without paying the attackers.",
-                         "answer": True,
-                         "hint": "What takes away the attacker's leverage?",
-                         "why": "True. A clean copy you can restore removes the attacker's leverage entirely, which is why backups are the real answer to ransomware."},
-                        {"type": "fill",
-                         "q": "A data breach is mainly a failure of one security pillar: private data reaching the wrong people is a loss of ___ . (one word)",
-                         "answer": "confidentiality",
-                         "accept": [],
-                         "hint": "The pillar about who is allowed to see the data.",
-                         "why": "Correct. A breach is a confidentiality failure: the systems may keep running, but private information has reached people who should not have it."},
-                        {"type": "match",
-                         "q": "Match each 2022 case or attack to what actually happened.",
-                         "hint": "One exposed an open door, one used a stolen login, one locks files.",
-                         "why": "That is the pattern: Optus exposed an access point with no login, Medibank was entered with a stolen credential, and ransomware locks files for payment.",
-                         "pairs": [
-                             ["Optus breach", "Access point exposed with no login"],
-                             ["Medibank breach", "Entered using a stolen login"],
-                             ["Ransomware", "Files locked, payment demanded"]
-                         ]}
-                    ]
+                    "prompt": "Tap the step that comes next, one at a time, until the whole response is in order.",
+                    "steps": [
+                        {"label": "Disconnect the machine from the network",
+                         "detail": "Isolate it first, so the ransomware cannot reach shared drives or other computers.",
+                         "order": 1},
+                        {"label": "Report it to whoever looks after IT",
+                         "detail": "Raise the alarm early and blame-free, so the right people can act while the damage is small.",
+                         "order": 2},
+                        {"label": "Preserve the evidence, and do not pay",
+                         "detail": "Leave the machine and the ransom note for investigation. Paying is unreliable and funds crime.",
+                         "order": 3},
+                        {"label": "Wipe or rebuild the affected machine",
+                         "detail": "Clean the infection off completely rather than trusting a machine that was compromised.",
+                         "order": 4},
+                        {"label": "Restore the files from a clean backup",
+                         "detail": "Bring your work back from a recent, tested backup: the step that beats ransomware without paying.",
+                         "order": 5},
+                        {"label": "Review what let it in, and close the gap",
+                         "detail": "Afterwards, work out how it got in and fix that, so the same door is not open next time.",
+                         "order": 6},
+                    ],
                 },
             },
             {
                 "key": "react-applied",
-                "kind": "check",
+                "kind": "branch",
                 "points": 2,
-                "title": "Prove you have got it",
-                "body": "<p>One last applied situation. Read it, then choose the "
-                "response that shows you can tell a real incident from ordinary "
-                "trouble and react the calm, correct way. The reasoning is what "
-                "counts.</p>"
-                "<div class=\"cy-callout\">A staff member notices the office "
-                "computer is slow. They check, and the hard drive is almost "
-                "completely full. Nothing is renamed, there is no demand on "
-                "screen, and colleagues have not mentioned anything odd.</div>",
-                "question": "What is the right read on this, and why?",
-                "hint": "Weigh the signs. Is this an attack, or an everyday cause?",
-                "options": [
-                    ("Most likely an ordinary glitch, a full drive, so notice it and fix it calmly rather than assuming an attack", True,
-                     "Right. A full drive is a common, harmless cause of slowness. No renaming, no demand, no strange emails means the signs of an attack are absent. Notice, check, then fix, without crying wolf."),
-                    ("Definitely ransomware, so pay a ransom at once", False,
-                     "Ransomware locks files and demands payment, none of which is happening here. Treating every glitch as an attack burns out your alertness and wastes effort."),
-                    ("Definitely a data breach, so tell customers their data has leaked", False,
-                     "A breach is about exposed data, not a slow computer with a full drive. There is no sign of exposure here."),
-                    ("Definitely a worm spreading, so shut down the whole office", False,
-                     "There is no sign of anything spreading. A full drive explains the slowness. Overreacting to every hiccup causes its own harm."),
-                ],
+                "title": "Tabletop: your data is on a leak site",
+                "diagram": "breach-email",
+                "body": "<p>The final exercise brings the whole lesson together. "
+                "First, put yourself in a customer's shoes: read the breach "
+                "notification above and decide the first thing they should do. "
+                "Then take the other side of the desk and run the tabletop "
+                "mini-incident below, where the breach lands on your business and "
+                "you make a few connected decisions to handle it well.</p>"
+                "<div class=\"cy-callout\">Draw on all of it: you cannot recall "
+                "leaked data, so verify, report, refuse the follow-up demand, and "
+                "help the people affected protect themselves.</div>",
+                "inline_check": {
+                    "question": "Looking at the breach notice above, what should the customer do first?",
+                    "hint": "The notice itself recommends it. What protects the account now that the password may be out?",
+                    "options": [
+                        ("Reset that password, change it anywhere it was reused, and turn on two-factor authentication", True,
+                         "Right. The exposed password is the risk, so change it everywhere it was used and add two-factor, exactly as the notice recommends. That locks the account down even though the data cannot be recalled."),
+                        ("Reply to the email with the current password so they can secure it", False,
+                         "Never send a password by email. A genuine notice will not ask for it, and this one explicitly says it never will."),
+                        ("Pay a fee to have the data removed", False,
+                         "A legitimate breach notice does not ask for payment. Any message demanding a fee to remove your data is a follow-on scam."),
+                        ("Ignore it, since there is nothing that can be done", False,
+                         "There is plenty to do. Changing the reused password and turning on two-factor sharply reduces how the leaked details can be misused."),
+                    ],
+                },
+                "payload": {
+                    "prompt": "Handle the breach as it unfolds. Make each call and see the consequence.",
+                    "start": "call",
+                    "nodes": {
+                        "call": {
+                            "text": "A journalist emails your business: a sample of your customers' personal details has appeared on a leak site. Minutes later a text arrives, quoting one of those details and demanding a fee to 'remove' the data. What is your first move?",
+                            "choices": [
+                                {"label": "Do not pay the text. Verify the claim, and report it to your manager and the relevant authority for advice.", "outcome": "good",
+                                 "feedback": "Right. Verify and report through proper channels. The demand is a follow-on attack, not a solution.", "to": "customers"},
+                                {"label": "Pay the fee in the text so the data disappears.", "outcome": "bad",
+                                 "feedback": "The data is already copied and shared, so nothing is removed. Paying just marks you as a target.", "to": "pay_bad"},
+                                {"label": "Ignore both messages and hope it blows over.", "outcome": "bad",
+                                 "feedback": "The data is out and customers are exposed. Silence makes it worse when it surfaces. This needs action.", "to": "ignore_bad"},
+                            ],
+                        },
+                        "pay_bad": {
+                            "text": "You pay, but the data is already copied and circulating, and nothing is removed. Paying a follow-up demand only marks you as a target for the next one. Verify and report instead, never pay the message.",
+                            "choices": [],
+                        },
+                        "ignore_bad": {
+                            "text": "Ignoring it does not make it go away. The data is out, customers are exposed, and staying silent makes the eventual fallout worse. A breach needs verifying and reporting, not hoping.",
+                            "choices": [],
+                        },
+                        "customers": {
+                            "text": "Good: you are verifying and getting advice rather than paying. Now, what do you do for the affected customers?",
+                            "choices": [
+                                {"label": "Tell them plainly what was exposed, and that they should change reused passwords and turn on two-factor.", "outcome": "good",
+                                 "feedback": "Exactly. Honest, plain guidance lets people protect themselves, and it is what keeps their trust.", "to": "win"},
+                                {"label": "Say nothing, to avoid worrying them.", "outcome": "bad",
+                                 "feedback": "Kept in the dark, customers cannot protect themselves, and the trust cost is far worse when it comes out.", "to": "silent_bad"},
+                                {"label": "Tell them everything is completely fine and no action is needed.", "outcome": "bad",
+                                 "feedback": "That is false reassurance. Their details are exposed, and they need real steps to protect themselves.", "to": "silent_bad"},
+                            ],
+                        },
+                        "silent_bad": {
+                            "text": "Kept in the dark, customers cannot protect themselves, and the trust cost is far worse when it surfaces later. Honest, plain guidance is both the right thing and the safer path for the business.",
+                            "choices": [],
+                        },
+                        "win": {
+                            "text": "Verified, reported, nothing paid, and customers given clear steps to protect themselves. You cannot recall leaked data, but a calm, honest response limits the harm and keeps trust intact.",
+                            "choices": [],
+                        },
+                    },
+                },
             },
         ],
     },

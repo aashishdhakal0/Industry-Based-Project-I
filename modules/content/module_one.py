@@ -421,370 +421,6 @@ LESSONS = [
             },
         ],
     },
-    {
-        "title": "Locking your front door",
-        "reading_time_minutes": 7,
-        "intro": "You do not need to be technical to be hard to attack. Meet the "
-        "handful of everyday locks that close the doors attackers rely on.",
-        "tasks": [
-            {
-                "key": "the-four-locks",
-                "kind": "check",
-                "points": 2,
-                "title": "The four locks that stop most attacks",
-                "body": "<p>Being hard to attack comes down to four plain habits, none "
-                "of them clever. <strong>Keep things updated</strong> so known holes "
-                "are patched. <strong>Use strong, unique passwords</strong> (a "
-                "password manager remembers them for you). <strong>Turn on two-factor "
-                "authentication</strong> so a stolen password alone is not enough. And "
-                "<strong>keep a tested backup</strong> so an attack or mistake never "
-                "costs you your work.</p>"
-                "<div class=\"cy-callout\">Each lock is simple. Together they shut the "
-                "doors that nearly every attack walks through.</div>",
-                "question": "Which habit does the most to stop a stolen password from becoming a break-in?",
-                "hint": "What still stands in the way even after a password leaks?",
-                "options": [
-                    ("Two-factor authentication", True,
-                     "Yes. With two-factor on, a thief with your password still cannot get in without the second code from your phone. It is the single best defence against leaked passwords."),
-                    ("Changing your desktop wallpaper", False,
-                     "Pleasant, but it does nothing for security. Two-factor is the real lock here."),
-                    ("Using a shorter password so you remember it", False,
-                     "Shorter is weaker, and easier to guess or crack. Length and a second factor are what help."),
-                    ("Turning the computer off at night", False,
-                     "Sensible for power bills, but it does not stop a leaked password being used from anywhere. Two-factor does."),
-                ],
-            },
-            {
-                "key": "protect-respond",
-                "kind": "respond",
-                "points": 2,
-                "title": "Everyday choices that keep you safe",
-                "body": "<p>Protection is not one big project. It is a series of small "
-                "choices you make on ordinary days. Here are three. Pick the safer "
-                "option each time.</p>"
-                "<div class=\"cy-callout\"><strong>The habit:</strong> when a quick, "
-                "slightly annoying safe option sits next to an easy risky one, take "
-                "the annoying one. It is almost always worth it.</div>",
-                "payload": {
-                    "prompt": "Choose the safer option for each. Handle all three to finish.",
-                    "situations": [
-                        {
-                            "id": "password",
-                            "text": "You are setting up a new work account and need a password.",
-                            "options": [
-                                {"text": "Use a long unique passphrase, saved in a password manager", "outcome": "good",
-                                 "feedback": "Right. A long, unique passphrase is hard to crack, and the manager means you never have to remember or reuse it."},
-                                {"text": "Reuse the same password you use for everything else", "outcome": "bad",
-                                 "feedback": "One leak then unlocks all your accounts at once. Reused passwords are how a single breach becomes many."},
-                                {"text": "Use a short simple one and change it often", "outcome": "risky",
-                                 "feedback": "Short passwords are weak however often you change them, and frequent forced changes usually make people pick worse ones. Go long and unique instead."},
-                            ],
-                        },
-                        {
-                            "id": "twofactor",
-                            "text": "An account offers to turn on two-factor authentication with a code to your phone.",
-                            "options": [
-                                {"text": "Turn it on now", "outcome": "good",
-                                 "feedback": "Yes. It takes two minutes and means a stolen password alone can never log in. This is the highest-value habit here."},
-                                {"text": "Skip it, it sounds like a hassle every login", "outcome": "bad",
-                                 "feedback": "The tiny hassle is the point: it is the same hassle for a thief, and they do not have your phone. Turn it on."},
-                                {"text": "Turn it on only for the email account", "outcome": "risky",
-                                 "feedback": "Email first is a good start (it can reset your other passwords), but turn it on everywhere it is offered."},
-                            ],
-                        },
-                        {
-                            "id": "update",
-                            "text": "A notice says a security update is ready and asks to restart.",
-                            "options": [
-                                {"text": "Install it soon, or let updates install automatically", "outcome": "good",
-                                 "feedback": "Right. Updates patch the exact holes attackers use. Automatic updates mean you never have to remember."},
-                                {"text": "Click 'remind me later' every time", "outcome": "bad",
-                                 "feedback": "Forever-later leaves a known, published hole open on your machine. Install security updates promptly."},
-                                {"text": "Ignore it, if it still works it is fine", "outcome": "bad",
-                                 "feedback": "Working and safe are different. An unpatched machine is a favourite target. Keep it updated."},
-                            ],
-                        },
-                    ],
-                },
-            },
-            {
-                "key": "settings-check",
-                "kind": "check",
-                "points": 2,
-                "title": "Read the security settings",
-                "diagram": "security-settings",
-                "body": "<p>Most accounts have a security page that tells you, at a "
-                "glance, how well protected you are. You do not need to be technical to "
-                "read it. Above is a staff member's account. Read each row and find the "
-                "weakest link.</p>"
-                "<div class=\"cy-callout\">When you check a security page, the first "
-                "thing to look for is whether two-factor authentication is on. It is "
-                "the lock that matters most.</div>",
-                "question": "Looking at these settings, what is the most important thing to fix first?",
-                "hint": "Which single setting, if switched on, best protects a leaked password?",
-                "options": [
-                    ("Turn on two-factor authentication, which is currently Off", True,
-                     "Right. With two-factor Off, a leaked password is a straight way in. Turning it on is the single biggest improvement here, ahead of the ageing password."),
-                    ("Turn off login alerts", False,
-                     "Login alerts are a good thing: they warn you of a strange sign-in. Leave them on. The real gap is two-factor being Off."),
-                    ("Nothing, these settings are fine", False,
-                     "Two-factor is Off and the password is three years old. There is real work to do, starting with two-factor."),
-                    ("Delete the recovery email", False,
-                     "A recovery email is useful; a personal Gmail is not ideal but not the priority. Turning on two-factor comes first."),
-                ],
-            },
-            {
-                "key": "protect-quizset",
-                "kind": "quizset",
-                "points": 2,
-                "title": "Lock it in",
-                "body": "<p>Four quick questions on the everyday habits that keep your "
-                "front door shut: strong passwords, two-factor, updates and backups. "
-                "None of them is clever, and together they do most of the heavy "
-                "lifting. Answer all four to finish.</p>",
-                "payload": {
-                    "prompt": "Answer all four to complete the task. A wrong answer just lets you try again.",
-                    "questions": [
-                        {"type": "mcq",
-                         "q": "Which makes the strongest password?",
-                         "hint": "Length beats complexity for a password you must also be able to use.",
-                         "options": [
-                             ["A long passphrase like 'brave-otter-canoe-lantern'", True, "Yes. Length is what makes a password hard to crack, and a few random words are both strong and usable."],
-                             ["A short one with symbols like 'P@ss1'", False, "Short passwords are quick to crack even with symbols. Length matters more."],
-                             ["Your business name and the year", False, "Guessable in seconds. Anything about you is a weak choice."],
-                             ["The word 'password' spelt backwards", False, "Attackers try every obvious trick like this first."]
-                         ]},
-                        {"type": "truefalse",
-                         "q": "True or false: once two-factor is on, the password itself no longer matters.",
-                         "answer": False,
-                         "hint": "Two-factor is a second lock, not a replacement for the first.",
-                         "why": "False. Two-factor is a powerful second lock, but a weak or reused password still puts you at risk. Use both: a strong password and two-factor."},
-                        {"type": "fill",
-                         "q": "A tested ___ is what lets you recover your files after ransomware or a mistake. (one word)",
-                         "answer": "backup",
-                         "accept": ["backups"],
-                         "hint": "A spare copy you can restore from.",
-                         "why": "Correct. A tested backup means an attack or accident never costs you your work: you restore and carry on."},
-                        {"type": "match",
-                         "q": "Match each habit to the danger it defends against.",
-                         "hint": "Each lock is aimed at a different threat.",
-                         "why": "That is the set: updates, two-factor and backups each shut a different door.",
-                         "pairs": [
-                             ["Installing updates", "Known holes attackers exploit"],
-                             ["Two-factor authentication", "A stolen or leaked password"],
-                             ["A tested backup", "Ransomware and lost files"]
-                         ]}
-                    ]
-                },
-            },
-            {
-                "key": "protect-applied",
-                "kind": "check",
-                "points": 2,
-                "title": "Prove you have got it",
-                "body": "<p>One applied decision to finish. Read the setup, then pick the "
-                "change that protects the most.</p>"
-                "<div class=\"cy-callout\">A cafe owner uses the same password for "
-                "email, banking and the booking system, and has never turned on "
-                "two-factor. They are short on time and can make exactly one change "
-                "this week.</div>",
-                "question": "Which single change protects them most if that shared password ever leaks?",
-                "hint": "What stops a known password from being enough on its own?",
-                "options": [
-                    ("Turn on two-factor authentication on the important accounts", True,
-                     "Right. If the password leaks, two-factor means it is still not enough to log in without the code on their phone. It buys the most safety for one change. Unique passwords should follow."),
-                    ("Change the shared password to a new shared password", False,
-                     "Still one password for everything, so one future leak still opens all of it. Two-factor helps far more, and unique passwords next."),
-                    ("Write the password on a note by the till", False,
-                     "That adds a new way to lose it, to anyone at the counter. The opposite of protection."),
-                    ("Do nothing until they have more time", False,
-                     "Two-factor takes minutes and is the highest-value move. Waiting leaves every account one leak away from a break-in."),
-                ],
-            },
-        ],
-    },
-    {
-        "title": "Putting it all together",
-        "reading_time_minutes": 7,
-        "intro": "A week at Docklands Dental, where everything you have learned gets "
-        "used. Layer the habits, read the signs, and handle the bad Friday.",
-        "tasks": [
-            {
-                "key": "layered-defence",
-                "kind": "check",
-                "points": 2,
-                "title": "Why layers beat one big lock",
-                "body": "<p>Docklands Dental is a small clinic: a busy front desk, a "
-                "shared drive, patient records that must stay private, accurate and "
-                "available. They do not have an IT department. What keeps them safe is "
-                "not one clever measure, it is several plain habits stacked together: "
-                "locked screens, strong passwords, two-factor, tested backups, and a "
-                "careful eye on email.</p>"
-                "<div class=\"cy-callout\">This is called defence in depth. No single "
-                "lock is perfect, so you layer a few simple ones. One slip is then a "
-                "nuisance, not a disaster.</div>",
-                "question": "Why does layering several simple habits beat relying on one strong measure?",
-                "hint": "What happens when the one measure is the thing that fails or is missed?",
-                "options": [
-                    ("If one habit is missed, the next still protects what matters", True,
-                     "Yes. Defence in depth means a single mistake, a reused password, a missed update, is caught by another layer. One slip does not open everything."),
-                    ("Because more locks look more impressive to customers", False,
-                     "It is about real protection, not appearances. Layers catch the mistakes that a single measure would miss."),
-                    ("Because you can then ignore all the other habits", False,
-                     "The opposite. The strength comes from the habits working together, not from dropping them."),
-                    ("Because one perfect lock is impossible to buy", False,
-                     "True that no lock is perfect, but the point is that layers cover each other's gaps, not that you gave up on a perfect one."),
-                ],
-            },
-            {
-                "key": "week-respond",
-                "kind": "respond",
-                "points": 2,
-                "title": "Three moments in the week",
-                "body": "<p>Over one ordinary week at Docklands Dental, three little "
-                "moments decide whether a small problem stays small. You are on the "
-                "front desk. Choose your move each time.</p>"
-                "<div class=\"cy-callout\"><strong>Remember:</strong> your first move "
-                "decides how far a problem spreads. Contain and verify beat speed and "
-                "trust every time.</div>",
-                "payload": {
-                    "prompt": "Choose the soundest move for each. Handle all three to finish.",
-                    "situations": [
-                        {
-                            "id": "bankchange",
-                            "text": "An email, apparently from a supplier, urgently asks you to change their bank details before you pay this month's invoice.",
-                            "options": [
-                                {"text": "Ring the supplier on a number you already have and confirm", "outcome": "good",
-                                 "feedback": "Right. A changed bank account plus urgency is the classic invoice scam. Verify on a channel you already trust, not the email."},
-                                {"text": "Update the details and pay, the email looks genuine", "outcome": "bad",
-                                 "feedback": "A convincing look is the whole trick. Never change payment details on the say-so of an email alone."},
-                                {"text": "Reply to the email to double-check", "outcome": "risky",
-                                 "feedback": "If the email is fake, you are asking the scammer. Phone the supplier on a known number instead."},
-                            ],
-                        },
-                        {
-                            "id": "unlocked",
-                            "text": "You notice the reception laptop has been left unlocked and unattended, with a patient record on screen, facing the waiting room.",
-                            "options": [
-                                {"text": "Lock it straight away and remind the team to lock screens", "outcome": "good",
-                                 "feedback": "Yes. An unlocked screen in a public space is a confidentiality leak anyone can read. Locking screens is a two-second habit worth building."},
-                                {"text": "Leave it, you will be back in a minute", "outcome": "bad",
-                                 "feedback": "A minute is long enough for a waiting patient to read or photograph private records. Lock it now."},
-                                {"text": "Turn the screen brightness down", "outcome": "bad",
-                                 "feedback": "It is still readable, and still logged in. Lock the screen instead."},
-                            ],
-                        },
-                        {
-                            "id": "overseas",
-                            "text": "A staff member's account shows a login alert from another country overnight, when nobody was working.",
-                            "options": [
-                                {"text": "Treat it as a likely break-in: change the password, check two-factor, and report it", "outcome": "good",
-                                 "feedback": "Right. An unexpected overseas login is a red flag. Lock the account down fast and report it, before the intruder does more."},
-                                {"text": "Assume it is a glitch and carry on", "outcome": "bad",
-                                 "feedback": "Login alerts exist precisely so you act on them. Assuming it is nothing is how a foothold becomes a full breach."},
-                                {"text": "Wait to see if it happens again", "outcome": "bad",
-                                 "feedback": "Waiting gives an intruder more time. Change the password and check two-factor now."},
-                            ],
-                        },
-                    ],
-                },
-            },
-            {
-                "key": "device-gap",
-                "kind": "check",
-                "points": 2,
-                "title": "Find the gap on the laptop",
-                "diagram": "device-checklist",
-                "body": "<p>Before the clinic closes on Friday, you run a quick security "
-                "check on the reception laptop. Most of it is in good shape. Read the "
-                "four rows above and find the one that still needs attention.</p>"
-                "<div class=\"cy-callout\">A tick is a lock that is on. A cross is a "
-                "door left open. On a laptop that leaves the building, the open door "
-                "matters most.</div>",
-                "question": "Looking at the reception laptop's check, what is the remaining gap?",
-                "hint": "Three rows are ticked. One is not.",
-                "options": [
-                    ("Disk encryption is Off", True,
-                     "Right. Without disk encryption, if the laptop is lost or stolen its files can be read straight off the drive, patient records and all. Turning it on means a thief gets a useless brick."),
-                    ("Screen lock is On", False,
-                     "That is a good thing, not a gap. A locked screen stops a passer-by reading it."),
-                    ("Automatic updates are On", False,
-                     "Also good. Updates patch known holes. The gap is disk encryption being Off."),
-                    ("Backup is On", False,
-                     "Good again. A backup means you can recover. The one thing not done is disk encryption."),
-                ],
-            },
-            {
-                "key": "capstone-quizset",
-                "kind": "quizset",
-                "points": 2,
-                "title": "The whole module, in four",
-                "body": "<p>Four questions that pull the whole of Module 1 together: "
-                "what you are protecting, how attacks actually come at you, and the "
-                "plain habits that stop them. Take your time and answer each one to "
-                "finish.</p>",
-                "payload": {
-                    "prompt": "Answer all four to complete the task. A wrong answer just lets you try again.",
-                    "questions": [
-                        {"type": "mcq",
-                         "q": "A tested backup protects mainly which of the three pillars, Confidentiality, Integrity or Availability?",
-                         "hint": "A backup gives you your files back after they are locked or lost.",
-                         "options": [
-                             ["Availability", True, "Yes. A backup restores access after ransomware or a crash, so your data stays available when you need it."],
-                             ["Confidentiality", False, "Confidentiality is about who can see the data. A backup does not control that; it restores access."],
-                             ["Integrity", False, "Integrity is about data being unaltered. A backup mainly protects your ability to get the data back, which is availability."],
-                             ["None of them", False, "A backup squarely protects availability, and it matters a great deal."]
-                         ]},
-                        {"type": "truefalse",
-                         "q": "True or false: locking your screen when you step away protects the confidentiality of what is on it.",
-                         "answer": True,
-                         "hint": "Who can see the screen once it is locked?",
-                         "why": "True. A locked screen stops anyone nearby reading private information. That is confidentiality: only the right people can see it."},
-                        {"type": "fill",
-                         "q": "Tricking a person into acting against their own interest is called social ___ . (one word)",
-                         "answer": "engineering",
-                         "accept": ["social engineering"],
-                         "hint": "The same word from Lesson 2.",
-                         "why": "Correct. Social engineering is the human side of most attacks, and a careful eye is its best defence."},
-                        {"type": "match",
-                         "q": "Match each habit to the main threat it defends against.",
-                         "hint": "Each habit shuts a different door.",
-                         "why": "That is the layered defence of Module 1: several plain habits, each covering a different risk.",
-                         "pairs": [
-                             ["Two-factor authentication", "A stolen password"],
-                             ["A tested backup", "Ransomware"],
-                             ["A careful eye on email", "Phishing and scams"]
-                         ]}
-                    ]
-                },
-            },
-            {
-                "key": "capstone-applied",
-                "kind": "check",
-                "points": 2,
-                "title": "The bad Friday",
-                "body": "<p>The gate before the quiz. It is a bad Friday at Docklands "
-                "Dental, and everything you have learned is on the line. Read it, then "
-                "choose the right first move.</p>"
-                "<div class=\"cy-callout\">Late Friday, a staff member opens the shared "
-                "drive to find every file renamed and a note on screen demanding "
-                "payment in cryptocurrency to unlock them. The clinic has tested "
-                "backups from last night.</div>",
-                "question": "What is the right first move?",
-                "hint": "Before recovering anything, what stops the problem spreading to other machines?",
-                "options": [
-                    ("Disconnect the affected computer from the network, then report it", True,
-                     "Right. Getting it off the network first stops the ransomware spreading to other machines and the shared drive. Then you report it and recover from last night's backup. Containment comes before recovery."),
-                    ("Pay the ransom quickly to get the files back", False,
-                     "Paying is unreliable, funds crime, and marks you as a payer. With tested backups you never need to. Contain first, then restore."),
-                    ("Keep working on other files and deal with it Monday", False,
-                     "Every minute it stays connected, more machines and files are locked. Disconnect and act now."),
-                    ("Delete the ransom note and hope it clears", False,
-                     "The note is not the problem; the encryption is, and it is still spreading. Disconnect the machine and recover from backup."),
-                ],
-            },
-        ],
-    },
 ]
 
 
@@ -1082,7 +718,7 @@ QUIZ = {
         },
         # ---- Lesson 3: passwords, 2FA, Wi-Fi, updates ----
         {
-            "lesson": 3, "difficulty": "MEDIUM",
+            "lesson": 1, "difficulty": "MEDIUM",
             "text": "On a new router, which password is dangerous to leave on the factory setting?",
             "options": [
                 ("The admin password that changes the router's settings", True,
@@ -1096,7 +732,7 @@ QUIZ = {
             ],
         },
         {
-            "lesson": 3, "difficulty": "HARD",
+            "lesson": 1, "difficulty": "HARD",
             "text": "What makes a password strongest?",
             "options": [
                 ("Length, a dozen or more characters, such as a few unrelated words", True,
@@ -1110,7 +746,7 @@ QUIZ = {
             ],
         },
         {
-            "lesson": 3, "difficulty": "EASY",
+            "lesson": 1, "difficulty": "EASY",
             "text": "What does turning on two-factor authentication achieve?",
             "options": [
                 ("A stolen password on its own is no longer enough to get in", True,
@@ -1124,7 +760,7 @@ QUIZ = {
             ],
         },
         {
-            "lesson": 3, "difficulty": "MEDIUM",
+            "lesson": 1, "difficulty": "MEDIUM",
             "text": "You notice your Wi-Fi is set to 'WEP'. What should you do?",
             "options": [
                 ("Switch to WPA3 or WPA2, because WEP has been broken for years", True,
@@ -1138,7 +774,7 @@ QUIZ = {
             ],
         },
         {
-            "lesson": 3, "difficulty": "EASY",
+            "lesson": 1, "difficulty": "EASY",
             "text": "What is the main benefit of a separate guest Wi-Fi network?",
             "options": [
                 ("It keeps visitors' and personal devices apart from your work devices", True,
@@ -1152,7 +788,7 @@ QUIZ = {
             ],
         },
         {
-            "lesson": 3, "difficulty": "MEDIUM",
+            "lesson": 1, "difficulty": "MEDIUM",
             "text": "Why is it worth installing software updates promptly?",
             "options": [
                 ("They often fix security holes that attackers are already using", True,
@@ -1166,7 +802,7 @@ QUIZ = {
             ],
         },
         {
-            "lesson": 3, "difficulty": "HARD",
+            "lesson": 1, "difficulty": "HARD",
             "text": "You need to log in to a work system on free cafe Wi-Fi. Safest choice?",
             "options": [
                 ("Use your phone's mobile data or a trusted VPN instead", True,
@@ -1180,7 +816,7 @@ QUIZ = {
             ],
         },
         {
-            "lesson": 3, "difficulty": "MEDIUM",
+            "lesson": 1, "difficulty": "MEDIUM",
             "text": "You have dozens of accounts and cannot remember a unique long password for each. What is the sensible fix?",
             "options": [
                 ("Use a password manager, which invents and remembers a unique strong password for every account", True,
@@ -1194,7 +830,7 @@ QUIZ = {
             ],
         },
         {
-            "lesson": 3, "difficulty": "EASY",
+            "lesson": 1, "difficulty": "EASY",
             "text": "If you turn on two-factor authentication for only one account first, which should it be?",
             "options": [
                 ("Your email, because it can reset the passwords of most of your other accounts", True,
@@ -1208,7 +844,7 @@ QUIZ = {
             ],
         },
         {
-            "lesson": 3, "difficulty": "MEDIUM",
+            "lesson": 1, "difficulty": "MEDIUM",
             "text": "A visitor's phone is infected with malware and joins your Wi-Fi. What keeps that problem away from your work computers?",
             "options": [
                 ("A separate guest network, which walls visitors' devices off from your work devices", True,
@@ -1223,7 +859,7 @@ QUIZ = {
         },
         # ---- Lesson 4: habits and response ----
         {
-            "lesson": 4, "difficulty": "MEDIUM",
+            "lesson": 2, "difficulty": "MEDIUM",
             "text": "A supplier emails that their bank account has changed. Safest way to verify?",
             "options": [
                 ("Phone them on a number you already have on file", True,
@@ -1237,7 +873,7 @@ QUIZ = {
             ],
         },
         {
-            "lesson": 4, "difficulty": "EASY",
+            "lesson": 2, "difficulty": "EASY",
             "text": "A colleague admits they clicked a phishing link. Best response?",
             "options": [
                 ("Thank them for speaking up and report it so the account can be secured", True,
@@ -1251,7 +887,7 @@ QUIZ = {
             ],
         },
         {
-            "lesson": 4, "difficulty": "MEDIUM",
+            "lesson": 2, "difficulty": "MEDIUM",
             "text": "What lets a business recover from ransomware without paying?",
             "options": [
                 ("Recent backups that have been tested and can actually be restored", True,
@@ -1265,7 +901,7 @@ QUIZ = {
             ],
         },
         {
-            "lesson": 4, "difficulty": "MEDIUM",
+            "lesson": 2, "difficulty": "MEDIUM",
             "text": "If you could protect only one account with two-factor first, which should it be?",
             "options": [
                 ("Your email, because it can reset the passwords of most other accounts", True,
@@ -1279,7 +915,7 @@ QUIZ = {
             ],
         },
         {
-            "lesson": 4, "difficulty": "EASY",
+            "lesson": 2, "difficulty": "EASY",
             "text": "A password manager mainly helps by:",
             "options": [
                 ("Letting you use a different strong password everywhere without memorising them", True,
@@ -1293,7 +929,7 @@ QUIZ = {
             ],
         },
         {
-            "lesson": 4, "difficulty": "MEDIUM",
+            "lesson": 2, "difficulty": "MEDIUM",
             "text": "What is the idea behind 'defence in depth'?",
             "options": [
                 ("Layer several simple habits so that if one is missed, the next still protects you", True,
@@ -1307,7 +943,7 @@ QUIZ = {
             ],
         },
         {
-            "lesson": 4, "difficulty": "MEDIUM",
+            "lesson": 2, "difficulty": "MEDIUM",
             "text": "You realise you may have entered your password into a suspicious page. Best thing to do?",
             "options": [
                 ("Report it straight away to whoever looks after your IT", True,
@@ -1321,7 +957,7 @@ QUIZ = {
             ],
         },
         {
-            "lesson": 4, "difficulty": "MEDIUM",
+            "lesson": 2, "difficulty": "MEDIUM",
             "text": "With defence in depth in place, a staff member is tricked into giving away their password. What is most likely to stop it becoming a break-in?",
             "options": [
                 ("Two-factor authentication, because the attacker still lacks the second key", True,
@@ -1335,7 +971,7 @@ QUIZ = {
             ],
         },
         {
-            "lesson": 4, "difficulty": "EASY",
+            "lesson": 2, "difficulty": "EASY",
             "text": "Why does a blame-free culture make a workplace more secure, not less?",
             "options": [
                 ("People report mistakes quickly, so accounts can be secured before harm is done", True,
@@ -1349,7 +985,7 @@ QUIZ = {
             ],
         },
         {
-            "lesson": 4, "difficulty": "HARD",
+            "lesson": 2, "difficulty": "HARD",
             "text": "Why does testing that you can actually restore a backup matter as much as having one?",
             "options": [
                 ("A backup nobody has ever restored may have silently stopped working, and you find out on the worst day", True,

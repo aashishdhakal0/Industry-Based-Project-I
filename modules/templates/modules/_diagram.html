@@ -459,4 +459,78 @@
       A ransomware demand. The files are locked in place, not stolen, and a countdown pressures you to pay.
     </figcaption>
   </figure>
+
+{% elif key == "download-trap" %}
+  <figure class="cy-diagram cy-dl" role="img"
+          aria-label="A software download page. A large green Download Now button is labelled Ad and Recommended. Beside it a small plain text link reads report 2026 dot pdf, 1.2 megabytes.">
+    <div class="cy-dl__bar">
+      <svg class="cy-i cy-dl__lockok" aria-hidden="true"><use href="#i-lock"/></svg>
+      <span class="cy-dl__url">softwarearchive.org/files/report_2026</span>
+    </div>
+    <div class="cy-dl__page">
+      <p class="cy-dl__title">Your download is ready</p>
+      <button type="button" class="cy-dl__big">
+        <span class="cy-dl__biglabel">Download Now</span>
+        <span class="cy-dl__bigsub">Recommended &middot; Fast installer</span>
+        <span class="cy-dl__adtag">Ad</span>
+      </button>
+      <p class="cy-dl__or">If your download does not start, use the direct link below:</p>
+      <a class="cy-dl__real" href="#" onclick="return false">report_2026.pdf <span class="cy-dl__size">(1.2 MB)</span></a>
+    </div>
+    <figcaption class="cy-diagram__cap cy-diagram__cap--single">
+      One of these downloads the file you asked for. The other is an advertisement dressed up as a button.
+    </figcaption>
+  </figure>
+
+{% elif key == "attachment-exe" %}
+  <figure class="cy-diagram cy-mail" role="img"
+          aria-label="An email from Accounts. Subject: invoice attached. It has one attachment named Invoice underscore 4471 dot pdf dot exe, an application of 84 kilobytes.">
+    <div class="cy-mail__bar"><span class="cy-mail__ic">&#8592;</span><span class="cy-mail__spam">Report spam</span></div>
+    <div class="cy-mail__subj">Invoice #4471 attached, please pay promptly</div>
+    <div class="cy-mail__meta">
+      <span class="cy-mail__av">A</span>
+      <span class="cy-mail__who"><b>Accounts</b> <span class="em">&lt;billing@invoices-au-secure.net&gt;</span><br><span class="cy-mail__to">to accounts@yourclinic.com.au</span></span>
+      <span class="cy-mail__date">Mon 8:12 AM</span>
+    </div>
+    <div class="cy-mail__body">
+      Hi,<br><br>
+      Please find this month's invoice attached. Open it to view the amount due.
+      <span class="cy-mail__att cy-mail__att--exe"><svg class="cy-i" aria-hidden="true"><use href="#i-close"/></svg> Invoice_4471.pdf.exe <span class="cy-mail__attmeta">application &middot; 84 KB</span></span>
+    </div>
+  </figure>
+
+{% elif key == "locked-files" %}
+  <figure class="cy-diagram cy-fx" role="img"
+          aria-label="A file explorer window titled Documents. Every file is renamed with a dot locked ending: photos dot jpg dot locked, budget 2026 dot xlsx dot locked, clients dot docx dot locked, and a file named read me to unlock dot txt.">
+    <div class="cy-fx__bar">
+      <span class="cy-fx__dots" aria-hidden="true"><i></i><i></i><i></i></span>
+      <span class="cy-fx__path">This PC &rsaquo; Documents</span>
+    </div>
+    <ul class="cy-fx__list">
+      <li class="cy-fx__row"><svg class="cy-i cy-fx__lk" aria-hidden="true"><use href="#i-lock"/></svg><span class="cy-fx__name">photos.jpg.locked</span><span class="cy-fx__type">LOCKED File</span></li>
+      <li class="cy-fx__row"><svg class="cy-i cy-fx__lk" aria-hidden="true"><use href="#i-lock"/></svg><span class="cy-fx__name">budget_2026.xlsx.locked</span><span class="cy-fx__type">LOCKED File</span></li>
+      <li class="cy-fx__row"><svg class="cy-i cy-fx__lk" aria-hidden="true"><use href="#i-lock"/></svg><span class="cy-fx__name">clients.docx.locked</span><span class="cy-fx__type">LOCKED File</span></li>
+      <li class="cy-fx__row cy-fx__row--note"><svg class="cy-i" aria-hidden="true"><use href="#i-book"/></svg><span class="cy-fx__name">READ_ME_TO_UNLOCK.txt</span><span class="cy-fx__type">Text</span></li>
+    </ul>
+    <figcaption class="cy-diagram__cap cy-diagram__cap--single">
+      Every document renamed with the same new ending, and a read-me left behind. The files are still here, just locked.
+    </figcaption>
+  </figure>
+
+{% elif key == "breach-email" %}
+  <figure class="cy-diagram cy-mail" role="img"
+          aria-label="A data breach notification email from Rivertown Books security team. It says a security incident may have exposed your email address and password, and recommends you reset your password and turn on two-factor authentication.">
+    <div class="cy-mail__bar"><span class="cy-mail__ic">&#8592;</span><span class="cy-mail__spam">Report spam</span></div>
+    <div class="cy-mail__subj">Important: a security incident affecting your account</div>
+    <div class="cy-mail__meta">
+      <span class="cy-mail__av">R</span>
+      <span class="cy-mail__who"><b>Rivertown Books</b> <span class="em">&lt;security@rivertownbooks.com.au&gt;</span><br><span class="cy-mail__to">to you@example.com</span></span>
+      <span class="cy-mail__date">Tue 10:05 AM</span>
+    </div>
+    <div class="cy-mail__body">
+      Dear customer,<br><br>
+      We recently detected a security incident in which some customer information, including <b>email addresses and passwords</b>, may have been exposed.<br><br>
+      As a precaution we recommend you <b>reset your password</b>, change it anywhere you have reused it, and <b>turn on two-factor authentication</b>. We will never ask you to pay a fee or send your password by email.
+    </div>
+  </figure>
 {% endif %}

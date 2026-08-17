@@ -1,0 +1,51 @@
+{% extends "app_base.html" %}
+
+{% comment %}
+  DEBUG-only content-review page: every question in a module's quiz, grouped by
+  the lesson it traces to, with the correct answer marked and every explanation
+  shown. The view raises Http404 when DEBUG is off, so this never renders in
+  production. It is for the developer reviewing content, not for students.
+{% endcomment %}
+
+{% block title %}Quiz review — {{ module.title }} — {{ site_name }}{% endblock %}
+
+{% block content %}
+<div class="cy-wrap cy-wrap--narrow">
+
+  <a class="cy-nav__link" href="{% url 'learn:module' module.order_index %}" style="display:inline-block; margin-bottom:1.1rem;">← {{ module.title }}</a>
+
+  <span class="cy-eyebrow cy-eyebrow--dev"><span class="cy-eyebrow__dot" aria-hidden="true"></span> Developer preview</span>
+  <h1 style="font-size: 1.85rem; margin: 0.6rem 0 0.4rem;">Quiz review</h1>
+  <p class="cy-lede">Every one of the {{ total }} questions in the {{ module.title }} bank, grouped by the lesson it traces to. The correct answer is marked, and each option carries its explanation. This page only exists in development.</p>
+
+  {% for group in groups %}
+    <div class="cy-qr__group">
+      <h2 class="cy-qr__lesson">Lesson {{ group.lesson_number }} <span class="cy-qr__count">{{ group.questions|length }} questions</span></h2>
+
+      {% for q in group.questions %}
+        <div class="cy-qr__card">
+          <div class="cy-qr__head">
+            <span class="cy-qr__num">Q{{ forloop.counter }}</span>
+            <span class="cy-qr__diff cy-qr__diff--{{ q.difficulty|lower }}">{{ q.get_difficulty_display }}</span>
+          </div>
+          <p class="cy-qr__q">{{ q.question_text }}</p>
+          <ul class="cy-qr__opts">
+            {% for a in q.answers.all %}
+              <li class="cy-qr__opt {% if a.correct_answer %}is-correct{% endif %}">
+                <span class="cy-qr__opt-mark" aria-hidden="true">
+                  {% if a.correct_answer %}<svg class="cy-i"><use href="#i-check-circle"/></svg>{% endif %}
+                </span>
+                <span class="cy-qr__opt-body">
+                  <span class="cy-qr__opt-text">{{ a.option_text }}</span>
+                  <span class="cy-qr__opt-why">{{ a.explanation_text }}</span>
+                </span>
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+      {% endfor %}
+    </div>
+  {% endfor %}
+
+</div>
+{% endblock %}

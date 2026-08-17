@@ -40,4 +40,6 @@ urlpatterns = [
     path("m/<int:order_index>/quiz/save/", quiz_views.save_answer, name="quiz_save"),
     path("m/<int:order_index>/quiz/submit/", quiz_views.submit_quiz, name="quiz_submit"),
     path("m/<int:order_index>/quiz/result/", quiz_views.quiz_result, name="quiz_result"),
+    # DEBUG-only content-review preview of every quiz question (404 in production).
+    path("m/<int:order_index>/quiz/review/", quiz_views.quiz_review, name="quiz_review"),
 ]

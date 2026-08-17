@@ -8571,3 +8571,217 @@ a.cy-course__hit:hover { background: var(--cy-surface-2); }
 .cy-ransom__v { color: #ff9a9a; display: block; font-family: var(--cy-font-mono); font-size: 1.15rem; font-weight: 700; }
 .cy-ransom__pay { color: rgba(255, 220, 220, 0.8); font-size: 0.82rem; }
 .cy-ransom__pay code { background: rgba(0, 0, 0, 0.35); border-radius: 5px; color: #ffb3b3; font-size: 0.76rem; padding: 2px 6px; word-break: break-all; }
+
+/* suspicious .exe attachment (double extension) */
+.cy-mail__att--exe { background: rgba(220, 70, 70, 0.1); border-color: rgba(220, 70, 70, 0.5); color: #b3261e; }
+.cy-mail__att--exe .cy-i { color: #d24646; }
+.cy-mail__attmeta { color: #b3261e; font-size: 0.72rem; opacity: 0.85; }
+
+/* fake "your download is ready" page: a real link next to an ad button */
+.cy-dl { background: var(--cy-surface); border: 1px solid var(--cy-border); border-radius: 12px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); max-width: 38rem; overflow: hidden; }
+.cy-dl__bar { align-items: center; background: var(--cy-surface-2); border-bottom: 1px solid var(--cy-border); display: flex; gap: 0.5rem; padding: 0.55rem 0.9rem; }
+.cy-dl__lockok { color: #81c995; flex: none; height: 14px; width: 14px; }
+.cy-dl__url { color: var(--cy-text-3); font-family: var(--cy-font-mono); font-size: 0.8rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cy-dl__page { padding: 1.3rem 1.2rem; text-align: center; }
+.cy-dl__title { color: var(--cy-text); font-size: 1.05rem; font-weight: 700; margin: 0 0 1rem; }
+.cy-dl__big { background: linear-gradient(180deg, #4ea94e, #3c8f3c); border: 0; border-radius: 9px; box-shadow: 0 4px 14px rgba(60, 143, 60, 0.45); color: #fff; cursor: pointer; display: block; margin: 0 auto; padding: 0.8rem 1.2rem; position: relative; width: 82%; }
+.cy-dl__biglabel { display: block; font-size: 1.1rem; font-weight: 800; }
+.cy-dl__bigsub { display: block; font-size: 0.72rem; opacity: 0.9; }
+.cy-dl__adtag { background: rgba(0, 0, 0, 0.35); border-radius: 3px; font-size: 0.62rem; font-weight: 700; letter-spacing: 0.06em; padding: 1px 5px; position: absolute; right: 8px; top: 8px; }
+.cy-dl__or { color: var(--cy-text-3); font-size: 0.82rem; margin: 1.1rem 0 0.4rem; }
+.cy-dl__real { color: var(--cy-cyan-soft); font-family: var(--cy-font-mono); font-size: 0.9rem; text-decoration: underline; }
+.cy-dl__size { color: var(--cy-text-3); font-family: var(--cy-font-mono); }
+
+/* file-explorer window showing ransomware-renamed files */
+.cy-fx { background: var(--cy-surface); border: 1px solid var(--cy-border); border-radius: 12px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); max-width: 38rem; overflow: hidden; }
+.cy-fx__bar { align-items: center; background: var(--cy-surface-2); border-bottom: 1px solid var(--cy-border); display: flex; gap: 0.6rem; padding: 0.6rem 0.9rem; }
+.cy-fx__dots { display: inline-flex; gap: 5px; }
+.cy-fx__dots i { background: var(--cy-text-3); border-radius: 50%; height: 9px; opacity: 0.5; width: 9px; }
+.cy-fx__path { color: var(--cy-text-2); font-size: 0.85rem; }
+.cy-fx__list { list-style: none; margin: 0; padding: 0.4rem 0.5rem; }
+.cy-fx__row { align-items: center; border-radius: 7px; color: var(--cy-text); display: flex; gap: 0.6rem; padding: 0.55rem 0.6rem; }
+.cy-fx__lk { color: #d24646; flex: none; height: 16px; width: 16px; }
+.cy-fx__row--note .cy-i { color: var(--cy-flame); flex: none; height: 16px; width: 16px; }
+.cy-fx__name { font-family: var(--cy-font-mono); font-size: 0.86rem; }
+.cy-fx__type { color: var(--cy-text-3); font-size: 0.74rem; margin-left: auto; }
+.cy-fx__row--note { background: rgba(255, 157, 77, 0.07); }
+.cy-fx__row--note .cy-fx__name { color: var(--cy-flame); }
+
+/* ============================================================ *
+ * Scene-based simulation (Modules 1 and 2)                     *
+ * ============================================================ */
+.cy-sc { margin: 0 auto; max-width: 44rem; }
+
+/* progress stepper */
+.cy-sc__prog { display: flex; gap: 0.5rem; justify-content: center; margin-bottom: 1.1rem; }
+.cy-sc__dot { background: var(--cy-border); border-radius: 999px; height: 6px; width: 34px; transition: background 0.25s; }
+.cy-sc__dot.is-done { background: var(--cy-violet-soft); }
+.cy-sc__dot.is-current { background: var(--cy-cyan-soft); box-shadow: 0 0 10px rgba(34, 211, 238, 0.5); }
+
+/* the scene card + backdrop art. NB: a UNIQUE `cy-scn` namespace — `cy-scene`
+   is the landing-page hero animation (grid + aspect-ratio + child stacking),
+   which reusing here caused the art and text to overlap in one square cell. */
+.cy-scn { background: var(--cy-surface); border: 1px solid var(--cy-border); border-radius: var(--cy-r-lg, 16px); box-shadow: var(--cy-shadow-lift, 0 16px 40px rgba(0,0,0,0.4)); overflow: hidden; }
+.cy-scn__art { align-items: center; display: flex; height: 176px; justify-content: center; overflow: hidden; padding: 1.4rem; position: relative; }
+.cy-scn__art::after { background: radial-gradient(130% 90% at 50% 130%, rgba(0, 0, 0, 0.4), transparent 62%); content: ""; inset: 0; pointer-events: none; position: absolute; }
+/* a small device/window mock, so each scene reads as an illustration */
+.cy-scn__screen { border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 11px; box-shadow: 0 14px 34px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.07); max-width: 20rem; overflow: hidden; position: relative; width: 76%; z-index: 1; }
+.cy-scn__bar { align-items: center; background: rgba(255, 255, 255, 0.07); border-bottom: 1px solid rgba(255, 255, 255, 0.06); display: flex; height: 24px; padding: 0 0.6rem; }
+.cy-scn__dots { height: 8px; position: relative; width: 44px; }
+.cy-scn__dots::before { background: #ff5f57; border-radius: 50%; box-shadow: 14px 0 0 #febc2e, 28px 0 0 #28c840; content: ""; height: 8px; left: 0; opacity: 0.9; position: absolute; top: 0; width: 8px; }
+.cy-scn__glass { align-items: center; display: flex; height: 98px; justify-content: center; }
+.cy-scn__emblem { filter: drop-shadow(0 3px 10px rgba(0, 0, 0, 0.5)); height: 46px; position: relative; width: 46px; z-index: 1; }
+.cy-scn--email .cy-scn__art { background: radial-gradient(110% 120% at 50% -20%, rgba(124, 92, 255, 0.4), transparent 60%), linear-gradient(160deg, #1a1530, #100e1b); }
+.cy-scn--email .cy-scn__glass { background: linear-gradient(160deg, rgba(124, 92, 255, 0.18), rgba(124, 92, 255, 0.03)); }
+.cy-scn--email .cy-scn__emblem { color: var(--cy-violet-soft); }
+.cy-scn--attach .cy-scn__art { background: radial-gradient(110% 120% at 50% -20%, rgba(255, 157, 77, 0.36), transparent 60%), linear-gradient(160deg, #241a24, #130f1a); }
+.cy-scn--attach .cy-scn__glass { background: linear-gradient(160deg, rgba(255, 157, 77, 0.18), rgba(255, 157, 77, 0.03)); }
+.cy-scn--attach .cy-scn__emblem { color: var(--cy-flame); }
+.cy-scn--ransom .cy-scn__art { background: radial-gradient(110% 120% at 50% -20%, rgba(220, 70, 70, 0.5), transparent 60%), linear-gradient(160deg, #2a1414, #150d0d); }
+.cy-scn--ransom .cy-scn__screen { border-color: rgba(255, 128, 128, 0.4); box-shadow: 0 14px 34px rgba(120, 20, 20, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.05); }
+.cy-scn--ransom .cy-scn__glass { background: linear-gradient(160deg, rgba(220, 70, 70, 0.24), rgba(220, 70, 70, 0.05)); }
+.cy-scn--ransom .cy-scn__emblem { color: #ff9a9a; }
+.cy-scn--win .cy-scn__art { background: radial-gradient(90% 130% at 50% -10%, rgba(34, 211, 238, 0.34), transparent 55%), radial-gradient(70% 120% at 80% 120%, rgba(124, 92, 255, 0.4), transparent 60%), linear-gradient(160deg, #16203a, #110e1c); }
+.cy-scn--win .cy-scn__glass { background: linear-gradient(160deg, rgba(34, 211, 238, 0.16), rgba(124, 92, 255, 0.06)); }
+.cy-scn--win .cy-scn__emblem { color: var(--cy-gold, #ffc94b); height: 52px; width: 52px; }
+
+.cy-scn__body { padding: 1.3rem 1.5rem 1.5rem; }
+.cy-scn__step { color: var(--cy-cyan-soft); font-size: 0.72rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; }
+.cy-scn__title { color: var(--cy-text); font-size: 1.25rem; font-weight: 700; letter-spacing: -0.01em; margin: 0.4rem 0 0.55rem; }
+.cy-scn__narrative { color: var(--cy-text-2); font-size: 1.02rem; line-height: 1.65; margin: 0; }
+
+/* choice cards */
+.cy-sc__choices { display: grid; gap: 0.65rem; margin-top: 1.1rem; }
+.cy-sc__choice { background: var(--cy-surface-2); border: 1px solid var(--cy-border); border-radius: 12px; color: var(--cy-text); cursor: pointer; font-size: 0.98rem; line-height: 1.45; padding: 0.85rem 1.1rem; text-align: left; transition: border-color 0.15s, transform 0.15s, background 0.15s; }
+.cy-sc__choice:hover:not(:disabled) { background: var(--cy-surface-3); border-color: var(--cy-border-lift); transform: translateY(-1px); }
+.cy-sc__choice:focus-visible { outline: 2px solid var(--cy-cyan-soft); outline-offset: 2px; }
+.cy-sc__choice:disabled { cursor: default; opacity: 0.55; }
+.cy-sc__choice.is-chosen { opacity: 1; font-weight: 600; }
+.cy-sc__choice.is-chosen.is-good { background: rgba(129, 201, 149, 0.14); border-color: rgba(129, 201, 149, 0.6); }
+.cy-sc__choice.is-chosen.is-bad { background: rgba(255, 128, 128, 0.12); border-color: rgba(255, 128, 128, 0.55); }
+.cy-sc__choice.is-chosen.is-neutral { background: rgba(255, 201, 75, 0.12); border-color: rgba(255, 201, 75, 0.5); }
+
+/* consequence reveal */
+.cy-sc__consequence { animation: cy-sc-rise 0.28s ease both; border-radius: 12px; margin-top: 1rem; padding: 1rem 1.1rem; }
+.cy-sc__consequence--good { background: rgba(129, 201, 149, 0.1); border: 1px solid rgba(129, 201, 149, 0.4); }
+.cy-sc__consequence--bad { background: rgba(255, 128, 128, 0.09); border: 1px solid rgba(255, 128, 128, 0.4); }
+.cy-sc__consequence--neutral { background: rgba(255, 201, 75, 0.1); border: 1px solid rgba(255, 201, 75, 0.4); }
+.cy-sc__consequence-head { align-items: center; display: flex; gap: 0.5rem; margin-bottom: 0.4rem; }
+.cy-sc__consequence-head .cy-i { height: 18px; width: 18px; }
+.cy-sc__consequence--good .cy-i { color: #81c995; }
+.cy-sc__consequence--bad .cy-i { color: #ff8080; }
+.cy-sc__consequence--neutral .cy-i { color: var(--cy-gold, #ffc94b); }
+.cy-sc__consequence-label { font-size: 0.78rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
+.cy-sc__consequence--good .cy-sc__consequence-label { color: #81c995; }
+.cy-sc__consequence--bad .cy-sc__consequence-label { color: #ff8080; }
+.cy-sc__consequence--neutral .cy-sc__consequence-label { color: var(--cy-gold, #ffc94b); }
+.cy-sc__consequence-text { color: var(--cy-text); font-size: 0.95rem; line-height: 1.55; margin: 0 0 0.9rem; }
+.cy-sc__next { width: 100%; }
+@keyframes cy-sc-rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+/* final outcome */
+.cy-sc__outcome { animation: cy-sc-rise 0.3s ease both; border-radius: 14px; margin-top: 1.1rem; padding: 1.6rem 1.4rem; text-align: center; }
+.cy-sc__outcome .cy-i { height: 40px; margin-bottom: 0.6rem; width: 40px; }
+.cy-sc__outcome--good { background: linear-gradient(150deg, rgba(34, 211, 238, 0.12), rgba(124, 92, 255, 0.1)); border: 1px solid rgba(34, 211, 238, 0.4); }
+.cy-sc__outcome--good .cy-i { color: var(--cy-gold, #ffc94b); }
+.cy-sc__outcome--ok { background: rgba(255, 201, 75, 0.1); border: 1px solid rgba(255, 201, 75, 0.4); }
+.cy-sc__outcome--ok .cy-i { color: var(--cy-gold, #ffc94b); }
+.cy-sc__outcome--bad { background: rgba(255, 128, 128, 0.1); border: 1px solid rgba(255, 128, 128, 0.4); }
+.cy-sc__outcome--bad .cy-i { color: #ff8080; }
+.cy-sc__score { color: var(--cy-text); font-size: 1.05rem; font-weight: 600; margin: 0 0 1rem; }
+@media (prefers-reduced-motion: reduce) { .cy-sc__consequence, .cy-sc__outcome { animation: none; } }
+
+/* ============================================================ *
+ * DEBUG-only quiz review page                                 *
+ * ============================================================ */
+.cy-eyebrow--dev .cy-eyebrow__dot { background: var(--cy-flame); }
+.cy-eyebrow--dev { color: var(--cy-flame); }
+.cy-qr__group { margin-top: 2rem; }
+.cy-qr__lesson { align-items: baseline; border-bottom: 1px solid var(--cy-border); color: var(--cy-text); display: flex; font-size: 1.15rem; gap: 0.6rem; margin: 0 0 1rem; padding-bottom: 0.5rem; }
+.cy-qr__count { color: var(--cy-text-3); font-size: 0.85rem; font-weight: 400; }
+.cy-qr__card { background: var(--cy-surface); border: 1px solid var(--cy-border); border-radius: 12px; margin-bottom: 0.9rem; padding: 1.1rem 1.2rem; }
+.cy-qr__head { align-items: center; display: flex; gap: 0.6rem; margin-bottom: 0.5rem; }
+.cy-qr__num { color: var(--cy-cyan-soft); font-family: var(--cy-font-mono); font-size: 0.8rem; font-weight: 700; }
+.cy-qr__diff { border-radius: 5px; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.05em; padding: 2px 8px; text-transform: uppercase; }
+.cy-qr__diff--easy { background: rgba(129, 201, 149, 0.16); color: #81c995; }
+.cy-qr__diff--medium { background: rgba(255, 201, 75, 0.16); color: var(--cy-gold, #ffc94b); }
+.cy-qr__diff--hard { background: rgba(255, 128, 128, 0.16); color: #ff8080; }
+.cy-qr__q { color: var(--cy-text); font-size: 1.02rem; font-weight: 600; margin: 0 0 0.8rem; }
+.cy-qr__opts { display: grid; gap: 0.5rem; list-style: none; margin: 0; padding: 0; }
+.cy-qr__opt { background: var(--cy-surface-2); border: 1px solid var(--cy-border); border-radius: 9px; display: flex; gap: 0.6rem; padding: 0.6rem 0.75rem; }
+.cy-qr__opt.is-correct { background: rgba(129, 201, 149, 0.1); border-color: rgba(129, 201, 149, 0.5); }
+.cy-qr__opt-mark { flex: none; width: 18px; }
+.cy-qr__opt-mark .cy-i { color: #81c995; height: 18px; width: 18px; }
+.cy-qr__opt-text { color: var(--cy-text); display: block; font-size: 0.92rem; }
+.cy-qr__opt.is-correct .cy-qr__opt-text { font-weight: 600; }
+.cy-qr__opt-why { color: var(--cy-text-3); display: block; font-size: 0.84rem; line-height: 1.5; margin-top: 0.2rem; }
+
+/* the DEBUG review link on the module overview */
+.cy-devlink { align-items: center; background: rgba(255, 157, 77, 0.08); border: 1px dashed rgba(255, 157, 77, 0.5); border-radius: 10px; color: var(--cy-flame); display: inline-flex; font-size: 0.85rem; font-weight: 600; gap: 0.45rem; margin-top: 1rem; padding: 0.5rem 0.9rem; text-decoration: none; }
+.cy-devlink .cy-i { height: 15px; width: 15px; }
+.cy-devlink:hover { background: rgba(255, 157, 77, 0.14); }
+
+/* ============================================================ *
+ * Module overview roadmap (cy-mroad — a UNIQUE namespace; cy-road *
+ * is the dashboard's horizontal progress track).                 *
+ * ============================================================ */
+.cy-mroad { display: flex; flex-direction: column; gap: 1rem; list-style: none; margin: 0; padding: 0; }
+.cy-mroad__item { display: grid; gap: 1rem; grid-template-columns: 40px 1fr; position: relative; }
+/* connecting spine between nodes */
+.cy-mroad__item:not(:last-child)::before { background: var(--cy-border); bottom: -1rem; content: ""; left: 19px; position: absolute; top: 40px; width: 2px; }
+.cy-mroad__item.is-done:not(:last-child)::before { background: linear-gradient(var(--cy-violet-soft), var(--cy-border)); }
+
+.cy-mroad__node { align-items: center; background: var(--cy-surface-2); border: 1.5px solid var(--cy-border-lift); border-radius: 50%; color: var(--cy-text-3); display: flex; font-size: 0.95rem; font-weight: 700; height: 40px; justify-content: center; width: 40px; z-index: 1; }
+.cy-mroad__node .cy-i { height: 18px; width: 18px; }
+.cy-mroad__item.is-done .cy-mroad__node { background: linear-gradient(145deg, var(--cy-violet), var(--cy-violet-soft)); border-color: transparent; box-shadow: 0 4px 14px rgba(124, 92, 255, 0.35); color: #fff; }
+.cy-mroad__item.is-current .cy-mroad__node { background: rgba(34, 211, 238, 0.08); border-color: var(--cy-cyan-soft); box-shadow: 0 0 0 4px rgba(34, 211, 238, 0.1); color: var(--cy-cyan-soft); }
+.cy-mroad__item.is-locked .cy-mroad__node { border-style: dashed; color: var(--cy-text-3); }
+
+.cy-mroad__card { background: var(--cy-surface); border: 1px solid var(--cy-border); border-radius: 14px; padding: 1.05rem 1.2rem; transition: border-color 0.15s, box-shadow 0.15s; }
+.cy-mroad__item.is-current .cy-mroad__card { border-color: rgba(34, 211, 238, 0.38); box-shadow: 0 0 0 1px rgba(34, 211, 238, 0.12), 0 10px 30px rgba(34, 211, 238, 0.05); }
+.cy-mroad__item.is-locked .cy-mroad__card { background: transparent; border-style: dashed; }
+.cy-mroad__card--feature { background: linear-gradient(160deg, var(--cy-surface-2), var(--cy-surface)); }
+
+.cy-mroad__top { align-items: flex-start; display: flex; gap: 1rem; justify-content: space-between; }
+.cy-mroad__heading { min-width: 0; }
+.cy-mroad__eyebrow { color: var(--cy-text-3); font-size: 0.72rem; font-weight: 700; letter-spacing: 0.09em; text-transform: uppercase; }
+.cy-mroad__meta { color: var(--cy-text-3); font-weight: 500; letter-spacing: 0; text-transform: none; }
+.cy-mroad__title { color: var(--cy-text); display: block; font-size: 1.1rem; font-weight: 700; letter-spacing: -0.01em; margin-top: 0.25rem; text-decoration: none; }
+a.cy-mroad__title:hover { color: var(--cy-cyan-soft); }
+.cy-mroad__title--muted { color: var(--cy-text-2); }
+.cy-mroad__sub { color: var(--cy-text-2); display: block; font-size: 0.88rem; line-height: 1.55; margin-top: 0.35rem; }
+
+/* CTA. The colour is set with `.cy-mroad a.cy-mroad__cta` (specificity 0,2,1)
+   so it beats the global `.cy-body a { color: var(--cy-cyan) }` (0,1,1) — that
+   collision is exactly what made the "Start" label cyan-on-cyan (invisible). */
+.cy-mroad__cta { align-items: center; background: var(--cy-cyan-soft); border: 1px solid transparent; border-radius: 9px; display: inline-flex; flex: none; font-size: 0.85rem; font-weight: 700; gap: 0.4rem; padding: 0.5rem 0.9rem; text-decoration: none; white-space: nowrap; }
+.cy-mroad a.cy-mroad__cta, .cy-mroad a.cy-mroad__cta:hover { color: #06202a; }
+.cy-mroad__cta:hover { filter: brightness(1.08); }
+.cy-mroad__cta .cy-i { height: 15px; width: 15px; }
+.cy-mroad__cta.is-done { background: transparent; border-color: var(--cy-border-lift); }
+.cy-mroad a.cy-mroad__cta.is-done { color: var(--cy-text-2); }
+.cy-mroad__cta.is-done:hover { border-color: var(--cy-cyan-soft); filter: none; }
+.cy-mroad a.cy-mroad__cta.is-done:hover { color: var(--cy-cyan-soft); }
+
+/* the per-lesson task list */
+.cy-mroad__tasks { border-top: 1px solid var(--cy-border); display: flex; flex-direction: column; list-style: none; margin: 1rem 0 0; padding: 0.5rem 0 0; }
+.cy-mroad__task { align-items: center; color: var(--cy-text-2); display: flex; gap: 0.7rem; padding: 0.4rem 0; }
+.cy-mroad__task + .cy-mroad__task { border-top: 1px solid rgba(255, 255, 255, 0.03); }
+.cy-mroad__task-tick { align-items: center; display: inline-flex; flex: none; height: 18px; justify-content: center; width: 18px; }
+.cy-mroad__task-tick .cy-i { color: var(--cy-violet-soft); height: 16px; width: 16px; }
+.cy-mroad__task-dot { border: 1.5px solid var(--cy-border-lift); border-radius: 50%; height: 11px; width: 11px; }
+.cy-mroad__task-title { color: var(--cy-text-2); font-size: 0.9rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cy-mroad__task.is-done .cy-mroad__task-title { color: var(--cy-text); }
+
+/* task-type chips: ONE quiet, understated style for every type (GitHub/Linear
+   metadata-label feel). Only the label word and the icon glyph differ between
+   tags — the background, border, text and icon colour are identical for all.
+   Deliberately no per-type colour coding. */
+.cy-mroad__chip { align-items: center; background: var(--cy-surface-3); border: 1px solid var(--cy-border); border-radius: 6px; color: var(--cy-text-3); display: inline-flex; flex: none; font-size: 0.64rem; font-weight: 700; gap: 0.3rem; justify-content: flex-start; letter-spacing: 0.05em; min-width: 6.4rem; padding: 3px 8px; text-transform: uppercase; }
+.cy-mroad__chip .cy-i { color: inherit; flex: none; height: 12px; opacity: 0.85; width: 12px; }
+
+@media (max-width: 560px) {
+  .cy-mroad__top { flex-direction: column; gap: 0.7rem; }
+  .cy-mroad__task-title { white-space: normal; }
+  .cy-mroad__chip { min-width: 0; }
+}

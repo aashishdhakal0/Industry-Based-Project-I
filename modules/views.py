@@ -7,6 +7,7 @@ link — a hidden link is not a control (CLAUDE.md).
 
 import json
 
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -18,6 +19,26 @@ from quizzes.models import QuizResult
 from . import gamification as g
 from .models import Lesson, LessonTask, Module, ProgressRecord
 from .presentation import decorate
+
+# Short, human labels + an icon for each task kind, shown as chips on the module
+# overview. (label, sprite-icon id.)
+_TASK_CHIP = {
+    "CHECK": ("Check", "i-check-circle"),
+    "CONCEPT": ("Read", "i-book"),
+    "SCENARIO": ("Scenario", "i-branch"),
+    "RESPOND": ("Decision", "i-branch"),
+    "QUIZSET": ("Quiz set", "i-layers"),
+    "SORT": ("Sort", "i-grid"),
+    "CLASSIFY": ("Classify", "i-target"),
+    "MAILSORT": ("Inbox", "i-mail"),
+    "BRANCH": ("Branching", "i-branch"),
+    "SEQUENCE": ("Order it", "i-layers"),
+    "INBOX": ("Inbox", "i-mail"),
+    "SPOT": ("Spot it", "i-eye"),
+    "PASSWORD": ("Password", "i-lock"),
+    "HARDEN": ("Harden", "i-shield"),
+    "NETMAP": ("Network map", "i-grid"),
+}
 
 
 def _published_module(order_index):
@@ -104,6 +125,21 @@ def module_overview(request, order_index):
     )
     for lesson in lessons:
         lesson.is_done = lesson.lesson_number in done_numbers
+        # Attach the lesson's tasks with per-task done state, so the overview can
+        # show each lesson's contents as a roadmap.
+        lesson.task_list = list(lesson.tasks.order_by("order"))
+        if lesson.task_list:
+            done_ids, _t, pdone, ptotal = g.lesson_task_stats(request.user, lesson)
+            lesson.tasks_done = 0
+            for t in lesson.task_list:
+                t.done = t.id in done_ids
+                label, icon = _TASK_CHIP.get(t.kind, ("Task", "i-check-circle"))
+                t.chip_label = label
+                t.chip_icon = icon
+                t.chip_kind = t.kind.lower()
+                if t.done:
+                    lesson.tasks_done += 1
+            lesson.tasks_total = len(lesson.task_list)
 
     simulation = getattr(module, "simulation", None)
     sim_done = (
@@ -165,6 +201,8 @@ def module_overview(request, order_index):
             "module_points": module_points,
             "earned_badges": earned_badges,
             "reward_flash": reward_flash,
+            # DEBUG-only: surface a link to the quiz-review preview page.
+            "debug": settings.DEBUG,
             "active": "modules",
         },
     )

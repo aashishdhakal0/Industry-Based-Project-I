@@ -56,10 +56,8 @@ MODULES = [
         "How networks work, and where yours is most exposed.",
         Module.Difficulty.BEGINNER,
         [
-            "What a network actually is",
-            "Where the weak points are",
-            "Wi-Fi, routers and the front door",
-            "A simple security checklist",
+            "What a network is, and what you protect",
+            "How attacks actually happen",
         ],
     ),
     (
@@ -153,55 +151,171 @@ know what to look for, and to slow down when something feels rushed.</blockquote
 """.strip()
 
 
-# Module 1's simulation is a real, playable phishing-inbox exercise. The others
-# get a lighter placeholder scenario in the same shape, so the simulation
-# engine has something to run everywhere.
-PHISHING_SIM = {
-    "kind": "inbox",
-    "intro": "Three messages just landed in the shared inbox. For each one, "
-    "decide whether it's safe or a scam — then see how you did.",
-    "items": [
-        {
-            "id": "parcel",
-            "from": "AusPost <no-reply@auspost-delivery.info>",
-            "subject": "Your parcel is held — $2.99 release fee required",
-            "preview": "We attempted delivery but a small customs fee is "
-            "outstanding. Pay within 24 hours or your parcel is returned.",
-            "scam": True,
-            "tells": [
-                "The address is auspost-delivery.info, not auspost.com.au.",
-                "A small fee plus a tight deadline is a classic pressure tactic.",
-                "Australia Post doesn't ask for delivery fees by email link.",
+# --- Scene-based branching simulations (Modules 1 and 2) -------------------
+# A visual, scene-by-scene story: each scene has a backdrop illustration (styled
+# by cybaroo.css from `backdrop`), a narrative, and choices. Picking one reveals
+# its consequence, then Continue advances to the next scene, ending in a summary.
+# cybaroo.js drives it and posts score/total/path to complete_simulation.
+
+MODULE1_SIM = {
+    "kind": "scenes",
+    "intro": "Two situations, one ordinary morning at a small clinic. Read each "
+    "one carefully, weigh your options, and make the call. See how it plays out.",
+    "start": "invoice",
+    "scenes": {
+        "invoice": {
+            "backdrop": "email",
+            "title": "9:00am, an invoice that is not quite right",
+            "narrative": "An email arrives from a supplier you deal with every "
+            "month. It says their bank account has changed, and this month's "
+            "invoice, which really is due, must now go to a new account by end of "
+            "day. The wording is polite and the logo looks right. The reply-to "
+            "address is a little different from usual, and there is quiet pressure "
+            "to pay today. What do you do?",
+            "choices": [
+                {"label": "Ring the supplier on the number you already have and confirm the change",
+                 "outcome": "good", "to": "ransom",
+                 "consequence": "You call the number from last month's statement, "
+                 "not one from the email. The supplier knows nothing about any "
+                 "change: their own account is the same as always. The email was a "
+                 "scam, and by verifying through a channel you already trust, you "
+                 "stopped a real payment from going to a stranger. A changed bank "
+                 "account plus time pressure is the classic invoice scam."},
+                {"label": "Pay the new account now so the invoice is not late",
+                 "outcome": "bad", "to": "ransom",
+                 "consequence": "The money lands in a criminal's account and is "
+                 "almost impossible to recover. The invoice was real, but the "
+                 "bank-account change was not. A genuine change of payment details "
+                 "is always worth a quick phone call to a number you already have, "
+                 "however routine the email looks."},
+                {"label": "Reply to the email to ask whether the new account is genuine",
+                 "outcome": "bad", "to": "ransom",
+                 "consequence": "If the email is a scam, your question goes straight "
+                 "to the scammer, who cheerfully confirms the new account is real. "
+                 "Replying can never verify a suspicious message. Reach the sender a "
+                 "different way, on a number or address you already trust."},
             ],
         },
-        {
-            "id": "invoice",
-            "from": "Priya Sharma <priya@yourcouncil.gov.au>",
-            "subject": "Re: March invoice — approved",
-            "preview": "Hi, I've approved the March invoice for payment. Let me "
-            "know if you need anything else before end of month. Thanks, Priya.",
-            "scam": False,
-            "tells": [
-                "It's from a colleague on your own domain.",
-                "It continues a conversation you were expecting.",
-                "There's no link, no urgency and no request for credentials.",
+        "ransom": {
+            "backdrop": "ransom",
+            "title": "2:30pm, a colleague calls you over",
+            "narrative": "Every file on their screen has been renamed, and a red "
+            "message demands payment in Bitcoin to unlock them. A countdown is "
+            "ticking. Around the office, a couple of other people say their shared "
+            "files have just stopped opening too. Everyone is looking at you. What "
+            "is your first move?",
+            "choices": [
+                {"label": "Disconnect that computer from the network, then report it straight away",
+                 "outcome": "good", "to": "end",
+                 "consequence": "Exactly right. Pulling it off the network first "
+                 "stops the ransomware spreading further across the shared drive and "
+                 "other machines, and reporting it quickly brings the right help. "
+                 "With a tested backup, the files can be restored, and nothing is "
+                 "paid to the attacker. Contain, report, recover."},
+                {"label": "Pay the ransom quickly, before the countdown runs out",
+                 "outcome": "bad", "to": "end",
+                 "consequence": "Paying is unreliable, funds more crime, and leaves "
+                 "the door it came through wide open, so it can happen again. The "
+                 "countdown exists precisely to rush you into paying. Contain it "
+                 "first, then recover from a backup instead."},
+                {"label": "Tell everyone to keep working so no unsaved work is lost",
+                 "outcome": "bad", "to": "end",
+                 "consequence": "Every extra second connected, more files and more "
+                 "machines are locked. Staying on the network to save a little "
+                 "unsaved work costs far more than it saves. The first move is "
+                 "always to disconnect and contain the spread."},
             ],
         },
-        {
-            "id": "mfa",
-            "from": "IT Security <security@micr0soft-support.com>",
-            "subject": "Unusual sign-in — verify your account now",
-            "preview": "We blocked a sign-in from a new device. Confirm it was "
-            "you by entering your password at the link below within 15 minutes.",
-            "scam": True,
-            "tells": [
-                "micr0soft-support.com uses a zero for the 'o' — a lookalike domain.",
-                "Genuine services never ask you to confirm a password via a link.",
-                "The 15-minute countdown exists to stop you thinking.",
-            ],
+        "end": {
+            "backdrop": "win",
+            "title": "That is the morning handled",
+            "narrative": "Two very different situations, one steady instinct behind "
+            "both: slow down, verify through a channel you trust, and when "
+            "something goes wrong, contain it and report it before you do anything "
+            "else. That calm habit is worth more than any single piece of "
+            "technology.",
         },
-    ],
+    },
 }
+
+MODULE2_SIM = {
+    "kind": "scenes",
+    "intro": "Two moments from a week when a threat came knocking. Recognise it, "
+    "then handle it. Make each call and see the consequence before moving on.",
+    "start": "attach",
+    "scenes": {
+        "attach": {
+            "backdrop": "attach",
+            "title": "Monday, an attachment that wants opening",
+            "narrative": "An unexpected email arrives, addressed to the accounts "
+            "inbox, with an attachment named Invoice_4471.pdf.exe and a short note "
+            "urging you to open it for the amount due. It looks like an invoice at a "
+            "glance, and the sender name reads Accounts. Something about the file "
+            "name is not right. What do you do?",
+            "choices": [
+                {"label": "Do not open it, and report it to whoever looks after IT",
+                 "outcome": "good", "to": "lock",
+                 "consequence": "Well spotted. The double extension, .pdf.exe, means "
+                 "the real file type is the last one: .exe, a program that runs "
+                 "code, dressed up to look like a harmless PDF. Opening it would run "
+                 "malware. Not opening it, and reporting it, protects you and warns "
+                 "everyone else who got the same email."},
+                {"label": "Open it to see what the invoice says",
+                 "outcome": "bad", "to": "lock",
+                 "consequence": "Opening it runs the hidden program and infects the "
+                 "machine in seconds. The tell was in the file name all along: "
+                 ".pdf.exe is a program wearing a PDF disguise. When a file name "
+                 "ends in .exe, or in a double extension, do not open it."},
+                {"label": "Forward it to a colleague to check whether it is real",
+                 "outcome": "bad", "to": "lock",
+                 "consequence": "Forwarding a booby-trapped attachment just puts the "
+                 "next person one careless click from infection. Do not pass a "
+                 "suspicious file around. Report it to IT, who can check it safely "
+                 "and warn the whole team."},
+            ],
+        },
+        "lock": {
+            "backdrop": "ransom",
+            "title": "Wednesday, the files start locking",
+            "narrative": "On another computer, files are renaming themselves one "
+            "after another, and a message demands Bitcoin to unlock them. It is "
+            "spreading to the shared drive that the whole office uses. Two days ago "
+            "you dodged the attachment, but something else has got in. You have a "
+            "few seconds to act well. What is your first move?",
+            "choices": [
+                {"label": "Disconnect the machine from the network straight away",
+                 "outcome": "good", "to": "end",
+                 "consequence": "Exactly. Isolating the machine first is the single "
+                 "most useful thing you can do: it stops the ransomware reaching the "
+                 "shared drive and other computers. From there you report it, and "
+                 "restore from a tested backup rather than paying a cent."},
+                {"label": "Pay the Bitcoin quickly to get everyone back to work",
+                 "outcome": "bad", "to": "end",
+                 "consequence": "Paying is unreliable and funds more crime, and the "
+                 "way in stays open, so it can strike again. Speed matters here, but "
+                 "the right fast action is to disconnect and contain, not to pay. "
+                 "Recover from a backup instead."},
+                {"label": "Keep working and hope it stops on its own",
+                 "outcome": "bad", "to": "end",
+                 "consequence": "It will not stop on its own. Every second the "
+                 "machine stays connected, more files and more computers are locked. "
+                 "The first move is always to pull it off the network and contain "
+                 "the spread."},
+            ],
+        },
+        "end": {
+            "backdrop": "win",
+            "title": "That is the week handled",
+            "narrative": "You read the threat before it opened, and when a second "
+            "one got through, you contained it fast and recovered without paying. "
+            "Recognising trouble early and reacting calmly, contain then report "
+            "then restore, is what keeps a small business standing when something "
+            "goes wrong.",
+        },
+    },
+}
+
+MODULE_SIMS = {1: MODULE1_SIM, 2: MODULE2_SIM}
 
 
 def _placeholder_sim(module_title):
@@ -441,7 +555,7 @@ class Command(BaseCommand):
                     _seed_lesson_tasks(lesson, spec["tasks"])
                 lessons_by_number[n] = lesson
 
-            sim_data = PHISHING_SIM if index == 1 else _placeholder_sim(title)
+            sim_data = MODULE_SIMS.get(index) or _placeholder_sim(title)
             Simulation.objects.update_or_create(
                 module=module,
                 defaults={

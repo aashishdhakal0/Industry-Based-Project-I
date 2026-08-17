@@ -43,7 +43,7 @@ def seeded(db):
 @pytest.mark.django_db
 def test_each_lesson_is_mostly_interactive_and_sums_to_ten(seeded):
     lessons = list(seeded.lessons.order_by("lesson_number"))
-    assert len(lessons) == 4
+    assert len(lessons) == 2  # Module 1 is two deep lessons (L3 and L4 retired)
     for lesson in lessons:
         tasks = list(lesson.tasks.order_by("order"))
         assert sum(t.points for t in tasks) == POINTS_PER_LESSON, f"{lesson.title} != 10 XP"
@@ -181,8 +181,9 @@ def test_module_one_quiz_is_a_substantial_bank(seeded):
     per_lesson = Counter(
         quiz.questions.values_list("lesson_reference__lesson_number", flat=True)
     )
-    for n in (1, 2, 3, 4):
-        assert per_lesson[n] >= 8, f"lesson {n} is thin in the quiz bank"
+    # Module 1 is two deep lessons now, so the 40-question bank is split 20/20.
+    for n in (1, 2):
+        assert per_lesson[n] >= 15, f"lesson {n} is thin in the quiz bank ({per_lesson[n]})"
 
 
 @pytest.mark.django_db
@@ -332,17 +333,17 @@ def test_lesson_content_has_no_em_dashes(seeded):
 
 @pytest.mark.django_db
 def test_module_one_uses_the_realistic_picture_visuals(seeded):
-    """Every lesson's Task 3 is a realistic, screenshot-style visual served from
-    our own origin: a router admin page, a browser, an invoice/scam email, an
-    account settings page, a device checklist, and the CIA board."""
+    """The two lessons use realistic, screenshot-style visuals served from our own
+    origin: a router admin page, a browser, an invoice/scam email, and the CIA
+    board. (The account-settings and device-checklist visuals lived on the retired
+    Lessons 3 and 4.)"""
     keys = set(
         LessonTask.objects.filter(lesson__module=seeded)
         .exclude(diagram_key="")
         .values_list("diagram_key", flat=True)
     )
     expected = {
-        "router-admin", "secure-bars", "cia-triad", "scam-email",
-        "email-invoice", "security-settings", "device-checklist",
+        "router-admin", "secure-bars", "cia-triad", "scam-email", "email-invoice",
     }
     assert expected <= keys, f"missing realistic visuals: {expected - keys}"
 
@@ -459,7 +460,7 @@ def test_lesson_one_task_one_is_a_read_the_router_picture_question(seeded):
 
 @pytest.mark.django_db
 def test_every_module_one_lesson_follows_the_five_task_format(seeded):
-    """All four lessons now share the consistent 5-task shape: a Core CHECK, a
+    """Both remaining lessons share the consistent 5-task shape: a Core CHECK, a
     RESPOND scenario, a read-the-image picture CHECK, a mixed QUIZSET, then an
     applied CHECK, each with a picture visual on task 3."""
     for lesson in seeded.lessons.order_by("lesson_number"):

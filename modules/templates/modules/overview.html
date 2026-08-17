@@ -1,9 +1,10 @@
 {% extends "app_base.html" %}
 
 {% comment %}
-  A module's contents as a numbered task-path. Real done-ticks from
-  ProgressRecord; the "current" step is the next incomplete lesson. The view has
-  already enforced the module lock — an unentitled user never reaches here.
+  A module's contents as a designed roadmap: each lesson as a card showing its
+  tasks, then the interactive simulation and the quiz. Real done-state from
+  ProgressRecord / TaskProgress. The view has already enforced the module lock,
+  so an unentitled user never reaches here.
 {% endcomment %}
 
 {% block title %}{{ module.title }} — {{ site_name }}{% endblock %}
@@ -24,10 +25,6 @@
   <p class="cy-lede cy-rise" style="--cy-delay:0.05s;">{{ module.description }}</p>
 
   {% if module_complete %}
-    {% comment %}
-      The completion moment: shown whenever a finished module is opened, so the
-      congratulations, the XP, the badges and the way forward are never missed.
-    {% endcomment %}
     <div class="cy-moddone cy-rise" style="--cy-delay:0.07s;">
       <div class="cy-moddone__glow" aria-hidden="true"></div>
       <span class="cy-moddone__seal"><svg class="cy-i" aria-hidden="true"><use href="#i-award"/></svg></span>
@@ -36,7 +33,6 @@
       <p class="cy-moddone__lede">
         You've completed every lesson{% if quiz %} and passed the quiz{% endif %} in {{ module.title }}.
       </p>
-
       <div class="cy-moddone__stats">
         <span class="cy-moddone__chip">
           <svg class="cy-i" aria-hidden="true"><use href="#i-hex"/></svg> +{{ module_points }} XP earned
@@ -48,7 +44,6 @@
           </span>
         {% endfor %}
       </div>
-
       {% if next_module %}
         <p class="cy-moddone__unlock">
           <svg class="cy-i" aria-hidden="true"><use href="#i-check-circle"/></svg>
@@ -69,113 +64,109 @@
     </div>
   {% endif %}
 
-  <div class="cy-progress-row cy-rise" style="--cy-delay:0.08s; margin-bottom: 2.25rem;">
+  <div class="cy-progress-row cy-rise" style="--cy-delay:0.08s; margin-bottom: 1.75rem;">
     <div class="cy-progress"><div class="cy-progress__fill" style="--cy-value: {{ percent }}%;"></div></div>
-    <span class="cy-progress-row__value">{{ done_count }}/{{ total_count }}</span>
+    <span class="cy-progress-row__value">{{ done_count }}/{{ total_count }} lessons</span>
   </div>
 
-  <ol class="cy-path cy-rise" style="--cy-delay:0.1s;">
+  <ol class="cy-mroad cy-rise" style="--cy-delay:0.1s;">
+
     {% for lesson in lessons %}
-      {% if lesson.is_done %}
-        {% comment %} done {% endcomment %}
-        <li class="cy-path__step is-done">
-          <a class="cy-path__link" href="{% url 'learn:lesson' module.order_index lesson.lesson_number %}">
-            <span class="cy-path__node"><svg class="cy-i" aria-hidden="true"><use href="#i-check"/></svg></span>
-            <span class="cy-path__body">
-              <span class="cy-path__label">Lesson {{ lesson.lesson_number }}</span>
-              <span class="cy-path__title">{{ lesson.title }}</span>
-            </span>
-            <span class="cy-path__tag">Done</span>
-          </a>
-        </li>
-      {% elif next_lesson and lesson.lesson_number == next_lesson.lesson_number %}
-        <li class="cy-path__step is-current">
-          <a class="cy-path__link" href="{% url 'learn:lesson' module.order_index lesson.lesson_number %}">
-            <span class="cy-path__node">{{ lesson.lesson_number }}</span>
-            <span class="cy-path__body">
-              <span class="cy-path__label">Lesson {{ lesson.lesson_number }}</span>
-              <span class="cy-path__title">{{ lesson.title }}</span>
-            </span>
-            <span class="cy-btn cy-btn--primary cy-btn--sm">{% if done_count %}Continue{% else %}Start{% endif %}</span>
-          </a>
-        </li>
-      {% else %}
-        <li class="cy-path__step is-todo">
-          <a class="cy-path__link" href="{% url 'learn:lesson' module.order_index lesson.lesson_number %}">
-            <span class="cy-path__node">{{ lesson.lesson_number }}</span>
-            <span class="cy-path__body">
-              <span class="cy-path__label">Lesson {{ lesson.lesson_number }}</span>
-              <span class="cy-path__title">{{ lesson.title }}</span>
-            </span>
-            <span class="cy-path__go"><svg class="cy-i" aria-hidden="true"><use href="#i-arrow-right"/></svg></span>
-          </a>
-        </li>
-      {% endif %}
+      <li class="cy-mroad__item cy-mroad__item--lesson {% if lesson.is_done %}is-done{% elif next_lesson and lesson.lesson_number == next_lesson.lesson_number %}is-current{% else %}is-todo{% endif %}">
+        <span class="cy-mroad__node">
+          {% if lesson.is_done %}<svg class="cy-i" aria-hidden="true"><use href="#i-check"/></svg>
+          {% else %}{{ lesson.lesson_number }}{% endif %}
+        </span>
+        <div class="cy-mroad__card">
+          <div class="cy-mroad__top">
+            <div class="cy-mroad__heading">
+              <span class="cy-mroad__eyebrow">Lesson {{ lesson.lesson_number }}
+                {% if lesson.task_list %}<span class="cy-mroad__meta">· {{ lesson.tasks_done }}/{{ lesson.tasks_total }} tasks</span>{% endif %}
+              </span>
+              <a class="cy-mroad__title" href="{% url 'learn:lesson' module.order_index lesson.lesson_number %}">{{ lesson.title }}</a>
+            </div>
+            <a class="cy-mroad__cta {% if lesson.is_done %}is-done{% endif %}" href="{% url 'learn:lesson' module.order_index lesson.lesson_number %}">
+              {% if lesson.is_done %}Review{% elif lesson.tasks_done %}Continue{% else %}Start{% endif %}
+              <svg class="cy-i" aria-hidden="true"><use href="#i-arrow-right"/></svg>
+            </a>
+          </div>
+          {% if lesson.task_list %}
+            <ul class="cy-mroad__tasks">
+              {% for t in lesson.task_list %}
+                <li class="cy-mroad__task {% if t.done %}is-done{% endif %}" title="{{ t.title }}">
+                  <span class="cy-mroad__task-tick" aria-hidden="true">
+                    {% if t.done %}<svg class="cy-i"><use href="#i-check"/></svg>{% else %}<span class="cy-mroad__task-dot"></span>{% endif %}
+                  </span>
+                  <span class="cy-mroad__chip cy-mroad__chip--{{ t.chip_kind }}"><svg class="cy-i" aria-hidden="true"><use href="#{{ t.chip_icon }}"/></svg>{{ t.chip_label }}</span>
+                  <span class="cy-mroad__task-title">{{ t.title }}</span>
+                </li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+        </div>
+      </li>
     {% endfor %}
 
     {% if simulation %}
-      <li class="cy-path__step cy-path__step--sim {% if sim_done %}is-done{% else %}is-todo{% endif %}">
-        <a class="cy-path__link" href="{% url 'learn:simulation' module.order_index %}">
-          <span class="cy-path__node">
-            {% if sim_done %}<svg class="cy-i" aria-hidden="true"><use href="#i-check"/></svg>
-            {% else %}<svg class="cy-i" aria-hidden="true"><use href="#i-target"/></svg>{% endif %}
-          </span>
-          <span class="cy-path__body">
-            <span class="cy-path__label">Practise</span>
-            <span class="cy-path__title">Interactive simulation</span>
-          </span>
-          {% if sim_done %}<span class="cy-path__tag">Done</span>
-          {% else %}<span class="cy-path__go"><svg class="cy-i" aria-hidden="true"><use href="#i-arrow-right"/></svg></span>{% endif %}
-        </a>
+      <li class="cy-mroad__item cy-mroad__item--sim {% if sim_done %}is-done{% else %}is-todo{% endif %}">
+        <span class="cy-mroad__node">
+          {% if sim_done %}<svg class="cy-i" aria-hidden="true"><use href="#i-check"/></svg>
+          {% else %}<svg class="cy-i" aria-hidden="true"><use href="#i-target"/></svg>{% endif %}
+        </span>
+        <div class="cy-mroad__card cy-mroad__card--feature">
+          <div class="cy-mroad__top">
+            <div class="cy-mroad__heading">
+              <span class="cy-mroad__eyebrow">Practise</span>
+              <a class="cy-mroad__title" href="{% url 'learn:simulation' module.order_index %}">Interactive simulation</a>
+              <span class="cy-mroad__sub">Play out the whole scenario, scene by scene, and see the consequences of each call.</span>
+            </div>
+            <a class="cy-mroad__cta {% if sim_done %}is-done{% endif %}" href="{% url 'learn:simulation' module.order_index %}">
+              {% if sim_done %}Play again{% else %}Start{% endif %} <svg class="cy-i" aria-hidden="true"><use href="#i-arrow-right"/></svg>
+            </a>
+          </div>
+        </div>
       </li>
     {% endif %}
 
     {% if quiz %}
-      {% if quiz_passed %}
-        <li class="cy-path__step cy-path__step--quiz is-done">
-          <a class="cy-path__link" href="{% url 'learn:quiz_result' module.order_index %}">
-            <span class="cy-path__node"><svg class="cy-i" aria-hidden="true"><use href="#i-check"/></svg></span>
-            <span class="cy-path__body">
-              <span class="cy-path__label">Quiz</span>
-              <span class="cy-path__title">Passed — module complete</span>
-            </span>
-            <span class="cy-path__tag">Passed</span>
-          </a>
-        </li>
-      {% elif all_lessons_done %}
-        <li class="cy-path__step cy-path__step--quiz is-current">
-          <a class="cy-path__link" href="{% url 'learn:quiz' module.order_index %}">
-            <span class="cy-path__node"><svg class="cy-i" aria-hidden="true"><use href="#i-award"/></svg></span>
-            <span class="cy-path__body">
-              <span class="cy-path__label">Quiz</span>
-              <span class="cy-path__title">Take the quiz to complete this module</span>
-            </span>
-            <span class="cy-btn cy-btn--primary cy-btn--sm">Take the quiz</span>
-          </a>
-        </li>
-      {% else %}
-        <li class="cy-path__step cy-path__step--quiz is-soon">
-          <div class="cy-path__link">
-            <span class="cy-path__node"><svg class="cy-i" aria-hidden="true"><use href="#i-lock"/></svg></span>
-            <span class="cy-path__body">
-              <span class="cy-path__label">Quiz</span>
-              <span class="cy-path__title">Finish the lessons to unlock</span>
-            </span>
+      <li class="cy-mroad__item cy-mroad__item--quiz {% if quiz_passed %}is-done{% elif all_lessons_done %}is-current{% else %}is-locked{% endif %}">
+        <span class="cy-mroad__node">
+          {% if quiz_passed %}<svg class="cy-i" aria-hidden="true"><use href="#i-check"/></svg>
+          {% elif all_lessons_done %}<svg class="cy-i" aria-hidden="true"><use href="#i-award"/></svg>
+          {% else %}<svg class="cy-i" aria-hidden="true"><use href="#i-lock"/></svg>{% endif %}
+        </span>
+        <div class="cy-mroad__card cy-mroad__card--feature">
+          <div class="cy-mroad__top">
+            <div class="cy-mroad__heading">
+              <span class="cy-mroad__eyebrow">Quiz</span>
+              {% if quiz_passed %}
+                <a class="cy-mroad__title" href="{% url 'learn:quiz_result' module.order_index %}">Passed — module complete</a>
+                <span class="cy-mroad__sub">Ten questions, drawn from a bank of {{ quiz.questions.count }}. You can review your result any time.</span>
+              {% elif all_lessons_done %}
+                <a class="cy-mroad__title" href="{% url 'learn:quiz' module.order_index %}">Take the quiz to complete this module</a>
+                <span class="cy-mroad__sub">Ten questions, 70% to pass. The Adaptive Feedback Engine builds you a study plan from anything you miss.</span>
+              {% else %}
+                <span class="cy-mroad__title cy-mroad__title--muted">Finish the lessons to unlock the quiz</span>
+                <span class="cy-mroad__sub">Learn first, then prove it. The quiz opens once every lesson above is done.</span>
+              {% endif %}
+            </div>
+            {% if quiz_passed %}
+              <a class="cy-mroad__cta is-done" href="{% url 'learn:quiz_result' module.order_index %}">See result <svg class="cy-i" aria-hidden="true"><use href="#i-arrow-right"/></svg></a>
+            {% elif all_lessons_done %}
+              <a class="cy-mroad__cta" href="{% url 'learn:quiz' module.order_index %}">Take the quiz <svg class="cy-i" aria-hidden="true"><use href="#i-arrow-right"/></svg></a>
+            {% endif %}
           </div>
-        </li>
-      {% endif %}
-    {% else %}
-      <li class="cy-path__step is-soon">
-        <div class="cy-path__link">
-          <span class="cy-path__node"><svg class="cy-i" aria-hidden="true"><use href="#i-award"/></svg></span>
-          <span class="cy-path__body">
-            <span class="cy-path__label">Quiz</span>
-            <span class="cy-path__title">Coming soon</span>
-          </span>
         </div>
       </li>
     {% endif %}
   </ol>
+
+  {% if debug and quiz %}
+    <a class="cy-devlink" href="{% url 'learn:quiz_review' module.order_index %}">
+      <svg class="cy-i" aria-hidden="true"><use href="#i-eye"/></svg>
+      Review all {{ quiz.questions.count }} quiz questions (dev only)
+    </a>
+  {% endif %}
 
 </div>
 {% endblock %}
