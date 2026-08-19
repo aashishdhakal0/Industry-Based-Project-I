@@ -21,8 +21,13 @@
     </div>
   </div>
 
-  <h1 class="cy-rise" style="--cy-delay:0.05s; font-size: 1.9rem; margin: 1.25rem 0 0.5rem;">{{ module.title }}</h1>
-  <p class="cy-lede cy-rise" style="--cy-delay:0.05s;">{{ module.description }}</p>
+  {% if module.tagline %}
+    <p class="cy-module__tagline cy-rise" style="--cy-delay:0.05s;">
+      <svg class="cy-i" aria-hidden="true"><use href="#i-bolt"/></svg> {{ module.tagline }}
+    </p>
+  {% endif %}
+  <h1 class="cy-rise" style="--cy-delay:0.06s; font-size: 1.9rem; margin: 0.5rem 0 0.5rem;">{{ module.title }}</h1>
+  <p class="cy-lede cy-rise" style="--cy-delay:0.06s;">{{ module.description }}</p>
 
   {% if module_complete %}
     <div class="cy-moddone cy-rise" style="--cy-delay:0.07s;">

@@ -71,13 +71,11 @@ MODULES = [
     ),
     (
         "Phishing & Social Engineering",
-        "The con behind the click, and how to spot every version of it.",
+        "The con behind the click, across every channel, and how to spot it.",
         Module.Difficulty.INTERMEDIATE,
         [
-            "The con behind the click",
-            "Phishing and its sharper cousins",
-            "Beyond the inbox",
-            "Reading an email like an investigator",
+            "The con, and the channels it comes through",
+            "Read it like an analyst: spot, verify, report",
         ],
     ),
     (
@@ -85,10 +83,8 @@ MODULES = [
         "What secure really means, and how to communicate that way as routine.",
         Module.Difficulty.INTERMEDIATE,
         [
-            "What 'secure' really means",
-            "Proving it is you",
-            "Sharing information safely",
-            "Working securely anywhere",
+            "Before you hit send: what 'secure' really means",
+            "Sharing safely: files, links, and Wi-Fi",
         ],
     ),
     (
@@ -114,6 +110,17 @@ MODULES = [
         ],
     ),
 ]
+
+# A short motto/framing line per module (by order_index), shown as an accent
+# eyebrow on the module overview.
+TAGLINES = {
+    1: "Know your network. Guard every door.",
+    2: "Name the threat. Stop the spread.",
+    3: "They hack the human. Verify anyway.",
+    4: "Before you hit send, think.",
+    5: "Layer the defences. Leave no gap.",
+    6: "A plan beats panic.",
+}
 
 
 def _placeholder_body(module_title, lesson_title):
@@ -384,6 +391,10 @@ def _seed_lesson_tasks(lesson, tasks):
             }
         if t.get("body2"):
             payload["body2"] = sanitise_lesson_html(t["body2"])
+        # Optional "hero" figure: a diagram partial rendered at the very top of
+        # the panel as a visual anchor, above the panel's own diagram/body.
+        if t.get("hero"):
+            payload["hero"] = t["hero"]
         LessonTask.objects.update_or_create(
             lesson=lesson,
             task_key=t["key"],
@@ -493,6 +504,7 @@ class Command(BaseCommand):
                 order_index=index,
                 defaults={
                     "title": title,
+                    "tagline": TAGLINES.get(index, ""),
                     "description": desc,
                     "difficulty": difficulty,
                     "is_published": True,
@@ -506,6 +518,7 @@ class Command(BaseCommand):
             # reseed.
             if not created and (force or not module.admin_edited):
                 module.title = title
+                module.tagline = TAGLINES.get(index, "")
                 module.description = desc
                 module.difficulty = difficulty
                 module.duration_minutes = 40

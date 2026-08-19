@@ -283,12 +283,12 @@ def test_branch_activities_are_solvable(seeded):
 def test_quiz_is_a_substantial_balanced_bank(seeded):
     quiz = seeded.quiz
     assert quiz.pass_mark == 70
-    assert quiz.questions.count() >= 40
+    assert quiz.questions.count() == 10  # exactly ten questions, no random-draw bank
     per_lesson = Counter(
         quiz.questions.values_list("lesson_reference__lesson_number", flat=True)
     )
     for n in (1, 2):
-        assert per_lesson[n] >= 15, f"lesson {n} is thin in the quiz bank ({per_lesson[n]})"
+        assert per_lesson[n] >= 2, f"lesson {n} is thin in the quiz bank ({per_lesson[n]})"
 
 
 @pytest.mark.django_db

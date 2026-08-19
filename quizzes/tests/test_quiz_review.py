@@ -39,7 +39,7 @@ def test_review_lists_every_question_with_answers_when_debug(learner):
     assert resp.status_code == 200
     html = resp.content.decode()
     total = module.quiz.questions.count()
-    assert total == 40
+    assert total == 10  # exactly ten questions per module now
     # One review card per question, one correct-answer mark per question.
     assert html.count("cy-qr__card") == total
     assert html.count("is-correct") == total

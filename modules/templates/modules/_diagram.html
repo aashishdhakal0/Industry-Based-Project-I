@@ -533,4 +533,206 @@
       As a precaution we recommend you <b>reset your password</b>, change it anywhere you have reused it, and <b>turn on two-factor authentication</b>. We will never ask you to pay a fee or send your password by email.
     </div>
   </figure>
+
+{% elif key == "sms-phish" %}
+  <figure class="cy-diagram cy-sms" role="img"
+          aria-label="A phishing text message on a phone. From a number showing as AusPost-Alerts. Message: Your parcel is held pending a 3 dollar 99 redelivery fee. Confirm at aus-post-redelivery dot info within 24 hours or it is returned. There is a link and a countdown.">
+    <div class="cy-sms__phone">
+      <div class="cy-sms__bar"><span>9:41</span><span class="cy-sms__sig">&bull;&bull;&bull; &#9679;</span></div>
+      <div class="cy-sms__from">AusPost-Alerts</div>
+      <div class="cy-sms__bubble">
+        Your parcel is held pending a $3.99 redelivery fee. Confirm your address at <span class="cy-sms__link">aus-post-redelivery.info</span> within 24 hours or it will be returned to sender.
+      </div>
+      <div class="cy-sms__time">now</div>
+    </div>
+    <figcaption class="cy-diagram__cap cy-diagram__cap--single">
+      An unexpected text, a small fee, a tight deadline, and a lookalike link. That combination is smishing.
+    </figcaption>
+  </figure>
+
+{% elif key == "exec-email" %}
+  <figure class="cy-diagram cy-xmail" role="img"
+          aria-label="A fake email appearing to be from the CEO Sarah Whitton, but sent from sarah-whitton at ceo-office-mail dot com. Subject: urgent, confidential payment needed today. It asks to pay a new supplier 48,500 dollars before 4pm and to keep it between us. Callouts flag the lookalike sender domain, the urgency and secrecy, and the unusual payment request.">
+    <div class="cy-xmail__win">
+      <div class="cy-xmail__row"><span class="cy-xmail__k">From</span><span class="cy-xmail__v">Sarah Whitton <span class="em">&lt;sarah-whitton@ceo-office-mail.com&gt;</span></span><span class="cy-flag cy-flag--red">Lookalike domain, not your company</span></div>
+      <div class="cy-xmail__row"><span class="cy-xmail__k">Subject</span><span class="cy-xmail__v"><b>URGENT: confidential payment needed today</b></span><span class="cy-flag cy-flag--gold">Urgency + secrecy</span></div>
+      <div class="cy-xmail__body">
+        Hi, I am in back-to-back meetings and cannot take calls. Please pay our new supplier <b>$48,500</b> before 4pm today. Keep this between us for now, I will explain later. Thanks, Sarah.
+        <span class="cy-flag cy-flag--red cy-flag--inline">Unusual payment + do not verify</span>
+      </div>
+    </div>
+    <figcaption class="cy-diagram__cap cy-diagram__cap--single">
+      Every red flag of business email compromise: a lookalike sender, pressure and secrecy, and a request that skips the normal checks.
+    </figcaption>
+  </figure>
+
+{% elif key == "caller-id" %}
+  <figure class="cy-diagram cy-callid" role="img"
+          aria-label="An incoming call screen. It shows the name CEO, Sarah Whitton and a mobile number. A caption warns that caller ID and even a familiar voice can be faked with AI voice cloning.">
+    <div class="cy-callid__screen">
+      <span class="cy-callid__label">Incoming call</span>
+      <span class="cy-callid__name">Sarah Whitton (CEO)</span>
+      <span class="cy-callid__num">+61 4&#9679;&#9679; &#9679;&#9679;&#9679; 118</span>
+      <div class="cy-callid__btns"><span class="cy-callid__decline"></span><span class="cy-callid__accept"></span></div>
+    </div>
+    <figcaption class="cy-diagram__cap cy-diagram__cap--single">
+      The name looks right, and the voice may sound right too. Both can be faked, so verify on a number you already have.
+    </figcaption>
+  </figure>
+
+{% elif key == "msg-encrypted" %}
+  <figure class="cy-diagram cy-enc" role="img"
+          aria-label="A comparison of two messages in transit. The plain one reads Patient record: J. Nguyen, DOB 1988, and is readable by anyone on the network. The encrypted one is scrambled characters and is unreadable without the key.">
+    <div class="cy-enc__col cy-enc__col--open">
+      <span class="cy-enc__tag cy-enc__tag--bad">In the open</span>
+      <div class="cy-enc__msg">Patient record: J. Nguyen, DOB 1988, Medicare 2841&hellip;</div>
+      <p class="cy-enc__note">Anyone who can see the network can read it, like a postcard.</p>
+    </div>
+    <div class="cy-enc__col cy-enc__col--enc">
+      <span class="cy-enc__tag cy-enc__tag--good">Encrypted</span>
+      <div class="cy-enc__msg cy-enc__msg--scram">8f3a&bull;c1&bull;9e7d&bull;a204&bull;bb&bull;51f0&bull;7c&hellip;</div>
+      <p class="cy-enc__note">Scrambled with a key, so only the intended reader can open it.</p>
+    </div>
+    <figcaption class="cy-diagram__cap cy-diagram__cap--single">
+      The same message, sent two ways. Encryption is the difference between a sealed envelope and a postcard.
+    </figcaption>
+  </figure>
+
+{% elif key == "secure-share" %}
+  <figure class="cy-diagram cy-share" role="img"
+          aria-label="Two file-sharing link settings. The risky one: anyone with the link can view, no expiry. The safe one: restricted to specific people, password protected, expires in 7 days.">
+    <div class="cy-share__opt cy-share__opt--bad">
+      <div class="cy-share__head"><svg class="cy-i" aria-hidden="true"><use href="#i-close"/></svg> Anyone with the link can view</div>
+      <ul class="cy-share__list"><li>No sign-in needed</li><li>Never expires</li><li>Can be forwarded to anyone</li></ul>
+    </div>
+    <div class="cy-share__opt cy-share__opt--good">
+      <div class="cy-share__head"><svg class="cy-i" aria-hidden="true"><use href="#i-check"/></svg> Restricted to specific people</div>
+      <ul class="cy-share__list"><li>Password protected</li><li>Expires in 7 days</li><li>Access can be revoked</li></ul>
+    </div>
+    <figcaption class="cy-diagram__cap cy-diagram__cap--single">
+      Same file, two links. The safe one controls who gets in, and lets you take it back.
+    </figcaption>
+  </figure>
+
+{% elif key == "wifi-evil-twin" %}
+  <figure class="cy-diagram cy-wifi" role="img"
+          aria-label="A Wi-Fi network list at a cafe. Two networks share almost the same name: Corner Cafe Free WiFi, open with no lock, and Corner_Cafe_Guest, also open. A caption warns an attacker can set up a lookalike hotspot, an evil twin, to capture your traffic.">
+    <div class="cy-wifi__panel">
+      <div class="cy-wifi__title">Wi-Fi</div>
+      <div class="cy-wifi__row cy-wifi__row--bad"><svg class="cy-i" aria-hidden="true"><use href="#i-eye"/></svg><span>Corner Cafe Free WiFi</span><span class="cy-wifi__open">open</span></div>
+      <div class="cy-wifi__row cy-wifi__row--bad"><svg class="cy-i" aria-hidden="true"><use href="#i-eye"/></svg><span>Corner_Cafe_Guest</span><span class="cy-wifi__open">open</span></div>
+      <div class="cy-wifi__row"><svg class="cy-i" aria-hidden="true"><use href="#i-lock"/></svg><span>TelstraAir</span><span class="cy-wifi__open">secured</span></div>
+    </div>
+    <figcaption class="cy-diagram__cap cy-diagram__cap--single">
+      Two near-identical open networks. One may be an evil twin, a fake hotspot set up to watch what you send. On open Wi-Fi, use your hotspot or a VPN.
+    </figcaption>
+  </figure>
+
+{% elif key == "net-scene" %}
+  <figure class="cy-diagram cy-scene2" role="img"
+          aria-label="An illustration of the path your data takes: from your device, through the router, across the internet, to a server. Each hop has a note on what to protect: the device (lock the screen, keep it updated), the router (change the default admin password, use WPA2), the internet (open Wi-Fi can be watched, look for the padlock), and the server (strong passwords and backups).">
+    <div class="cy-scene2__head"><span class="cy-scene2__prompt">&gt;</span> YOUR NETWORK, AND WHERE IT IS EXPOSED</div>
+    <div class="cy-scene2__stage" aria-hidden="true">
+      <div class="cy-scene2__figure">
+        <span class="cy-scene2__hood"></span>
+        <span class="cy-scene2__desk"></span>
+        <span class="cy-scene2__rack"></span>
+      </div>
+    </div>
+    <div class="cy-scene2__flow">
+      <div class="cy-scene2__hop cy-scene2__hop--green"><span class="cy-scene2__hk">YOUR DEVICE</span><span class="cy-scene2__hv">Lock the screen. Keep it updated.</span></div>
+      <span class="cy-scene2__arr" aria-hidden="true">&#8594;</span>
+      <div class="cy-scene2__hop cy-scene2__hop--gold"><span class="cy-scene2__hk">ROUTER</span><span class="cy-scene2__hv">Change the default admin password. Use WPA2.</span></div>
+      <span class="cy-scene2__arr" aria-hidden="true">&#8594;</span>
+      <div class="cy-scene2__hop cy-scene2__hop--red"><span class="cy-scene2__hk">THE INTERNET</span><span class="cy-scene2__hv">Open Wi-Fi can be watched. Look for the padlock.</span></div>
+      <span class="cy-scene2__arr" aria-hidden="true">&#8594;</span>
+      <div class="cy-scene2__hop cy-scene2__hop--green"><span class="cy-scene2__hk">SERVER</span><span class="cy-scene2__hv">Your data lives here. Strong passwords and backups.</span></div>
+    </div>
+    <figcaption class="cy-diagram__cap cy-diagram__cap--single">
+      Your information travels through four hops. Each one has a weak point, and one simple habit that shuts it.
+    </figcaption>
+  </figure>
+
+{% elif key == "scene-vish" %}
+  <figure class="cy-diagram cy-ppl" role="img"
+          aria-label="A worried office worker sits at a desk with a phone to their ear and a hand hovering over the keyboard. A bank-transfer screen showing 48,500 dollars and a Pay Now button is open. A speech bubble from the call reads: it's Sarah, transfer 48,500 dollars now, and keep it quiet. A sticky note reads: keep it quiet.">
+    <svg viewBox="0 0 480 250" class="cy-ppl__svg" xmlns="http://www.w3.org/2000/svg">
+      <rect x="0" y="190" width="480" height="60" fill="#161226"/>
+      <rect x="0" y="190" width="480" height="3" fill="#2e2745"/>
+      <!-- monitor: an open bank transfer -->
+      <rect x="292" y="98" width="150" height="92" rx="7" fill="#0e0b18" stroke="#40365e"/>
+      <rect x="302" y="108" width="130" height="72" rx="3" fill="#120f1e"/>
+      <text x="312" y="130" fill="#bfb3c4" font-size="11" font-family="monospace">NEW TRANSFER</text>
+      <text x="312" y="152" fill="#ff9a9a" font-size="18" font-weight="700" font-family="monospace">$48,500</text>
+      <rect x="312" y="160" width="72" height="15" rx="4" fill="#2fbf71"/>
+      <text x="322" y="171" fill="#06202a" font-size="9" font-weight="700" font-family="sans-serif">PAY NOW</text>
+      <!-- person at the desk, on the phone -->
+      <path d="M118 190 q0 -62 57 -62 q57 0 57 62 Z" fill="#5b4bd6"/>
+      <circle cx="175" cy="104" r="26" fill="#e6b592"/>
+      <path d="M149 102 q0 -30 26 -30 q26 0 26 30 q-13 -11 -26 -11 q-13 0 -26 11 Z" fill="#2b2540"/>
+      <path d="M206 152 q30 -8 24 -44" stroke="#5b4bd6" stroke-width="15" fill="none" stroke-linecap="round"/>
+      <rect x="196" y="90" width="12" height="26" rx="3" fill="#0e0b18" transform="rotate(14 202 103)"/>
+      <circle cx="167" cy="105" r="2.4" fill="#3a2f2a"/>
+      <circle cx="184" cy="105" r="2.4" fill="#3a2f2a"/>
+      <path d="M161 98 l8 3 M191 98 l-8 3" stroke="#3a2f2a" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+      <path d="M168 117 q7 4 14 0" stroke="#3a2f2a" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+      <text x="214" y="88" fill="#ffc94b" font-size="26" font-weight="800" font-family="sans-serif">?</text>
+      <!-- speech bubble from the call -->
+      <rect x="208" y="28" width="238" height="54" rx="10" fill="#191529" stroke="#40365e"/>
+      <path d="M212 66 l-13 15 l19 -6 Z" fill="#191529" stroke="#40365e"/>
+      <text x="222" y="51" fill="#f7f0e8" font-size="12" font-family="sans-serif">It's Sarah. Transfer $48,500</text>
+      <text x="222" y="69" fill="#f7f0e8" font-size="12" font-family="sans-serif">right now, and keep it quiet.</text>
+      <!-- sticky note -->
+      <g transform="rotate(-6 66 154)">
+        <rect x="26" y="130" width="84" height="50" rx="3" fill="#e8c04a"/>
+        <text x="35" y="152" fill="#2a2210" font-size="11" font-weight="700" font-family="sans-serif">keep it</text>
+        <text x="35" y="168" fill="#2a2210" font-size="11" font-weight="700" font-family="sans-serif">quiet!</text>
+      </g>
+    </svg>
+    <figcaption class="cy-diagram__cap cy-diagram__cap--single">
+      A caller who sounds exactly like the CEO is urgently demanding a transfer. The pressure and the secrecy are the tell.
+    </figcaption>
+  </figure>
+
+{% elif key == "scene-send" %}
+  <figure class="cy-diagram cy-ppl" role="img"
+          aria-label="Two colleagues at a desk. One sits at a keyboard about to send an email; the compose window shows the To field set to a personal gmail address, an attachment named Client medical form dot pdf, and a Send button. The other colleague stands, points at the screen and looks concerned.">
+    <svg viewBox="0 0 480 250" class="cy-ppl__svg" xmlns="http://www.w3.org/2000/svg">
+      <rect x="0" y="190" width="480" height="60" fill="#161226"/>
+      <rect x="0" y="190" width="480" height="3" fill="#2e2745"/>
+      <!-- monitor: an email being composed -->
+      <rect x="168" y="60" width="176" height="120" rx="7" fill="#0e0b18" stroke="#40365e"/>
+      <rect x="178" y="70" width="156" height="100" rx="3" fill="#120f1e"/>
+      <text x="188" y="90" fill="#8b7f95" font-size="10" font-family="monospace">To:</text>
+      <text x="210" y="90" fill="#ff9a9a" font-size="10" font-family="monospace">joe.private@gmail.com</text>
+      <text x="188" y="108" fill="#8b7f95" font-size="10" font-family="monospace">Subject: the file</text>
+      <rect x="188" y="118" width="138" height="24" rx="4" fill="#221c36" stroke="#40365e"/>
+      <text x="196" y="134" fill="#f7f0e8" font-size="10" font-family="monospace">Client_medical_form.pdf</text>
+      <rect x="286" y="150" width="48" height="16" rx="4" fill="#5b4bd6"/>
+      <text x="296" y="162" fill="#fff" font-size="9" font-weight="700" font-family="sans-serif">SEND</text>
+      <!-- seated colleague at the keyboard (left) -->
+      <path d="M52 190 q0 -54 46 -54 q46 0 46 54 Z" fill="#3f7d8c"/>
+      <circle cx="98" cy="120" r="22" fill="#e0a878"/>
+      <path d="M76 118 q0 -25 22 -25 q22 0 22 25 q-11 -9 -22 -9 q-11 0 -22 9 Z" fill="#22201c"/>
+      <circle cx="92" cy="121" r="2.2" fill="#3a2f2a"/>
+      <circle cx="106" cy="121" r="2.2" fill="#3a2f2a"/>
+      <path d="M92 131 q6 3 12 0" stroke="#3a2f2a" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+      <path d="M120 168 q26 -4 40 -18" stroke="#3f7d8c" stroke-width="13" fill="none" stroke-linecap="round"/>
+      <!-- standing colleague pointing (right) -->
+      <path d="M372 190 q0 -74 34 -74 q34 0 34 74 Z" fill="#8b5cf6"/>
+      <circle cx="406" cy="86" r="21" fill="#d99a6c"/>
+      <path d="M386 84 q0 -24 20 -24 q20 0 20 24 q-10 -9 -20 -9 q-10 0 -20 9 Z" fill="#241a30"/>
+      <circle cx="400" cy="86" r="2.2" fill="#3a2f2a"/>
+      <circle cx="413" cy="86" r="2.2" fill="#3a2f2a"/>
+      <path d="M394 79 l7 3 M419 79 l-7 3" stroke="#3a2f2a" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+      <path d="M400 97 q6 3 12 0" stroke="#3a2f2a" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+      <!-- pointing arm toward the screen -->
+      <path d="M376 138 q-30 -6 -44 -26" stroke="#8b5cf6" stroke-width="13" fill="none" stroke-linecap="round"/>
+      <circle cx="330" cy="110" r="6" fill="#d99a6c"/>
+      <text x="352" y="44" fill="#ffc94b" font-size="24" font-weight="800" font-family="sans-serif">!</text>
+    </svg>
+    <figcaption class="cy-diagram__cap cy-diagram__cap--single">
+      A client's medical form is about to go out as a plain email, to a personal address. A colleague has spotted it.
+    </figcaption>
+  </figure>
 {% endif %}

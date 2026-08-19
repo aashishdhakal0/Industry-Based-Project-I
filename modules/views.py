@@ -285,6 +285,7 @@ def lesson(request, order_index, lesson_number):
             t.hint = payload.get("hint", "")
             t.inline_check = payload.get("inline_check")   # optional mid-panel check
             t.body2 = payload.get("body2", "")             # optional reading after it
+            t.hero = payload.get("hero", "")               # optional top-of-panel figure
 
     return render(
         request,

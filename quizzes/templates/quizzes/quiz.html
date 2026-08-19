@@ -40,19 +40,32 @@
   {% for q in questions %}
     <fieldset class="cy-quiz__q" data-quiz-q data-qid="{{ q.id }}">
       <legend class="cy-quiz__q-text">
-        <span class="cy-quiz__q-num">Question {{ q.number }}</span>
-        {{ q.question_text }}
+        <span class="cy-quiz__q-meta">
+          <span class="cy-quiz__q-num">Question {{ q.number }}</span>
+          <span class="cy-quiz__diff">{{ q.get_difficulty_display }}</span>
+        </span>
+        <span class="cy-quiz__q-prompt">{{ q.question_text }}</span>
       </legend>
       <div class="cy-quiz__options">
         {% for a in q.answers.all %}
-          <label class="cy-quiz__opt">
+          {% comment %}
+            data-correct + the explanation ship to the client so JS can give
+            immediate feedback (same pattern as the in-lesson CHECK activities).
+            The final grade is still computed SERVER-SIDE on submit — this reveal
+            is purely visual. Without JS, the explanations stay hidden by CSS.
+          {% endcomment %}
+          <label class="cy-quiz__opt" data-opt data-correct="{% if a.correct_answer %}1{% endif %}">
             <input type="radio" name="q{{ q.id }}" value="{{ a.id }}"
                    {% if q.saved == a.id %}checked{% endif %}>
             <span class="cy-quiz__opt-marker" aria-hidden="true"></span>
-            <span class="cy-quiz__opt-text">{{ a.option_text }}</span>
+            <span class="cy-quiz__opt-body">
+              <span class="cy-quiz__opt-text">{{ a.option_text }}</span>
+              <span class="cy-quiz__opt-why">{{ a.explanation_text }}</span>
+            </span>
           </label>
         {% endfor %}
       </div>
+      <p class="cy-quiz__feedback" data-quiz-feedback aria-live="polite"></p>
     </fieldset>
   {% endfor %}
 
@@ -73,5 +86,5 @@
 {% endblock %}
 
 {% block scripts %}
-  <script src="{% static 'js/quiz.js' %}" defer></script>
+  <script src="{% static 'js/quiz.js' %}?v=2" defer></script>
 {% endblock %}

@@ -50,6 +50,11 @@ class Module(models.Model):
         ADVANCED = "ADVANCED", "Advanced"
 
     title = models.CharField(max_length=255)
+    tagline = models.CharField(
+        max_length=120,
+        blank=True,
+        help_text="A short motto/framing line shown on the module overview.",
+    )
     description = models.TextField(blank=True)
     difficulty = models.CharField(
         max_length=20, choices=Difficulty.choices, default=Difficulty.BEGINNER

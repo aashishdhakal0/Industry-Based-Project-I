@@ -40,6 +40,35 @@
     return !!questions[index].querySelector("input[type=radio]:checked");
   }
 
+  // Immediate feedback (Kahoot/Duolingo style): picking an option commits it,
+  // reveals correct/incorrect and the explanation, and locks the question. The
+  // grade is still computed server-side on submit; this is purely visual.
+  function reveal(fieldset, chosenInput) {
+    if (fieldset.classList.contains("is-answered")) return;
+    fieldset.classList.add("is-answered");
+    var chosenLabel = chosenInput.closest("[data-opt]");
+    var wasCorrect = chosenLabel.getAttribute("data-correct") === "1";
+    chosenLabel.classList.add("is-chosen", wasCorrect ? "is-correct" : "is-wrong");
+
+    var labels = fieldset.querySelectorAll("[data-opt]");
+    Array.prototype.forEach.call(labels, function (label) {
+      // Show where the right answer was, even if the learner missed it.
+      if (label.getAttribute("data-correct") === "1") label.classList.add("is-correct");
+      // Lock every other option. The chosen radio stays enabled so it still
+      // submits; disabling the rest prevents changing the answer.
+      var input = label.querySelector("input[type=radio]");
+      if (input && input !== chosenInput) input.disabled = true;
+    });
+
+    var fb = fieldset.querySelector("[data-quiz-feedback]");
+    if (fb) {
+      fb.textContent = wasCorrect
+        ? "Correct."
+        : "Not quite. The right answer is highlighted.";
+      fb.className = "cy-quiz__feedback " + (wasCorrect ? "is-good" : "is-bad");
+    }
+  }
+
   function render() {
     for (var i = 0; i < questions.length; i++) {
       questions[i].classList.toggle("is-current", i === index);
@@ -88,8 +117,18 @@
     var input = e.target;
     if (!input || input.type !== "radio") return;
     var fieldset = input.closest("[data-quiz-q]");
-    if (fieldset) save(fieldset.getAttribute("data-qid"), input.value);
+    if (!fieldset) return;
+    if (fieldset.classList.contains("is-answered")) return; // locked after first pick
+    save(fieldset.getAttribute("data-qid"), input.value);
+    reveal(fieldset, input);
     render();
+  });
+
+  // On resume (a refresh mid-quiz), restore the answered-and-revealed state for
+  // any question whose answer was saved and pre-checked by the server.
+  questions.forEach(function (fieldset) {
+    var checked = fieldset.querySelector("input[type=radio]:checked");
+    if (checked) reveal(fieldset, checked);
   });
 
   render();

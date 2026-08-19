@@ -2734,26 +2734,19 @@ body.cy-body {
 .cy-quiz--stepped .cy-quiz__q.is-current { display: block; }
 .cy-quiz--stepped .cy-quiz__q { border-top: 0; padding-top: 0; }
 
-.cy-quiz__q-text {
-  display: block;
-  font-family: var(--cy-font-display);
-  font-size: 1.15rem;
-  font-weight: 600;
-  margin-bottom: 1.1rem;
-}
-.cy-quiz__q-num {
-  color: var(--cy-violet-soft);
-  display: block;
-  font-family: var(--cy-font-mono);
-  font-size: 0.72rem;
-  letter-spacing: 0.06em;
-  margin-bottom: 0.35rem;
-  text-transform: uppercase;
-}
+/* One deliberate type scale (shared with the dev review page): the question is
+   the anchor (display face, largest, boldest); options are body; explanations
+   are smaller, secondary. */
+.cy-quiz__q-text { display: block; margin-bottom: 1.15rem; }
+.cy-quiz__q-meta { align-items: center; display: flex; gap: 0.55rem; margin-bottom: 0.55rem; }
+.cy-quiz__q-num { color: var(--cy-text-3); font-family: var(--cy-font-mono); font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; }
+/* difficulty tag: ONE flat, muted style for EASY / MEDIUM / HARD alike */
+.cy-quiz__diff { background: var(--cy-surface-3); border: 1px solid var(--cy-border); border-radius: 6px; color: var(--cy-text-3); font-family: var(--cy-font); font-size: 0.62rem; font-weight: 700; letter-spacing: 0.06em; padding: 2px 8px; text-transform: uppercase; }
+.cy-quiz__q-prompt { color: var(--cy-text); display: block; font-family: var(--cy-font-display); font-size: 1.4rem; font-weight: 700; letter-spacing: -0.01em; line-height: 1.35; }
 
 .cy-quiz__options { display: grid; gap: 0.6rem; }
 .cy-quiz__opt {
-  align-items: center;
+  align-items: flex-start;
   background: var(--cy-surface-2);
   border: 1px solid var(--cy-border);
   border-radius: var(--cy-r-lg);
@@ -2761,18 +2754,22 @@ body.cy-body {
   display: flex;
   gap: 0.8rem;
   padding: 0.9rem 1.1rem;
-  transition: border-color 0.15s ease, background-color 0.15s ease;
+  transition: border-color 0.15s ease, background-color 0.15s ease, transform 0.15s ease;
 }
-.cy-quiz__opt:hover { border-color: var(--cy-border-lift); }
+.cy-quiz__opt:hover { border-color: var(--cy-border-lift); transform: translateY(-1px); }
 .cy-quiz__opt-marker {
   border: 2px solid var(--cy-border-lift);
   border-radius: 50%;
   flex: none;
   height: 20px;
+  margin-top: 1px;
   position: relative;
+  transition: border-color 0.15s ease, background 0.15s ease;
   width: 20px;
 }
-.cy-quiz__opt-text { color: var(--cy-text); }
+.cy-quiz__opt-body { display: flex; flex-direction: column; gap: 0.2rem; min-width: 0; }
+.cy-quiz__opt-text { color: var(--cy-text); font-family: var(--cy-font); font-size: 1rem; font-weight: 500; line-height: 1.5; }
+.cy-quiz__opt-why { color: var(--cy-text-2); font-family: var(--cy-font); font-size: 0.88rem; line-height: 1.55; max-height: 0; opacity: 0; overflow: hidden; transition: max-height 0.28s ease, opacity 0.28s ease, margin 0.28s ease; }
 /* The native radio is the accessible control; we hide it and style the label. */
 .cy-quiz__opt input {
   height: 1px;
@@ -2780,6 +2777,7 @@ body.cy-body {
   position: absolute;
   width: 1px;
 }
+/* neutral selected state (before reveal, and the no-JS fallback) */
 .cy-quiz__opt:has(input:checked) {
   background: var(--cy-surface-3);
   border-color: var(--cy-violet);
@@ -2797,6 +2795,33 @@ body.cy-body {
 .cy-quiz__opt input:focus-visible + .cy-quiz__opt-marker {
   outline: 2px solid var(--cy-violet);
   outline-offset: 2px;
+}
+
+/* --- immediate feedback reveal (scoped under .is-answered so it wins over the
+   neutral checked state above) --- */
+.cy-quiz__q.is-answered .cy-quiz__opt { cursor: default; }
+.cy-quiz__q.is-answered .cy-quiz__opt:hover { transform: none; }
+.cy-quiz__q.is-answered .cy-quiz__opt:not(.is-correct):not(.is-chosen) { opacity: 0.5; }
+/* the correct answer, cyan-green */
+.cy-quiz__q.is-answered .cy-quiz__opt.is-correct { background: rgba(129, 201, 149, 0.12); border-color: rgba(129, 201, 149, 0.6); }
+.cy-quiz__q.is-answered .cy-quiz__opt.is-correct .cy-quiz__opt-marker { background: #6bbf7e; border-color: #6bbf7e; }
+.cy-quiz__q.is-answered .cy-quiz__opt.is-correct .cy-quiz__opt-marker::after { background: none; border: solid #fff; border-radius: 0; border-width: 0 2px 2px 0; content: ""; height: 9px; inset: auto; left: 6px; position: absolute; top: 3px; transform: rotate(45deg); width: 5px; }
+/* the learner's wrong pick, red */
+.cy-quiz__q.is-answered .cy-quiz__opt.is-wrong { background: rgba(255, 128, 128, 0.1); border-color: rgba(255, 128, 128, 0.55); }
+.cy-quiz__q.is-answered .cy-quiz__opt.is-wrong .cy-quiz__opt-marker { background: #e06a63; border-color: #e06a63; }
+.cy-quiz__q.is-answered .cy-quiz__opt.is-wrong .cy-quiz__opt-marker::after { background: none; border: 0; color: #fff; content: "\00d7"; font-size: 15px; inset: 0; line-height: 17px; position: absolute; text-align: center; }
+/* reveal the explanation on the chosen option and the correct one */
+.cy-quiz__q.is-answered .cy-quiz__opt.is-chosen .cy-quiz__opt-why,
+.cy-quiz__q.is-answered .cy-quiz__opt.is-correct .cy-quiz__opt-why { margin-top: 0.15rem; max-height: 14rem; opacity: 1; }
+
+/* per-question feedback line under the options */
+.cy-quiz__feedback { font-size: 0.9rem; font-weight: 600; margin: 1rem 0 0; min-height: 1.1em; }
+.cy-quiz__feedback.is-good { color: #81c995; }
+.cy-quiz__feedback.is-bad { color: #ff8f87; }
+
+@media (prefers-reduced-motion: reduce) {
+  .cy-quiz__opt, .cy-quiz__opt-why, .cy-quiz__bar-fill { transition: none; }
+  .cy-quiz__opt:hover { transform: none; }
 }
 
 .cy-quiz__nav {
@@ -8424,6 +8449,32 @@ a.cy-course__hit:hover { background: var(--cy-surface-2); }
 /* Keep prose readable even though the room is wide. */
 .cy-panel__body .cy-prose{ max-width:62rem; }
 
+/* --- Content mode: teaching prose becomes a calm, neutral reading card, the
+   deliberate counterpart to the tinted "question mode" card below. Same theme
+   and radius, different weight: flat and restful (read) vs tinted and raised
+   (do). --- */
+.cy-panel__body .cy-prose{
+  background:var(--cy-surface);
+  border:1px solid var(--cy-border);
+  border-radius:var(--cy-r);
+  padding:1.15rem 1.35rem;
+  margin-top:1.1rem;
+}
+.cy-panel__body .cy-prose::before{
+  content:"Reading";
+  display:block;
+  font-family:var(--cy-font-mono); font-size:.66rem; font-weight:700;
+  letter-spacing:.08em; text-transform:uppercase; color:var(--cy-text-3);
+  margin-bottom:.75rem;
+}
+/* the first block in a panel (no figure above it) does not need a top gap */
+.cy-panel__body > .cy-prose:first-child{ margin-top:0; }
+/* a second reading block after a check/activity does not repeat the tab */
+.cy-panel__body .cy-check ~ .cy-prose::before,
+.cy-panel__body .cy-panel__do ~ .cy-prose::before{ content:none; }
+/* the RESPOND scenario intro is reading too, so it shares the calm card */
+.cy-panel__body .cy-task__scenario.cy-prose::before{ content:"Scenario"; }
+
 /* --- Question mode: checks + activities become a distinct, tinted card --- */
 .cy-panel__do, .cy-check{
   position:relative; margin-top:1.25rem;
@@ -8701,20 +8752,21 @@ a.cy-course__hit:hover { background: var(--cy-surface-2); }
 .cy-qr__count { color: var(--cy-text-3); font-size: 0.85rem; font-weight: 400; }
 .cy-qr__card { background: var(--cy-surface); border: 1px solid var(--cy-border); border-radius: 12px; margin-bottom: 0.9rem; padding: 1.1rem 1.2rem; }
 .cy-qr__head { align-items: center; display: flex; gap: 0.6rem; margin-bottom: 0.5rem; }
-.cy-qr__num { color: var(--cy-cyan-soft); font-family: var(--cy-font-mono); font-size: 0.8rem; font-weight: 700; }
-.cy-qr__diff { border-radius: 5px; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.05em; padding: 2px 8px; text-transform: uppercase; }
-.cy-qr__diff--easy { background: rgba(129, 201, 149, 0.16); color: #81c995; }
-.cy-qr__diff--medium { background: rgba(255, 201, 75, 0.16); color: var(--cy-gold, #ffc94b); }
-.cy-qr__diff--hard { background: rgba(255, 128, 128, 0.16); color: #ff8080; }
-.cy-qr__q { color: var(--cy-text); font-size: 1.02rem; font-weight: 600; margin: 0 0 0.8rem; }
+.cy-qr__num { color: var(--cy-text-3); font-family: var(--cy-font-mono); font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+/* difficulty tag: ONE flat, muted style, identical to the real quiz's tag */
+.cy-qr__diff { background: var(--cy-surface-3); border: 1px solid var(--cy-border); border-radius: 6px; color: var(--cy-text-3); font-family: var(--cy-font); font-size: 0.62rem; font-weight: 700; letter-spacing: 0.06em; padding: 2px 8px; text-transform: uppercase; }
+/* question = the anchor (display face, largest, boldest) */
+.cy-qr__q { color: var(--cy-text); font-family: var(--cy-font-display); font-size: 1.3rem; font-weight: 700; letter-spacing: -0.01em; line-height: 1.35; margin: 0 0 0.9rem; }
 .cy-qr__opts { display: grid; gap: 0.5rem; list-style: none; margin: 0; padding: 0; }
-.cy-qr__opt { background: var(--cy-surface-2); border: 1px solid var(--cy-border); border-radius: 9px; display: flex; gap: 0.6rem; padding: 0.6rem 0.75rem; }
+.cy-qr__opt { background: var(--cy-surface-2); border: 1px solid var(--cy-border); border-radius: 9px; display: flex; gap: 0.6rem; padding: 0.7rem 0.85rem; }
 .cy-qr__opt.is-correct { background: rgba(129, 201, 149, 0.1); border-color: rgba(129, 201, 149, 0.5); }
 .cy-qr__opt-mark { flex: none; width: 18px; }
 .cy-qr__opt-mark .cy-i { color: #81c995; height: 18px; width: 18px; }
-.cy-qr__opt-text { color: var(--cy-text); display: block; font-size: 0.92rem; }
+/* option = readable body text */
+.cy-qr__opt-text { color: var(--cy-text); display: block; font-family: var(--cy-font); font-size: 1rem; font-weight: 500; line-height: 1.5; }
 .cy-qr__opt.is-correct .cy-qr__opt-text { font-weight: 600; }
-.cy-qr__opt-why { color: var(--cy-text-3); display: block; font-size: 0.84rem; line-height: 1.5; margin-top: 0.2rem; }
+/* explanation = smaller, secondary subtext */
+.cy-qr__opt-why { color: var(--cy-text-2); display: block; font-family: var(--cy-font); font-size: 0.88rem; line-height: 1.55; margin-top: 0.25rem; }
 
 /* the DEBUG review link on the module overview */
 .cy-devlink { align-items: center; background: rgba(255, 157, 77, 0.08); border: 1px dashed rgba(255, 157, 77, 0.5); border-radius: 10px; color: var(--cy-flame); display: inline-flex; font-size: 0.85rem; font-weight: 600; gap: 0.45rem; margin-top: 1rem; padding: 0.5rem 0.9rem; text-decoration: none; }
@@ -8785,3 +8837,105 @@ a.cy-mroad__title:hover { color: var(--cy-cyan-soft); }
   .cy-mroad__task-title { white-space: normal; }
   .cy-mroad__chip { min-width: 0; }
 }
+
+/* ============================================================ *
+ * Module 3 & 4 figures + the Module 1 hero scene              *
+ * ============================================================ */
+
+/* callout flags shared by the annotated figures */
+.cy-flag { border-radius: 5px; font-size: 0.66rem; font-weight: 700; letter-spacing: 0.02em; padding: 2px 7px; white-space: nowrap; }
+.cy-flag--red { background: rgba(220, 70, 70, 0.16); border: 1px solid rgba(255, 128, 128, 0.4); color: #ff9a9a; }
+.cy-flag--gold { background: rgba(255, 201, 75, 0.14); border: 1px solid rgba(255, 201, 75, 0.4); color: var(--cy-gold, #ffc94b); }
+.cy-flag--inline { display: inline-block; margin-top: 0.5rem; }
+
+/* phishing SMS on a phone */
+.cy-sms { display: flex; flex-direction: column; align-items: center; }
+.cy-sms__phone { background: #0d0b16; border: 1px solid var(--cy-border-lift); border-radius: 22px; box-shadow: 0 12px 34px rgba(0,0,0,0.5); max-width: 20rem; overflow: hidden; padding: 0.4rem 0.7rem 1rem; width: 100%; }
+.cy-sms__bar { color: var(--cy-text-3); display: flex; font-size: 0.7rem; justify-content: space-between; padding: 0.35rem 0.4rem 0.6rem; }
+.cy-sms__from { color: var(--cy-text-2); font-size: 0.8rem; font-weight: 700; text-align: center; margin-bottom: 0.5rem; }
+.cy-sms__bubble { background: var(--cy-surface-3); border-radius: 14px 14px 14px 4px; color: var(--cy-text); font-size: 0.9rem; line-height: 1.45; max-width: 85%; padding: 0.7rem 0.85rem; }
+.cy-sms__link { color: #ff9a9a; text-decoration: underline; word-break: break-all; }
+.cy-sms__time { color: var(--cy-text-3); font-size: 0.66rem; margin: 0.3rem 0 0 0.3rem; }
+
+/* annotated fake-executive email */
+.cy-xmail { background: var(--cy-surface); border: 1px solid var(--cy-border); border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); max-width: 42rem; overflow: hidden; }
+.cy-xmail__win { padding: 0.4rem 0; }
+.cy-xmail__row { align-items: center; border-bottom: 1px solid var(--cy-border); display: flex; flex-wrap: wrap; gap: 0.5rem; padding: 0.6rem 1rem; }
+.cy-xmail__k { color: var(--cy-text-3); flex: none; font-size: 0.72rem; text-transform: uppercase; width: 3.6rem; }
+.cy-xmail__v { color: var(--cy-text); flex: 1; font-size: 0.9rem; min-width: 12rem; }
+.cy-xmail__v .em { color: #ff9a9a; font-family: var(--cy-font-mono); font-size: 0.82rem; }
+.cy-xmail__body { color: var(--cy-text-2); font-size: 0.92rem; line-height: 1.6; padding: 0.9rem 1rem 1.1rem; }
+.cy-xmail__body b { color: var(--cy-text); }
+
+/* incoming-call / caller-ID screen */
+.cy-callid { display: flex; justify-content: center; }
+.cy-callid__screen { background: radial-gradient(120% 90% at 50% -10%, rgba(124,92,255,0.3), transparent 60%), linear-gradient(160deg, #171326, #0e0b18); border: 1px solid var(--cy-border-lift); border-radius: 18px; box-shadow: 0 14px 34px rgba(0,0,0,0.5); max-width: 18rem; padding: 1.6rem 1.4rem; text-align: center; width: 100%; }
+.cy-callid__label { color: var(--cy-text-3); font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; }
+.cy-callid__name { color: var(--cy-text); display: block; font-size: 1.3rem; font-weight: 700; margin: 0.5rem 0 0.2rem; }
+.cy-callid__num { color: var(--cy-text-2); font-family: var(--cy-font-mono); font-size: 0.9rem; }
+.cy-callid__btns { display: flex; gap: 3rem; justify-content: center; margin-top: 1.4rem; }
+.cy-callid__decline, .cy-callid__accept { border-radius: 50%; height: 40px; width: 40px; }
+.cy-callid__decline { background: #d24646; }
+.cy-callid__accept { background: #2fbf71; }
+
+/* encrypted vs open message compare */
+.cy-enc { display: grid; gap: 0.8rem; grid-template-columns: 1fr 1fr; }
+.cy-enc__col { border: 1px solid var(--cy-border); border-radius: 12px; padding: 0.9rem 1rem; }
+.cy-enc__col--open { background: rgba(255,128,128,0.06); border-color: rgba(255,128,128,0.3); }
+.cy-enc__col--enc { background: rgba(129,201,149,0.06); border-color: rgba(129,201,149,0.35); }
+.cy-enc__tag { border-radius: 5px; display: inline-block; font-size: 0.66rem; font-weight: 700; letter-spacing: 0.04em; margin-bottom: 0.6rem; padding: 2px 8px; text-transform: uppercase; }
+.cy-enc__tag--bad { background: rgba(255,128,128,0.16); color: #ff9a9a; }
+.cy-enc__tag--good { background: rgba(129,201,149,0.16); color: #81c995; }
+.cy-enc__msg { background: rgba(0,0,0,0.25); border-radius: 8px; color: var(--cy-text); font-family: var(--cy-font-mono); font-size: 0.82rem; line-height: 1.5; padding: 0.6rem 0.7rem; word-break: break-word; }
+.cy-enc__msg--scram { color: var(--cy-text-3); letter-spacing: 0.02em; }
+.cy-enc__note { color: var(--cy-text-2); font-size: 0.82rem; line-height: 1.5; margin: 0.6rem 0 0; }
+
+/* file-share link settings compare */
+.cy-share { display: grid; gap: 0.8rem; grid-template-columns: 1fr 1fr; }
+.cy-share__opt { border: 1px solid var(--cy-border); border-radius: 12px; padding: 0.9rem 1rem; }
+.cy-share__opt--bad { background: rgba(255,128,128,0.06); border-color: rgba(255,128,128,0.3); }
+.cy-share__opt--good { background: rgba(129,201,149,0.06); border-color: rgba(129,201,149,0.35); }
+.cy-share__head { align-items: center; color: var(--cy-text); display: flex; font-size: 0.9rem; font-weight: 600; gap: 0.4rem; margin-bottom: 0.6rem; }
+.cy-share__opt--bad .cy-i { color: #ff8080; height: 16px; width: 16px; }
+.cy-share__opt--good .cy-i { color: #81c995; height: 16px; width: 16px; }
+.cy-share__list { color: var(--cy-text-2); font-size: 0.84rem; line-height: 1.7; list-style: none; margin: 0; padding: 0; }
+
+/* cafe Wi-Fi picker with an evil twin */
+.cy-wifi { display: flex; justify-content: center; }
+.cy-wifi__panel { background: var(--cy-surface); border: 1px solid var(--cy-border); border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); max-width: 24rem; overflow: hidden; width: 100%; }
+.cy-wifi__title { background: var(--cy-surface-2); border-bottom: 1px solid var(--cy-border); color: var(--cy-text); font-size: 0.9rem; font-weight: 600; padding: 0.7rem 1rem; }
+.cy-wifi__row { align-items: center; border-bottom: 1px solid var(--cy-border); color: var(--cy-text); display: flex; font-size: 0.9rem; gap: 0.6rem; padding: 0.7rem 1rem; }
+.cy-wifi__row:last-child { border-bottom: 0; }
+.cy-wifi__row .cy-i { flex: none; height: 15px; width: 15px; }
+.cy-wifi__row--bad .cy-i { color: var(--cy-flame); }
+.cy-wifi__row:not(.cy-wifi__row--bad) .cy-i { color: var(--cy-text-3); }
+.cy-wifi__open { color: var(--cy-text-3); font-size: 0.74rem; margin-left: auto; }
+.cy-wifi__row--bad .cy-wifi__open { color: var(--cy-flame); }
+
+/* Module 1 hero scene: data-flow with terminal-style callouts */
+.cy-scene2 { background: radial-gradient(120% 80% at 15% -10%, rgba(124,92,255,0.22), transparent 55%), linear-gradient(160deg, #12101f, #0b0912); border: 1px solid var(--cy-border-lift); border-radius: 14px; box-shadow: var(--cy-shadow-lift, 0 16px 40px rgba(0,0,0,0.45)); overflow: hidden; padding: 1.1rem 1.2rem 1.3rem; }
+.cy-scene2__head { color: var(--cy-cyan-soft); font-family: var(--cy-font-mono); font-size: 0.78rem; letter-spacing: 0.06em; margin-bottom: 0.9rem; }
+.cy-scene2__prompt { color: var(--cy-gold, #ffc94b); }
+.cy-scene2__stage { align-items: flex-end; display: flex; height: 84px; justify-content: center; margin-bottom: 1rem; position: relative; }
+.cy-scene2__figure { position: relative; width: 120px; height: 100%; }
+.cy-scene2__hood { background: linear-gradient(160deg, #2a2440, #191430); border-radius: 26px 26px 8px 8px; bottom: 22px; height: 40px; left: 42px; position: absolute; width: 36px; box-shadow: inset 0 4px 0 rgba(255,255,255,0.05); }
+.cy-scene2__hood::after { background: #0c0a15; border-radius: 50%; content: ""; height: 16px; left: 10px; position: absolute; top: 12px; width: 16px; }
+.cy-scene2__desk { background: linear-gradient(#2c2540, #211b38); border-radius: 3px; bottom: 6px; height: 12px; left: 20px; position: absolute; width: 80px; }
+.cy-scene2__rack { border: 1px solid rgba(34,211,238,0.25); border-radius: 3px; bottom: 26px; height: 44px; opacity: 0.5; position: absolute; right: -2px; width: 22px; background: repeating-linear-gradient(#101a24, #101a24 5px, rgba(34,211,238,0.12) 6px, #101a24 8px); }
+.cy-scene2__flow { display: flex; flex-wrap: wrap; align-items: stretch; gap: 0.4rem; }
+.cy-scene2__hop { background: rgba(0,0,0,0.3); border: 1px solid var(--cy-border-lift); border-left-width: 3px; border-radius: 8px; flex: 1 1 8rem; min-width: 8rem; padding: 0.55rem 0.7rem; }
+.cy-scene2__hop--green { border-left-color: #6bbf7e; }
+.cy-scene2__hop--gold { border-left-color: var(--cy-gold, #ffc94b); }
+.cy-scene2__hop--red { border-left-color: #e06a63; }
+.cy-scene2__hk { color: var(--cy-text); display: block; font-family: var(--cy-font-mono); font-size: 0.68rem; font-weight: 700; letter-spacing: 0.06em; margin-bottom: 0.2rem; }
+.cy-scene2__hv { color: var(--cy-text-2); display: block; font-size: 0.78rem; line-height: 1.4; }
+.cy-scene2__arr { align-self: center; color: var(--cy-text-3); font-size: 1rem; }
+@media (max-width: 620px) { .cy-scene2__arr { display: none; } .cy-enc, .cy-share { grid-template-columns: 1fr; } }
+
+/* the module-overview tagline eyebrow */
+.cy-module__tagline { align-items: center; color: var(--cy-cyan-soft); display: inline-flex; font-size: 0.82rem; font-weight: 600; gap: 0.4rem; letter-spacing: 0.02em; margin: 1rem 0 0; }
+.cy-module__tagline .cy-i { color: var(--cy-gold, #ffc94b); height: 14px; width: 14px; }
+
+/* people-scene illustrations (M3/M4 Task 2 picture-questions) */
+.cy-ppl { background: radial-gradient(120% 90% at 20% -10%, rgba(124, 92, 255, 0.16), transparent 55%), linear-gradient(160deg, #14111f, #0d0b15); border: 1px solid var(--cy-border-lift); border-radius: 14px; box-shadow: var(--cy-shadow-lift, 0 16px 40px rgba(0, 0, 0, 0.45)); overflow: hidden; padding: 0.4rem 0.4rem 0; }
+.cy-ppl__svg { display: block; height: auto; width: 100%; }

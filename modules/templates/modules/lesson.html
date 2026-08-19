@@ -119,6 +119,7 @@
               </summary>
 
               <div class="cy-panel__body">
+                {% if task.hero %}{% include "modules/_diagram.html" with key=task.hero %}{% endif %}
                 {% if task.diagram_key %}{% include "modules/_diagram.html" with key=task.diagram_key %}{% endif %}
                 {% if task.image %}{% include "modules/_lesson_image.html" with image=task.image %}{% endif %}
                 {% if task.scenario %}<div class="cy-task__scenario cy-prose">{{ task.scenario|safe }}</div>{% endif %}

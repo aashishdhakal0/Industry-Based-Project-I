@@ -108,12 +108,17 @@ control enforced in the **view** as a 403 (never merely a hidden link).
   Administrators → Django admin; others → dashboard.
 
 ### The six modules — all content-complete in the interactive "room" format
-**Modules 1 and 2 are 2 deep lessons each**; Modules 3 to 6 are 4 (so **20
-lessons total**). Every module still has a **40-question quiz** (10 drawn per
-attempt), spread across its lessons: M1 and M2 banks are balanced **20/20** across
-their two lessons. (Module 1 was reduced from 4 lessons to 2 by keeping Lessons 1
-and 2 and retiring 3 and 4; the old L3/L4 quiz questions were remapped into L1/L2,
-not orphaned.) Content lives as plain data in
+**Modules 1 to 4 are 2 hands-on lessons each**; Modules 5 and 6 are 4 (so **16
+lessons total**). Every module has a quiz of **exactly 10 questions** (not a
+larger random-draw bank): `draw_questions` returns all 10, so the paper is fixed,
+7/10 to pass. Each question is tightly tied to that module's actual lesson
+content, is a deliberate mix of practical (scenario) and theoretical (knowledge)
+items, traces to the lesson that teaches it via `lesson_reference`, and carries 4
+options with exactly one correct and an explanation on **every** option (the AFE's
+fuel). Per-lesson spread: M1–M4 = 5+5; M5 = 3/2/3/2; M6 = 2/3/3/2.
+Each module also carries a short **`Module.tagline`** motto (seeded from `TAGLINES`
+in the seed, shown as an accent eyebrow on the overview). Content lives as plain
+data in
 `modules/content/module_<n>.py` (`LESSONS` + `QUIZ`), loaded by the seed via a
 `CONTENT` registry; the per-module lesson count is driven by `MODULES` in the
 seed (which prunes any lesson rows beyond the authored count, after the quiz is
@@ -148,8 +153,15 @@ SVG/HTML/class is allowed, but no emoji and no external images — CSP is
 **`ransom-screen`** (ransom lock screen), **`download-trap`** (a real download
 link next to an ad-button), **`attachment-exe`** (an `Invoice.pdf.exe` double
 extension), **`locked-files`** (a file explorer of `.locked` files), and
-**`breach-email`** (a data-breach notice), alongside the older schematic diagrams
-(`cia-triad`, `malware-family`, `data-breach`, `ddos`, etc.).
+**`breach-email`** (a data-breach notice); for **M3** `sms-phish` (a smishing
+text), `exec-email` (an annotated BEC email with red-flag callouts), `caller-id`
+(a spoofable incoming-call screen); for **M4** `msg-encrypted` (encrypted-vs-open
+compare), `secure-share` (public-vs-restricted share link), `wifi-evil-twin` (a
+cafe Wi-Fi picker with a lookalike hotspot); and the **M1 hero** `net-scene` (a
+dark data-flow scene, device → router → internet → server with terminal-style
+callouts, used via `payload["hero"]` on L1 T1). Annotated figures share the
+`cy-flag` callout classes, alongside the older schematic diagrams (`cia-triad`,
+`malware-family`, `data-breach`, `ddos`, etc.).
 
 **Picture-questions in M2** — each M2 lesson carries THREE: the Task 3 picture
 CHECK, plus two more embedded on interactive panels as a `diagram` + an
@@ -165,8 +177,8 @@ breach tabletop BRANCH).
 |---|---|---|---|
 | 1 | **Network Security Fundamentals** | **Two deep lessons** (5-task format): What a network is, and what you protect · How attacks actually happen. (Lessons 3 and 4 were retired; their quiz questions were rebalanced into the two remaining lessons.) | The **`respond`** apply-it activity + **`quizset`** + picture-questions (`router-admin`, `secure-bars`, `cia-triad`, `scam-email`, `email-invoice`) |
 | 2 | **Recognising Cyber Threats** | **Two DEEP, fully HANDS-ON lessons**: Know the threats: malware, and how it gets in · When it goes wrong: ransomware, breaches, and reacting | Every panel is a drill: **`sort`** malware behaviours · **`branch`** decision drills + tabletop mini-incidents · **`mailsort`** inbox triage · **`classify`** ransomware/breach/glitch · **`sequence`** the incident-response order · three picture-questions per lesson (`fake-update`/`download-trap`/`attachment-exe`; `ransom-screen`/`locked-files`/`breach-email`) |
-| 3 | **Phishing & Social Engineering** | The con behind the click · Phishing and its sharper cousins · Beyond the inbox · Reading an email like an investigator | **`mailsort`** — triage a realistic mixed inbox (genuine vs phishing) |
-| 4 | **Secure Communication Practices** | What 'secure' really means · Proving it is you · Sharing information safely · Working securely anywhere | **`harden`** — secure a fictional employee's whole workspace step by step |
+| 3 | **Phishing & Social Engineering** (motto "They hack the human. Verify anyway.") | **Two hands-on lessons**: The con, and the channels it comes through · Read it like an analyst: spot, verify, report | Multi-channel: `classify` (email/SMS/voice/BEC) · `branch` CEO **AI voice-clone** call + BEC + tabletops · `mailsort` · `spot` · picture figures (`sms-phish`, `exec-email`, `caller-id`) |
+| 4 | **Secure Communication Practices** (motto "Before you hit send, think.") | **Two hands-on lessons**: Before you hit send: what 'secure' really means · Sharing safely: files, links, and Wi-Fi | A "before you hit send" checklist: `sort` encrypted-vs-open · `classify` · `branch` send/share decisions · `harden` the mobile workspace · picture figures (`msg-encrypted`, `secure-share`, `wifi-evil-twin`) |
 | 5 | **Firewall & Network Defence** | The firewall: your network's gatekeeper · Segmentation: contain the trouble · Remote access and the VPN · Alerts, patches, and finding the gaps | **`netmap`** — find the weaknesses in a fictional business network |
 | 6 | **Incident Response** | Why a plan beats panic · Spot it and stop it · Clean up and come back · The law, and the whole response | ransomware-morning **`branch`** + **`sequence`** (order the six-phase lifecycle); maps to the Privacy Act 1988 NDB scheme |
 
@@ -194,9 +206,10 @@ Authoring reference: **`docs/module-authoring.md`** (the Module 1 gold standard 
 panel shape, payload contracts, voice rules). Copy it to add/extend a module.
 
 ### Quiz engine + Adaptive Feedback Engine
-- `quizzes/services.py` draws 10 questions, grades **server-side** against the
-  stored `correct_answer` flag (never trusts the client), pass mark **70%**,
-  records a `QuizResult` (+ `WrongAnswer` rows), awards +200 on a first pass.
+- `quizzes/services.py` draws 10 questions (`order_by('?')[:10]`; each bank is now
+  exactly 10, so it returns all of them), grades **server-side** against the stored
+  `correct_answer` flag (never trusts the client), pass mark **70%** (7/10), records
+  a `QuizResult` (+ `WrongAnswer` rows), awards +200 on a first pass.
 - `quizzes/feedback.py` (the AFE) reads the `WrongAnswer`/`explanation_text` rows
   and builds a per-lesson **study plan** shown on the result page: which lessons
   to revise (ranked by where mistakes clustered) and why each answer was wrong.
@@ -205,12 +218,13 @@ panel shape, payload contracts, voice rules). Copy it to add/extend a module.
 - **Records are the truth.** `UserProfile.points` is a **cache recomputed** from
   `ProgressRecord` (lessons) + distinct passed `QuizResult` (quizzes) on every
   completion — never incremented, so it cannot drift. Points = lessons×40 +
-  passed_quizzes×200 (**20 lessons** now, since Modules 1 and 2 are 2 deep lessons
-  each, + 6 quizzes = **2000, the ceiling**). The constants live in
+  passed_quizzes×200 (**16 lessons** now, since Modules 1 to 4 are 2 hands-on
+  lessons each, + 6 quizzes = **1840, the ceiling**). The constants live in
   `gamification.py` (`POINTS_PER_LESSON`/`POINTS_PER_QUIZ`); the level curve
   `_points_to_reach` and the Bronze→Diamond `TIERS` scale with them.
   Tier thresholds: Bronze 0 · Silver 200 · Gold 500 · Platinum 1000 · Diamond 2000.
-  A fully finished course (2000) lands exactly on Diamond (2000).
+  A fully finished course (1840) now tops out in **Platinum** (1000+), just short
+  of Diamond.
 - **Level** is a pure function of points. **Streak** advances on activity (date
   injected for tests). **Badges**: catalogue in code (`modules/badges.py`), earned
   ids in `UserProfile.badges` (jsonb), awarded one-way from `student_stats`.
@@ -246,13 +260,30 @@ panel shape, payload contracts, voice rules). Copy it to add/extend a module.
   older judge-the-inbox placeholder (`kind:"inbox"`), which the same JS still
   handles. Verified end-to-end under `jsc` (walks the good path, posts a perfect
   score, returns to the module).
-- **Quiz review (DEBUG only)** (`/learn/m/N/quiz/review/`): a developer
-  content-review page listing every question in a module's quiz with the correct
-  answer marked and all explanations shown. The view raises `Http404` when
-  `DEBUG=False`, so it never exists in production; a "Review all questions (dev)"
-  link shows on the module overview only when `settings.DEBUG`. The real quiz gate
-  (`_all_lessons_done`) is untouched. This is separate from the pre-existing
-  DEBUG dev-unlock that lets you open the actual quiz without finishing lessons.
+- **Real quiz page** (`/learn/m/N/quiz/`, `quiz.html` + `static/js/quiz.js` +
+  `.cy-quiz*`): a one-question-at-a-time stepper with a progress bar. It is
+  **interactive, Kahoot/Duolingo-style**: options are neutral until the learner
+  selects one, then quiz.js reveals correct/incorrect + the explanation and
+  **locks** the question (it disables the other radios but keeps the chosen one
+  enabled so it still submits), and enables Next. Each option ships `data-correct`
+  + a hidden explanation to the client (same pattern as the in-lesson CHECK
+  activities); **grading stays server-side** on submit (`submit_quiz` against the
+  stored `correct_answer`) — the reveal is purely visual. A per-question
+  difficulty tag uses ONE flat muted style (no per-level colours). No-JS falls
+  back to a plain form with a single Submit. Verified by a `jsc` DOM harness
+  (select → reveal → lock → Next).
+- **Quiz review (DEBUG only)** (`/learn/m/N/quiz/review/`, `quiz_review.html` +
+  `.cy-qr*`): a **separate** developer content-review page (different template and
+  classes from the real quiz) listing every question with the correct answer
+  marked and all explanations shown at once — that show-everything behaviour is
+  its whole purpose. The view raises `Http404` when `DEBUG=False`, so it never
+  exists in production; a "Review all questions (dev)" link shows on the module
+  overview only when `settings.DEBUG`. Both pages share ONE type scale (Bricolage
+  question anchor, Instrument-Sans options, smaller secondary explanations) and
+  the flat difficulty tag, but the real quiz never reveals answers upfront and the
+  review page never becomes interactive. The real quiz gate (`_all_lessons_done`)
+  is untouched; this is separate from the DEBUG dev-unlock that lets you open the
+  actual quiz without finishing lessons.
 - **Module overview** (`/learn/m/N/`, `overview.html`): a designed **roadmap** —
   each lesson is a card with its **task chips** (per-task done state; each chip
   has a per-kind colour + icon), then a simulation card and a quiz card, with a
@@ -277,18 +308,39 @@ panel shape, payload contracts, voice rules). Copy it to add/extend a module.
   the rail collapses to a compact scrollable status strip. `lesson.js` keeps the
   rail in sync and wires the jump links.
 
-### IN-PROGRESS TASK (not started in code — pick this up next)
+### Two-mode lesson treatment: reading vs question (DONE, all modules)
 **"Visually distinguish reading content from interactive activities across ALL
-lessons."** The reading/teaching prose and the interactive activity currently
-look identical (flat dark), so lessons feel monotonous. The plan (approved
-direction, no code written yet): in the **shared** `lesson.html` + `cybaroo.css`,
-give the activity a distinct "widget" treatment (tinted/bordered container with
-an accent header like "Your task" + a per-kind icon), make callouts/checks/full-
-activities visually varied so the eye gets landmarks, and make option buttons
-more engaging (hover/selected/correct/wrong). Show ONE reworked lesson (a faithful
-artifact preview is a good way, since the dev server can't be screenshotted here)
-before it goes everywhere. The `artifact-design` skill was loaded for this. No
-files changed yet for it.
+lessons."** Solved entirely in the **shared** `cybaroo.css` (no per-module work),
+so it applies to every module automatically, now and going forward:
+- **Reading mode** — `.cy-panel__body .cy-prose` gets a calm neutral card
+  (`--cy-surface` bg, `--cy-border`, rounded, padded) with a small monospace
+  **"Reading"** eyebrow via `::before`. A body-prose block that follows a check or
+  activity (`.cy-check ~ .cy-prose`, `.cy-panel__do ~ .cy-prose`) suppresses the
+  eyebrow so it doesn't repeat; a `.cy-task__scenario` prose block reads
+  **"Scenario"** instead; a first-child prose block drops its top margin.
+- **Question / interactive mode** — `.cy-panel__do` and `.cy-check` keep the
+  tinted violet/cyan gradient card + top accent bar (`::before`) + the cyan
+  `.cy-panel__do-label` pill. Same theme, complementary tones — one product, two
+  clear modes, not two apps.
+The approved direction was confirmed against a published artifact preview first.
+CSS cache-buster is `css/cybaroo.css?v=22` in `templates/base.html` (bump on any
+CSS change, then `collectstatic`, then hard-refresh).
+
+### People-scene picture-questions on Task 2 (M3, M4) (DONE)
+M3 and M4 Lesson 1 Task 2 (the send/share scenario BRANCH) now carry a **custom
+SVG people scene** (own-origin, CSP-safe, no external images, no emoji) plus an
+`inline_check` picture-question read straight off the scene, alongside the BRANCH
+drill. Two new figures in **`_diagram.html`** (bypass nh3, full SVG allowed):
+- **`scene-vish`** (M3) — a worried worker on the phone at a bank-transfer screen
+  ($48,500 / PAY NOW), speech bubble "transfer $48,500 right now, and keep it
+  quiet", sticky note. Vishing / AI voice-clone. **Replaced the old `caller-id`
+  figure** (M3 no longer uses `caller-id`).
+- **`scene-send`** (M4) — two colleagues at a monitor composing an email to a
+  personal address with a medical form attached (`Client_medical_form.pdf`), a
+  concerned colleague pointing. Insecure send. (M4 L1 T2 previously had no figure.)
+The BRANCH controller ignores the extra `inline_check` in the payload (same
+pattern as M2's embedded picture-questions); `lesson.js` renders it as a required
+`[data-check-block]` completion slot. `.cy-ppl` in `cybaroo.css` frames the scene.
 
 ---
 
@@ -314,14 +366,15 @@ trade-off, not as equivalent to TOTP.**
 ---
 
 ## 5. Important gotchas (critical for a new session)
-- **Static caching / `?v=N` cache-buster.** Three versions: the room scripts in
+- **Static caching / `?v=N` cache-buster.** Four versions: the room scripts in
   `lesson.html` load as `js/lesson.js?v=N` and `js/activities.js?v=N`
   (**currently `?v=16`**); `cybaroo.css` in `templates/base.html` loads as
-  `css/cybaroo.css?v=N` (**currently `?v=18`**); and `cybaroo.js` in `base.html`
-  loads as `js/cybaroo.js?v=N` (**currently `?v=3`**, it drives the simulation and
-  a few UI bits). After ANY change to `lesson.js`/`activities.js`: bump in
-  `lesson.html`. After any change to `cybaroo.css` or `cybaroo.js`: bump in
-  `base.html`. Then in every case: run
+  `css/cybaroo.css?v=N` (**currently `?v=21`**); `cybaroo.js` in `base.html` loads
+  as `js/cybaroo.js?v=N` (**currently `?v=3`**, simulation + UI bits); and
+  `quiz.js` in `quiz.html` loads as `js/quiz.js?v=N` (**currently `?v=2`**, the
+  interactive quiz stepper). After ANY change to `lesson.js`/`activities.js`: bump
+  in `lesson.html`. After `quiz.js`: bump in `quiz.html`. After `cybaroo.css` or
+  `cybaroo.js`: bump in `base.html`. Then in every case: run
   `collectstatic --noinput` (and once with `DEBUG=False` for the WhiteNoise
   manifest), and **hard-refresh** the browser. In DEBUG (unhashed
   static) a browser will otherwise serve a stale copy via a `304`, which looks
@@ -387,10 +440,10 @@ quizzes/          Quiz, Question, Answer, QuizResult, WrongAnswer
 certificates/     Certificate  (UUID4 code, pdf_path — PDF gen not built)
 ```
 Relationships: `User 1─1 UserProfile`; `User 1─* ProgressRecord *─1 Lesson`;
-`User 1─* QuizResult *─1 Quiz`; `User 1─* Certificate`; `Module 1─* Lesson (4,
-but M2 has 2)`;
-`Module 1─1 Simulation`; `Module 1─1 Quiz`; `Quiz 1─* Question (bank of 40, draw
-10)`; `Question 1─* Answer (exactly 4, one correct)`; **`Question *─1 Lesson`**
+`User 1─* QuizResult *─1 Quiz`; `User 1─* Certificate`; `Module 1─* Lesson (M1–M4
+have 2, M5–M6 have 4)`;
+`Module 1─1 Simulation`; `Module 1─1 Quiz`; `Quiz 1─* Question (exactly 10, all
+drawn)`; `Question 1─* Answer (exactly 4, one correct)`; **`Question *─1 Lesson`**
 (`lesson_reference` — required by the AFE); `QuizResult 1─* WrongAnswer *─1
 Question`; `Lesson 1─* LessonTask *─1 TaskProgress`.
 
@@ -398,9 +451,11 @@ Key fields: `User.role ∈ {STUDENT, INSTRUCTOR, ADMINISTRATOR}`, `is_verified`.
 `Module.order_index` (sequential lock), `is_published` (soft delete), difficulty.
 `Answer.correct_answer` (bool), **`explanation_text`** (the AFE's fuel).
 `Quiz.pass_mark=70`. `LessonTask.kind ∈` the activity enum + CHECK/CONCEPT.
-Latest migration: **`modules/migrations/0013_lessontask_image.py`** (0012 added
-the `quizset` kind; 0013 added the `LessonTask.image` JSONField). No migration was
-needed for M2's 4→2 lesson change — that is pure seed data.
+Latest migration: **`modules/migrations/0014_module_tagline.py`** (adds the
+per-module motto field; 0012 added the `quizset` kind; 0013 added
+`LessonTask.image`). Lesson-count reductions (M3/M4 4→2) are pure seed data, no
+migration. The Module 1 **hero** figure is stored in a task's `payload["hero"]`
+(no migration), rendered by `lesson.html` above the panel's own diagram.
 **Never** hard-delete Modules/Lessons — soft-delete via `is_published=False` /
 `is_active=False` (preserves QuizResults).
 

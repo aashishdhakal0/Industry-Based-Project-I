@@ -191,12 +191,12 @@ def test_classify_and_sort_activities_are_well_formed(seeded):
 def test_quiz_is_a_substantial_evenly_spread_bank(seeded):
     quiz = seeded.quiz
     assert quiz.pass_mark == 70
-    assert quiz.questions.count() >= 40
+    assert quiz.questions.count() == 10  # exactly ten, no random-draw bank
     per_lesson = Counter(
         quiz.questions.values_list("lesson_reference__lesson_number", flat=True)
     )
     for n in (1, 2, 3, 4):
-        assert per_lesson[n] >= 8, f"lesson {n} is thin in the quiz bank"
+        assert per_lesson[n] >= 2, f"lesson {n} is thin in the quiz bank ({per_lesson[n]})"
 
 
 @pytest.mark.django_db
