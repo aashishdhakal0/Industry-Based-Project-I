@@ -38,6 +38,8 @@ _TASK_CHIP = {
     "PASSWORD": ("Password", "i-lock"),
     "HARDEN": ("Harden", "i-shield"),
     "NETMAP": ("Network map", "i-grid"),
+    "FIREWALL": ("Firewall rules", "i-shield"),
+    "TABLETOP": ("Tabletop", "i-branch"),
 }
 
 

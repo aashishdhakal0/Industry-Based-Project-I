@@ -961,6 +961,196 @@
     update();
   };
 
+  // ------------------------------------------------------------ FIREWALL ----
+  // Read an ordered firewall rule table (first match wins) and decide, for each
+  // piece of traffic, whether it is Allowed or Blocked. A correct verdict flags
+  // the rule that decided it. Solved when every item is judged correctly.
+  CONTROLLERS.FIREWALL = function (root, cfg) {
+    if (cfg.prompt) root.appendChild(el("p", "cy-act__prompt", cfg.prompt));
+
+    // The rule table, kept on screen for reference above the traffic.
+    var table = el("div", "cy-fwr");
+    var head = el("div", "cy-fwr__row cy-fwr__row--head");
+    head.appendChild(el("span", "cy-fwr__n", "#"));
+    head.appendChild(el("span", "cy-fwr__act", "Action"));
+    head.appendChild(el("span", "cy-fwr__desc", "Rule"));
+    table.appendChild(head);
+    cfg.rules.forEach(function (r) {
+      var allow = r.action === "ALLOW";
+      var row = el("div", "cy-fwr__row cy-fwr__row--" + (allow ? "allow" : "deny"));
+      row.setAttribute("data-rule", r.n);
+      row.appendChild(el("span", "cy-fwr__n", String(r.n)));
+      row.appendChild(el("span", "cy-fwr__act", r.action));
+      row.appendChild(el("span", "cy-fwr__desc", r.desc));
+      table.appendChild(row);
+    });
+    root.appendChild(table);
+
+    var total = cfg.traffic.length;
+    var done = 0;
+    var counter = el("p", "cy-classify__count");
+    counter.setAttribute("aria-live", "polite");
+    var feedback = el("p", "cy-act__feedback");
+    feedback.setAttribute("aria-live", "polite");
+
+    var list = el("div", "cy-fwq");
+    cfg.traffic.forEach(function (item) {
+      var card = el("div", "cy-fwq__item");
+      card.appendChild(el("p", "cy-fwq__text", item.text));
+      var opts = el("div", "cy-fwq__opts");
+      var why = el("p", "cy-classify__why");
+      var settled = false;
+
+      [["ALLOW", "Allow"], ["BLOCK", "Block"]].forEach(function (pair) {
+        var b = el("button", "cy-fwq__opt cy-fwq__opt--" + pair[0].toLowerCase(), pair[1]);
+        b.type = "button";
+        b.addEventListener("click", function () {
+          if (settled) return;
+          if (pair[0] === item.verdict) {
+            settled = true;
+            card.classList.add("is-correct");
+            b.classList.add("is-right");
+            var hit = table.querySelector('[data-rule="' + item.rule + '"]');
+            if (hit) {
+              hit.classList.add("is-hit");
+              window.setTimeout(function () { hit.classList.remove("is-hit"); }, 1600);
+            }
+            why.className = "cy-classify__why is-good";
+            why.textContent = item.why;
+            Array.prototype.forEach.call(opts.children, function (o) { o.disabled = true; });
+            done += 1;
+            update();
+            if (done === total) {
+              feedback.className = "cy-act__feedback is-good";
+              feedback.textContent = "Every packet judged correctly — you can read a rule set.";
+              solved(root);
+            }
+          } else {
+            b.classList.add("is-wrong");
+            b.disabled = true;
+            card.classList.add("is-shake");
+            window.setTimeout(function () { card.classList.remove("is-shake"); }, 400);
+            why.className = "cy-classify__why is-bad";
+            why.textContent = "Not quite. Walk the rules from the top and stop at the first one that matches.";
+          }
+        });
+        opts.appendChild(b);
+      });
+      card.appendChild(opts);
+      card.appendChild(why);
+      list.appendChild(card);
+    });
+
+    root.appendChild(counter);
+    root.appendChild(list);
+    root.appendChild(feedback);
+    function update() { counter.textContent = done + " of " + total + " judged"; }
+    update();
+  };
+
+  // ------------------------------------------------------------ TABLETOP ----
+  // A staged incident-response exercise. A live situation board tracks the state
+  // of the business (systems, data, the clock, notification) and updates as the
+  // learner works the phases: detect, contain, eradicate, recover, review. A
+  // poor call escalates the board but the exercise continues and teaches. Solved
+  // once every stage has been worked through, ending in a short debrief.
+  CONTROLLERS.TABLETOP = function (root, cfg) {
+    if (cfg.prompt) root.appendChild(el("p", "cy-act__prompt", cfg.prompt));
+    if (cfg.scenario) root.appendChild(el("p", "cy-tt__scenario", cfg.scenario));
+
+    var board = el("div", "cy-board");
+    board.setAttribute("aria-live", "polite");
+    var cells = {};
+    (cfg.board || []).forEach(function (ind) {
+      var cell = el("div", "cy-board__cell is-" + (ind.state || "ok"));
+      cell.appendChild(el("span", "cy-board__label", ind.label));
+      var val = el("span", "cy-board__value", ind.value || "");
+      cell.appendChild(val);
+      cell.__value = val;
+      cells[ind.id] = cell;
+      board.appendChild(cell);
+    });
+    root.appendChild(board);
+
+    var stageWrap = el("div", "cy-tt");
+    var phase = el("p", "cy-tt__phase");
+    var title = el("p", "cy-tt__title");
+    var prompt = el("p", "cy-tt__prompt");
+    prompt.setAttribute("aria-live", "polite");
+    var choices = el("div", "cy-tt__choices");
+    var feedback = el("p", "cy-act__feedback cy-tt__feedback");
+    feedback.setAttribute("aria-live", "polite");
+    stageWrap.appendChild(phase);
+    stageWrap.appendChild(title);
+    stageWrap.appendChild(prompt);
+    stageWrap.appendChild(choices);
+    stageWrap.appendChild(feedback);
+    root.appendChild(stageWrap);
+
+    var stages = cfg.stages || [];
+    var idx = 0;
+    var good = 0;
+
+    function clear(node) { while (node.firstChild) node.removeChild(node.firstChild); }
+
+    function applyBoard(set) {
+      if (!set) return;
+      Object.keys(set).forEach(function (id) {
+        var cell = cells[id];
+        if (!cell) return;
+        var s = set[id];
+        cell.className = "cy-board__cell is-" + (s.state || "ok") + " is-changed";
+        if (s.value != null) cell.__value.textContent = s.value;
+        window.setTimeout(function () { cell.classList.remove("is-changed"); }, 900);
+      });
+    }
+
+    function renderStage() {
+      if (idx >= stages.length) {
+        phase.textContent = "Debrief";
+        title.textContent = good === stages.length ? "Textbook response." : "Incident closed.";
+        prompt.textContent = good === stages.length
+          ? "You worked every phase the way the plan intends: detected fast, contained the spread, removed the cause, recovered cleanly, and met your obligations. That steadiness is what a rehearsed team looks like."
+          : "You brought the incident to a close. Look back at any call that pushed the board into the red, and note which phase it belonged to. That review is itself the final phase of the lifecycle.";
+        clear(choices);
+        feedback.textContent = "";
+        stageWrap.classList.add("is-complete");
+        solved(root);
+        return;
+      }
+      var st = stages[idx];
+      phase.textContent = st.phase;
+      title.textContent = st.title || "";
+      prompt.textContent = st.prompt;
+      clear(choices);
+      feedback.textContent = "";
+      feedback.className = "cy-act__feedback cy-tt__feedback";
+      st.options.forEach(function (op) {
+        var b = el("button", "cy-tt__choice", op.label);
+        b.type = "button";
+        b.addEventListener("click", function () { choose(st, op); });
+        choices.appendChild(b);
+      });
+    }
+
+    function choose(st, op) {
+      Array.prototype.forEach.call(choices.children, function (b) { b.disabled = true; });
+      if (op.outcome === "good") good += 1;
+      applyBoard(op.board);
+      feedback.className = "cy-act__feedback cy-tt__feedback is-" +
+        (op.outcome === "good" ? "good" : "bad");
+      feedback.textContent = op.consequence;
+      var last = idx === stages.length - 1;
+      var next = el("button", "cy-btn cy-btn--primary cy-tt__next",
+        last ? "Close the incident" : "Next phase");
+      next.type = "button";
+      next.addEventListener("click", function () { idx += 1; renderStage(); });
+      choices.appendChild(next);
+    }
+
+    renderStage();
+  };
+
   // A kind with no controller yet (or a broken config) must never trap the
   // learner: show a gentle note and let them continue.
   function fallback(c) {

@@ -108,14 +108,15 @@ control enforced in the **view** as a 403 (never merely a hidden link).
   Administrators → Django admin; others → dashboard.
 
 ### The six modules — all content-complete in the interactive "room" format
-**Modules 1 to 4 are 2 hands-on lessons each**; Modules 5 and 6 are 4 (so **16
-lessons total**). Every module has a quiz of **exactly 10 questions** (not a
+**All six modules are 2 hands-on lessons each** (so **12 lessons total**; Modules
+5 and 6 were consolidated 4→2 when rebuilt as the flagship modules). Every module
+has a quiz of **exactly 10 questions** (not a
 larger random-draw bank): `draw_questions` returns all 10, so the paper is fixed,
 7/10 to pass. Each question is tightly tied to that module's actual lesson
 content, is a deliberate mix of practical (scenario) and theoretical (knowledge)
 items, traces to the lesson that teaches it via `lesson_reference`, and carries 4
 options with exactly one correct and an explanation on **every** option (the AFE's
-fuel). Per-lesson spread: M1–M4 = 5+5; M5 = 3/2/3/2; M6 = 2/3/3/2.
+fuel). Per-lesson quiz spread is now 5+5 for every module.
 Each module also carries a short **`Module.tagline`** motto (seeded from `TAGLINES`
 in the seed, shown as an accent eyebrow on the overview). Content lives as plain
 data in
@@ -179,8 +180,8 @@ breach tabletop BRANCH).
 | 2 | **Recognising Cyber Threats** | **Two DEEP, fully HANDS-ON lessons**: Know the threats: malware, and how it gets in · When it goes wrong: ransomware, breaches, and reacting | Every panel is a drill: **`sort`** malware behaviours · **`branch`** decision drills + tabletop mini-incidents · **`mailsort`** inbox triage · **`classify`** ransomware/breach/glitch · **`sequence`** the incident-response order · three picture-questions per lesson (`fake-update`/`download-trap`/`attachment-exe`; `ransom-screen`/`locked-files`/`breach-email`) |
 | 3 | **Phishing & Social Engineering** (motto "They hack the human. Verify anyway.") | **Two hands-on lessons**: The con, and the channels it comes through · Read it like an analyst: spot, verify, report | Multi-channel: `classify` (email/SMS/voice/BEC) · `branch` CEO **AI voice-clone** call + BEC + tabletops · `mailsort` · `spot` · picture figures (`sms-phish`, `exec-email`, `caller-id`) |
 | 4 | **Secure Communication Practices** (motto "Before you hit send, think.") | **Two hands-on lessons**: Before you hit send: what 'secure' really means · Sharing safely: files, links, and Wi-Fi | A "before you hit send" checklist: `sort` encrypted-vs-open · `classify` · `branch` send/share decisions · `harden` the mobile workspace · picture figures (`msg-encrypted`, `secure-share`, `wifi-evil-twin`) |
-| 5 | **Firewall & Network Defence** | The firewall: your network's gatekeeper · Segmentation: contain the trouble · Remote access and the VPN · Alerts, patches, and finding the gaps | **`netmap`** — find the weaknesses in a fictional business network |
-| 6 | **Incident Response** | Why a plan beats panic · Spot it and stop it · Clean up and come back · The law, and the whole response | ransomware-morning **`branch`** + **`sequence`** (order the six-phase lifecycle); maps to the Privacy Act 1988 NDB scheme |
+| 5 | **Firewall & Network Defence** (motto "Set the rules. Watch them hold.") | **Two DEEP flagship lessons** (rebuilt 4→2): The firewall: reading the rules · Defence in depth: segment, connect safely, watch for trouble | The new **`firewall`** rule-reading activity (ordered first-match rule table + traffic to judge) · **`segment-flow`**/**`firewall-flow`** animated heroes · `classify` (device→zone segmentation) · `branch` (remote access / VPN) · **`netmap`** · `sort` (default-deny) |
+| 6 | **Incident Response** (motto "Panic is optional. A plan is not.") | **Two DEEP flagship lessons** (rebuilt 4→2): When the alert fires: detect and contain · Clean up, come back, and the law | The new **`tabletop`** activity (staged incident + live situation board), one continuing Geelong dental-practice ransomware scenario across both lessons covering detect→contain→eradicate→recover→review · `incident-escalation`/`recovery-board` animated heroes · `sequence` (six phases) · `classify` (notifiable-or-not) · maps to the Privacy Act 1988 NDB scheme |
 
 ### Interactive activity types (all built; driven by `static/js/activities.js`)
 Each activity reads a CSP-safe `{{ payload|json_script }}` block and fires
@@ -201,6 +202,25 @@ Each activity reads a CSP-safe `{{ payload|json_script }}` block and fires
   match sub-questions; fires `cy:solved` when all are answered
 - **check** / mid-panel **inline_check** — apply-it MCQs (question + hint + 4
   options with per-option explanations)
+- **firewall** (M5) — an ordered, first-match firewall rule table + traffic to
+  judge ALLOW/BLOCK; a correct verdict flags the deciding rule. Payload
+  `{prompt, rules:[{n,action:"ALLOW"|"DENY",desc}], traffic:[{text,verdict:"ALLOW"|"BLOCK",rule,why}]}`
+- **tabletop** (M6) — a staged incident-response exercise with a **live situation
+  board** (systems / data / clock / notification) that updates on each decision;
+  sound calls bring it back to green, poor calls escalate it but the exercise
+  continues and teaches; solved after a short debrief. Payload
+  `{prompt, scenario, board:[{id,label,state:"ok"|"warn"|"bad",value}], stages:[{phase,title,prompt,options:[{label,outcome:"good"|"bad",consequence,board:{id:{state,value}}}]}]}`
+
+**Animated "watch it unfold" sequences (the video substitute).** CSP forbids
+external video, so the "wow" dynamic moments are **pure-CSS keyframe animations**
+rendered as `_diagram.html` partials, auto-playing, `prefers-reduced-motion`-safe
+(each freezes at a clear resting state). Carried on a task via `payload["hero"]`
+(same mechanism as the M1 hero). Four so far: **`firewall-flow`** (a packet
+arrives, is inspected, allowed or blocked), **`segment-flow`** (infection spreads
+on a flat network vs contained on a segmented one), **`incident-escalation`** (two
+timelines racing: no-plan climbs, with-plan flatlines), **`recovery-board`**
+(systems flip down→restoring→online in sequence). Styling + `@keyframes` live in
+`cybaroo.css`; verified render + that reduced-motion disables them.
 
 Authoring reference: **`docs/module-authoring.md`** (the Module 1 gold standard —
 panel shape, payload contracts, voice rules). Copy it to add/extend a module.
@@ -218,12 +238,12 @@ panel shape, payload contracts, voice rules). Copy it to add/extend a module.
 - **Records are the truth.** `UserProfile.points` is a **cache recomputed** from
   `ProgressRecord` (lessons) + distinct passed `QuizResult` (quizzes) on every
   completion — never incremented, so it cannot drift. Points = lessons×40 +
-  passed_quizzes×200 (**16 lessons** now, since Modules 1 to 4 are 2 hands-on
-  lessons each, + 6 quizzes = **1840, the ceiling**). The constants live in
+  passed_quizzes×200 (**12 lessons** now, since all six modules are 2 hands-on
+  lessons each, + 6 quizzes = **1680, the ceiling**). The constants live in
   `gamification.py` (`POINTS_PER_LESSON`/`POINTS_PER_QUIZ`); the level curve
   `_points_to_reach` and the Bronze→Diamond `TIERS` scale with them.
   Tier thresholds: Bronze 0 · Silver 200 · Gold 500 · Platinum 1000 · Diamond 2000.
-  A fully finished course (1840) now tops out in **Platinum** (1000+), just short
+  A fully finished course (1680) now tops out in **Platinum** (1000+), just short
   of Diamond.
 - **Level** is a pure function of points. **Streak** advances on activity (date
   injected for tests). **Badges**: catalogue in code (`modules/badges.py`), earned
@@ -368,8 +388,8 @@ trade-off, not as equivalent to TOTP.**
 ## 5. Important gotchas (critical for a new session)
 - **Static caching / `?v=N` cache-buster.** Four versions: the room scripts in
   `lesson.html` load as `js/lesson.js?v=N` and `js/activities.js?v=N`
-  (**currently `?v=16`**); `cybaroo.css` in `templates/base.html` loads as
-  `css/cybaroo.css?v=N` (**currently `?v=21`**); `cybaroo.js` in `base.html` loads
+  (**currently `?v=17`**); `cybaroo.css` in `templates/base.html` loads as
+  `css/cybaroo.css?v=N` (**currently `?v=23`**); `cybaroo.js` in `base.html` loads
   as `js/cybaroo.js?v=N` (**currently `?v=3`**, simulation + UI bits); and
   `quiz.js` in `quiz.html` loads as `js/quiz.js?v=N` (**currently `?v=2`**, the
   interactive quiz stepper). After ANY change to `lesson.js`/`activities.js`: bump
@@ -440,8 +460,8 @@ quizzes/          Quiz, Question, Answer, QuizResult, WrongAnswer
 certificates/     Certificate  (UUID4 code, pdf_path — PDF gen not built)
 ```
 Relationships: `User 1─1 UserProfile`; `User 1─* ProgressRecord *─1 Lesson`;
-`User 1─* QuizResult *─1 Quiz`; `User 1─* Certificate`; `Module 1─* Lesson (M1–M4
-have 2, M5–M6 have 4)`;
+`User 1─* QuizResult *─1 Quiz`; `User 1─* Certificate`; `Module 1─* Lesson (2 per
+module, all six)`;
 `Module 1─1 Simulation`; `Module 1─1 Quiz`; `Quiz 1─* Question (exactly 10, all
 drawn)`; `Question 1─* Answer (exactly 4, one correct)`; **`Question *─1 Lesson`**
 (`lesson_reference` — required by the AFE); `QuizResult 1─* WrongAnswer *─1
@@ -451,11 +471,12 @@ Key fields: `User.role ∈ {STUDENT, INSTRUCTOR, ADMINISTRATOR}`, `is_verified`.
 `Module.order_index` (sequential lock), `is_published` (soft delete), difficulty.
 `Answer.correct_answer` (bool), **`explanation_text`** (the AFE's fuel).
 `Quiz.pass_mark=70`. `LessonTask.kind ∈` the activity enum + CHECK/CONCEPT.
-Latest migration: **`modules/migrations/0014_module_tagline.py`** (adds the
-per-module motto field; 0012 added the `quizset` kind; 0013 added
-`LessonTask.image`). Lesson-count reductions (M3/M4 4→2) are pure seed data, no
-migration. The Module 1 **hero** figure is stored in a task's `payload["hero"]`
-(no migration), rendered by `lesson.html` above the panel's own diagram.
+Latest migration: **`modules/migrations/0015_alter_lessontask_kind.py`** (adds the
+`FIREWALL` + `TABLETOP` kinds; 0014 added `Module.tagline`; 0012 added `quizset`;
+0013 added `LessonTask.image`). Lesson-count reductions (M3/M4 and M5/M6 all 4→2)
+are pure seed data, no migration. The **hero** figure (incl. the M5/M6 animated
+sequences) is stored in a task's `payload["hero"]` (no migration), rendered by
+`lesson.html` above the panel's own diagram.
 **Never** hard-delete Modules/Lessons — soft-delete via `is_published=False` /
 `is_active=False` (preserves QuizResults).
 

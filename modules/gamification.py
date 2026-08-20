@@ -41,11 +41,11 @@ POINTS_PER_QUIZ = 200
 #
 # XP to first REACH level L is 40·(L−1)·(L+2): 160, 400, 720, 1120, 1600, 2160…
 # Early levels come quickly (level 2 after four lessons), then stretch. The course
-# now has 16 lessons (Modules 1 to 4 are two deep lessons each, Modules 5 and 6
-# have four) + 6 quizzes = 16*40 + 6*200 = 1840 XP, so a fully finished course
-# lands in the Platinum tier (1000+), just short of Diamond (2000). (Curve and
-# economy scale together, so the number of lessons/quizzes behind each level is
-# unchanged from the original 10/50 economy.)
+# has 12 lessons (all six modules are two deep lessons each) + 6 quizzes =
+# 12*40 + 6*200 = 1680 XP, so a fully finished course lands in the Platinum tier
+# (1000+), just short of Diamond (2000). (Curve and economy scale together, so the
+# number of lessons/quizzes behind each level is unchanged from the original 10/50
+# economy.)
 
 
 def _points_to_reach(level):
@@ -391,7 +391,7 @@ def rank_for_level(level):
 # A coarse, game-style tier the student climbs. Computed from the SAME
 # profile.points that drives Level and Streak (points = lessons·40 +
 # passed_quizzes·200, recomputed from records, never incremented) — so it is
-# honest and can never contradict the level. Points cap at 1840 (all 16 lessons +
+# honest and can never contradict the level. Points cap at 1680 (all 12 lessons +
 # 6 quizzes); Diamond sits at 2000, so a fully finished course now tops out in
 # Platinum (1000+), just short of Diamond. Tiers are coarser than levels and both
 # rise with points, so they stay consistent by construction.

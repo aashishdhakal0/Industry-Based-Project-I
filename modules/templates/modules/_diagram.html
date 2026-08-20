@@ -735,4 +735,104 @@
       A client's medical form is about to go out as a plain email, to a personal address. A colleague has spotted it.
     </figcaption>
   </figure>
+
+{% elif key == "firewall-flow" %}
+  <figure class="cy-diagram cy-anim" role="img"
+          aria-label="An animated sequence: a connection arrives from the internet, is inspected by the firewall against its rules, and is either allowed through to your network or blocked at the gate.">
+    <div class="cy-anim__stage">
+      <div class="cy-ffl">
+        <div class="cy-ffl__end">The internet<div class="cy-ffl__lane">
+          <span class="cy-ffl__pkt cy-ffl__pkt--ok"></span>
+          <span class="cy-ffl__pkt cy-ffl__pkt--bad"></span>
+        </div></div>
+        <span class="cy-ffl__gate">
+          <span class="cy-ffl__stamp cy-ffl__stamp--ok">ALLOW</span>
+          <span class="cy-ffl__stamp cy-ffl__stamp--bad">BLOCK</span>
+          <svg class="cy-i" aria-hidden="true"><use href="#i-shield"/></svg>
+          <span>Firewall</span>
+        </span>
+        <div class="cy-ffl__end">Your network</div>
+      </div>
+    </div>
+    <figcaption class="cy-anim__cap">
+      Every connection is checked against the rules. <b>Wanted traffic passes</b>; <b>everything else is turned away at the gate.</b>
+    </figcaption>
+  </figure>
+
+{% elif key == "segment-flow" %}
+  <figure class="cy-diagram cy-anim" role="img"
+          aria-label="An animated comparison: on a flat network, an infection spreads from one device to every other. On a segmented network, a barrier keeps it contained to a single zone.">
+    <div class="cy-anim__stage">
+      <div class="cy-sfl">
+        <div class="cy-sfl__col cy-sfl--flat">
+          <div class="cy-sfl__h">One flat network</div>
+          <div class="cy-sfl__grid">
+            <span class="cy-sfl__node cy-sfl__node--patient0"></span>
+            <span class="cy-sfl__node"></span><span class="cy-sfl__node"></span><span class="cy-sfl__node"></span>
+            <span class="cy-sfl__node"></span><span class="cy-sfl__node"></span><span class="cy-sfl__node"></span><span class="cy-sfl__node"></span>
+          </div>
+        </div>
+        <div class="cy-sfl__col cy-sfl--seg">
+          <div class="cy-sfl__h">Segmented</div>
+          <div class="cy-sfl__grid">
+            <span class="cy-sfl__node cy-sfl__node--patient0"></span>
+            <span class="cy-sfl__node cy-sfl__node--seg"></span><span class="cy-sfl__node cy-sfl__node--seg"></span><span class="cy-sfl__node cy-sfl__node--seg"></span>
+            <span class="cy-sfl__wall"></span>
+            <span class="cy-sfl__node cy-sfl__node--seg"></span><span class="cy-sfl__node cy-sfl__node--seg"></span><span class="cy-sfl__node cy-sfl__node--seg"></span><span class="cy-sfl__node cy-sfl__node--seg"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <figcaption class="cy-anim__cap">
+      Same infected device (in red). On a flat network it reaches everything; <b>segmentation seals it into one zone.</b>
+    </figcaption>
+  </figure>
+
+{% elif key == "incident-escalation" %}
+  <figure class="cy-diagram cy-anim" role="img"
+          aria-label="An animated comparison of two responses to the same incident. Without a plan, the impact bar climbs to full. With a rehearsed plan, the impact is caught early and stays low.">
+    <div class="cy-anim__stage">
+      <div class="cy-esc">
+        <div class="cy-esc__row">
+          <span class="cy-esc__lab">No plan: the impact keeps climbing</span>
+          <span class="cy-esc__track"><span class="cy-esc__fill cy-esc__fill--bad"></span></span>
+        </div>
+        <div class="cy-esc__row">
+          <span class="cy-esc__lab">With a plan: caught early, held low</span>
+          <span class="cy-esc__track"><span class="cy-esc__fill cy-esc__fill--good"></span></span>
+        </div>
+      </div>
+    </div>
+    <figcaption class="cy-anim__cap">
+      Same incident, two responses. <b>A rehearsed plan is the difference between a scare and a disaster.</b>
+    </figcaption>
+  </figure>
+
+{% elif key == "recovery-board" %}
+  <figure class="cy-diagram cy-anim" role="img"
+          aria-label="An animated recovery board: four systems move in sequence from Down, to Restoring, to Online, as clean backups are brought back one at a time.">
+    <div class="cy-anim__stage">
+      <div class="cy-rec">
+        <div class="cy-rec__row">
+          <span class="cy-rec__name">Appointment system</span>
+          <span class="cy-rec__pill"><span class="cy-rec__s cy-rec__s--down">DOWN</span><span class="cy-rec__s cy-rec__s--rest">RESTORING</span><span class="cy-rec__s cy-rec__s--online">ONLINE</span></span>
+        </div>
+        <div class="cy-rec__row">
+          <span class="cy-rec__name">Patient records</span>
+          <span class="cy-rec__pill"><span class="cy-rec__s cy-rec__s--down">DOWN</span><span class="cy-rec__s cy-rec__s--rest">RESTORING</span><span class="cy-rec__s cy-rec__s--online">ONLINE</span></span>
+        </div>
+        <div class="cy-rec__row">
+          <span class="cy-rec__name">Payment terminal</span>
+          <span class="cy-rec__pill"><span class="cy-rec__s cy-rec__s--down">DOWN</span><span class="cy-rec__s cy-rec__s--rest">RESTORING</span><span class="cy-rec__s cy-rec__s--online">ONLINE</span></span>
+        </div>
+        <div class="cy-rec__row">
+          <span class="cy-rec__name">Email</span>
+          <span class="cy-rec__pill"><span class="cy-rec__s cy-rec__s--down">DOWN</span><span class="cy-rec__s cy-rec__s--rest">RESTORING</span><span class="cy-rec__s cy-rec__s--online">ONLINE</span></span>
+        </div>
+      </div>
+    </div>
+    <figcaption class="cy-anim__cap">
+      Recovery is deliberate, not a scramble: <b>clean backups brought back one system at a time, and verified.</b>
+    </figcaption>
+  </figure>
 {% endif %}

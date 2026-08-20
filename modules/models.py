@@ -267,6 +267,8 @@ class LessonTask(models.Model):
         SEQUENCE = "SEQUENCE", "Order the steps"
         RESPOND = "RESPOND", "Respond to situations"
         QUIZSET = "QUIZSET", "Mixed question set"  # 3-4 mixed interactive questions
+        FIREWALL = "FIREWALL", "Read the firewall rules"  # allow/block a rule table (M5)
+        TABLETOP = "TABLETOP", "Incident tabletop"        # staged incident + situation board (M6)
 
     lesson = models.ForeignKey(
         Lesson, on_delete=models.CASCADE, related_name="tasks"

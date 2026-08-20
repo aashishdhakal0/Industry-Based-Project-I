@@ -92,10 +92,8 @@ MODULES = [
         "The defences around your whole business, and how to spot where they are missing.",
         Module.Difficulty.ADVANCED,
         [
-            "The firewall: your network's gatekeeper",
-            "Segmentation: contain the trouble",
-            "Remote access and the VPN",
-            "Alerts, patches, and finding the gaps",
+            "The firewall: reading the rules that guard your network",
+            "Defence in depth: segment, connect safely, and watch for trouble",
         ],
     ),
     (
@@ -103,10 +101,8 @@ MODULES = [
         "A calm, six-phase plan for what to do when something goes wrong.",
         Module.Difficulty.ADVANCED,
         [
-            "Why a plan beats panic",
-            "Spot it and stop it",
-            "Clean up and come back",
-            "The law, and the whole response",
+            "When the alert fires: detect and contain",
+            "Clean up, come back, and the law: eradicate, recover, review",
         ],
     ),
 ]
@@ -118,8 +114,8 @@ TAGLINES = {
     2: "Name the threat. Stop the spread.",
     3: "They hack the human. Verify anyway.",
     4: "Before you hit send, think.",
-    5: "Layer the defences. Leave no gap.",
-    6: "A plan beats panic.",
+    5: "Set the rules. Watch them hold.",
+    6: "Panic is optional. A plan is not.",
 }
 
 
