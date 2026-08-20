@@ -316,7 +316,7 @@ def test_full_interactive_module_six_journey(learner_at_module_six):
     for lesson in m6.lessons.order_by("lesson_number"):
         final = _work_through_lesson(client, m6, lesson)
         assert final["lesson_completed"] is True
-        assert final["lesson_points_done"] == final["lesson_points_total"] == 40
+        assert final["lesson_points_done"] == final["lesson_points_total"] == 50
 
     assert ProgressRecord.objects.filter(user=student, lesson__module=m6).count() == 2
 

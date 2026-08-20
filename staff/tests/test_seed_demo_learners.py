@@ -44,12 +44,12 @@ def test_creates_all_learners_as_active_verified_students(seeded):
 
 
 def test_points_match_progress_records_are_truth(seeded):
-    # Priya finished all six: 24 lessons * 40 + 6 quizzes * 200 = 2160.
+    # Priya finished all six: 24 lessons * 50 + 6 quizzes * 250 = 2700.
     priya = _by_email("priya.nadesan@gmail.com")
-    assert priya.profile.points == 2160
-    # Ethan has only started (2 lessons, no quiz): 80 points.
+    assert priya.profile.points == 2700
+    # Ethan has only started (2 lessons, no quiz): 100 points.
     ethan = _by_email("ethan.wilson@gmail.com")
-    assert ethan.profile.points == 80
+    assert ethan.profile.points == 100
 
 
 def test_grades_match_the_quiz_scores(seeded):

@@ -27,17 +27,17 @@ def complete_module(student, module, *, today=TODAY):
 
 @pytest.mark.parametrize(
     "points,level",
-    [(0, 1), (40, 1), (159, 1), (160, 2), (400, 3), (720, 4), (2160, 7)],
+    [(0, 1), (50, 1), (199, 1), (200, 2), (500, 3), (900, 4), (2700, 7)],
 )
 def test_level_thresholds(points, level):
     assert g.level_for_points(points).level == level
 
 
 def test_level_reports_progress_within_the_level():
-    lv = g.level_for_points(80)  # halfway from 0 to 160
+    lv = g.level_for_points(100)  # halfway from 0 to 200
     assert lv.level == 1
     assert lv.percent == 50
-    assert lv.to_next == 80
+    assert lv.to_next == 100
 
 
 # --------------------------------------------------------------------------
@@ -68,16 +68,16 @@ def test_completing_a_lesson_twice_awards_it_once(student, modules):
 def test_points_are_recomputed_from_records_not_incremented(student, modules):
     """The cache is rewritten from the records, so a stray edit to the stored
     value is corrected on the next reconcile rather than compounding."""
-    complete_module(student, modules[0])  # 4 lessons → 160
+    complete_module(student, modules[0])  # 4 lessons → 200
     profile = g.get_profile(student)
-    assert profile.points == 160
+    assert profile.points == 200
 
     profile.points = 9999  # simulate drift
     profile.save(update_fields=["points"])
 
     g.refresh_profile(student)
     profile.refresh_from_db()
-    assert profile.points == 160
+    assert profile.points == 200
 
 
 # --------------------------------------------------------------------------

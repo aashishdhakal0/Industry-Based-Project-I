@@ -31,25 +31,25 @@ from .models import (
     TaskProgress,
 )
 
-POINTS_PER_LESSON = 40
-POINTS_PER_QUIZ = 200
+POINTS_PER_LESSON = 50
+POINTS_PER_QUIZ = 250
 
 
 # --------------------------------------------------------------------------
 # Levels — a pure function of points, so no `level` field is ever stored
 # --------------------------------------------------------------------------
 #
-# XP to first REACH level L is 40·(L−1)·(L+2): 160, 400, 720, 1120, 1600, 2160…
-# Early levels come quickly (level 2 after four lessons), then stretch. The course
-# has 12 lessons (all six modules are two deep lessons each) + 6 quizzes =
-# 12*40 + 6*200 = 1680 XP, so a fully finished course lands in the Platinum tier
-# (1000+), just short of Diamond (2000). (Curve and economy scale together, so the
-# number of lessons/quizzes behind each level is unchanged from the original 10/50
-# economy.)
+# XP to first REACH level L is POINTS_PER_LESSON·(L−1)·(L+2): 200, 500, 900, 1400,
+# 2000, 2700… Early levels come quickly (level 2 after four lessons), then stretch.
+# The course has 12 lessons (all six modules are two deep lessons each) + 6 quizzes
+# = 12*50 + 6*250 = 2100 XP, so a fully finished course now reaches the Diamond tier
+# (2000+), the top rank. (The curve constant IS POINTS_PER_LESSON, so curve and
+# economy scale together: the number of lessons/quizzes behind each level is
+# unchanged from the original 10/50 economy.)
 
 
 def _points_to_reach(level):
-    return 40 * (level - 1) * (level + 2)
+    return POINTS_PER_LESSON * (level - 1) * (level + 2)
 
 
 @dataclass(frozen=True)
@@ -389,12 +389,15 @@ def rank_for_level(level):
 # --------------------------------------------------------------------------
 #
 # A coarse, game-style tier the student climbs. Computed from the SAME
-# profile.points that drives Level and Streak (points = lessons·40 +
-# passed_quizzes·200, recomputed from records, never incremented) — so it is
-# honest and can never contradict the level. Points cap at 1680 (all 12 lessons +
-# 6 quizzes); Diamond sits at 2000, so a fully finished course now tops out in
-# Platinum (1000+), just short of Diamond. Tiers are coarser than levels and both
-# rise with points, so they stay consistent by construction.
+# profile.points that drives Level and Streak (points = lessons·50 +
+# passed_quizzes·250, recomputed from records, never incremented) — so it is
+# honest and can never contradict the level. Points cap at 2100 (all 12 lessons +
+# 6 quizzes); Diamond sits at 2000, so a fully finished course now reaches Diamond
+# (the top tier), with a little headroom. The five tiers stay meaningfully spaced:
+# a finished module is worth 350 (2 lessons + quiz), and the bands 0 / 200 / 500 /
+# 1000 / 2000 have each tier take longer to earn than the last (gaps 200, 300, 500,
+# 1000). Tiers are coarser than levels and both rise with points, so they stay
+# consistent by construction.
 
 
 @dataclass(frozen=True)

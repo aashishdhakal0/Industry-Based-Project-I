@@ -160,7 +160,7 @@ def test_a_passing_submit_records_the_result_and_shows_the_pass_page(
     html = client_student.get(resp.url).content.decode()
     assert "100" in html
     assert "passed" in html.lower()
-    assert "+200 points" in html
+    assert "+250 points" in html
     # the next module is offered
     assert reverse("learn:module", args=[2]) in html
 

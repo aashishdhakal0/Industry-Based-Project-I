@@ -237,14 +237,17 @@ panel shape, payload contracts, voice rules). Copy it to add/extend a module.
 ### Gamification engine (`modules/gamification.py`)
 - **Records are the truth.** `UserProfile.points` is a **cache recomputed** from
   `ProgressRecord` (lessons) + distinct passed `QuizResult` (quizzes) on every
-  completion — never incremented, so it cannot drift. Points = lessons×40 +
-  passed_quizzes×200 (**12 lessons** now, since all six modules are 2 hands-on
-  lessons each, + 6 quizzes = **1680, the ceiling**). The constants live in
+  completion — never incremented, so it cannot drift. Points = lessons×50 +
+  passed_quizzes×250 (**12 lessons** now, since all six modules are 2 hands-on
+  lessons each, + 6 quizzes = **2100, the ceiling**). The constants live in
   `gamification.py` (`POINTS_PER_LESSON`/`POINTS_PER_QUIZ`); the level curve
-  `_points_to_reach` and the Bronze→Diamond `TIERS` scale with them.
-  Tier thresholds: Bronze 0 · Silver 200 · Gold 500 · Platinum 1000 · Diamond 2000.
-  A fully finished course (1680) now tops out in **Platinum** (1000+), just short
-  of Diamond.
+  `_points_to_reach` uses `POINTS_PER_LESSON` as its constant, so curve and
+  economy scale together (level 2 after four lessons, etc.).
+  Tier thresholds: Bronze 0 · Silver 200 · Gold 500 · Platinum 1000 · Diamond 2000
+  (gaps 200/300/500/1000, each tier harder-won than the last).
+  A fully finished course (2100) now **reaches Diamond** (2000+), the top tier,
+  earned on the final quiz. Rescaled from 40/200 on 2026-08-20 so completion lands
+  in Diamond rather than Platinum.
 - **Level** is a pure function of points. **Streak** advances on activity (date
   injected for tests). **Badges**: catalogue in code (`modules/badges.py`), earned
   ids in `UserProfile.badges` (jsonb), awarded one-way from `student_stats`.

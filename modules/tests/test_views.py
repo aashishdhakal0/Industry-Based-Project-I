@@ -104,8 +104,8 @@ def test_marking_complete_records_progress_and_awards_points(client_student, stu
     response = complete(client_student, modules[0], 1, HTTP_X_REQUESTED_WITH="fetch")
     data = json.loads(response.content)
 
-    assert data["points_gained"] == 40
-    assert data["points"] == 40
+    assert data["points_gained"] == 50
+    assert data["points"] == 50
     assert ProgressRecord.objects.filter(user=student, lesson__module=modules[0]).count() == 1
 
 
@@ -116,7 +116,7 @@ def test_marking_complete_twice_awards_once(client_student, student, modules):
     data = json.loads(second.content)
 
     assert data["points_gained"] == 0
-    assert data["points"] == 40
+    assert data["points"] == 50
     assert ProgressRecord.objects.filter(user=student).count() == 1
 
 
@@ -258,8 +258,8 @@ def test_dashboard_shows_real_points_after_completing_lessons(client_student, st
     complete(client_student, modules[0], 2, HTTP_X_REQUESTED_WITH="fetch")
 
     html = client_student.get(reverse("dashboard")).content.decode()
-    # 2 lessons × 40 = 80 points, shown in the points stat card.
-    assert 'cy-scard__v">80<' in html
+    # 2 lessons × 50 = 100 points, shown in the points stat card.
+    assert 'cy-scard__v">100<' in html
 
 
 @pytest.mark.django_db
@@ -796,7 +796,7 @@ def test_completing_every_task_banks_the_lesson_and_returns_the_reward(client_st
     post_task(client_student, modules[0], lesson, tasks[1])
     r3 = post_task(client_student, modules[0], lesson, tasks[2]).json()
     assert r3["lesson_completed"] is True
-    assert r3["reward"]["points_gained"] == 40
+    assert r3["reward"]["points_gained"] == 50
     assert ProgressRecord.objects.filter(user=student, lesson=lesson).exists()
 
 
