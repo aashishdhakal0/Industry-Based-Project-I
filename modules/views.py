@@ -488,6 +488,8 @@ def complete_simulation(request, order_index):
 @login_required
 def dashboard(request):
     """The student's home — every figure real, from PostgreSQL via the engine."""
+    from django.utils import timezone
+
     profile = g.get_profile(request.user)
     progress = g.module_progress(request.user)
     for mp in progress:
@@ -545,6 +547,16 @@ def dashboard(request):
     stats = g.student_stats(request.user)
     lessons_done = stats["lessons_completed"]
 
+    # "Up next" mini-roadmap: the module the student is on, plus the next one, so
+    # the path forward is always visible on the home screen. Empty once the whole
+    # course is done (the hero then points at the certificate instead).
+    upnext = []
+    if current_index is not None:
+        upnext = [mp for mp in progress if mp.module.order_index >= current_index][:2]
+
+    # A light recurring goal from the same activity data as the calendar.
+    weekly = g.weekly_goal(request.user)
+
     from .badges import CATALOGUE, nearest_unearned
 
     nearest = nearest_unearned(stats, earned)
@@ -563,6 +575,7 @@ def dashboard(request):
             "active": "dashboard",
             "profile": profile,
             "greeting": g.greeting(),
+            "today_label": timezone.localdate().strftime("%A, %-d %B"),
             "rank": g.rank_for_level(level.level),
             "tier": tier,
             "tiers": g.TIERS,
@@ -582,6 +595,7 @@ def dashboard(request):
                 if progress else 0
             ),
             "lessons_done": lessons_done,
+            "lessons_total": sum(mp.total_lessons for mp in progress),
             "continue_module": step.module if step else None,
             "continue_lesson": step.lesson if step else None,
             "continue_kind": step.kind if step else None,
@@ -593,6 +607,8 @@ def dashboard(request):
             "badges": [{"badge": b, "earned": b.id in earned} for b in CATALOGUE],
             "badges_earned": len(earned),
             "badges_total": len(CATALOGUE),
+            "upnext": upnext,
+            "weekly": weekly,
         },
     )
 

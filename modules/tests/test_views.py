@@ -258,8 +258,8 @@ def test_dashboard_shows_real_points_after_completing_lessons(client_student, st
     complete(client_student, modules[0], 2, HTTP_X_REQUESTED_WITH="fetch")
 
     html = client_student.get(reverse("dashboard")).content.decode()
-    # 2 lessons × 50 = 100 points, shown in the points stat card.
-    assert 'cy-scard__v">100<' in html
+    # 2 lessons × 50 = 100 points, shown in the primary points stat.
+    assert 'cy-pstat__v">100<' in html
 
 
 @pytest.mark.django_db
@@ -401,11 +401,12 @@ def test_a_zero_progress_student_gets_the_full_dashboard(client_student, modules
     as everyone else (profile card, tier panel, stats, calendar) — not a stripped
     'welcome' fork. This is the regression guard for that bug."""
     html = client_student.get(reverse("dashboard")).content.decode()
-    assert "cy-prof__trigger" in html            # the profile card
+    assert "cy-chip__btn" in html                # the top-right profile chip
     assert "cy-tierpanel" in html                # the tier panel, with its emblem
     assert "cy-tier--bronze" in html             # Bronze for a 0-point student
     assert "to Silver" in html                   # progress toward the next tier
-    assert html.count("cy-scard__v") == 6        # the six stat cards
+    assert html.count("cy-pstat__v") == 3        # three primary gamified stats
+    assert html.count("cy-mstat__v") == 3        # three secondary counts
     assert "cy-cal__grid" in html                # the activity calendar
     assert "cy-welcome" not in html              # NOT the old welcome fork
     assert html.count("cy-btn--primary") == 1    # one clear "Start" action
@@ -450,9 +451,9 @@ def test_the_streak_nudges_when_a_day_is_at_risk(client_student, student, module
     profile.save(update_fields=["streak_count", "last_active"])
 
     html = client_student.get(reverse("dashboard")).content.decode()
-    # Streak is a stat card; its at-risk state and nudge survive.
-    assert "cy-scard--at_risk" in html
-    assert "break your 4-day streak" in html   # loss-aversion framing, in the card title
+    # Streak is a primary stat; its at-risk state and nudge survive.
+    assert "cy-pstat--at_risk" in html
+    assert "break your 4-day streak" in html   # loss-aversion framing, in the stat
 
 
 @pytest.mark.django_db
@@ -460,9 +461,11 @@ def test_dashboard_stats_strip_shows_real_totals(client_student, student, module
     complete(client_student, modules[0], 1, HTTP_X_REQUESTED_WITH="fetch")
 
     html = client_student.get(reverse("dashboard")).content.decode()
-    # Six composed stat cards: points, level, streak, lessons, modules, badges.
-    assert 'class="cy-scards"' in html
-    assert html.count("cy-scard__v") == 6
+    # One cohesive stat composition: three primary + three secondary.
+    assert "cy-stats-primary" in html
+    assert "cy-stats-secondary" in html
+    assert html.count("cy-pstat__v") == 3
+    assert html.count("cy-mstat__v") == 3
 
 
 # --------------------------------------------------------------------------
@@ -474,10 +477,11 @@ def test_dashboard_stats_strip_shows_real_totals(client_student, student, module
 def test_returning_dashboard_has_the_profile_and_stats(client_student, modules):
     complete(client_student, modules[0], 1, HTTP_X_REQUESTED_WITH="fetch")
     html = client_student.get(reverse("dashboard")).content.decode()
-    assert "cy-prof__trigger" in html        # the clickable profile (a disclosure)
-    assert "cy-prof__name" in html           # the student's name
-    assert "cy-tierpill" in html             # tier shown as a clean pill
-    assert html.count("cy-scard__v") == 6
+    assert "cy-chip__btn" in html            # the clickable profile chip (a disclosure)
+    assert "cy-chip__name" in html           # the student's name
+    assert "cy-chip__tier" in html           # tier shown on the chip
+    assert html.count("cy-pstat__v") == 3
+    assert html.count("cy-mstat__v") == 3
 
 
 def _set_points(student, points):
@@ -559,11 +563,68 @@ def test_dashboard_celebrates_a_new_tier_once(client_student, student, modules):
 def test_the_composed_dashboard_sections_are_present(client_student, modules):
     complete(client_student, modules[0], 1, HTTP_X_REQUESTED_WITH="fetch")
     html = client_student.get(reverse("dashboard")).content.decode()
-    assert "cy-dash__hero" in html           # Continue hero + tier panel
+    assert "cy-db__hero" in html             # Continue hero + tier panel
     assert "cy-tierpanel" in html            # the tier panel with emblem
-    assert "cy-scards" in html               # the composed stat cards
-    assert "cy-dash__grid2" in html          # calendar + next-badge nudge
+    assert "cy-stats-primary" in html        # the cohesive stat composition
+    assert "cy-db__lower" in html            # main (up next + goal) + rail (calendar + nudge)
     assert "cy-cal__grid" in html            # the calendar
+    assert "cy-upnext" in html               # the new "Up next" roadmap
+    assert "cy-goal" in html                 # the new weekly goal
+
+
+@pytest.mark.django_db
+def test_up_next_shows_the_current_module_and_locks_the_one_after(client_student, modules):
+    """The Up next roadmap surfaces the module you're on (current) and the next
+    one, still locked. DEBUG is False under test, so the real lock is exercised."""
+    for n in (1, 2, 3, 4):
+        complete(client_student, modules[0], n, HTTP_X_REQUESTED_WITH="fetch")
+    complete(client_student, modules[1], 1, HTTP_X_REQUESTED_WITH="fetch")
+
+    html = client_student.get(reverse("dashboard")).content.decode()
+    assert "cy-mrow--current" in html        # the module in progress
+    assert "cy-mrow--locked" in html         # the next one, still locked
+    assert modules[1].title in html
+
+
+@pytest.mark.django_db
+def test_weekly_goal_reflects_real_activity(client_student, modules):
+    complete(client_student, modules[0], 1, HTTP_X_REQUESTED_WITH="fetch")
+    html = client_student.get(reverse("dashboard")).content.decode()
+    assert "Weekly goal" in html
+    assert "cy-goal__ring" in html
+    assert "cy-goal__dots" in html           # the seven Mon..Sun day markers
+    assert html.count("cy-goal__dots") == 1
+
+
+@pytest.mark.django_db
+def test_student_nav_context_processor_powers_the_shared_chip(student, author, rf):
+    """The chip's data comes from a context processor, so it is reusable on any
+    student page (dashboard, module overview) without per-view wiring. Students
+    get a profile; administrators and anonymous users get nothing."""
+    from django.contrib.auth.models import AnonymousUser
+
+    from nstp.context_processors import student_nav
+
+    req = rf.get("/")
+    req.user = student
+    ctx = student_nav(req)
+    assert ctx["nav_profile"]["name"]
+    assert ctx["nav_profile"]["tier"].tier.name
+    assert ctx["nav_profile"]["level"].level >= 1
+
+    req.user = author  # an ADMINISTRATOR — uses console chrome, not the chip
+    assert student_nav(req) == {}
+
+    req.user = AnonymousUser()
+    assert student_nav(req) == {}
+
+
+@pytest.mark.django_db
+def test_module_overview_carries_the_shared_profile_chip(client_student, modules):
+    """The module overview uses the same chip as the dashboard, top right."""
+    html = client_student.get(reverse("learn:module", args=[modules[0].order_index])).content.decode()
+    assert "cy-topbar--page" in html
+    assert "cy-chip__btn" in html
 
 
 # --------------------------------------------------------------------------

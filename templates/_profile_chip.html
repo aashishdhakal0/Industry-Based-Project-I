@@ -1,0 +1,25 @@
+{% comment %}
+  The top-right profile chip: compact avatar + name + tier pill, opening a small
+  menu. Data comes from the `student_nav` context processor (nav_profile), so this
+  works on any student page without per-view wiring. Renders nothing for admins /
+  anonymous users. CSP-safe: a native <details> disclosure, no JS.
+{% endcomment %}
+{% if nav_profile %}
+<details class="cy-chip">
+  <summary class="cy-chip__btn" aria-label="Profile menu">
+    <span class="cy-chip__av cy-tier--{{ nav_profile.tier.tier.slug }}" aria-hidden="true">{{ nav_profile.initial }}</span>
+    <span class="cy-chip__meta">
+      <span class="cy-chip__name">{{ nav_profile.name }}</span>
+      <span class="cy-chip__tier">{{ nav_profile.tier.tier.name }} · Lv {{ nav_profile.level.level }}</span>
+    </span>
+    <svg class="cy-i cy-chip__chev" aria-hidden="true"><use href="#i-chevron-right"/></svg>
+  </summary>
+  <div class="cy-chip__menu" role="menu">
+    <a class="cy-chip__item" href="{% url 'learn:progress' %}" role="menuitem"><svg class="cy-i" aria-hidden="true"><use href="#i-chart"/></svg> My progress</a>
+    <a class="cy-chip__item" href="{% url 'learn:badges' %}" role="menuitem"><svg class="cy-i" aria-hidden="true"><use href="#i-star"/></svg> Badges</a>
+    <a class="cy-chip__item" href="{% url 'learn:certificate' %}" role="menuitem"><svg class="cy-i" aria-hidden="true"><use href="#i-award"/></svg> Certificate</a>
+    <div class="cy-chip__sep" aria-hidden="true"></div>
+    <form method="post" action="{% url 'authentication:logout' %}">{% csrf_token %}<button type="submit" class="cy-chip__item cy-chip__item--btn" role="menuitem"><svg class="cy-i" aria-hidden="true"><use href="#i-chevron-left"/></svg> Sign out</button></form>
+  </div>
+</details>
+{% endif %}

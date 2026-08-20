@@ -828,3 +828,55 @@ def activity_calendar(user, *, year=None, month=None, today=None):
         next_month=next_month,
         can_go_next=can_go_next,
     )
+
+
+@dataclass
+class WeeklyGoal:
+    target: int          # active days aimed for this week
+    active: int          # active days so far (Monday .. today)
+    remaining: int       # days still needed to hit the target
+    met: bool            # already reached the target
+    percent: int         # active/target as 0..100 (capped)
+    days: list           # 7 dicts, Monday-first: {abbr, active, is_today, future}
+
+
+def weekly_goal(user, *, target=5, today=None):
+    """A light recurring goal: how many days this week the student has studied.
+
+    Real data only (same sources as the calendar). Monday-first, counts only up
+    to and including today (future days are shown but never counted). `today` is
+    injectable for tests rather than mocking a clock.
+    """
+    import calendar as _calendar
+    import datetime
+
+    today = today or timezone.localdate()
+    monday = today - datetime.timedelta(days=today.weekday())
+    start_dt = timezone.make_aware(datetime.datetime.combine(monday, datetime.time.min))
+    end_dt = timezone.make_aware(
+        datetime.datetime.combine(monday + datetime.timedelta(days=7), datetime.time.min)
+    )
+    counts = _activity_counts_in_range(user, start_dt, end_dt)
+
+    days, active = [], 0
+    for i in range(7):
+        d = monday + datetime.timedelta(days=i)
+        did = bool(counts.get(d) and counts[d]["total"] > 0) and d <= today
+        if did:
+            active += 1
+        days.append(
+            {
+                "abbr": _calendar.day_abbr[i][:1],
+                "active": did,
+                "is_today": d == today,
+                "future": d > today,
+            }
+        )
+    return WeeklyGoal(
+        target=target,
+        active=active,
+        remaining=max(0, target - active),
+        met=active >= target,
+        percent=min(100, round(active / target * 100)) if target else 100,
+        days=days,
+    )

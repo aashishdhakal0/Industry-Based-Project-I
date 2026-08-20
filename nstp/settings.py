@@ -85,6 +85,8 @@ TEMPLATES = [
                 "django.contrib.messages.context_processors.messages",
                 # Puts SITE_NAME in every template as {{ site_name }}.
                 "nstp.context_processors.site",
+                # Profile summary for the top-right chip (students only).
+                "nstp.context_processors.student_nav",
             ],
         },
     },

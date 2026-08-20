@@ -388,6 +388,40 @@ def test_calendar_days_carry_a_heat_level_from_how_much_was_done(student, module
     assert by_day[8].level == 0 and by_day[8].active is False
 
 
+@pytest.mark.django_db
+def test_weekly_goal_counts_active_days_up_to_today(student, modules):
+    # Build the week relative to a fixed 'today' so the assertions hold whatever
+    # weekday the date lands on. Study Monday and Wednesday; check on Thursday.
+    anchor = datetime.date(2026, 7, 16)
+    monday = anchor - datetime.timedelta(days=anchor.weekday())
+    _study_on(student, modules[0], 1, monday)
+    _study_on(student, modules[0], 2, monday + datetime.timedelta(days=2))
+
+    wg = g.weekly_goal(student, today=monday + datetime.timedelta(days=3))  # Thursday
+    assert wg.target == 5
+    assert wg.active == 2
+    assert wg.remaining == 3
+    assert wg.met is False
+    assert wg.percent == 40
+    assert len(wg.days) == 7
+    assert [d["active"] for d in wg.days] == [True, False, True, False, False, False, False]
+    assert wg.days[3]["is_today"] is True         # Thursday
+    assert wg.days[4]["future"] is True            # Friday, not yet counted
+
+
+@pytest.mark.django_db
+def test_weekly_goal_is_met_when_the_target_is_reached(student, modules):
+    anchor = datetime.date(2026, 7, 16)
+    monday = anchor - datetime.timedelta(days=anchor.weekday())
+    # Five distinct lessons (the fixture module has four, so borrow one from the
+    # next module) on five consecutive days.
+    plan = [(modules[0], 1), (modules[0], 2), (modules[0], 3), (modules[0], 4), (modules[1], 1)]
+    for i, (mod, ln) in enumerate(plan):
+        _study_on(student, mod, ln, monday + datetime.timedelta(days=i))
+    wg = g.weekly_goal(student, today=monday + datetime.timedelta(days=5))  # Saturday
+    assert wg.active == 5 and wg.met is True and wg.remaining == 0 and wg.percent == 100
+
+
 def test_activity_phrase_reads_by_type_and_pluralises():
     # Fixed order (lessons, quizzes, simulations); zero counts skipped; singular vs plural.
     assert g._activity_phrase({"lessons": 2, "quizzes": 1, "simulations": 0}) == "2 lessons, 1 quiz"
