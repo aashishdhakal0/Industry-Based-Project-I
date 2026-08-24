@@ -46,7 +46,7 @@ CATALOGUE = [
     Badge(
         id="first_lesson", name="First step",
         description="Complete your first lesson.",
-        icon="i-book", tier="Getting Started", tile_a="#9b7bf8", tile_b="#22d3ee",
+        icon="i-book", tier="Getting Started", tile_a="#00d9ff", tile_b="#00d9ff",
         evaluate=lambda s: s["lessons_completed"] >= 1,
         hint=lambda s: (1, "1 lesson from your first badge")
         if s["lessons_completed"] == 0 else None,
@@ -54,7 +54,7 @@ CATALOGUE = [
     Badge(
         id="first_module", name="Module one down",
         description="Finish every lesson in a module.",
-        icon="i-layers", tier="Getting Started", tile_a="#7c5cf0", tile_b="#4fb8f5",
+        icon="i-layers", tier="Getting Started", tile_a="#00d9ff", tile_b="#00d9ff",
         evaluate=lambda s: s["modules_completed"] >= 1,
         hint=lambda s: (4, "Finish a module to earn a badge")
         if s["modules_completed"] == 0 else None,
@@ -62,7 +62,7 @@ CATALOGUE = [
     Badge(
         id="first_simulation", name="Hands on",
         description="Complete your first simulation.",
-        icon="i-target", tier="Getting Started", tile_a="#a86af0", tile_b="#22d3ee",
+        icon="i-target", tier="Getting Started", tile_a="#00d9ff", tile_b="#00d9ff",
         evaluate=lambda s: s["simulations_completed"] >= 1,
     ),
 
@@ -70,13 +70,13 @@ CATALOGUE = [
     Badge(
         id="first_quiz", name="Quiz cracked",
         description="Pass your first quiz.",
-        icon="i-check-circle", tier="Knowledge", tile_a="#6d7bf5", tile_b="#35d6f0",
+        icon="i-check-circle", tier="Knowledge", tile_a="#00d9ff", tile_b="#5be7ff",
         evaluate=lambda s: s["passed_quizzes"] >= 1,
     ),
     Badge(
         id="sharp_eye", name="Sharp eye",
         description="Get a perfect score in a simulation.",
-        icon="i-eye", tier="Knowledge", tile_a="#8b5cf6", tile_b="#67e8f9",
+        icon="i-eye", tier="Knowledge", tile_a="#00d9ff", tile_b="#5be7ff",
         evaluate=lambda s: s["perfect_simulations"] >= 1,
     ),
 
@@ -84,7 +84,7 @@ CATALOGUE = [
     Badge(
         id="halfway", name="Halfway there",
         description="Complete three modules.",
-        icon="i-rocket", tier="Milestones", tile_a="#b45cf0", tile_b="#5b8df5",
+        icon="i-rocket", tier="Milestones", tile_a="#00d9ff", tile_b="#00d9ff",
         evaluate=lambda s: s["modules_completed"] >= 3,
         hint=lambda s: (
             (3 - s["modules_completed"]) * 4,
@@ -95,7 +95,7 @@ CATALOGUE = [
     Badge(
         id="points_100", name="Century",
         description="Earn 100 points.",
-        icon="i-gem", tier="Milestones", tile_a="#a78bfa", tile_b="#c4a6ff",
+        icon="i-gem", tier="Milestones", tile_a="#00d9ff", tile_b="#5be7ff",
         evaluate=lambda s: s["points"] >= 100,
         hint=lambda s: (max(1, (100 - s["points"]) // 10), f"{100 - s['points']} points from a badge")
         if 0 < 100 - s["points"] <= 40 else None,
@@ -103,7 +103,7 @@ CATALOGUE = [
     Badge(
         id="graduate", name="Fully trained",
         description="Complete every module.",
-        icon="i-award", tier="Milestones", tile_a="#ffd97a", tile_b="#ff9d4d",
+        icon="i-award", tier="Milestones", tile_a="#e6c06a", tile_b="#00e5cc",
         evaluate=lambda s: s["published_modules"] > 0
         and s["modules_completed"] >= s["published_modules"],
     ),
@@ -112,7 +112,7 @@ CATALOGUE = [
     Badge(
         id="streak_3", name="On a roll",
         description="Keep a 3-day streak.",
-        icon="i-flame", tier="Streaks", tile_a="#ff9d4d", tile_b="#ffc94b",
+        icon="i-flame", tier="Streaks", tile_a="#00e5cc", tile_b="#e6b455",
         evaluate=lambda s: s["streak"] >= 3,
         hint=lambda s: (
             3 - s["streak"],
@@ -123,7 +123,7 @@ CATALOGUE = [
     Badge(
         id="streak_7", name="Week strong",
         description="Keep a 7-day streak.",
-        icon="i-calendar", tier="Streaks", tile_a="#ff8a3d", tile_b="#ffb64b",
+        icon="i-calendar", tier="Streaks", tile_a="#00e5cc", tile_b="#e6b455",
         evaluate=lambda s: s["streak"] >= 7,
         hint=lambda s: (7 - s["streak"], f"{7 - s['streak']} days from your 7-day streak")
         if 3 <= s["streak"] < 7 else None,
@@ -131,7 +131,7 @@ CATALOGUE = [
     Badge(
         id="streak_30", name="Unstoppable",
         description="Keep a 30-day streak.",
-        icon="i-crown", tier="Streaks", tile_a="#ffc94b", tile_b="#ffd97a",
+        icon="i-crown", tier="Streaks", tile_a="#e6b455", tile_b="#e6c06a",
         evaluate=lambda s: s["streak"] >= 30,
         hint=lambda s: (30 - s["streak"], f"{30 - s['streak']} days from your 30-day streak")
         if 7 <= s["streak"] < 30 else None,

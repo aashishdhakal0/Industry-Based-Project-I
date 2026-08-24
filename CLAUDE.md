@@ -346,8 +346,53 @@ so it applies to every module automatically, now and going forward:
   `.cy-panel__do-label` pill. Same theme, complementary tones — one product, two
   clear modes, not two apps.
 The approved direction was confirmed against a published artifact preview first.
-CSS cache-buster is `css/cybaroo.css?v=22` in `templates/base.html` (bump on any
+CSS cache-buster is `css/cybaroo.css?v=25` in `templates/base.html` (bump on any
 CSS change, then `collectstatic`, then hard-refresh).
+
+### Visual identity: "Cyan & Teal command console" re-theme (DONE, 2026-08-22)
+The platform is themed as a **vivid-but-matte cyan/teal command console on a
+matte-black textured background** (earlier violet/cyan, muted-teal, and Cobalt &
+Coral directions were all superseded). It is token-driven in `cybaroo.css`
+`:root`; the two accent token FAMILIES now carry the two accents:
+- **Cyan** (PRIMARY — CTAs, "current/you are here", active progress, correct):
+  `--cy-violet #00d9ff` / soft `#5be7ff` / deep `#0899b8`.
+- **Teal** (SECONDARY — structure, secondary actions, streak/energy):
+  `--cy-cyan #00e5cc` / soft `#4fecd8`.
+- **Gold** (tier badges + achievement): `--cy-gold #e6b455` (tier metals brushed).
+- **Red** (errors, wrong answers, streak-at-risk, warn): `--cy-flame #ff4d4d` and
+  `--cy-danger #ff4d4d`.
+- Ground: matte black `--cy-bg #06080c`, surfaces `#0e141d`/`#141d29`/`#1c2836`,
+  borders `#24344a`/`#33465f`; text `#e9f1f8`.
+**`--cy-flame` was split by rule**: it historically served BOTH streak (energy)
+and wrong/at-risk (error). A selector-keyword classifier re-pointed each usage —
+`streak`/`--safe`/energy → teal (`var(--cy-cyan)`), `wrong`/`is-bad`/`at_risk`/
+`warn`/`fail` → red (`var(--cy-danger)`). If adding new "wrong" or "streak" CSS,
+use `--cy-danger` for errors and `--cy-cyan` for streak, NOT `--cy-flame`.
+**Textured background**: `body.cy-body` carries a pure-CSS blueprint grid + circuit
+dots + faint cyan/teal glows (`background-attachment: fixed`), faint enough for AA
+readability (copy sits on solid panels). Module tiles in
+`modules/presentation.py` `TILES` (cyan/teal set); badge tiles in `badges.py`.
+**Type** is **Archivo** + **JetBrains Mono** (self-hosted). Applies to every
+student surface (dashboard, overview, lesson, simulation, quiz, certificate) and
+the shared shell. "One colour, one purpose"; WCAG AA on all surfaces. Re-theme
+flow: options preview → chosen-direction full preview → real templates.
+**Polish (2026-08-22):** (1) text neutrals shifted sky-blue (`--cy-text-2
+#a6bce0`, `--cy-text-3 #8ea0cc`) — cooler, less green. (2) A per-tier **glow**
+behind the profile badge (`.cy-chip__av` box-shadow halo + blurred `::before`
+using each tier's `--tier-glow`, alphas bumped ~.5–.6; gentle pulse gated by
+`prefers-reduced-motion`). (3) The dashboard **stats redesigned** for real
+hierarchy: dominant 2.2rem display number, mono label, a thin cyan `.cy-pstat__bar`
+(points→tier, level→level), then a separated sub-line ("**160** to Silver"); the
+level stat dropped its ring for an icon+number; secondary stats (`.cy-mstat`)
+restructured (big number + `/total` + mono label via `.cy-mstat__top`).
+**Final polish (2026-08-24):** primary text `--cy-text → #f5f7fa` (crisp near-white,
+"black + white + one electric accent"); `.cy-btn--primary` overridden to the
+brightest cyan (`linear-gradient(120deg,#22e0ff,#00c8f0)` + dark ink `#04121a`,
+button-only so the shared `--cy-grad-cta` and its 14 hero fills are untouched);
+**all correct-answer states unified to bright cyan** — leftover greens (`#6bbf7e`,
+`rgba(129,201,149,*)` in the quiz/review) and `.is-right`/`.is-correct` teal usages
+were routed to `--cy-violet`/`--cy-violet-soft`. Correct = cyan, wrong = red
+(`--cy-danger #ff4d4d`), streak/structure = teal. css `?v=29`.
 
 ### People-scene picture-questions on Task 2 (M3, M4) (DONE)
 M3 and M4 Lesson 1 Task 2 (the send/share scenario BRANCH) now carry a **custom
@@ -392,7 +437,7 @@ trade-off, not as equivalent to TOTP.**
 - **Static caching / `?v=N` cache-buster.** Four versions: the room scripts in
   `lesson.html` load as `js/lesson.js?v=N` and `js/activities.js?v=N`
   (**currently `?v=17`**); `cybaroo.css` in `templates/base.html` loads as
-  `css/cybaroo.css?v=N` (**currently `?v=23`**); `cybaroo.js` in `base.html` loads
+  `css/cybaroo.css?v=N` (**currently `?v=25`**); `cybaroo.js` in `base.html` loads
   as `js/cybaroo.js?v=N` (**currently `?v=3`**, simulation + UI bits); and
   `quiz.js` in `quiz.html` loads as `js/quiz.js?v=N` (**currently `?v=2`**, the
   interactive quiz stepper). After ANY change to `lesson.js`/`activities.js`: bump

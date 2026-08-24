@@ -5,14 +5,16 @@ order_index rather than as columns on the Module table. Deriving them here means
 no schema change and one place to restyle all six cards.
 """
 
-# (violet, cyan) gradient endpoints, one per module position.
+# Matte (hi, deep) gradient endpoints, one per module position. Cyan / teal /
+# steel-cyan family, so the six cards read as a cohesive set with variety in the
+# Cyan & Teal command-console palette.
 TILES = [
-    ("#9b7bf8", "#22d3ee"),
-    ("#7c5cf0", "#4fb8f5"),
-    ("#a86af0", "#22d3ee"),
-    ("#6d7bf5", "#35d6f0"),
-    ("#b45cf0", "#5b8df5"),
-    ("#8b5cf6", "#67e8f9"),
+    ("#00d9ff", "#0899b8"),  # cyan
+    ("#00e5cc", "#0a9e8c"),  # teal
+    ("#33c1ff", "#0e6f9e"),  # sky-cyan
+    ("#2fe0d0", "#0f8f88"),  # aqua
+    ("#5ab5d6", "#245e78"),  # steel-cyan
+    ("#3aa0ff", "#1a5fb0"),  # azure
 ]
 
 # Icon id (see templates/_icons.html) per module position.

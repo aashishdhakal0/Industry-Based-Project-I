@@ -96,15 +96,17 @@
         <span class="cy-pstat__col">
           <span class="cy-pstat__v">{{ profile.points }}</span>
           <span class="cy-pstat__k">Points</span>
-          <span class="cy-pstat__sub">{% if tier.is_max %}Top tier reached{% else %}{{ tier.to_next }} to {{ tier.next_tier.name }}{% endif %}</span>
+          {% if not tier.is_max %}<span class="cy-pstat__bar"><i style="width: {{ tier.percent }}%;"></i></span>{% endif %}
+          <span class="cy-pstat__sub">{% if tier.is_max %}Top tier reached{% else %}<b>{{ tier.to_next }}</b> to {{ tier.next_tier.name }}{% endif %}</span>
         </span>
       </div>
       <div class="cy-pstat cy-pstat--level">
-        <span class="cy-pstat__ring" style="--cy-value: {{ level.percent }}%;"><span>{{ level.level }}</span></span>
+        <span class="cy-pstat__ic"><svg class="cy-i" aria-hidden="true"><use href="#i-chart"/></svg></span>
         <span class="cy-pstat__col">
-          <span class="cy-pstat__v">Level {{ level.level }}</span>
-          <span class="cy-pstat__k">{{ rank }}</span>
-          <span class="cy-pstat__sub">{% if level.to_next %}{{ level.into_level }} / {{ level.level_span }} to Level {{ level.level|add:1 }}{% else %}Max level{% endif %}</span>
+          <span class="cy-pstat__v">{{ level.level }}</span>
+          <span class="cy-pstat__k">Level · {{ rank }}</span>
+          {% if level.to_next %}<span class="cy-pstat__bar"><i style="width: {{ level.percent }}%;"></i></span>{% endif %}
+          <span class="cy-pstat__sub">{% if level.to_next %}<b>{{ level.into_level }}</b> / {{ level.level_span }} to Level {{ level.level|add:1 }}{% else %}Max level reached{% endif %}</span>
         </span>
       </div>
       <div class="cy-pstat cy-pstat--streak cy-pstat--{{ streak.state }}" title="{{ streak.message }}">
@@ -119,18 +121,24 @@
 
     <div class="cy-stats-secondary cy-elev">
       <div class="cy-mstat">
-        <svg class="cy-i" aria-hidden="true"><use href="#i-book"/></svg>
-        <span class="cy-mstat__v">{{ lessons_done }}<small>/{{ lessons_total }}</small></span>
+        <span class="cy-mstat__top">
+          <span class="cy-mstat__ic"><svg class="cy-i" aria-hidden="true"><use href="#i-book"/></svg></span>
+          <span class="cy-mstat__v">{{ lessons_done }} <small>/ {{ lessons_total }}</small></span>
+        </span>
         <span class="cy-mstat__k">Lessons</span>
       </div>
       <div class="cy-mstat">
-        <svg class="cy-i" aria-hidden="true"><use href="#i-layers"/></svg>
-        <span class="cy-mstat__v">{{ modules_done }}<small>/{{ modules_total }}</small></span>
+        <span class="cy-mstat__top">
+          <span class="cy-mstat__ic"><svg class="cy-i" aria-hidden="true"><use href="#i-layers"/></svg></span>
+          <span class="cy-mstat__v">{{ modules_done }} <small>/ {{ modules_total }}</small></span>
+        </span>
         <span class="cy-mstat__k">Modules</span>
       </div>
       <a class="cy-mstat cy-mstat--link" href="{% url 'learn:badges' %}">
-        <svg class="cy-i" aria-hidden="true"><use href="#i-award"/></svg>
-        <span class="cy-mstat__v">{{ badges_earned }}<small>/{{ badges_total }}</small></span>
+        <span class="cy-mstat__top">
+          <span class="cy-mstat__ic"><svg class="cy-i" aria-hidden="true"><use href="#i-award"/></svg></span>
+          <span class="cy-mstat__v">{{ badges_earned }} <small>/ {{ badges_total }}</small></span>
+        </span>
         <span class="cy-mstat__k">Badges</span>
       </a>
     </div>

@@ -509,7 +509,7 @@ def streak_status(profile, today=None):
         msg = f"Don't break your {count}-day streak — finish a lesson today before midnight."
     else:
         # Older than yesterday: the next activity resets it, so it's gone.
-        state, display, msg = "none", 0, "Your streak lapsed — start a fresh one today."
+        state, display, msg = "none", 0, "Start a new streak today."
 
     milestone, to_milestone = _next_streak_milestone(display, profile.badges)
     return StreakStatus(state, display, msg, milestone, to_milestone)

@@ -269,7 +269,7 @@ def test_dashboard_reflects_earned_badges(client_student, student, modules):
     html = client_student.get(reverse("dashboard")).content.decode()
     # The badges stat reflects the one just earned and links to the gallery.
     assert reverse("learn:badges") in html
-    assert "1<small>/11</small>" in html
+    assert "1 <small>/ 11</small>" in html
 
 
 @pytest.mark.django_db
