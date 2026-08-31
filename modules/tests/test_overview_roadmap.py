@@ -72,10 +72,11 @@ def test_task_chips_carry_an_icon_and_a_per_kind_class(client_at_module_one):
     )
     assert chips, "task chips should render with a kind class and an icon"
     kinds = {k for k, _ in chips}
-    # Module 1's lessons are CHECK / RESPOND / CHECK / QUIZSET / CHECK.
-    assert {"check", "respond", "quizset"} <= kinds, f"chip kinds: {kinds}"
+    # Module 1 now teaches then applies: L1 is CONCEPT x4 + CHECK, L2 is
+    # CLASSIFY / BRANCH / SORT / CHECK / RESPOND.
+    assert {"concept", "check", "classify", "respond"} <= kinds, f"chip kinds: {kinds}"
     # Distinct types map to distinct icons (not one repeated badge).
     by_kind = dict(chips)
+    assert by_kind["concept"] == "i-book"
     assert by_kind["check"] == "i-check-circle"
     assert by_kind["respond"] == "i-branch"
-    assert by_kind["quizset"] == "i-layers"

@@ -740,59 +740,60 @@ def complete_all_modules(client, modules):
 
 
 @pytest.mark.django_db
-def test_certificate_previews_the_document_with_progress_for_a_new_student(
+def test_certificate_is_a_locked_preview_before_completion(
     client_student, student, modules
 ):
     html = client_student.get(reverse("learn:certificate")).content.decode()
-    # The document is shown, but as a preview with the progress panel.
-    assert "cy-certificate" in html
-    assert "cy-cert-ribbon" in html and "Preview" in html
-    assert "cy-cert-progress" in html
-    assert f"0 of {len(modules)} modules complete" in html
-    # Real data: the student's name and every module title appear on the design.
-    assert student.email in html
-    for module in modules:
-        assert module.title in html
+    # The formal diploma is shown, but locked and clearly not yet earned.
+    assert "cy-dip" in html
+    assert "cy-dip cy-dip--locked" in html   # the locked modifier is applied
+    assert "not yet earned" in html.lower()
+    assert f"of {len(modules)} modules" in html   # the progress note
+    assert student.email in html                  # real data: the recipient
 
 
 @pytest.mark.django_db
-def test_certificate_code_is_labelled_a_sample_and_the_date_waits(
+def test_certificate_hides_the_code_and_download_until_earned(
     client_student, modules
 ):
     html = client_student.get(reverse("learn:certificate")).content.decode()
-    assert "cy-certificate__code" in html
-    assert "CYB-" in html                       # the sample verification code
-    assert "(sample)" in html                   # never presented as verified
-    assert "On completion" in html              # no issue date until earned
-    assert "cy-cert-note" not in html           # the "you've earned it" note is hidden
+    # A masked placeholder, never a real or "verified" code, and no PDF yet.
+    assert "CYB-" in html
+    assert "issued on completion" in html
+    assert reverse("certificates:download") not in html
 
 
 @pytest.mark.django_db
-def test_the_sample_code_is_stable_for_a_given_student(client_student, modules):
-    first = client_student.get(reverse("learn:certificate")).content.decode()
-    second = client_student.get(reverse("learn:certificate")).content.decode()
+def test_the_issued_serial_is_stable_for_a_given_student(client_student, modules):
     import re
 
+    complete_all_modules(client_student, modules)
+    first = client_student.get(reverse("learn:certificate")).content.decode()
+    second = client_student.get(reverse("learn:certificate")).content.decode()
     code = re.search(r"CYB-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}", first)
     assert code is not None
-    assert code.group(0) in second
+    assert code.group(0) in second               # one certificate, stable serial
 
 
 @pytest.mark.django_db
-def test_earning_the_certificate_drops_the_preview_and_dates_it(
-    client_student, modules
+def test_earning_the_certificate_drops_the_preview_and_issues_it(
+    client_student, student, modules
 ):
     from django.utils import timezone
+
+    from certificates.models import Certificate
 
     complete_all_modules(client_student, modules)
 
     html = client_student.get(reverse("learn:certificate")).content.decode()
-    assert "cy-certificate" in html
-    assert "cy-cert-ribbon" not in html         # no longer a preview
-    assert "is-preview" not in html
-    assert "cy-cert-progress" not in html       # progress panel gone
-    assert str(timezone.localdate().year) in html   # a real issue date
-    assert "cy-cert-note" in html               # the earned note, with the PDF promise
+    assert "cy-dip" in html
+    assert "cy-dip cy-dip--locked" not in html        # no longer a locked preview
+    assert "not yet earned" not in html.lower()
+    assert str(timezone.localdate().year) in html     # a real issue date
+    assert reverse("certificates:download") in html   # the downloadable PDF
+    # A real certificate row was issued, and its serial is on the page.
+    cert = Certificate.objects.get(user=student)
+    assert cert.serial in html
 
 
 # --------------------------------------------------------------------------
@@ -943,6 +944,7 @@ def test_each_diagram_renders_its_content():
         "net-scene": "YOUR NETWORK",
         "scene-vish": "keep it",
         "scene-send": "Client_medical_form.pdf",
+        "wifi-devices": "UNKNOWN DEVICE",
         "firewall-flow": "Wanted traffic passes",
         "segment-flow": "seals it into one zone",
         "incident-escalation": "scare and a disaster",

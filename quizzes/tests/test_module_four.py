@@ -1,12 +1,14 @@
-"""Module 4 (Secure Communication Practices): two hands-on lessons.
+"""Module 4 (Secure Communication Practices): understand it, then apply it.
 
-Rebuilt to two lessons on the five-task room shape, with its own character: a
-"before you hit send" checklist that runs through real send/share decisions,
-driven by SORT, CLASSIFY, BRANCH, a HARDEN workspace pass, and picture CHECKs
-that PROVE the point (an encrypted-vs-open message compare, a real-vs-risky share
-link). This pins the shape against order_index=4, the figures, the
-well-formedness of every activity, an em-dash-free voice, an exactly-ten quiz
-split across the two lessons, and a full interactive journey.
+Pins the restructured shape against order_index=4: Lesson 1 TEACHES (four reading
+CONCEPT panels, each with a real visual: encryption, the padlock and end-to-end,
+sharing safely, and staying private on the move) plus one light comprehension
+check on an insecure send. Lesson 2 APPLIES (sort encrypted vs open, judge safe
+shares from leaks, read a share-settings screen, work a share decision, and
+harden a mobile workspace). Plus the universal quality checks: activities are
+well-formed and solvable, the quiz is valid and split across the two lessons, the
+voice is em-dash-free, the ground is covered, and a full journey reaches the
+module-complete moment.
 """
 
 import json as _json
@@ -26,11 +28,14 @@ from quizzes.models import Answer, Quiz, QuizResult
 User = get_user_model()
 
 LESSON_KINDS = {
-    1: ["SORT", "BRANCH", "CHECK", "CLASSIFY", "BRANCH"],
-    2: ["CLASSIFY", "BRANCH", "CHECK", "HARDEN", "BRANCH"],
+    1: ["CONCEPT", "CONCEPT", "CONCEPT", "CONCEPT", "CHECK"],
+    2: ["SORT", "CLASSIFY", "CHECK", "BRANCH", "HARDEN"],
 }
-FIGURES = {"msg-encrypted", "secure-share", "wifi-evil-twin", "scene-send"}
-PICTURE_CHECKS = {"msg-encrypted", "secure-share"}
+ACTIVITY_KINDS = {
+    "SORT", "MAILSORT", "CLASSIFY", "BRANCH", "SEQUENCE", "SPOT",
+    "HARDEN", "NETMAP", "RESPOND", "FIREWALL", "TABLETOP",
+}
+FIGURES = {"msg-encrypted", "secure-bars", "secure-share", "vpn-tunnel", "scene-send", "wifi-evil-twin"}
 DASHES = ("—", "–")
 
 
@@ -47,54 +52,50 @@ def _content_blob(task):
     return (task.body or "") + _json.dumps(task.payload or {})
 
 
+def _has_visual(task):
+    return bool(task.diagram_key) or bool((task.payload or {}).get("hero"))
+
+
+# --- shape: L1 teaches, L2 applies -----------------------------------------
+
+
 @pytest.mark.django_db
-def test_module_four_is_two_hands_on_lessons(seeded):
+def test_module_four_is_two_lessons_five_tasks(seeded):
     assert seeded.lessons.count() == 2
     for lesson in seeded.lessons.order_by("lesson_number"):
         tasks = list(lesson.tasks.order_by("order"))
-        kinds = [t.kind for t in tasks]
-        assert kinds == LESSON_KINDS[lesson.lesson_number], f"{lesson.title}: {kinds}"
+        assert [t.kind for t in tasks] == LESSON_KINDS[lesson.lesson_number], f"{lesson.title}"
         assert sum(t.points for t in tasks) == POINTS_PER_LESSON, f"{lesson.title} != {POINTS_PER_LESSON} XP"
-        assert tasks[2].kind == "CHECK" and tasks[2].diagram_key, f"{lesson.title} task 3"
-        assert len([t for t in tasks if t.kind != "CHECK"]) == 4
 
 
 @pytest.mark.django_db
-def test_every_panel_is_deep_reading(seeded):
-    for lesson in seeded.lessons.order_by("lesson_number"):
-        for t in lesson.tasks.order_by("order"):
-            words = len(re.sub(r"<[^>]+>", " ", t.body or "").split())
-            assert words >= 40, f"{lesson.title}/{t.task_key} too thin ({words} words)"
+def test_lesson_one_is_a_teaching_lesson(seeded):
+    tasks = list(seeded.lessons.get(lesson_number=1).tasks.order_by("order"))
+    assert len([t for t in tasks if t.kind == "CONCEPT"]) >= 3
+    assert len([t for t in tasks if t.kind == "CHECK"]) <= 2
+    assert not [t for t in tasks if t.kind in ACTIVITY_KINDS], "L1 teaches; activities belong in L2"
+    for t in tasks:
+        assert _has_visual(t), f"L1 task {t.task_key} has no teaching visual"
 
 
 @pytest.mark.django_db
-def test_the_picture_question_checks_are_well_formed(seeded):
-    checks = LessonTask.objects.filter(lesson__module=seeded, kind="CHECK")
-    assert checks.count() == 2
-    for task in checks:
-        assert task.diagram_key in PICTURE_CHECKS, f"{task.task_key} unexpected visual {task.diagram_key}"
-        opts = task.payload.get("options", [])
-        assert len(opts) == 4 and sum(1 for o in opts if o["correct"]) == 1
-        assert task.payload.get("question") and task.payload.get("hint", "").strip()
-        for o in opts:
-            assert o["explanation"].strip()
+def test_lesson_two_is_an_apply_lesson(seeded):
+    tasks = list(seeded.lessons.get(lesson_number=2).tasks.order_by("order"))
+    assert len([t for t in tasks if t.kind in ACTIVITY_KINDS]) >= 3
+    assert not [t for t in tasks if t.kind == "CONCEPT"]
+    assert [t for t in tasks if t.kind == "CHECK" and t.diagram_key], "L2 needs a picture question"
 
 
 @pytest.mark.django_db
-def test_task_two_has_the_people_scene_picture_question(seeded):
-    """Lesson 1 Task 2 (the send/share scenario BRANCH) carries a people-scene
-    figure and a picture-question read from it, alongside the decision drill."""
-    t2 = seeded.lessons.get(lesson_number=1).tasks.order_by("order")[1]
-    assert t2.kind == "BRANCH"
-    assert t2.diagram_key == "scene-send"
-    ic = t2.payload.get("inline_check")
-    assert ic, "the scenario task should carry an inline picture-question"
-    assert len(ic["options"]) == 4 and sum(1 for o in ic["options"] if o["correct"]) == 1
-    assert ic.get("question") and ic.get("hint", "").strip()
+def test_every_teaching_panel_has_enough_substance(seeded):
+    """Lesson 1 reading panels are substantial; the closing CHECK is exempt."""
+    for t in seeded.lessons.get(lesson_number=1).tasks.filter(kind="CONCEPT").order_by("order"):
+        words = len(re.sub(r"<[^>]+>", " ", t.body or "").split())
+        assert words >= 60, f"{t.task_key} is thin for a teaching panel ({words} words)"
 
 
 @pytest.mark.django_db
-def test_uses_the_figures(seeded):
+def test_uses_the_secure_comms_figures(seeded):
     keys = set(
         LessonTask.objects.filter(lesson__module=seeded)
         .exclude(diagram_key="").values_list("diagram_key", flat=True)
@@ -102,16 +103,78 @@ def test_uses_the_figures(seeded):
     assert FIGURES <= keys, f"missing figures: {FIGURES - keys}"
 
 
+# --- activity well-formedness (each solvable) ------------------------------
+
+
 @pytest.mark.django_db
-def test_inline_checks_are_well_formed(seeded):
-    inline = [
-        t for t in LessonTask.objects.filter(lesson__module=seeded)
-        if t.payload.get("inline_check")
-    ]
-    for t in inline:
-        ic = t.payload["inline_check"]
-        assert len(ic["options"]) == 4 and sum(1 for o in ic["options"] if o["correct"]) == 1
-        assert ic.get("question") and ic.get("hint", "").strip()
+def test_sort_activity_is_solvable(seeded):
+    task = seeded.lessons.get(lesson_number=2).tasks.get(kind="SORT")
+    p = task.payload
+    bucket_ids = {b["id"] for b in p["buckets"]}
+    assert len(bucket_ids) >= 2 and len(p["items"]) >= 4
+    for item in p["items"]:
+        assert item["bucket"] in bucket_ids and item["text"] and item["why"]
+    assert len({i["bucket"] for i in p["items"]}) >= 2
+
+
+@pytest.mark.django_db
+def test_classify_activity_is_solvable(seeded):
+    task = seeded.lessons.get(lesson_number=2).tasks.get(kind="CLASSIFY")
+    p = task.payload
+    cats = {c["id"] for c in p["categories"]}
+    assert len(cats) >= 2 and len(p["events"]) >= 4
+    for e in p["events"]:
+        assert e["category"] in cats and e.get("text") and e.get("why")
+    assert {e["category"] for e in p["events"]} == cats, "no dead category"
+
+
+@pytest.mark.django_db
+def test_branch_activity_is_solvable(seeded):
+    task = seeded.lessons.get(lesson_number=2).tasks.get(kind="BRANCH")
+    p = task.payload
+    assert p.get("prompt") and p["start"] in p["nodes"]
+    nodes = p["nodes"]
+    seen, stack, outcomes, endings = set(), [p["start"]], set(), []
+    while stack:
+        nid = stack.pop()
+        if nid in seen:
+            continue
+        seen.add(nid)
+        node = nodes[nid]
+        assert node.get("text")
+        for c in node.get("choices", []):
+            assert c.get("label") and c.get("feedback") and c["to"] in nodes
+            outcomes.add(c["outcome"]); stack.append(c["to"])
+        if not node.get("choices"):
+            endings.append(nid)
+    assert set(nodes) == seen, "unreachable nodes"
+    assert "good" in outcomes and "bad" in outcomes and len(endings) >= 2
+
+
+@pytest.mark.django_db
+def test_harden_activity_is_solvable(seeded):
+    task = seeded.lessons.get(lesson_number=2).tasks.get(kind="HARDEN")
+    p = task.payload
+    assert len(p["steps"]) >= 3
+    for step in p["steps"]:
+        assert step.get("label") and step.get("risk")
+        assert sum(1 for o in step["options"] if o["correct"]) == 1
+        for o in step["options"]:
+            assert o.get("text") and o.get("why")
+
+
+@pytest.mark.django_db
+def test_the_picture_checks_are_well_formed(seeded):
+    for task in LessonTask.objects.filter(lesson__module=seeded, kind="CHECK"):
+        assert task.diagram_key, f"{task.task_key} picture check needs a visual"
+        opts = task.payload.get("options", [])
+        assert len(opts) == 4 and sum(1 for o in opts if o["correct"]) == 1
+        assert task.payload.get("question") and task.payload.get("hint", "").strip()
+        for o in opts:
+            assert o["explanation"].strip()
+
+
+# --- voice, quiz, coverage -------------------------------------------------
 
 
 @pytest.mark.django_db
@@ -128,81 +191,13 @@ def test_lesson_and_quiz_content_have_no_em_dashes(seeded):
             assert d not in blob, f"quiz question {q.id} contains {d!r}"
 
 
-# --- activity well-formedness ---------------------------------------------
-
-
-@pytest.mark.django_db
-def test_sort_activity_is_solvable(seeded):
-    tasks = LessonTask.objects.filter(lesson__module=seeded, kind="SORT")
-    assert tasks.count() == 1
-    p = tasks.first().payload
-    bucket_ids = {b["id"] for b in p["buckets"]}
-    assert len(bucket_ids) >= 2 and len(p["items"]) >= 4
-    for item in p["items"]:
-        assert item["bucket"] in bucket_ids and item["text"] and item["why"]
-
-
-@pytest.mark.django_db
-def test_classify_activities_are_solvable(seeded):
-    tasks = LessonTask.objects.filter(lesson__module=seeded, kind="CLASSIFY")
-    assert tasks.count() == 2
-    for task in tasks:
-        p = task.payload
-        cats = {c["id"] for c in p["categories"]}
-        assert len(cats) >= 2 and len(p["events"]) >= 4
-        for e in p["events"]:
-            assert e["category"] in cats and e.get("text") and e.get("why")
-        assert {e["category"] for e in p["events"]} == cats, f"{task.task_key} has unused categories"
-
-
-@pytest.mark.django_db
-def test_harden_activity_is_solvable(seeded):
-    tasks = LessonTask.objects.filter(lesson__module=seeded, kind="HARDEN")
-    assert tasks.count() == 1
-    p = tasks.first().payload
-    assert len(p["steps"]) >= 3
-    for s in p["steps"]:
-        assert s.get("label") and sum(1 for o in s["options"] if o["correct"]) == 1
-        for o in s["options"]:
-            assert o.get("text") and o.get("why")
-
-
-@pytest.mark.django_db
-def test_branch_activities_are_solvable(seeded):
-    tasks = LessonTask.objects.filter(lesson__module=seeded, kind="BRANCH")
-    assert tasks.count() == 4
-    for task in tasks:
-        p = task.payload
-        assert p.get("prompt") and p["start"] in p["nodes"]
-        nodes = p["nodes"]
-        seen, stack, endings, outcomes = set(), [p["start"]], [], set()
-        while stack:
-            nid = stack.pop()
-            if nid in seen:
-                continue
-            seen.add(nid)
-            node = nodes[nid]
-            assert node.get("text")
-            for c in node.get("choices", []):
-                assert c.get("label") and c.get("feedback") and c["to"] in nodes
-                outcomes.add(c["outcome"]); stack.append(c["to"])
-            if not node.get("choices"):
-                endings.append(nid)
-        assert set(nodes) == seen, f"{task.task_key} unreachable nodes"
-        assert "good" in outcomes and "bad" in outcomes and len(endings) >= 2
-
-
-# --- quiz -----------------------------------------------------------------
-
-
 @pytest.mark.django_db
 def test_quiz_is_exactly_ten_split_across_two_lessons(seeded):
     quiz = seeded.quiz
-    assert quiz.pass_mark == 70
-    assert quiz.questions.count() == 10
+    assert quiz.pass_mark == 70 and quiz.questions.count() == 10
     per_lesson = Counter(quiz.questions.values_list("lesson_reference__lesson_number", flat=True))
     for n in (1, 2):
-        assert per_lesson[n] >= 2, f"lesson {n} thin in the bank ({per_lesson[n]})"
+        assert per_lesson[n] >= 2, f"lesson {n} thin ({per_lesson[n]})"
 
 
 @pytest.mark.django_db
@@ -222,12 +217,12 @@ def test_the_module_covers_its_planned_topics(seeded):
         (t.body or "") + _json.dumps(t.payload or {})
         for t in LessonTask.objects.filter(lesson__module=seeded)
     ).lower()
-    for term in ("encrypt", "padlock", "end-to-end", "sealed channel",
-                 "evil twin", "vpn", "revoke", "hotspot"):
+    for term in ("encrypt", "padlock", "end-to-end", "vpn", "evil twin",
+                 "public wi-fi", "permissioned", "revoke"):
         assert term in corpus, f"expected the module to cover {term!r}"
 
 
-# --- the full interactive journey -----------------------------------------
+# --- the full interactive journey ------------------------------------------
 
 
 @pytest.fixture
@@ -272,7 +267,8 @@ def test_full_interactive_module_four_journey(learner_at_module_four):
     first = m4.lessons.order_by("lesson_number").first()
     page = client.get(reverse("learn:lesson", args=[4, first.lesson_number])).content.decode()
     assert "data-room" in page and "activities.js" in page
-    assert 'data-activity-kind="SORT"' in page
+    apply_page = client.get(reverse("learn:lesson", args=[4, 2])).content.decode()
+    assert 'data-activity-kind="SORT"' in apply_page
 
     for lesson in m4.lessons.order_by("lesson_number"):
         final = _work_through_lesson(client, m4, lesson)

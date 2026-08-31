@@ -1,38 +1,198 @@
-"""Module 6, Incident Response: two deep lessons built as a tabletop exercise.
+"""Module 6, Incident Response: understand it, then apply it.
 
-The most narratively ambitious module on the platform. Professional teams train
-incident response through tabletop exercises: a structured, escalating scenario
-worked stage by stage, with realistic stakes at every step. Module 6 is built
-around exactly that, using the new TABLETOP activity and its live "situation
-board". One continuing incident, a ransomware attack on a Geelong dental
-practice, runs as the spine across both lessons: detect and contain in Lesson 1,
-eradicate, recover and review (including the legal duty) in Lesson 2. The board,
-tracking systems, patient data, the clock and notification, moves toward green on
-sound calls and into the red on poor ones, but the exercise always continues and
-teaches.
+The most narratively ambitious module. Lesson 1 TEACHES the whole discipline:
+what incident response is and why the first hours decide everything, the
+six-phase lifecycle, how to detect and contain without making it worse, and how
+you clean up, recover, and meet the legal duty when personal information is
+breached. Lesson 2 APPLIES it through the signature TABLETOP exercises, run on a
+live "situation board", following one continuing incident (a ransomware attack on
+a Geelong dental practice) from detect and contain through eradicate, recover, and
+review.
 
-  Lesson 1  When the alert fires: detect and contain
-  Lesson 2  Clean up, come back, and the law: eradicate, recover, review
+  Lesson 1  UNDERSTAND IT  — four teaching panels, each with a real visual (two
+            of them animated heroes), plus one comprehension check on the order of
+            the phases.
+  Lesson 2  APPLY IT       — two staged TABLETOP exercises with a live board,
+            plus a first-move CLASSIFY, a picture CHECK, and ordering the phases.
 
-Voice: warm, plain Australian English, no em-dashes, no emoji. Each lesson is
-four interactive activities plus one picture-question CHECK (task 3); points sum
-to 10 per lesson. The quiz is exactly ten, split five and five across the two
-lessons, every question tracing to the lesson that teaches it. The Privacy Act
-1988 and its Notifiable Data Breaches scheme are described as general information.
+Voice: warm, plain Australian English, no em-dashes, no emoji. The Privacy Act
+1988 and its Notifiable Data Breaches scheme (OAIC) are described as general
+information, grounded in cyber.gov.au and OAIC guidance. Points sum to 10 per
+lesson and bank at lesson end.
 """
-
-# The six-phase incident response lifecycle, as one plain-English scenario runs
-# through it. Preparation happens in the calm before; the other five phases are
-# the tabletop itself.
 
 LESSONS = [
     {
-        "title": "When the alert fires: detect and contain",
-        "reading_time_minutes": 9,
-        "intro": "It is a Monday morning at a busy dental practice, and the files "
-        "will not open. This lesson runs the first, most important hours of a real "
-        "incident as a tabletop exercise: notice it, understand it, and stop it "
-        "spreading, all without making it worse.",
+        "title": "The shape of a response: detect, contain, recover, and the law",
+        "reading_time_minutes": 10,
+        "intro": "When something goes wrong, panic is optional but a plan is not. "
+        "This lesson gives you the whole shape of a professional response: why the "
+        "first hours matter most, the six phases every team follows, how to contain "
+        "trouble without destroying what you need, and the legal duty that follows "
+        "a breach of personal information.",
+        "tasks": [
+            {
+                "key": "first-hours",
+                "kind": "concept",
+                "points": 2,
+                "title": "Incident response, and why the first hours decide everything",
+                "hero": "incident-escalation",
+                "body": "<p><strong>Incident response</strong> is the calm, "
+                "rehearsed way a team handles a security incident: not improvising in "
+                "a panic, but following a plan from the moment something is noticed "
+                "to the lessons drawn afterwards. You do not need to be technical to "
+                "play your part; you need to know the shape of it.</p>"
+                "<p>Watch the two timelines above. It is the same attack, handled two "
+                "ways. Left alone, treated as a glitch, the impact climbs to a "
+                "disaster. Caught early and contained, it stays a scare. The "
+                "difference is almost entirely about the first hours: how fast "
+                "someone names it as an incident and starts the plan.</p>"
+                "<p>This is not a rare event to prepare for once and forget. The "
+                "Australian Signals Directorate received <strong>over 84,700 "
+                "cybercrime reports in 2024-25, about one every six minutes</strong>, "
+                "and the average incident cost a small business <strong>$56,600</strong>. "
+                "For a business that size, how the first hour is handled often decides "
+                "whether that number is the whole story or just the beginning.</p>"
+                "<p>That is why <strong>preparation</strong>, done in the calm before, "
+                "matters so much: a written plan, known contacts, and tested backups "
+                "mean that when the alert fires, everyone knows their first move "
+                "instead of freezing.</p>"
+                "<div class=\"cy-callout\">Time is the one thing you cannot get back "
+                "in an incident. Naming it early and starting the plan is what keeps "
+                "a scare from becoming a disaster.</div>",
+            },
+            {
+                "key": "the-lifecycle",
+                "kind": "concept",
+                "points": 2,
+                "title": "The six phases, and why the order matters",
+                "diagram": "ir-lifecycle",
+                "body": "<p>Every professional response follows the same shape, shown "
+                "above. It is worth knowing by name, because each phase depends on "
+                "the one before it.</p>"
+                "<ul>"
+                "<li><strong>Preparation</strong>: have a plan, backups and contacts "
+                "ready, in the calm before anything happens.</li>"
+                "<li><strong>Identification</strong>: notice and confirm that this is "
+                "a real security incident, not a glitch.</li>"
+                "<li><strong>Containment</strong>: stop the spread, so the trouble "
+                "cannot reach more systems.</li>"
+                "<li><strong>Eradication</strong>: remove the cause and close the way "
+                "it got in.</li>"
+                "<li><strong>Recovery</strong>: restore from clean backups and return "
+                "to normal, safely.</li>"
+                "<li><strong>Lessons Learned</strong>: review what happened and get "
+                "stronger, so next time is easier.</li>"
+                "</ul>"
+                "<p>The order is not decoration. You cannot recover cleanly until you "
+                "have eradicated the cause, and you cannot eradicate until you have "
+                "contained the spread. Skip ahead, and the attack simply reaches the "
+                "machines you have just cleaned or restored.</p>"
+                "<div class=\"cy-callout\">Contain, then eradicate, then recover. Do "
+                "them out of order and the work undoes itself.</div>",
+            },
+            {
+                "key": "detect-contain",
+                "kind": "concept",
+                "points": 2,
+                "title": "Detect and contain, without making it worse",
+                "diagram": "ransom-screen",
+                "body": "<p>The first hours are where good instincts matter most, and "
+                "where the wrong instinct does the damage. Picture the screen above "
+                "on a Monday morning: files that will not open, and a demand for "
+                "payment. Here is how a level head handles it.</p>"
+                "<ul>"
+                "<li><strong>Name it fast.</strong> Treat it as a security incident "
+                "straight away, rather than clicking and rebooting as though it were "
+                "a glitch. Every minute of doubt is a minute it keeps spreading.</li>"
+                "<li><strong>Isolate, do not yank the power.</strong> Disconnect the "
+                "affected machines from the network to stop the spread, but avoid a "
+                "blind power-off at the wall, which can destroy useful evidence and "
+                "may not stop it anyway.</li>"
+                "<li><strong>Protect the backups.</strong> Keep your clean backups "
+                "well clear of infected machines. Plugging a backup drive into an "
+                "infected computer can encrypt the backup too, destroying your way "
+                "back.</li>"
+                "<li><strong>Write it down, and tell the right people.</strong> A "
+                "simple timeline of what you saw and when is invaluable later, and "
+                "the people who can help (the owner, your IT support) cannot help if "
+                "they do not know.</li>"
+                "</ul>"
+                "<div class=\"cy-callout\">The calm, by-the-plan move is almost "
+                "always right. Speed without a plan, rebooting, wiping, paying, is "
+                "what causes the damage.</div>",
+            },
+            {
+                "key": "recover-and-law",
+                "kind": "concept",
+                "points": 2,
+                "title": "Coming back, and the law that follows",
+                "hero": "recovery-board",
+                "body": "<p>Once the spread is stopped, the incident is far from "
+                "over. <strong>Eradication</strong> means removing the attack for "
+                "good, wiping and rebuilding affected machines, and closing the way "
+                "in (an unpatched remote login, an exposed service). "
+                "<strong>Recovery</strong> means coming back deliberately: restoring "
+                "from clean, verified backups and bringing systems online one at a "
+                "time, as the board above shows, never all at once in a scramble.</p>"
+                "<p>Then comes the part many businesses forget. If the incident "
+                "exposed personal information, the <strong>Notifiable Data Breaches "
+                "scheme</strong>, under the Privacy Act 1988, may require you to act, "
+                "and it runs on a clock. Once you have grounds to suspect an eligible "
+                "breach, you must <strong>assess it within 30 days</strong>, and if a "
+                "breach of personal information is likely to cause <strong>serious "
+                "harm</strong>, you must notify both the regulator (the "
+                "<strong>OAIC</strong>) and the affected people as soon as "
+                "practicable. This is common and rising: the OAIC recorded "
+                "<strong>1,113 data breaches across 2024, a record</strong>, with the "
+                "<strong>health sector the most affected</strong>. Anything involving "
+                "sensitive data, like health or identity details, is very likely to "
+                "meet the serious-harm bar. Telling people promptly is not just the "
+                "law; it is what lets them protect themselves, by changing passwords "
+                "or watching their accounts, before the harm lands.</p>"
+                "<p>Finally, the <strong>Lessons Learned</strong> review: a calm, "
+                "blame-free look at what happened and what to change, with each fix "
+                "given an owner and a date. A lesson noted but not acted on is not "
+                "learned.</p>"
+                "<div class=\"cy-callout\">Eradicate the cause, recover from clean "
+                "backups, notify honestly if personal data was breached, then fix "
+                "what let it happen.</div>",
+            },
+            {
+                "key": "order-check",
+                "kind": "check",
+                "points": 2,
+                "title": "Quick check: why contain before you clean up?",
+                "diagram": "ir-lifecycle",
+                "body": "<p>One quick check to finish. The lifecycle above runs "
+                "prepare, identify, contain, eradicate, recover, learn. You just saw "
+                "why that order is not up for grabs. Put the key reason into your own "
+                "words.</p>"
+                "<div class=\"cy-callout\">You cannot recover cleanly until you have "
+                "eradicated the cause, and you cannot eradicate until you have "
+                "contained the spread.</div>",
+                "question": "Looking at the lifecycle above, why must containment come before eradication and recovery?",
+                "hint": "Think about what happens if the trouble is still spreading while you clean up.",
+                "options": [
+                    ("If you have not stopped the spread first, cleaning up and restoring just gets undone as it keeps moving", True,
+                     "Right. Containment stops the bleeding. Trying to eradicate or recover while the attack is still spreading means it reaches the machines you have just cleaned or restored."),
+                    ("The order does not really matter; you can do them in any sequence", False,
+                     "No. The order is the point. Each phase depends on the one before, which is why containment comes before eradication and recovery."),
+                    ("Recovery is the first thing you should ever do", False,
+                     "No. Recovering while the cause is still active just reinfects what you restore. You contain, then eradicate, then recover."),
+                    ("Eradication means paying the ransom", False,
+                     "No. Eradication means removing the malware and closing the way it got in. It has nothing to do with paying."),
+                ],
+            },
+        ],
+    },
+    {
+        "title": "Work the incident: a tabletop from alert to review",
+        "reading_time_minutes": 10,
+        "intro": "Now run it for real. Riverside Dental in Geelong has been hit by "
+        "ransomware. Work the incident as a tabletop exercise, one decision at a "
+        "time, and watch the situation board respond: detect and contain first, "
+        "then eradicate, recover, and face the law.",
         "tasks": [
             {
                 "key": "tt-detect-contain",
@@ -42,11 +202,9 @@ LESSONS = [
                 "hero": "incident-escalation",
                 "body": "<p>This is a <strong>tabletop exercise</strong>: a real "
                 "incident, worked one decision at a time, the way professional teams "
-                "rehearse. Watch the two timelines above first. The same attack, "
-                "handled two ways: left alone it climbs to a disaster; caught early "
-                "and contained, it stays a scare. Your job in the first hours is to "
-                "keep it on the second line. Watch the situation board change as you "
-                "decide.</p>"
+                "rehearse. Everything Lesson 1 taught about the first hours applies "
+                "here. Make each call and watch the situation board change, tracking "
+                "systems, patient data, the clock, and your response.</p>"
                 "<div class=\"cy-callout\"><strong>The first hours decide "
                 "everything.</strong> Name it, understand it, and contain it, in "
                 "that order, without destroying what you will need later.</div>",
@@ -124,20 +282,6 @@ LESSONS = [
                 "<div class=\"cy-callout\">The calm, boring, by-the-plan move is "
                 "almost always the right one. Speed without a plan is what causes "
                 "the damage.</div>",
-                "inline_check": {
-                    "question": "In a ransomware incident, why is it a mistake to power a machine off at the wall the moment you see it?",
-                    "hint": "Think about what investigators and your recovery will need afterwards.",
-                    "options": [
-                        ("It can destroy useful evidence, and isolating the machine from the network is a better way to stop the spread", True,
-                         "Right. Disconnecting from the network halts the spread while preserving what happened, which a blind power-off can wipe."),
-                        ("Powering off damages the computer's hardware", False,
-                         "No. The concern is not hardware. A sudden power-off can destroy evidence, and network isolation is the better containment move."),
-                        ("It is never a mistake; always pull the power first", False,
-                         "No. A blind shutdown can lose evidence and may not stop it. Isolate from the network instead."),
-                        ("Because the machine will then update automatically", False,
-                         "No. That is unrelated. The real issue is lost evidence, and that isolation is the better way to contain it."),
-                    ],
-                },
                 "payload": {
                     "prompt": "Read each first reaction to an incident and tap whether it is a sound move or makes it worse. Sort all six to finish.",
                     "categories": [
@@ -167,30 +311,31 @@ LESSONS = [
                 },
             },
             {
-                "key": "lifecycle-map",
+                "key": "breach-notify-map",
                 "kind": "check",
                 "points": 2,
-                "title": "Read the response lifecycle",
-                "diagram": "ir-lifecycle",
-                "body": "<p>Incident response is not improvised. It follows a known "
-                "shape, the same one every professional team uses, shown in the "
-                "diagram above: prepare in the calm, then identify, contain, "
-                "eradicate, recover, and finally learn. Read it, then answer. The "
-                "order is not decoration; each phase depends on the one before.</p>"
-                "<div class=\"cy-callout\">You cannot recover cleanly until you have "
-                "eradicated the cause, and you cannot eradicate until you have "
-                "contained the spread.</div>",
-                "question": "Looking at the lifecycle above, why must containment come before eradication and recovery?",
-                "hint": "Think about what happens if the trouble is still spreading while you clean up.",
+                "title": "Read the notification duty",
+                "diagram": "breach-notify",
+                "body": "<p>A picture-question, straight from Lesson 1. Here is the "
+                "legal duty as a simple picture: when a breach is likely to cause "
+                "serious harm, the path leads to notifying both the regulator and the "
+                "people affected. Read the diagram, then answer. This is not just "
+                "paperwork; prompt, honest notification is what lets affected people "
+                "protect themselves.</p>"
+                "<div class=\"cy-callout\">The whole point of notifying is to give "
+                "people the chance to act, change a password, watch their accounts, "
+                "before the harm lands.</div>",
+                "question": "Looking at the notification path above, why does the law require you to tell the affected people, not just the regulator?",
+                "hint": "Think about what those people can do once they know.",
                 "options": [
-                    ("If you have not stopped the spread first, cleaning up and restoring just gets undone as it keeps moving", True,
-                     "Right. Containment stops the bleeding. Trying to eradicate or recover while the attack is still spreading means it reaches the machines you have just cleaned or restored."),
-                    ("The order does not really matter; you can do them in any sequence", False,
-                     "No. The order is the point. Each phase depends on the one before, which is why containment comes before eradication and recovery."),
-                    ("Recovery is the first thing you should ever do", False,
-                     "No. Recovering while the cause is still active just reinfects what you restore. You contain, then eradicate, then recover."),
-                    ("Eradication means paying the ransom", False,
-                     "No. Eradication means removing the malware and closing the way it got in. It has nothing to do with paying."),
+                    ("So they can protect themselves in time, by changing passwords, watching their accounts, or being alert to fraud", True,
+                     "Right. Telling people promptly is what gives them the chance to act before the harm reaches them. That is the human purpose behind the rule."),
+                    ("Only so the business avoids a fine, with no benefit to anyone else", False,
+                     "No. Avoiding penalties is a side effect. The real reason is to let affected people protect themselves in time."),
+                    ("So the affected people can pay the ransom on the business's behalf", False,
+                     "No. Notification has nothing to do with paying a ransom. It is about warning people so they can protect themselves."),
+                    ("Because the affected people caused the breach", False,
+                     "No. Notifying is not about blame. It is about giving people the information they need to guard against harm."),
                 ],
             },
             {
@@ -218,87 +363,19 @@ LESSONS = [
                 },
             },
             {
-                "key": "who-to-call",
-                "kind": "branch",
-                "points": 2,
-                "title": "Decision drill: who to tell, and when",
-                "body": "<p>An incident is not only a technical event; it is a "
-                "communication test. Tell the right people early and calmly and the "
-                "response holds together. Tell the wrong people, or the world, too "
-                "soon and you create panic and legal problems. Work through the "
-                "calls.</p>"
-                "<div class=\"cy-callout\"><strong>The habit:</strong> escalate "
-                "internally and to your support first, keep a clear record, and do "
-                "not go public until you understand the incident and your "
-                "obligations.</div>",
-                "payload": {
-                    "prompt": "The incident is contained. Make each call about who to tell.",
-                    "start": "internal",
-                    "nodes": {
-                        "internal": {
-                            "text": "It is mid-morning and the incident is contained. Who should you make sure knows, right now?",
-                            "choices": [
-                                {"label": "The practice owner or manager, and your IT support, following the plan", "outcome": "good",
-                                 "feedback": "Right. The people who can make decisions and fix the problem need to know first, calmly and clearly.", "to": "record"},
-                                {"label": "No one yet; try to fix it all quietly before anyone finds out", "outcome": "bad",
-                                 "feedback": "Handling it alone and in secret is how small incidents become disasters. The people who can help cannot help if they do not know.", "to": "secret_bad"},
-                                {"label": "Everyone, by posting the details in the practice's public reviews and social media", "outcome": "bad",
-                                 "feedback": "Announcing an incident you do not yet fully understand causes panic and can breach your obligations. Escalate internally first.", "to": "public_bad"},
-                            ],
-                        },
-                        "secret_bad": {
-                            "text": "Working alone, you miss things only IT support would catch, and the owner is blindsided later. Secrecy slows the response and erodes trust. Escalate to the right people straight away.",
-                            "choices": [],
-                        },
-                        "public_bad": {
-                            "text": "The public post, made before you understood the incident, spreads alarm and gets details wrong, and it may breach the careful process the law expects. Understand it, then communicate properly.",
-                            "choices": [],
-                        },
-                        "record": {
-                            "text": "The right people know and are helping. A patient rings, having heard a rumour, and asks if their records are safe. What do you do?",
-                            "choices": [
-                                {"label": "Be honest and measured: say you are aware of an issue, are dealing with it, and will update them properly once you know more", "outcome": "good",
-                                 "feedback": "Exactly. Calm honesty keeps trust. You do not overshare or speculate, but you do not deny or dismiss either.", "to": "win"},
-                                {"label": "Tell them everything is completely fine and nothing happened", "outcome": "bad",
-                                 "feedback": "Flatly denying it is a lie you may have to retract, and if their data was affected you have a duty to tell them properly. Be honest and measured.", "to": "deny_bad"},
-                            ],
-                        },
-                        "deny_bad": {
-                            "text": "The denial unravels when the breach is confirmed and patients must be notified after all. Now they were misled as well as affected. Honest, measured communication protects trust; denial destroys it.",
-                            "choices": [],
-                        },
-                        "win": {
-                            "text": "Escalated to the right people, kept a clear record, and answered the patient with calm honesty. That steady, truthful handling of the people side is as much a part of incident response as the technical fix.",
-                            "choices": [],
-                        },
-                    },
-                },
-            },
-        ],
-    },
-    {
-        "title": "Clean up, come back, and the law: eradicate, recover, review",
-        "reading_time_minutes": 9,
-        "intro": "The spread is stopped, but the incident is far from over. This "
-        "lesson finishes the job: remove the attack for good, come back cleanly "
-        "from backups, and face the part many businesses forget, the legal duty to "
-        "tell people when their personal information has been breached.",
-        "tasks": [
-            {
                 "key": "tt-eradicate-review",
                 "kind": "tabletop",
                 "points": 2,
-                "title": "Tabletop: cleaning up and coming back",
+                "title": "Tabletop: cleaning up, coming back, and the law",
                 "hero": "recovery-board",
-                "body": "<p>The same incident, continued. The spread is contained; "
-                "now comes the careful part. Watch the recovery board above: systems "
-                "come back one at a time, from down, to restoring, to online, never "
-                "all at once in a scramble. Work the final phases: remove the attack "
-                "for good, recover cleanly, and meet your obligations. The board is "
-                "waiting on your calls.</p>"
+                "body": "<p>The same incident, continued. The spread is contained; now "
+                "comes the careful part. Watch the recovery board above: systems come "
+                "back one at a time, from down, to restoring, to online, never all at "
+                "once in a scramble. Work the final phases: remove the attack for "
+                "good, recover cleanly, and meet your obligations under the law.</p>"
                 "<div class=\"cy-callout\"><strong>Coming back is deliberate.</strong> "
-                "Eradicate the cause, close the hole, restore from clean backups, "
-                "and then face the law honestly.</div>",
+                "Eradicate the cause, close the hole, restore from clean backups, and "
+                "then face the law honestly.</div>",
                 "payload": {
                     "prompt": "Finish the incident. Work the last three phases and watch the board.",
                     "scenario": "Riverside Dental, later the same week. The attack is contained, the affected machines are isolated, and the backups are safe. The way in has been traced to one office computer with a remote-login left open and unpatched.",
@@ -360,182 +437,6 @@ LESSONS = [
                     ],
                 },
             },
-            {
-                "key": "notifiable-or-not",
-                "kind": "classify",
-                "points": 2,
-                "title": "Does this one have to be notified?",
-                "body": "<p>Under the Privacy Act 1988, the "
-                "<strong>Notifiable Data Breaches</strong> scheme says that when "
-                "personal information is lost or exposed in a way likely to cause "
-                "serious harm, you must tell both the regulator (the OAIC) and the "
-                "people affected. Not every mishap meets that bar, but many do, "
-                "especially anything involving sensitive data like health or "
-                "identity details. Read each case and decide.</p>"
-                "<div class=\"cy-callout\">Ask two questions: is personal "
-                "information involved, and is serious harm to those people likely? If "
-                "both point to yes, it is very likely notifiable.</div>",
-                "inline_check": {
-                    "question": "Under the Notifiable Data Breaches scheme, who must be told about an eligible breach?",
-                    "hint": "Think about both the regulator and the people whose data it is.",
-                    "options": [
-                        ("Both the OAIC (the regulator) and the individuals whose information was affected", True,
-                         "Right. An eligible breach must be reported to the OAIC and notified to the affected people, so they can protect themselves."),
-                        ("Only the business's own manager, kept internal", False,
-                         "No. Keeping it internal is exactly what the scheme prevents. Both the OAIC and the affected individuals must be told."),
-                        ("Only the police", False,
-                         "No. The scheme is about notifying the OAIC and the affected people. The police are a separate matter."),
-                        ("No one; notification is optional", False,
-                         "No. For an eligible breach, notification is a legal duty, not a choice."),
-                    ],
-                },
-                "payload": {
-                    "prompt": "Read each case and tap whether it is very likely notifiable, or can be handled internally. Sort all six to finish.",
-                    "categories": [
-                        {"id": "notify", "label": "Very likely notifiable"},
-                        {"id": "internal", "label": "Handle internally"},
-                    ],
-                    "events": [
-                        {"text": "Patient health records, with names and dates of birth, exposed in a ransomware attack.",
-                         "category": "notify",
-                         "why": "Very likely notifiable. Health information is sensitive, and its exposure is likely to cause serious harm, so the OAIC and patients must be told."},
-                        {"text": "A staff member briefly saw a colleague's leave request on a shared screen.",
-                         "category": "internal",
-                         "why": "Handle internally. A minor internal glimpse of low-risk information is not likely to cause serious harm, so it does not meet the bar."},
-                        {"text": "A spreadsheet of customers' names, addresses and payment details emailed to the wrong company.",
-                         "category": "notify",
-                         "why": "Very likely notifiable. Identity and payment details in the wrong hands can cause serious harm, so this must be assessed and almost certainly notified."},
-                        {"text": "An internal newsletter about a public event sent to the wrong internal list.",
-                         "category": "internal",
-                         "why": "Handle internally. Public, non-personal information going to the wrong colleagues is not a notifiable breach."},
-                        {"text": "A laptop full of unencrypted client files stolen from a car.",
-                         "category": "notify",
-                         "why": "Very likely notifiable. Personal client information lost with no encryption protecting it is likely to cause serious harm, so it must be assessed and notified."},
-                        {"text": "A typo in a public blog post about office opening hours.",
-                         "category": "internal",
-                         "why": "Handle internally. No personal information is involved and no one is harmed, so it is simply a correction to make."},
-                    ],
-                },
-            },
-            {
-                "key": "breach-notify-map",
-                "kind": "check",
-                "points": 2,
-                "title": "Read the notification duty",
-                "diagram": "breach-notify",
-                "body": "<p>Here is the legal duty as a simple picture: when a breach "
-                "is likely to cause serious harm, the path leads to notifying both "
-                "the regulator and the people affected. Read the diagram above, then "
-                "answer. This is not just paperwork; prompt, honest notification is "
-                "what lets affected people protect themselves.</p>"
-                "<div class=\"cy-callout\">The whole point of notifying is to give "
-                "people the chance to act, change a password, watch their accounts, "
-                "before the harm lands.</div>",
-                "question": "Looking at the notification path above, why does the law require you to tell the affected people, not just the regulator?",
-                "hint": "Think about what those people can do once they know.",
-                "options": [
-                    ("So they can protect themselves in time, by changing passwords, watching their accounts, or being alert to fraud", True,
-                     "Right. Telling people promptly is what gives them the chance to act before the harm reaches them. That is the human purpose behind the rule."),
-                    ("Only so the business avoids a fine, with no benefit to anyone else", False,
-                     "No. Avoiding penalties is a side effect. The real reason is to let affected people protect themselves in time."),
-                    ("So the affected people can pay the ransom on the business's behalf", False,
-                     "No. Notification has nothing to do with paying a ransom. It is about warning people so they can protect themselves."),
-                    ("Because the affected people caused the breach", False,
-                     "No. Notifying is not about blame. It is about giving people the information they need to guard against harm."),
-                ],
-            },
-            {
-                "key": "eradicate-recover",
-                "kind": "sort",
-                "points": 2,
-                "title": "Eradication, or recovery?",
-                "body": "<p>The two phases after containment are easy to blur, but "
-                "they are different jobs. <strong>Eradication</strong> is removing "
-                "the attack and closing the way in. <strong>Recovery</strong> is "
-                "getting the business running again, safely. Do them in the wrong "
-                "order and you restore straight onto a machine that is still "
-                "compromised. Sort each action into the phase it belongs to.</p>"
-                "<div class=\"cy-callout\">Tap an action, then tap whether it is "
-                "Eradication (remove and close) or Recovery (restore and resume). "
-                "Sort all six to finish.</div>",
-                "payload": {
-                    "prompt": "Sort each action into Eradication or Recovery.",
-                    "buckets": [
-                        {"id": "eradicate", "label": "Eradication"},
-                        {"id": "recover", "label": "Recovery"},
-                    ],
-                    "items": [
-                        {"text": "Wipe and rebuild the infected machines from clean sources", "bucket": "eradicate",
-                         "why": "Eradication. Removing the malware entirely is how you make sure it is gone for good."},
-                        {"text": "Restore the files from a clean, verified backup", "bucket": "recover",
-                         "why": "Recovery. Bringing data and systems back from clean backups is the heart of recovery."},
-                        {"text": "Close the unpatched remote login the attack came through", "bucket": "eradicate",
-                         "why": "Eradication. Shutting the way in is part of removing the threat, so it cannot simply return."},
-                        {"text": "Bring systems back online one at a time and check each works", "bucket": "recover",
-                         "why": "Recovery. A careful, staged return to normal is exactly what recovery means."},
-                        {"text": "Reset the passwords that may have been exposed", "bucket": "eradicate",
-                         "why": "Eradication. Changing credentials the attacker may hold closes another door they came through."},
-                        {"text": "Confirm the booking system is working before staff rely on it", "bucket": "recover",
-                         "why": "Recovery. Verifying that restored systems actually work is the final part of coming back safely."},
-                    ],
-                },
-            },
-            {
-                "key": "lessons-learned",
-                "kind": "branch",
-                "points": 2,
-                "title": "Decision drill: getting stronger from it",
-                "body": "<p>The last phase is the one most often skipped, and the "
-                "most valuable. Once the crisis is over, a calm review turns a bad "
-                "day into a stronger practice: what happened, what worked, and what "
-                "to change so it is harder next time. Work through the review.</p>"
-                "<div class=\"cy-callout\"><strong>The habit:</strong> review "
-                "honestly and without blame, then actually change the things that "
-                "let it happen. A lesson noted but not acted on is not a lesson "
-                "learned.</div>",
-                "payload": {
-                    "prompt": "The incident is closed. Make each call about the review.",
-                    "start": "review",
-                    "nodes": {
-                        "review": {
-                            "text": "A week later, the practice is back to normal. What is the right way to close the incident out?",
-                            "choices": [
-                                {"label": "Hold a calm, blame-free review of what happened and what to change", "outcome": "good",
-                                 "feedback": "Right. An honest review, focused on the process rather than punishing people, is how a business genuinely gets stronger.", "to": "change"},
-                                {"label": "Move on quickly and never speak of it again", "outcome": "bad",
-                                 "feedback": "Skipping the review wastes the hardest lesson you will ever get. The same hole stays open for next time.", "to": "skip_bad"},
-                                {"label": "Find one person to blame and leave it there", "outcome": "bad",
-                                 "feedback": "Blame makes people hide mistakes, so you learn less and the real weaknesses go unfixed. Review the process, not the person.", "to": "blame_bad"},
-                            ],
-                        },
-                        "skip_bad": {
-                            "text": "Because nothing was reviewed, the unpatched remote login and the shaky backup habits stay exactly as they were. The next incident finds the same open doors. The review is where the value is.",
-                            "choices": [],
-                        },
-                        "blame_bad": {
-                            "text": "With one person blamed, everyone else learns to stay quiet about mistakes, and the real process gaps are never surfaced. A blame-free review would have found and fixed them.",
-                            "choices": [],
-                        },
-                        "change": {
-                            "text": "The review lists clear fixes: close remote logins, test the backups, add staff training. What turns this into a lesson actually learned?",
-                            "choices": [
-                                {"label": "Assign each fix to someone, with a date, and check they are done", "outcome": "good",
-                                 "feedback": "Exactly. A lesson is only learned when the changes are made. Owners and dates are what turn a list into real improvement.", "to": "win"},
-                                {"label": "Write the list up neatly and file it away", "outcome": "bad",
-                                 "feedback": "A filed list changes nothing. If no one owns the fixes and no one checks them, the weaknesses are still there.", "to": "file_bad"},
-                            ],
-                        },
-                        "file_bad": {
-                            "text": "The tidy report sits in a folder while the same weaknesses remain live. Documenting a fix is not making it. Give each change an owner and a date, and follow it through.",
-                            "choices": [],
-                        },
-                        "win": {
-                            "text": "A calm review, honest and blame-free, turned into real fixes with owners and dates, each one checked off. That is the final phase working as intended: the practice came out of a bad week genuinely harder to hit. That is incident response, start to finish.",
-                            "choices": [],
-                        },
-                    },
-                },
-            },
         ],
     },
 ]
@@ -543,7 +444,7 @@ LESSONS = [
 QUIZ = {
     "pass_mark": 70,
     "questions": [
-        # ---- Lesson 1: detect and contain ----
+        # ---- Lesson 1: understand it (the whole response) ----
         {
             "lesson": 1, "difficulty": "EASY",
             "text": "What is incident response?",
@@ -614,7 +515,7 @@ QUIZ = {
                  "No. The order matters. Each phase depends on the one before, starting with containing the spread."),
             ],
         },
-        # ---- Lesson 2: eradicate, recover, review, and the law ----
+        # ---- Lesson 2: apply it (eradicate, recover, review, and the law) ----
         {
             "lesson": 2, "difficulty": "MEDIUM",
             "text": "What does 'eradication' involve after an incident?",

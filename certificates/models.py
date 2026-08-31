@@ -20,7 +20,18 @@ class Certificate(models.Model):
         default=uuid.uuid4,
         editable=False,
         unique=True,
-        help_text="Public verification code.",
+        help_text="Internal verification identifier.",
+    )
+    serial = models.CharField(
+        max_length=20,
+        unique=True,
+        editable=False,
+        help_text="Public, human-readable verification code (CYB-XXXX-XXXX-XXXX).",
+    )
+    grade = models.CharField(
+        max_length=20,
+        blank=True,
+        help_text="Overall academic grade at issue (Distinction / Merit / Pass).",
     )
     issued_at = models.DateTimeField(auto_now_add=True)
     pdf_path = models.CharField(
@@ -32,4 +43,15 @@ class Certificate(models.Model):
         ordering = ["-issued_at"]
 
     def __str__(self):
-        return f"Certificate {self.code} — {self.user.email}"
+        return f"Certificate {self.serial} — {self.user.email}"
+
+    @staticmethod
+    def serial_from_code(code):
+        """Derive the public serial from the UUID: CYB-XXXX-XXXX-XXXX."""
+        h = code.hex.upper()
+        return f"CYB-{h[:4]}-{h[4:8]}-{h[8:12]}"
+
+    def save(self, *args, **kwargs):
+        if not self.serial:
+            self.serial = self.serial_from_code(self.code)
+        super().save(*args, **kwargs)

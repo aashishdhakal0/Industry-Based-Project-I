@@ -1,57 +1,206 @@
-"""Module 4, Secure Communication Practices: two hands-on lessons.
+"""Module 4, Secure Communication Practices: understand it, then apply it.
 
-Two lessons, built around a "before you hit send" frame:
+  Lesson 1  UNDERSTAND IT  — a teaching lesson. Four reading panels, each with a
+            real visual: what encryption means (sealed envelope vs postcard); the
+            padlock and https, and what they do and do not prove, plus end-to-end
+            encryption; sharing safely with permissioned links and keeping the key
+            separate; and staying private on the move (open Wi-Fi, evil twins, and
+            VPNs). One light comprehension check on an insecure send.
+  Lesson 2  APPLY IT       — a practical lesson. Five hands-on tasks: sort
+            encrypted vs open, judge safe shares from leaks, read a share-settings
+            screen, work a real share decision, and harden a mobile workspace.
 
-  Lesson 1  Before you hit send: what 'secure' really means
-            (encryption in plain English, the padlock, end-to-end, verifying a
-            sender, and matching the care to how sensitive the message is)
-  Lesson 2  Sharing safely: files, links, and Wi-Fi
-            (secure links vs attachments, sending the key separately, public
-            Wi-Fi and evil twins, and when a VPN or sealed channel is worth it)
-
-Same 5-task room as Modules 1 and 2, with its own character: a checklist that
-runs through real workplace send/share decisions, and figures that PROVE the
-point (an encrypted-vs-open message compare, a real-vs-risky share link, a cafe
-Wi-Fi picker with an evil twin). Voice: warm, plain Australian English, no
-em-dashes, no emoji. Points sum to 10 per lesson and bank at lesson end.
+Voice: warm, plain Australian English, no em-dashes, no emoji. Grounded in ACSC
+(cyber.gov.au) guidance on secure communication, protecting information, and
+public Wi-Fi. Points sum to 10 per lesson and bank at lesson end.
 """
 
 LESSONS = [
     {
-        "title": "Before you hit send: what 'secure' really means",
-        "reading_time_minutes": 8,
+        "title": "What 'secure' really means",
+        "reading_time_minutes": 9,
         "intro": "Most days you send information without a second thought. This "
-        "lesson adds a short pause before you hit send: is this private, and is "
-        "the way I am sending it actually sealed, or wide open?",
+        "lesson gives you the ideas behind a safer habit: what encryption actually "
+        "does, what the padlock does and does not promise, how to share a file "
+        "without losing control of it, and how to stay private on someone else's "
+        "network.",
+        "tasks": [
+            {
+                "key": "encryption",
+                "kind": "concept",
+                "points": 2,
+                "title": "Encryption: a sealed envelope, not a postcard",
+                "diagram": "msg-encrypted",
+                "body": "<p>To <strong>encrypt</strong> information is to scramble it "
+                "using a <strong>key</strong>, so that only someone with the matching "
+                "key can turn it back into something readable. The readable version "
+                "is called <em>plaintext</em>; the scrambled version is "
+                "<em>ciphertext</em>. To anyone without the key, the ciphertext is "
+                "just noise, and modern encryption is strong enough that guessing the "
+                "key is not realistically possible. The picture above shows the same "
+                "patient record sent two ways.</p>"
+                "<ul>"
+                "<li><strong>Out in the open</strong>: the plain version is readable "
+                "by anyone who can see the traffic along the way, like a postcard a "
+                "stranger can read over your shoulder. Ordinary email between servers "
+                "and standard SMS often travel like this.</li>"
+                "<li><strong>Encrypted</strong>: the scrambled version is useless "
+                "without the key, like a sealed envelope. Someone can still see that "
+                "a message was sent, and to whom, but not what it says.</li>"
+                "</ul>"
+                "<p>So be clear on what encryption does and does not do. It does not "
+                "hide that you sent something, it does not delete or back anything up, "
+                "and it does not protect a message once it is opened and sitting on a "
+                "screen. It does one job, extremely well: it makes the contents "
+                "unreadable to everyone except the intended reader while they are in "
+                "transit or storage.</p>"
+                "<div class=\"cy-callout\">The question to carry into every send: is "
+                "this going as a sealed envelope, or a postcard anyone along the way "
+                "can read?</div>",
+            },
+            {
+                "key": "padlock-and-e2e",
+                "kind": "concept",
+                "points": 2,
+                "title": "The padlock, https, and end-to-end",
+                "diagram": "secure-bars",
+                "body": "<p>The padlock and <strong>https</strong> in the address "
+                "bar mean the connection between your browser and that website is "
+                "encrypted, using a technology called TLS. When you connect, your "
+                "browser and the site agree on a shared key and scramble everything "
+                "that passes between them, so someone watching the network sees only "
+                "ciphertext. The two address bars above show the difference: plain "
+                "<strong>http</strong> with no padlock is open and readable; "
+                "<strong>https</strong> with a padlock is encrypted in transit.</p>"
+                "<p>But here is the catch that catches people out: the padlock says "
+                "nothing about <em>who runs the site</em>. Anyone can get the "
+                "certificate that turns on https, including a criminal running a "
+                "convincing fake, in minutes and for free. The padlock tells you the "
+                "line is private, not that the person on the other end is honest. "
+                "That is why a padlock on a login page you reached from an email link "
+                "is no reassurance at all.</p>"
+                "<p><strong>End-to-end encryption</strong> goes one step further. On "
+                "an ordinary website, the company at the far end can read your data "
+                "once it arrives. In an end-to-end encrypted app (used by the "
+                "well-known secure messaging apps), the message is scrambled on your "
+                "device and only unscrambled on the recipient's, so not even the "
+                "service carrying it can read the contents. Only the two ends hold the "
+                "key.</p>"
+                "<div class=\"cy-callout\">The padlock means the connection is sealed. "
+                "It is not a badge of trust: still check who you are actually dealing "
+                "with.</div>",
+            },
+            {
+                "key": "sharing-safely",
+                "kind": "concept",
+                "points": 2,
+                "title": "Sharing safely: keep control, keep the key separate",
+                "diagram": "secure-share",
+                "body": "<p>Sending a file is easy; keeping control of it is the "
+                "skill. Once a loose copy leaves your hands, in a plain attachment or "
+                "a public link, you can never pull it back. The share settings above "
+                "show the two ends of the spectrum.</p>"
+                "<ul>"
+                "<li><strong>A public 'anyone with the link' share</strong>: no "
+                "sign-in, never expires, and can be forwarded to anyone. Convenient, "
+                "and completely out of your control the moment it is passed on.</li>"
+                "<li><strong>A permissioned link</strong>: restricted to named "
+                "people, password protected, expires, and can be revoked. You decide "
+                "who gets in, and you can take access back.</li>"
+                "</ul>"
+                "<p>Two habits make sharing safe. Give the <strong>least access</strong> "
+                "needed (view-only beats edit; one folder beats the whole drive), so "
+                "a shared link can never do more than the job requires. And when you "
+                "send a password-protected file, send the <strong>password by a "
+                "separate channel</strong>: the file by email, the password by a text "
+                "or a quick call. If the lock and the key travel together in the same "
+                "message, anyone who intercepts or is forwarded that message has "
+                "both, and the protection was for nothing.</p>"
+                "<div class=\"cy-callout\">Before you share, ask: who can open this, "
+                "and can I take that access back later? If the answer is 'anyone' and "
+                "'no', it is a leak.</div>",
+            },
+            {
+                "key": "on-the-move",
+                "kind": "concept",
+                "points": 2,
+                "title": "Staying private on someone else's network",
+                "hero": "eavesdrop",
+                "diagram": "vpn-tunnel",
+                "body": "<p>Working from a cafe, an airport, or a hotel is normal now, "
+                "and so are the risks. Public Wi-Fi is a shared space, and two traps "
+                "stand out.</p>"
+                "<ul>"
+                "<li><strong>Open networks</strong> carry your traffic unencrypted "
+                "unless the site itself is https. A stranger on the same network, "
+                "using free and legal tools, can capture what everyone around them "
+                "sends. Anything not on https, and the fact of which sites you "
+                "visit, is readable.</li>"
+                "<li><strong>Evil twins</strong>: an attacker sets up their own "
+                "hotspot with a familiar name, like 'Corner Cafe Free WiFi', so you "
+                "connect to them by mistake. Now they are the network: everything you "
+                "send passes through their equipment first. A friendly name and a "
+                "strong signal prove nothing, because both are trivial to fake.</li>"
+                "</ul>"
+                "<p>The fix is to stop trusting the network at all. Use your phone's "
+                "<strong>mobile data</strong>, which is encrypted and yours, or a "
+                "<strong>VPN</strong>. As the animation above shows, a VPN builds an "
+                "encrypted tunnel from your device to a trusted server, so even on an "
+                "untrusted Wi-Fi, and even against an evil twin, an eavesdropper sees "
+                "only scrambled traffic. And lock your screen whenever you step away: "
+                "an unlocked laptop in a public place is an open door to every account "
+                "you are signed into.</p>"
+                "<div class=\"cy-callout\">Away from the office, assume the network is "
+                "watching. Use your own connection or a VPN, and lock the screen when "
+                "you leave it.</div>",
+            },
+            {
+                "key": "read-the-send",
+                "kind": "check",
+                "points": 2,
+                "title": "Quick check: about to send the form",
+                "diagram": "scene-send",
+                "body": "<p>One quick check to finish. In the scene above, a worker "
+                "is about to email a client's medical form as a plain attachment, to "
+                "a personal Gmail address, and a colleague has noticed. You now know "
+                "what 'sealed' means and what plain email is. What should happen "
+                "next?</p>"
+                "<div class=\"cy-callout\">Match the care to the sensitivity: private "
+                "health data needs a sealed channel, not whatever is quickest.</div>",
+                "question": "Looking at the scene, what should the worker do before sending the client's medical form?",
+                "hint": "Weigh how sensitive the file is against how exposed plain email to a personal address is.",
+                "options": [
+                    ("Stop, and send it through a secure channel, or a password-protected file with the password sent separately", True,
+                     "Right. A medical form is exactly the kind of private data that needs a sealed channel, so only the intended person can open it, and one wrong address is not a breach."),
+                    ("Send it, plain email is quicker and the colleague is waiting", False,
+                     "No. Plain email is a postcard, and one wrong address is a breach. Speed does not change how sensitive the file is."),
+                    ("Send it, but CC a manager so someone else has a copy", False,
+                     "No. That just exposes the private file to more inboxes. Use a sealed, access-controlled channel instead."),
+                    ("Paste the details into the body of the email instead of attaching them", False,
+                     "No. The email body is just as exposed as an attachment. The fix is a sealed channel, not a different part of the email."),
+                ],
+            },
+        ],
+    },
+    {
+        "title": "Put it to work: sharing safely, files, links, and Wi-Fi",
+        "reading_time_minutes": 9,
+        "intro": "Now use it. Sort what is sealed from what is open, tell a safe "
+        "share from a leak, read a real share-settings screen, make a live sharing "
+        "decision, and harden a workspace for life on the move.",
         "tasks": [
             {
                 "key": "encrypted-or-open",
                 "kind": "sort",
                 "points": 2,
                 "title": "Encrypted, or out in the open?",
-                "body": "<p>To <strong>encrypt</strong> information is to scramble "
-                "it with a key, so only someone with the key can read it. It is the "
-                "difference between a sealed envelope and a postcard. Some of the "
-                "ways we communicate are sealed; others are wide open, readable by "
-                "anyone who can see the traffic along the way. Sorting them is the "
-                "quickest way to build the instinct.</p>"
-                "<div class=\"cy-callout\">Tap each item, then tap whether it is "
-                "encrypted (only the right person can read it) or out in the open "
-                "(others along the way could).</div>",
-                "inline_check": {
-                    "question": "A phishing website shows the padlock and https in the address bar. What does that prove?",
-                    "hint": "The padlock is about the connection, not the owner.",
-                    "options": [
-                        ("Only that the connection is encrypted, not that the site is genuine", True,
-                         "Yes. The padlock means the link to the site is encrypted. Scam sites can show it too, so it is not proof of trust."),
-                        ("That the website is safe and genuine", False,
-                         "No. The padlock says nothing about who runs the site. Phishing sites can show it as well."),
-                        ("That your antivirus has checked the site", False,
-                         "No. The padlock is unrelated to antivirus. It only means the connection is encrypted."),
-                        ("That the site cannot collect your password", False,
-                         "No. A fake page can still collect whatever you type. The padlock only encrypts the connection."),
-                    ],
-                },
+                "body": "<p>Lesson 1 drew the line between a sealed envelope and a "
+                "postcard. Prove you can place any everyday channel on the right side "
+                "of it. Read each item and sort it: encrypted (only the right person "
+                "can read it) or out in the open (others along the way could).</p>"
+                "<div class=\"cy-callout\">Ask of each one: if a stranger watched the "
+                "traffic, would they see the contents, or only scrambled "
+                "characters?</div>",
                 "payload": {
                     "prompt": "Tap an item, then tap whether it is Encrypted or Out in the open. Sort all six to finish.",
                     "buckets": [
@@ -75,211 +224,14 @@ LESSONS = [
                 },
             },
             {
-                "key": "sending-the-form",
-                "kind": "branch",
-                "points": 2,
-                "title": "Decision drill: sending the client's form",
-                "diagram": "scene-send",
-                "body": "<p>Here is the everyday decision this module is really "
-                "about, and it is playing out in the scene above: a client's file, "
-                "about to go out as a plain email, and a colleague who has spotted "
-                "it. You have a document full of a client's private details, and it "
-                "needs to reach a colleague. How you send it is the whole question. "
-                "Read the scene, then work through the drill.</p>"
-                "<div class=\"cy-callout\"><strong>The habit:</strong> match the "
-                "care to the sensitivity. Private information needs a sealed "
-                "channel, not whatever is quickest.</div>",
-                "inline_check": {
-                    "question": "Look at the scene above: the worker is about to email a client's medical form as a plain attachment, to a personal address. What should they do?",
-                    "hint": "Weigh how sensitive the file is against how exposed plain email is.",
-                    "options": [
-                        ("Stop, and send it through a secure channel, or a password-protected file with the password sent separately", True,
-                         "Right. A medical form is exactly the kind of private data that needs a sealed channel, so only the intended person can open it."),
-                        ("Send it, plain email is quicker and the colleague is waiting", False,
-                         "No. Plain email is a postcard, and one wrong address is a breach. Speed does not change how sensitive the file is."),
-                        ("Send it, but CC a manager so someone else has a copy", False,
-                         "No. That just exposes the private file to more inboxes. Use a sealed, access-controlled channel instead."),
-                        ("Paste the details into the body of the email instead of attaching them", False,
-                         "No. The email body is just as exposed as an attachment. The fix is a sealed channel, not a different part of the email."),
-                    ],
-                },
-                "payload": {
-                    "prompt": "The form needs sending. Make each call and see the consequence.",
-                    "start": "send",
-                    "nodes": {
-                        "send": {
-                            "text": "A client's medical intake form, full of personal and health details, needs to go to a colleague across town. What do you do?",
-                            "choices": [
-                                {"label": "Share it through a secure, access-controlled channel, or a password-protected file with the password sent separately", "outcome": "good",
-                                 "feedback": "Right. Sensitive health data deserves a sealed channel, so only the intended person can open it.", "to": "arrives"},
-                                {"label": "Just attach it to a normal email, it is quicker", "outcome": "bad",
-                                 "feedback": "Plain email is a postcard. Health information sent that way is exposed in transit and one wrong address from a breach.", "to": "email_bad"},
-                                {"label": "Paste the details into a text message", "outcome": "bad",
-                                 "feedback": "SMS is not encrypted end to end and is easy to misaddress. It is a poor channel for private details.", "to": "sms_bad"},
-                            ],
-                        },
-                        "email_bad": {
-                            "text": "The email autocompletes to the wrong contact, and a stranger now has a client's health record. Once it is sent, it cannot be recalled. A sealed channel would have kept it to the intended reader.",
-                            "choices": [],
-                        },
-                        "sms_bad": {
-                            "text": "The text goes through fine, but it also sits unencrypted on servers and could be read if the phone is lost or the number mistyped. Private details deserve better than SMS.",
-                            "choices": [],
-                        },
-                        "arrives": {
-                            "text": "Your colleague opens the form securely with the key you sent separately. Then they ask you to email them the password too, to save time. What do you say?",
-                            "choices": [
-                                {"label": "No, keep the password on a separate channel, like a quick phone call", "outcome": "good",
-                                 "feedback": "Exactly. If the lock and the key travel together, anyone who sees that message has both. Keep them apart.", "to": "win"},
-                                {"label": "Sure, reply to the same email with the password", "outcome": "bad",
-                                 "feedback": "That defeats the point. The whole value of a password-protected file is that the password comes a different way.", "to": "key_bad"},
-                            ],
-                        },
-                        "key_bad": {
-                            "text": "Now the file and its password sit in the same thread. Anyone who reaches that email has the lock and the key together. Send the key a separate way, always.",
-                            "choices": [],
-                        },
-                        "win": {
-                            "text": "Sent securely, opened by the right person, and the key kept separate. That is the whole discipline: match the care to the sensitivity, and never send the lock and the key together.",
-                            "choices": [],
-                        },
-                    },
-                },
-            },
-            {
-                "key": "read-encryption",
-                "kind": "check",
-                "points": 2,
-                "title": "Read the message in transit",
-                "diagram": "msg-encrypted",
-                "body": "<p>Here is the same message, sent two ways, as it looks "
-                "travelling across the network. One is readable by anyone who can "
-                "see the traffic; the other is scrambled, useless without the key. "
-                "This is what 'encrypted' actually buys you.</p>"
-                "<div class=\"cy-callout\">Encryption does not hide that a message "
-                "was sent. It makes the contents unreadable to everyone except the "
-                "person holding the key.</div>",
-                "question": "Looking at the two messages above, why is the encrypted one safer to send?",
-                "hint": "Think about what a stranger watching the network would actually see.",
-                "options": [
-                    ("Its contents are scrambled with a key, so anyone watching the network sees only useless characters", True,
-                     "Right. The plain message is readable in transit, like a postcard. The encrypted one is scrambled, so only the intended reader, who has the key, can open it."),
-                    ("It is shorter, so less can leak", False,
-                     "No. Length is not the point. The encrypted message is safer because its contents are scrambled and unreadable without the key."),
-                    ("It was sent faster", False,
-                     "No. Speed has nothing to do with it. Encryption protects the contents by scrambling them."),
-                    ("It cannot be intercepted at all", False,
-                     "No. It can still be intercepted, but the interceptor sees only scrambled characters, which is the whole point."),
-                ],
-            },
-            {
-                "key": "match-the-care",
-                "kind": "classify",
-                "points": 2,
-                "title": "Match the care to the message",
-                "body": "<p>Not everything needs a sealed channel. The skill is "
-                "telling the everyday chatter from the genuinely private, so you "
-                "spend your care where it matters. Read each thing you might send "
-                "and decide: fine to send any normal way, or does it need a sealed "
-                "channel?</p>"
-                "<div class=\"cy-callout\">Ask one question: if a stranger read "
-                "this, would it harm anyone? If yes, seal it.</div>",
-                "payload": {
-                    "prompt": "Read each item and tap whether it is fine any way, or needs a sealed channel. Sort all six to finish.",
-                    "categories": [
-                        {"id": "fine", "label": "Fine to send any way"},
-                        {"id": "sealed", "label": "Needs a sealed channel"},
-                    ],
-                    "events": [
-                        {"text": "An invitation to Friday's team lunch.",
-                         "category": "fine",
-                         "why": "Fine any way. Nothing here would harm anyone if a stranger saw it."},
-                        {"text": "A client's full name, date of birth and Medicare number.",
-                         "category": "sealed",
-                         "why": "Needs a sealed channel. Identity details like these are the raw material for fraud if exposed."},
-                        {"text": "The time and place of the next public webinar.",
-                         "category": "fine",
-                         "why": "Fine any way. It is meant to be public, so a normal channel is perfectly appropriate."},
-                        {"text": "A spreadsheet of staff bank account details.",
-                         "category": "sealed",
-                         "why": "Needs a sealed channel. Bank details in the wrong hands lead directly to fraud."},
-                        {"text": "A link to the company's published newsletter.",
-                         "category": "fine",
-                         "why": "Fine any way. Public content carries no risk if others see it."},
-                        {"text": "A scan of a passport for a new-hire's paperwork.",
-                         "category": "sealed",
-                         "why": "Needs a sealed channel. A passport is a prime identity-theft target and must be sent securely."},
-                    ],
-                },
-            },
-            {
-                "key": "send-tabletop",
-                "kind": "branch",
-                "points": 2,
-                "title": "Tabletop: the rushed request",
-                "body": "<p>Pressure is where good habits get dropped. This drill "
-                "puts the send checklist under a bit of stress: a busy afternoon and "
-                "a request that wants to skip the careful path. Work it through.</p>"
-                "<div class=\"cy-callout\">The send checklist does not change under "
-                "pressure: is it private, is the channel sealed, and is the key kept "
-                "separate?</div>",
-                "payload": {
-                    "prompt": "The request lands late in the day. Make each call and see the consequence.",
-                    "start": "ask",
-                    "nodes": {
-                        "ask": {
-                            "text": "At 4:55pm a manager messages: 'Quickly email me the full staff contact and payroll list, I need it for a meeting in five minutes.' What do you do?",
-                            "choices": [
-                                {"label": "Send it through the secure system you normally use, and let them know where to find it", "outcome": "good",
-                                 "feedback": "Right. Urgency does not change the rules. The sensitive list goes through the sealed channel, as always.", "to": "then"},
-                                {"label": "Paste the whole list into a plain email to save time", "outcome": "bad",
-                                 "feedback": "A payroll list in plain email is exactly the kind of exposure that becomes a breach. Sensitive data still needs a sealed channel.", "to": "plain_bad"},
-                            ],
-                        },
-                        "plain_bad": {
-                            "text": "The email is fine until it is forwarded to the wrong person a week later, and a full payroll list is now loose. Under pressure or not, sensitive data belongs in a sealed channel.",
-                            "choices": [],
-                        },
-                        "then": {
-                            "text": "Done securely. A moment later a second message arrives: 'Also text me the shared drive password so I can get in from my phone.' What now?",
-                            "choices": [
-                                {"label": "Do not text the password; point them to the password manager or reset the access properly", "outcome": "good",
-                                 "feedback": "Exactly. A password texted in the clear is a password exposed. Keep credentials out of plain messages.", "to": "win"},
-                                {"label": "Text the password, they are in a hurry", "outcome": "bad",
-                                 "feedback": "A texted password sits unencrypted and can be read if the phone is seen or lost. Never send credentials in the clear.", "to": "pw_bad"},
-                            ],
-                        },
-                        "pw_bad": {
-                            "text": "The password now lives in a text message on a phone that could be lost or shoulder-surfed. Credentials never belong in plain messages, however urgent the ask.",
-                            "choices": [],
-                        },
-                        "win": {
-                            "text": "Both requests handled without dropping the rules: the sensitive list sealed, the password kept out of plain text. That steadiness under pressure is what secure communication really is.",
-                            "choices": [],
-                        },
-                    },
-                },
-            },
-        ],
-    },
-    {
-        "title": "Sharing safely: files, links, and Wi-Fi",
-        "reading_time_minutes": 8,
-        "intro": "Sharing a file feels harmless, but a careless link or an open "
-        "network can leak it just as surely as a lost laptop. This lesson is about "
-        "sharing on your terms: control who gets in, and stay private on the move.",
-        "tasks": [
-            {
                 "key": "safe-share-or-leak",
                 "kind": "classify",
                 "points": 2,
                 "title": "Safe share, or a leak?",
-                "body": "<p>Modern tools make sharing a file a one-tap job, which is "
-                "exactly the problem: the quick option is often the leaky one. A "
-                "<strong>permissioned link</strong>, restricted to named people and "
-                "revocable, keeps you in control. A public 'anyone with the link' "
-                "share, or a copy emailed around, does not. Read each share below "
-                "and decide.</p>"
+                "body": "<p>The quick share option is often the leaky one. A "
+                "permissioned link, restricted to named people and revocable, keeps "
+                "you in control. A public share, or a copy emailed around, does not. "
+                "Read each share and decide.</p>"
                 "<div class=\"cy-callout\">The safe question is always the same: who "
                 "can open this, and can I take that access back later?</div>",
                 "payload": {
@@ -311,14 +263,40 @@ LESSONS = [
                 },
             },
             {
+                "key": "read-share-link",
+                "kind": "check",
+                "points": 2,
+                "title": "Read the share settings",
+                "diagram": "secure-share",
+                "body": "<p>A picture-question, straight from Lesson 1. The same file "
+                "can be shared two ways, and the settings screen tells you which is "
+                "safe. One link lets anyone in and never expires; the other is "
+                "restricted, password protected and revocable. Read the two and "
+                "decide which keeps you in control.</p>"
+                "<div class=\"cy-callout\">A safe share answers three questions: who "
+                "can open it, does it expire, and can you take access back?</div>",
+                "question": "Looking at the two link settings above, which is the safe one, and why?",
+                "hint": "Which one lets you control who gets in, and take it back?",
+                "options": [
+                    ("The restricted link: only specific people, password protected, and it expires and can be revoked", True,
+                     "Right. It limits who can open the file and lets you withdraw access. The 'anyone with the link, never expires' option loses control the moment it is forwarded."),
+                    ("The 'anyone with the link' one, because it is easier for people to open", False,
+                     "No. Easy for anyone means easy for the wrong person too. Once forwarded, you cannot take it back."),
+                    ("They are equally safe, it is the same file", False,
+                     "No. The file is the same, but the access is not. Control over who gets in is the whole point."),
+                    ("Neither, you should never share files", False,
+                     "No. Sharing is fine when you control it. The restricted, expiring, revocable link is the safe way."),
+                ],
+            },
+            {
                 "key": "link-or-attachment",
                 "kind": "branch",
                 "points": 2,
                 "title": "Decision drill: secure link, or email attachment?",
                 "body": "<p>A real sharing decision, start to finish. A colleague at "
-                "another office needs a client's file. The choice you make about "
-                "how to share it decides who can reach it, and whether you can ever "
-                "take it back. Work through it.</p>"
+                "another office needs a client's file. The choice you make about how "
+                "to share it decides who can reach it, and whether you can ever take "
+                "it back. Work through it.</p>"
                 "<div class=\"cy-callout\"><strong>The rule:</strong> share a "
                 "permissioned link, not a loose copy. Control who can open it, and "
                 "keep the power to revoke.</div>",
@@ -366,42 +344,15 @@ LESSONS = [
                 },
             },
             {
-                "key": "read-share-link",
-                "kind": "check",
-                "points": 2,
-                "title": "Read the share settings",
-                "diagram": "secure-share",
-                "body": "<p>The same file can be shared two ways, and the settings "
-                "screen tells you which is safe. One link lets anyone in and never "
-                "expires; the other is restricted, password protected and "
-                "revocable. Read the two and decide which keeps you in control.</p>"
-                "<div class=\"cy-callout\">A safe share answers three questions: who "
-                "can open it, does it expire, and can you take access back?</div>",
-                "question": "Looking at the two link settings above, which is the safe one, and why?",
-                "hint": "Which one lets you control who gets in, and take it back?",
-                "options": [
-                    ("The restricted link: only specific people, password protected, and it expires and can be revoked", True,
-                     "Right. It limits who can open the file and lets you withdraw access. The 'anyone with the link, never expires' option loses control the moment it is forwarded."),
-                    ("The 'anyone with the link' one, because it is easier for people to open", False,
-                     "No. Easy for anyone means easy for the wrong person too. Once forwarded, you cannot take it back."),
-                    ("They are equally safe, it is the same file", False,
-                     "No. The file is the same, but the access is not. Control over who gets in is the whole point."),
-                    ("Neither, you should never share files", False,
-                     "No. Sharing is fine when you control it. The restricted, expiring, revocable link is the safe way."),
-                ],
-            },
-            {
                 "key": "harden-workspace",
                 "kind": "harden",
                 "points": 2,
                 "title": "Secure the workspace before you leave",
                 "diagram": "wifi-evil-twin",
-                "body": "<p>Working from a cafe or an airport is normal now, and so "
-                "are the risks that come with it: open networks, lookalike hotspots, "
-                "and an unlocked screen in a public place. The Wi-Fi picker above "
-                "shows a classic trap, two near-identical open networks, one of "
-                "which may be an <strong>evil twin</strong> set up to watch your "
-                "traffic. Secure each part of your mobile setup.</p>"
+                "body": "<p>The final drill puts life on the move to work. The Wi-Fi "
+                "picker above shows a classic trap: two near-identical open networks, "
+                "one of which may be an <strong>evil twin</strong> set up to watch "
+                "your traffic. Secure each part of your mobile setup.</p>"
                 "<div class=\"cy-callout\">For each item, choose the option that "
                 "closes the gap and watch it flip to Secured.</div>",
                 "payload": {
@@ -458,55 +409,6 @@ LESSONS = [
                     ],
                 },
             },
-            {
-                "key": "anywhere-tabletop",
-                "kind": "branch",
-                "points": 2,
-                "title": "Tabletop: working from the airport",
-                "body": "<p>One last drill, on the move. You are between flights, you "
-                "have work to finish, and the environment is working against you. "
-                "Apply everything: sealed channels, controlled sharing, and staying "
-                "private on an untrusted network.</p>"
-                "<div class=\"cy-callout\">Away from the office, assume the network "
-                "is watching. Use your own connection or a VPN, and keep sensitive "
-                "sharing controlled.</div>",
-                "payload": {
-                    "prompt": "You have work to finish at the airport. Make each call and see the consequence.",
-                    "start": "wifi",
-                    "nodes": {
-                        "wifi": {
-                            "text": "The airport lounge lists two open networks with almost the same name. You need to log in to a work system. What do you do?",
-                            "choices": [
-                                {"label": "Skip both and use your phone's mobile data or a trusted VPN", "outcome": "good",
-                                 "feedback": "Right. One of those lookalikes could be an evil twin. Your own connection or a VPN keeps the session private.", "to": "share"},
-                                {"label": "Join the one with the friendlier name and log straight in", "outcome": "bad",
-                                 "feedback": "A friendly name is easy to fake. If it is the evil twin, your login just went through the attacker.", "to": "wifi_bad"},
-                            ],
-                        },
-                        "wifi_bad": {
-                            "text": "The network was a lookalike set up to capture logins, and yours was one of them. On open Wi-Fi, always use your own connection or a VPN.",
-                            "choices": [],
-                        },
-                        "share": {
-                            "text": "Connected safely. Now a colleague asks you to send them a sensitive report right away. How do you share it?",
-                            "choices": [
-                                {"label": "Share a restricted, expiring link through the secure system", "outcome": "good",
-                                 "feedback": "Exactly. Even in a hurry, a controlled link keeps a sensitive report to the right person and revocable.", "to": "win"},
-                                {"label": "Quickly email it as an attachment from the lounge", "outcome": "bad",
-                                 "feedback": "A loose copy of a sensitive report, sent from an untrusted place, is a leak waiting to be forwarded. Use a controlled link.", "to": "share_bad"},
-                            ],
-                        },
-                        "share_bad": {
-                            "text": "The attachment is out of your hands the moment it sends, one forward from exposure. A restricted, revocable link would have kept it under control.",
-                            "choices": [],
-                        },
-                        "win": {
-                            "text": "Private connection, controlled share, nothing loose. You carried the whole module out of the office and into the wild: seal the channel, control the share, and assume the network is watching.",
-                            "choices": [],
-                        },
-                    },
-                },
-            },
         ],
     },
 ]
@@ -514,7 +416,7 @@ LESSONS = [
 QUIZ = {
     "pass_mark": 70,
     "questions": [
-        # ---- Lesson 1: Before you hit send: what 'secure' really means ----
+        # ---- Lesson 1: understand it (what 'secure' means) ----
         {
             "lesson": 1, "difficulty": "EASY",
             "text": "What does it mean to encrypt information?",
@@ -559,33 +461,33 @@ QUIZ = {
         },
         {
             "lesson": 1, "difficulty": "MEDIUM",
-            "text": "An unexpected email asks you to pay an invoice or share a document urgently. What is the most reliable way to check it before acting?",
+            "text": "On public Wi-Fi, what is an 'evil twin'?",
             "options": [
-                ("Confirm the request through a separate channel you already trust, such as a known phone number", True,
-                 "Yes. Verifying on a channel the message did not provide is the one check an attacker cannot answer for you."),
-                ("Reply to the email and ask if it is genuine", False,
-                 "No. If it is a scam, you are asking the scammer. Verify a different way."),
-                ("Check whether the email has the company logo", False,
-                 "No. Logos are trivial to copy. Confirm the request on a separate trusted channel."),
-                ("Act quickly, since it says it is urgent", False,
-                 "No. Manufactured urgency is the trick. Slow down and verify on a channel you already trust."),
+                ("A fake hotspot set up with a familiar name, so your traffic routes through the attacker", True,
+                 "Yes. It mimics a trusted network's name. Connect to it and everything you send passes through the attacker."),
+                ("A second phone that copies yours", False,
+                 "No. An evil twin is a rogue Wi-Fi hotspot with a familiar name, not a cloned phone."),
+                ("A virus that duplicates your files", False,
+                 "No. That is not it. An evil twin is a fake Wi-Fi network used to intercept traffic."),
+                ("A backup copy of a website", False,
+                 "No. An evil twin is a rogue hotspot impersonating a trusted network."),
             ],
         },
         {
-            "lesson": 1, "difficulty": "EASY",
-            "text": "You need to send genuinely private information to a colleague. What is the safest habit?",
+            "lesson": 1, "difficulty": "MEDIUM",
+            "text": "What does a VPN do for you on public Wi-Fi?",
             "options": [
-                ("Use a sealed channel, such as an encrypted message or a password-protected file with the password sent separately", True,
-                 "Yes. Private information belongs in a sealed channel, so only the intended person can read it and the key travels separately."),
-                ("Send it in a normal email, it is faster", False,
-                 "No. Standard email is like a postcard. Private information deserves a sealed channel."),
-                ("Put it in a text message", False,
-                 "No. Ordinary SMS is not end-to-end encrypted and is easy to misaddress. Use a sealed channel."),
-                ("Post it in a group chat so it is easy to find later", False,
-                 "No. That widens who can see it. Private information should go through a sealed, controlled channel."),
+                ("It wraps your traffic in encryption, so an eavesdropper on the network sees only scrambled data", True,
+                 "Yes. A VPN builds an encrypted tunnel, so even on an untrusted network your traffic is unreadable to anyone watching."),
+                ("It makes the Wi-Fi faster", False,
+                 "No. A VPN is about privacy, not speed. It encrypts your traffic across the network."),
+                ("It removes the need for any passwords", False,
+                 "No. You still sign in to your accounts. A VPN encrypts the connection you use to reach them."),
+                ("It blocks all viruses automatically", False,
+                 "No. A VPN is not antivirus. It encrypts your traffic so it cannot be read in transit."),
             ],
         },
-        # ---- Lesson 2: Sharing safely: files, links, and Wi-Fi ----
+        # ---- Lesson 2: apply it (sharing safely) ----
         {
             "lesson": 2, "difficulty": "MEDIUM",
             "text": "Why is standard email a poor choice for genuinely sensitive information?",
@@ -616,16 +518,16 @@ QUIZ = {
         },
         {
             "lesson": 2, "difficulty": "MEDIUM",
-            "text": "On public Wi-Fi, what is an 'evil twin'?",
+            "text": "A colleague needs a client's file. What is the safest way to share it?",
             "options": [
-                ("A fake hotspot set up with a familiar name, so your traffic routes through the attacker", True,
-                 "Yes. It mimics a trusted network's name. Connect to it and everything you send passes through the attacker."),
-                ("A second phone that copies yours", False,
-                 "No. An evil twin is a rogue Wi-Fi hotspot with a familiar name, not a cloned phone."),
-                ("A virus that duplicates your files", False,
-                 "No. That is not it. An evil twin is a fake Wi-Fi network used to intercept traffic."),
-                ("A backup copy of a website", False,
-                 "No. An evil twin is a rogue hotspot impersonating a trusted network."),
+                ("A link restricted to them, view-only, that expires and can be revoked", True,
+                 "Yes. A permissioned link keeps you in control of who can open it and lets you take access back later."),
+                ("Email the whole file as an attachment so they have their own copy", False,
+                 "No. A loose copy can be forwarded anywhere and never recalled. Share a controlled link instead."),
+                ("Post a public 'anyone with the link' share in the team chat", False,
+                 "No. Anyone who sees or forwards that link can open the file. That is a leak."),
+                ("Give them full edit access to the whole drive to save time", False,
+                 "No. That hands over far more than needed. Give the least access required, with an expiry."),
             ],
         },
         {
@@ -644,16 +546,16 @@ QUIZ = {
         },
         {
             "lesson": 2, "difficulty": "MEDIUM",
-            "text": "What does a VPN do for you on public Wi-Fi?",
+            "text": "An unexpected email asks you to pay an invoice or share a document urgently. What is the most reliable way to check it before acting?",
             "options": [
-                ("It wraps your traffic in encryption, so an eavesdropper on the network sees only scrambled data", True,
-                 "Yes. A VPN builds an encrypted tunnel, so even on an untrusted network your traffic is unreadable to anyone watching."),
-                ("It makes the Wi-Fi faster", False,
-                 "No. A VPN is about privacy, not speed. It encrypts your traffic across the network."),
-                ("It removes the need for any passwords", False,
-                 "No. You still sign in to your accounts. A VPN encrypts the connection you use to reach them."),
-                ("It blocks all viruses automatically", False,
-                 "No. A VPN is not antivirus. It encrypts your traffic so it cannot be read in transit."),
+                ("Confirm the request through a separate channel you already trust, such as a known phone number", True,
+                 "Yes. Verifying on a channel the message did not provide is the one check an attacker cannot answer for you."),
+                ("Reply to the email and ask if it is genuine", False,
+                 "No. If it is a scam, you are asking the scammer. Verify a different way."),
+                ("Check whether the email has the company logo", False,
+                 "No. Logos are trivial to copy. Confirm the request on a separate trusted channel."),
+                ("Act quickly, since it says it is urgent", False,
+                 "No. Manufactured urgency is the trick. Slow down and verify on a channel you already trust."),
             ],
         },
     ],

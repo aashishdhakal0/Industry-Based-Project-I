@@ -41,6 +41,9 @@ urlpatterns = [
     # The Administrator dashboard — the in-platform staff experience. Django's
     # own /admin/ stays available above for raw data management.
     path("manage/", include("staff.urls")),
+    # Certificate PDF download and the PUBLIC verification page (/verify/<serial>/,
+    # no login — anyone can confirm a credential is genuine).
+    path("", include("certificates.urls")),
     path("", include("authentication.urls")),
 ]
 

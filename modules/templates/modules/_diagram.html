@@ -6,14 +6,22 @@
 {% if key == "cia-triad" %}
   <figure class="cy-diagram" role="img"
           aria-label="The three pillars of security as a status board. Confidentiality: can only the right people see it. Integrity: is it accurate and unaltered. Availability: is it there when you need it. Below, an incident: a supplier invoice arrives with its bank account quietly changed, but the file still opens and nobody is locked out.">
-    <div class="cy-ciab">
-      <div class="cy-ciab__c cy-ciab__c--c"><div class="cy-ciab__t"><span class="cy-ciab__b">C</span> Confidentiality</div><p class="cy-ciab__q">Can only the right people see it?</p></div>
-      <div class="cy-ciab__c cy-ciab__c--i"><div class="cy-ciab__t"><span class="cy-ciab__b">I</span> Integrity</div><p class="cy-ciab__q">Is it accurate and unaltered?</p></div>
-      <div class="cy-ciab__c cy-ciab__c--a"><div class="cy-ciab__t"><span class="cy-ciab__b">A</span> Availability</div><p class="cy-ciab__q">Is it there when you need it?</p></div>
-    </div>
-    <div class="cy-ticket">
-      <span class="cy-ticket__h">Incident &middot; 09:22</span>
-      <p class="cy-ticket__b">A supplier's invoice arrives with its bank account quietly changed. The file still opens fine and nobody is locked out.</p>
+    <div class="cy-scr cy-scr--win">
+      <div class="cy-scr__chrome">
+        <span class="cy-scr__title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 3l7 3v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/><path d="M9 12l2 2 4-4"/></svg>Security status board</span>
+        <span class="cy-scr__winctl">&#8722; &#9633; &#10005;</span>
+      </div>
+      <div class="cy-scr__body">
+        <div class="cy-ciab">
+          <div class="cy-ciab__c cy-ciab__c--c"><div class="cy-ciab__t"><span class="cy-ciab__b">C</span> Confidentiality</div><p class="cy-ciab__q">Can only the right people see it?</p></div>
+          <div class="cy-ciab__c cy-ciab__c--i"><div class="cy-ciab__t"><span class="cy-ciab__b">I</span> Integrity</div><p class="cy-ciab__q">Is it accurate and unaltered?</p></div>
+          <div class="cy-ciab__c cy-ciab__c--a"><div class="cy-ciab__t"><span class="cy-ciab__b">A</span> Availability</div><p class="cy-ciab__q">Is it there when you need it?</p></div>
+        </div>
+        <div class="cy-ticket">
+          <span class="cy-ticket__h">Incident &middot; 09:22</span>
+          <p class="cy-ticket__b">A supplier's invoice arrives with its bank account quietly changed. The file still opens fine and nobody is locked out.</p>
+        </div>
+      </div>
     </div>
     <figcaption class="cy-diagram__cap cy-diagram__cap--single">
       Read the three pillars, then the incident. Which pillar has failed?
@@ -38,23 +46,35 @@
   </figure>
 
 {% elif key == "phishing-email" %}
-  <figure class="cy-diagram cy-email" role="img"
-          aria-label="An annotated suspicious email: a lookalike sender address, an urgent deadline, and a risky link.">
-    <div class="cy-email__card">
-      <div class="cy-email__line">
-        <span class="cy-email__k">From</span>
-        <span class="cy-email__v">Flour Supplier &lt;<mark class="cy-email__flag">billing@flour-supplier-au.info</mark>&gt;</span>
+  <figure class="cy-diagram" role="img"
+          aria-label="A suspicious email open in a webmail browser window: a lookalike sender address billing at flour-supplier-au dot info, an urgent deadline to pay within the hour, and a risky View the invoice link, each flagged as a red flag.">
+    <div class="cy-scr cy-scr--browser">
+      <div class="cy-scr__chrome">
+        <span class="cy-scr__dots"><i></i><i></i><i></i></span>
+        <span class="cy-scr__tab"><b style="background:#d93636"></b><span>Mail &middot; Inbox</span></span>
       </div>
-      <p class="cy-email__note">Lookalike domain, not your real supplier's address.</p>
-      <div class="cy-email__line">
-        <span class="cy-email__k">Subject</span>
-        <span class="cy-email__v"><mark class="cy-email__flag">Pay the overdue invoice within the hour or deliveries stop</mark></span>
+      <div class="cy-scr__addr">
+        <span class="cy-scr__nav">&#8592; &#8594;</span>
+        <span class="cy-scr__url"><span class="cy-scr__lock"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 10V7a6 6 0 0111 0v3"/><rect x="4" y="10" width="16" height="10" rx="2"/></svg></span><span>mail.yourbakery.com.au/inbox</span></span>
       </div>
-      <p class="cy-email__note">Urgency and a deadline, designed to stop you thinking.</p>
-      <div class="cy-email__body">
-        Our bank details have changed. <mark class="cy-email__flag">View the invoice</mark>
+      <div class="cy-scr__body">
+        <div class="cy-email">
+          <div class="cy-email__line">
+            <span class="cy-email__k">From</span>
+            <span class="cy-email__v">Flour Supplier &lt;<mark class="cy-email__flag">billing@flour-supplier-au.info</mark>&gt;</span>
+          </div>
+          <p class="cy-email__note">Lookalike domain, not your real supplier's address.</p>
+          <div class="cy-email__line">
+            <span class="cy-email__k">Subject</span>
+            <span class="cy-email__v"><mark class="cy-email__flag">Pay the overdue invoice within the hour or deliveries stop</mark></span>
+          </div>
+          <p class="cy-email__note">Urgency and a deadline, designed to stop you thinking.</p>
+          <div class="cy-email__body">
+            Our bank details have changed. <mark class="cy-email__flag">View the invoice</mark>
+          </div>
+          <p class="cy-email__note">An unexpected link and a change of bank details. Do not click; verify by phone.</p>
+        </div>
       </div>
-      <p class="cy-email__note">An unexpected link and a change of bank details. Do not click; verify by phone.</p>
     </div>
   </figure>
 
@@ -83,13 +103,23 @@
   </figure>
 
 {% elif key == "defence-in-depth" %}
-  <figure class="cy-diagram cy-layers" role="img"
+  <figure class="cy-diagram" role="img"
           aria-label="Defence in depth: several simple habits layered, so if one is missed the next still protects what matters.">
-    <div class="cy-layers__l cy-layers__l--1"><span class="cy-layers__tag">Updates</span>
-      <div class="cy-layers__l cy-layers__l--2"><span class="cy-layers__tag">Strong passwords</span>
-        <div class="cy-layers__l cy-layers__l--3"><span class="cy-layers__tag">Two-factor</span>
-          <div class="cy-layers__l cy-layers__l--4"><span class="cy-layers__tag">Backups</span>
-            <div class="cy-layers__core">What matters</div>
+    <div class="cy-scr cy-scr--win">
+      <div class="cy-scr__chrome">
+        <span class="cy-scr__title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 3l9 5-9 5-9-5z"/><path d="M3 12l9 5 9-5M3 16l9 5 9-5"/></svg>Defence in depth</span>
+        <span class="cy-scr__winctl">&#8722; &#9633; &#10005;</span>
+      </div>
+      <div class="cy-scr__body">
+        <div class="cy-layers">
+          <div class="cy-layers__l cy-layers__l--1"><span class="cy-layers__tag">Updates</span>
+            <div class="cy-layers__l cy-layers__l--2"><span class="cy-layers__tag">Strong passwords</span>
+              <div class="cy-layers__l cy-layers__l--3"><span class="cy-layers__tag">Two-factor</span>
+                <div class="cy-layers__l cy-layers__l--4"><span class="cy-layers__tag">Backups</span>
+                  <div class="cy-layers__core">What matters</div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -100,16 +130,26 @@
   </figure>
 
 {% elif key == "malware-family" %}
-  <figure class="cy-diagram cy-tree" role="img"
+  <figure class="cy-diagram" role="img"
           aria-label="The malware family: malware is the umbrella term, with viruses, worms, trojans, spyware and ransomware as members.">
-    <div class="cy-tree__root">Malware</div>
-    <div class="cy-tree__stem" aria-hidden="true"></div>
-    <div class="cy-tree__kids">
-      <span class="cy-tree__kid">Virus</span>
-      <span class="cy-tree__kid">Worm</span>
-      <span class="cy-tree__kid">Trojan</span>
-      <span class="cy-tree__kid">Spyware</span>
-      <span class="cy-tree__kid">Ransomware</span>
+    <div class="cy-scr cy-scr--win">
+      <div class="cy-scr__chrome">
+        <span class="cy-scr__title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 8a4 4 0 018 0M12 12v7M6 10H3m3 4H4m14-4h3m-3 4h2M8 12H5.5m0 0a6.5 6.5 0 0013 0"/><circle cx="12" cy="9" r="4"/></svg>Malware family</span>
+        <span class="cy-scr__winctl">&#8722; &#9633; &#10005;</span>
+      </div>
+      <div class="cy-scr__body">
+        <div class="cy-tree">
+          <div class="cy-tree__root">Malware</div>
+          <div class="cy-tree__stem" aria-hidden="true"></div>
+          <div class="cy-tree__kids">
+            <span class="cy-tree__kid">Virus</span>
+            <span class="cy-tree__kid">Worm</span>
+            <span class="cy-tree__kid">Trojan</span>
+            <span class="cy-tree__kid">Spyware</span>
+            <span class="cy-tree__kid">Ransomware</span>
+          </div>
+        </div>
+      </div>
     </div>
     <figcaption class="cy-diagram__cap cy-diagram__cap--single">
       Malware is the family. A virus is just one member, alongside worms, trojans, spyware and ransomware.
@@ -197,15 +237,25 @@
   </figure>
 
 {% elif key == "firewall" %}
-  <figure class="cy-diagram cy-fw" role="img"
+  <figure class="cy-diagram" role="img"
           aria-label="A firewall between the internet and your network, allowing wanted traffic and blocking the rest.">
-    <div class="cy-fw__row">
-      <span class="cy-fw__end cy-fw__end--net">The internet</span>
-      <span class="cy-fw__gate">
-        <svg class="cy-i" aria-hidden="true"><use href="#i-shield"/></svg>
-        <span>Firewall</span>
-      </span>
-      <span class="cy-fw__end cy-fw__end--you">Your network</span>
+    <div class="cy-scr cy-scr--win">
+      <div class="cy-scr__chrome">
+        <span class="cy-scr__title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="1.5"/><path d="M3 9h18M3 15h18M9 4v5m6-5v5M6 15v5m12-5v5"/></svg>Firewall</span>
+        <span class="cy-scr__winctl">&#8722; &#9633; &#10005;</span>
+      </div>
+      <div class="cy-scr__body">
+        <div class="cy-fw">
+          <div class="cy-fw__row">
+            <span class="cy-fw__end cy-fw__end--net">The internet</span>
+            <span class="cy-fw__gate">
+              <svg class="cy-i" aria-hidden="true"><use href="#i-shield"/></svg>
+              <span>Firewall</span>
+            </span>
+            <span class="cy-fw__end cy-fw__end--you">Your network</span>
+          </div>
+        </div>
+      </div>
     </div>
     <figcaption class="cy-diagram__cap">
       <span><b>Wanted traffic</b> (your browsing and email) is allowed through.</span>
@@ -214,12 +264,22 @@
   </figure>
 
 {% elif key == "segmentation" %}
-  <figure class="cy-diagram cy-seg" role="img"
+  <figure class="cy-diagram" role="img"
           aria-label="A segmented network divided into separate guest, staff and sensitive zones, so a problem in one is contained.">
-    <div class="cy-seg__zones">
-      <span class="cy-seg__zone">Guest</span>
-      <span class="cy-seg__zone">Staff</span>
-      <span class="cy-seg__zone cy-seg__zone--locked">Sensitive</span>
+    <div class="cy-scr cy-scr--win">
+      <div class="cy-scr__chrome">
+        <span class="cy-scr__title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Network zones</span>
+        <span class="cy-scr__winctl">&#8722; &#9633; &#10005;</span>
+      </div>
+      <div class="cy-scr__body">
+        <div class="cy-seg">
+          <div class="cy-seg__zones">
+            <span class="cy-seg__zone">Guest</span>
+            <span class="cy-seg__zone">Staff</span>
+            <span class="cy-seg__zone cy-seg__zone--locked">Sensitive</span>
+          </div>
+        </div>
+      </div>
     </div>
     <figcaption class="cy-diagram__cap cy-diagram__cap--single">
       Separate zones, like watertight compartments: trouble in one is sealed off from the rest.
@@ -243,29 +303,49 @@
   </figure>
 
 {% elif key == "ir-lifecycle" %}
-  <figure class="cy-diagram cy-ir" role="img"
+  <figure class="cy-diagram" role="img"
           aria-label="The incident response lifecycle: Preparation, Identification, Containment, Eradication, Recovery, Lessons Learned, looping back to Preparation.">
-    <ol class="cy-ir__ring">
-      <li class="cy-ir__phase"><span class="cy-ir__n">1</span> Preparation</li>
-      <li class="cy-ir__phase"><span class="cy-ir__n">2</span> Identification</li>
-      <li class="cy-ir__phase"><span class="cy-ir__n">3</span> Containment</li>
-      <li class="cy-ir__phase"><span class="cy-ir__n">4</span> Eradication</li>
-      <li class="cy-ir__phase"><span class="cy-ir__n">5</span> Recovery</li>
-      <li class="cy-ir__phase"><span class="cy-ir__n">6</span> Lessons Learned</li>
-    </ol>
+    <div class="cy-scr cy-scr--win">
+      <div class="cy-scr__chrome">
+        <span class="cy-scr__title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M21 12a9 9 0 11-2.6-6.4M21 4v4h-4"/></svg>Incident response playbook</span>
+        <span class="cy-scr__winctl">&#8722; &#9633; &#10005;</span>
+      </div>
+      <div class="cy-scr__body">
+        <div class="cy-ir">
+          <ol class="cy-ir__ring">
+            <li class="cy-ir__phase"><span class="cy-ir__n">1</span> Preparation</li>
+            <li class="cy-ir__phase"><span class="cy-ir__n">2</span> Identification</li>
+            <li class="cy-ir__phase"><span class="cy-ir__n">3</span> Containment</li>
+            <li class="cy-ir__phase"><span class="cy-ir__n">4</span> Eradication</li>
+            <li class="cy-ir__phase"><span class="cy-ir__n">5</span> Recovery</li>
+            <li class="cy-ir__phase"><span class="cy-ir__n">6</span> Lessons Learned</li>
+          </ol>
+        </div>
+      </div>
+    </div>
     <figcaption class="cy-diagram__cap cy-diagram__cap--single">
       Six phases in order, and the last loops back to make your preparation stronger for next time.
     </figcaption>
   </figure>
 
 {% elif key == "breach-notify" %}
-  <figure class="cy-diagram cy-notify" role="img"
+  <figure class="cy-diagram" role="img"
           aria-label="Breach notification: a breach that is likely to cause serious harm is notified to the affected people and the OAIC.">
-    <div class="cy-notify__row">
-      <span class="cy-notify__step">Breach likely to cause serious harm</span>
-      <span class="cy-notify__arrow" aria-hidden="true"><svg class="cy-i"><use href="#i-arrow-right"/></svg></span>
-      <span class="cy-notify__step cy-notify__step--tell">Tell the affected people</span>
-      <span class="cy-notify__step cy-notify__step--tell">Tell the OAIC</span>
+    <div class="cy-scr cy-scr--win">
+      <div class="cy-scr__chrome">
+        <span class="cy-scr__title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M18 8a6 6 0 00-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 01-3.4 0"/></svg>Privacy Act &middot; Notifiable Data Breaches</span>
+        <span class="cy-scr__winctl">&#8722; &#9633; &#10005;</span>
+      </div>
+      <div class="cy-scr__body">
+        <div class="cy-notify">
+          <div class="cy-notify__row">
+            <span class="cy-notify__step">Breach likely to cause serious harm</span>
+            <span class="cy-notify__arrow" aria-hidden="true"><svg class="cy-i"><use href="#i-arrow-right"/></svg></span>
+            <span class="cy-notify__step cy-notify__step--tell">Tell the affected people</span>
+            <span class="cy-notify__step cy-notify__step--tell">Tell the OAIC</span>
+          </div>
+        </div>
+      </div>
     </div>
     <figcaption class="cy-diagram__cap cy-diagram__cap--single">
       As soon as practicable. General information only, not legal advice: check your own obligations.
@@ -330,25 +410,36 @@
   </figure>
 
 {% elif key == "router-admin" %}
-  <figure class="cy-diagram cy-radmin" role="img"
-          aria-label="A router admin settings page. Admin password is still set to admin. Wi-Fi encryption is WPA2 On. The guest network is On and Open with no password. Firmware is up to date.">
-    <div class="cy-radmin__top"><span class="cy-radmin__brand">HG-2400</span> Router admin &nbsp;&middot;&nbsp; 192.168.0.1</div>
-    <div class="cy-radmin__wrap">
-      <div class="cy-radmin__menu">
-        <span class="cy-radmin__mi">Status</span>
-        <span class="cy-radmin__mi is-on">Security</span>
-        <span class="cy-radmin__mi">Wireless</span>
-        <span class="cy-radmin__mi">Devices</span>
+  <figure class="cy-diagram" role="img"
+          aria-label="A router admin settings page open in a browser at http 192.168.0.1, marked not secure. Admin password is still set to admin. Wi-Fi encryption is WPA2 On. The guest network is On and Open with no password. Firmware is up to date.">
+    <div class="cy-scr cy-scr--browser">
+      <div class="cy-scr__chrome">
+        <span class="cy-scr__dots"><i></i><i></i><i></i></span>
+        <span class="cy-scr__tab"><b style="background:#0899b8"></b><span>HG-2400 Router admin</span></span>
       </div>
-      <div class="cy-radmin__form">
-        <div class="cy-radmin__row"><span class="cy-radmin__k">Admin password</span><span class="cy-radmin__v">admin</span></div>
-        <div class="cy-radmin__row"><span class="cy-radmin__k">Wi-Fi encryption</span><span class="cy-radmin__pill cy-radmin__pill--on">WPA2 On</span></div>
-        <div class="cy-radmin__row"><span class="cy-radmin__k">Guest network</span><span class="cy-radmin__pill cy-radmin__pill--open">On &middot; Open (no password)</span></div>
-        <div class="cy-radmin__row"><span class="cy-radmin__k">Firmware</span><span class="cy-radmin__v">up to date</span></div>
+      <div class="cy-scr__addr">
+        <span class="cy-scr__nav">&#8592; &#8594;</span>
+        <span class="cy-scr__url cy-scr__url--insecure"><span class="cy-scr__lock"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 10V7a6 6 0 0111 0"/><rect x="4" y="10" width="16" height="10" rx="2"/></svg></span><span class="cy-scr__insecure">Not secure</span>&nbsp;192.168.0.1/settings</span>
+      </div>
+      <div class="cy-scr__body">
+        <div class="cy-radmin__wrap">
+          <div class="cy-radmin__menu">
+            <span class="cy-radmin__mi">Status</span>
+            <span class="cy-radmin__mi is-on">Security</span>
+            <span class="cy-radmin__mi">Wireless</span>
+            <span class="cy-radmin__mi">Devices</span>
+          </div>
+          <div class="cy-radmin__form">
+            <div class="cy-radmin__row"><span class="cy-radmin__k">Admin password</span><span class="cy-radmin__v">admin</span></div>
+            <div class="cy-radmin__row"><span class="cy-radmin__k">Wi-Fi encryption</span><span class="cy-radmin__pill cy-radmin__pill--on">WPA2 On</span></div>
+            <div class="cy-radmin__row"><span class="cy-radmin__k">Guest network</span><span class="cy-radmin__pill cy-radmin__pill--open">On &middot; Open (no password)</span></div>
+            <div class="cy-radmin__row"><span class="cy-radmin__k">Firmware</span><span class="cy-radmin__v">up to date</span></div>
+          </div>
+        </div>
       </div>
     </div>
     <figcaption class="cy-diagram__cap cy-diagram__cap--single">
-      The router's own settings page. Read the four rows: three are fine, one is a wide-open door.
+      The router's own settings page, open in a browser. Read the four rows: three are fine, one is a wide-open door.
     </figcaption>
   </figure>
 
@@ -419,22 +510,32 @@
   </figure>
 
 {% elif key == "fake-update" %}
-  <figure class="cy-diagram cy-fupd" role="img"
-          aria-label="A pop-up on a website. A red warning header reads Warning, your Flash Player is out of date. The address bar shows free-hd-movies-stream dot info. It urges you to download an update now, with a big Download Update button and a scary message that your computer is at risk.">
-    <div class="cy-fupd__addr">
-      <svg class="cy-i cy-fupd__lock" aria-hidden="true"><use href="#i-close"/></svg>
-      <span class="cy-fupd__url">free-hd-movies-stream.info/watch?id=8842</span>
-    </div>
-    <div class="cy-fupd__pop">
-      <div class="cy-fupd__head">
-        <svg class="cy-i" aria-hidden="true"><use href="#i-close"/></svg>
-        <span>Warning: your Flash Player is out of date</span>
+  <figure class="cy-diagram" role="img"
+          aria-label="A pop-up on a website open in a browser. The address bar shows free-hd-movies-stream dot info, marked not secure. A red warning header reads Warning, your Flash Player is out of date. It urges you to download an update now, with a big Download Update button and a scary message that your computer is at risk.">
+    <div class="cy-scr cy-scr--browser">
+      <div class="cy-scr__chrome">
+        <span class="cy-scr__dots"><i></i><i></i><i></i></span>
+        <span class="cy-scr__tab"><b style="background:#8a5a2b"></b><span>Watch free HD movies online</span></span>
       </div>
-      <div class="cy-fupd__body">
-        <p>Your <b>Adobe Flash Player</b> is out of date and your computer is <b>at risk</b>. You must update now to keep watching and stay protected.</p>
-        <p class="cy-fupd__count">Recommended update expires in 02:58</p>
-        <button type="button" class="cy-fupd__btn">Download Update</button>
-        <span class="cy-fupd__later">Not now</span>
+      <div class="cy-scr__addr">
+        <span class="cy-scr__nav">&#8592; &#8594;</span>
+        <span class="cy-scr__url cy-scr__url--insecure"><span class="cy-scr__lock"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 10V7a6 6 0 0111 0"/><rect x="4" y="10" width="16" height="10" rx="2"/></svg></span><span class="cy-scr__insecure">Not secure</span>&nbsp;free-hd-movies-stream.info</span>
+      </div>
+      <div class="cy-scr__body">
+        <div class="cy-fupd">
+          <div class="cy-fupd__pop">
+            <div class="cy-fupd__head">
+              <svg class="cy-i" aria-hidden="true"><use href="#i-close"/></svg>
+              <span>Warning: your Flash Player is out of date</span>
+            </div>
+            <div class="cy-fupd__body">
+              <p>Your <b>Adobe Flash Player</b> is out of date and your computer is <b>at risk</b>. You must update now to keep watching and stay protected.</p>
+              <p class="cy-fupd__count">Recommended update expires in 02:58</p>
+              <button type="button" class="cy-fupd__btn">Download Update</button>
+              <span class="cy-fupd__later">Not now</span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
     <figcaption class="cy-diagram__cap cy-diagram__cap--single">
@@ -483,35 +584,55 @@
   </figure>
 
 {% elif key == "attachment-exe" %}
-  <figure class="cy-diagram cy-mail" role="img"
-          aria-label="An email from Accounts. Subject: invoice attached. It has one attachment named Invoice underscore 4471 dot pdf dot exe, an application of 84 kilobytes.">
-    <div class="cy-mail__bar"><span class="cy-mail__ic">&#8592;</span><span class="cy-mail__spam">Report spam</span></div>
-    <div class="cy-mail__subj">Invoice #4471 attached, please pay promptly</div>
-    <div class="cy-mail__meta">
-      <span class="cy-mail__av">A</span>
-      <span class="cy-mail__who"><b>Accounts</b> <span class="em">&lt;billing@invoices-au-secure.net&gt;</span><br><span class="cy-mail__to">to accounts@yourclinic.com.au</span></span>
-      <span class="cy-mail__date">Mon 8:12 AM</span>
-    </div>
-    <div class="cy-mail__body">
-      Hi,<br><br>
-      Please find this month's invoice attached. Open it to view the amount due.
-      <span class="cy-mail__att cy-mail__att--exe"><svg class="cy-i" aria-hidden="true"><use href="#i-close"/></svg> Invoice_4471.pdf.exe <span class="cy-mail__attmeta">application &middot; 84 KB</span></span>
+  <figure class="cy-diagram" role="img"
+          aria-label="A webmail inbox open in a browser at https mail dot yourclinic dot com dot au. An email from Accounts. Subject: invoice attached. It has one attachment named Invoice underscore 4471 dot pdf dot exe, an application of 84 kilobytes.">
+    <div class="cy-scr cy-scr--browser">
+      <div class="cy-scr__chrome">
+        <span class="cy-scr__dots"><i></i><i></i><i></i></span>
+        <span class="cy-scr__tab"><b style="background:#d93636"></b><span>Mail &middot; Inbox (1)</span></span>
+      </div>
+      <div class="cy-scr__addr">
+        <span class="cy-scr__nav">&#8592; &#8594;</span>
+        <span class="cy-scr__url"><span class="cy-scr__lock"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 10V7a6 6 0 0111 0v3"/><rect x="4" y="10" width="16" height="10" rx="2"/></svg></span><span>mail.yourclinic.com.au/inbox</span></span>
+      </div>
+      <div class="cy-scr__body">
+        <div class="cy-mail">
+          <div class="cy-mail__subj">Invoice #4471 attached, please pay promptly</div>
+          <div class="cy-mail__meta">
+            <span class="cy-mail__av">A</span>
+            <span class="cy-mail__who"><b>Accounts</b> <span class="em">&lt;billing@invoices-au-secure.net&gt;</span><br><span class="cy-mail__to">to accounts@yourclinic.com.au</span></span>
+            <span class="cy-mail__date">Mon 8:12 AM</span>
+          </div>
+          <div class="cy-mail__body">
+            Hi,<br><br>
+            Please find this month's invoice attached. Open it to view the amount due.
+            <span class="cy-mail__att cy-mail__att--exe"><svg class="cy-i" aria-hidden="true"><use href="#i-close"/></svg> Invoice_4471.pdf.exe <span class="cy-mail__attmeta">application &middot; 84 KB</span></span>
+          </div>
+        </div>
+      </div>
     </div>
   </figure>
 
 {% elif key == "locked-files" %}
-  <figure class="cy-diagram cy-fx" role="img"
-          aria-label="A file explorer window titled Documents. Every file is renamed with a dot locked ending: photos dot jpg dot locked, budget 2026 dot xlsx dot locked, clients dot docx dot locked, and a file named read me to unlock dot txt.">
-    <div class="cy-fx__bar">
-      <span class="cy-fx__dots" aria-hidden="true"><i></i><i></i><i></i></span>
-      <span class="cy-fx__path">This PC &rsaquo; Documents</span>
+  <figure class="cy-diagram" role="img"
+          aria-label="A Windows File Explorer window showing the Documents folder. Every file is renamed with a dot locked ending: photos dot jpg dot locked, budget 2026 dot xlsx dot locked, clients dot docx dot locked, and a file named read me to unlock dot txt.">
+    <div class="cy-scr cy-scr--win">
+      <div class="cy-scr__chrome">
+        <span class="cy-scr__title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>File Explorer</span>
+        <span class="cy-scr__winctl">&#8722; &#9633; &#10005;</span>
+      </div>
+      <div class="cy-scr__menu"><span>This PC &rsaquo; Documents</span><span>4 items</span></div>
+      <div class="cy-scr__body">
+        <div class="cy-fx">
+          <ul class="cy-fx__list">
+            <li class="cy-fx__row"><svg class="cy-i cy-fx__lk" aria-hidden="true"><use href="#i-lock"/></svg><span class="cy-fx__name">photos.jpg.locked</span><span class="cy-fx__type">LOCKED File</span></li>
+            <li class="cy-fx__row"><svg class="cy-i cy-fx__lk" aria-hidden="true"><use href="#i-lock"/></svg><span class="cy-fx__name">budget_2026.xlsx.locked</span><span class="cy-fx__type">LOCKED File</span></li>
+            <li class="cy-fx__row"><svg class="cy-i cy-fx__lk" aria-hidden="true"><use href="#i-lock"/></svg><span class="cy-fx__name">clients.docx.locked</span><span class="cy-fx__type">LOCKED File</span></li>
+            <li class="cy-fx__row cy-fx__row--note"><svg class="cy-i" aria-hidden="true"><use href="#i-book"/></svg><span class="cy-fx__name">READ_ME_TO_UNLOCK.txt</span><span class="cy-fx__type">Text</span></li>
+          </ul>
+        </div>
+      </div>
     </div>
-    <ul class="cy-fx__list">
-      <li class="cy-fx__row"><svg class="cy-i cy-fx__lk" aria-hidden="true"><use href="#i-lock"/></svg><span class="cy-fx__name">photos.jpg.locked</span><span class="cy-fx__type">LOCKED File</span></li>
-      <li class="cy-fx__row"><svg class="cy-i cy-fx__lk" aria-hidden="true"><use href="#i-lock"/></svg><span class="cy-fx__name">budget_2026.xlsx.locked</span><span class="cy-fx__type">LOCKED File</span></li>
-      <li class="cy-fx__row"><svg class="cy-i cy-fx__lk" aria-hidden="true"><use href="#i-lock"/></svg><span class="cy-fx__name">clients.docx.locked</span><span class="cy-fx__type">LOCKED File</span></li>
-      <li class="cy-fx__row cy-fx__row--note"><svg class="cy-i" aria-hidden="true"><use href="#i-book"/></svg><span class="cy-fx__name">READ_ME_TO_UNLOCK.txt</span><span class="cy-fx__type">Text</span></li>
-    </ul>
     <figcaption class="cy-diagram__cap cy-diagram__cap--single">
       Every document renamed with the same new ending, and a read-me left behind. The files are still here, just locked.
     </figcaption>
@@ -535,15 +656,21 @@
   </figure>
 
 {% elif key == "sms-phish" %}
-  <figure class="cy-diagram cy-sms" role="img"
-          aria-label="A phishing text message on a phone. From a number showing as AusPost-Alerts. Message: Your parcel is held pending a 3 dollar 99 redelivery fee. Confirm at aus-post-redelivery dot info within 24 hours or it is returned. There is a link and a countdown.">
-    <div class="cy-sms__phone">
-      <div class="cy-sms__bar"><span>9:41</span><span class="cy-sms__sig">&bull;&bull;&bull; &#9679;</span></div>
-      <div class="cy-sms__from">AusPost-Alerts</div>
-      <div class="cy-sms__bubble">
-        Your parcel is held pending a $3.99 redelivery fee. Confirm your address at <span class="cy-sms__link">aus-post-redelivery.info</span> within 24 hours or it will be returned to sender.
+  <figure class="cy-diagram" role="img"
+          aria-label="A phishing text message on a phone. The status bar shows 9:41, signal, Wi-Fi and battery. The Messages app shows a sender AusPost-Alerts. Message: Your parcel is held pending a 3 dollar 99 redelivery fee. Confirm your address at aus-post-redelivery dot info within 24 hours or it will be returned to sender.">
+    <div class="cy-scr cy-scr--phone">
+      <div class="cy-scr__status">
+        <span>9:41</span>
+        <span class="cy-scr__sig">&bull;&bull;&bull;&bull;&ensp;<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="height:.8rem;width:.8rem" aria-hidden="true"><path d="M4.5 11a11 11 0 0115 0M7.5 14a7 7 0 019 0"/><circle cx="12" cy="17.5" r="1" fill="currentColor" stroke="none"/></svg>&ensp;<svg viewBox="0 0 26 14" fill="none" stroke="currentColor" stroke-width="1.4" style="height:.7rem;width:1.3rem" aria-hidden="true"><rect x="1" y="2" width="20" height="10" rx="2"/><rect x="3" y="4" width="14" height="6" rx="1" fill="currentColor"/><path d="M23 5v4" stroke-linecap="round"/></svg></span>
       </div>
-      <div class="cy-sms__time">now</div>
+      <div class="cy-scr__appbar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="height:.9rem;width:.9rem" aria-hidden="true"><path d="M21 11.5a8.5 8.5 0 01-12 7.7L3 21l1.8-5.4A8.5 8.5 0 1121 11.5z"/></svg> AusPost-Alerts</div>
+      <div class="cy-scr__body">
+        <div class="cy-sms__bubble">
+          Your parcel is held pending a $3.99 redelivery fee. Confirm your address at <span class="cy-sms__link">aus-post-redelivery.info</span> within 24 hours or it will be returned to sender.
+        </div>
+        <div class="cy-sms__time">Text message &middot; now</div>
+      </div>
+      <div class="cy-scr__home"></div>
     </div>
     <figcaption class="cy-diagram__cap cy-diagram__cap--single">
       An unexpected text, a small fee, a tight deadline, and a lookalike link. That combination is smishing.
@@ -599,15 +726,29 @@
   </figure>
 
 {% elif key == "secure-share" %}
-  <figure class="cy-diagram cy-share" role="img"
-          aria-label="Two file-sharing link settings. The risky one: anyone with the link can view, no expiry. The safe one: restricted to specific people, password protected, expires in 7 days.">
-    <div class="cy-share__opt cy-share__opt--bad">
-      <div class="cy-share__head"><svg class="cy-i" aria-hidden="true"><use href="#i-close"/></svg> Anyone with the link can view</div>
-      <ul class="cy-share__list"><li>No sign-in needed</li><li>Never expires</li><li>Can be forwarded to anyone</li></ul>
-    </div>
-    <div class="cy-share__opt cy-share__opt--good">
-      <div class="cy-share__head"><svg class="cy-i" aria-hidden="true"><use href="#i-check"/></svg> Restricted to specific people</div>
-      <ul class="cy-share__list"><li>Password protected</li><li>Expires in 7 days</li><li>Access can be revoked</li></ul>
+  <figure class="cy-diagram" role="img"
+          aria-label="A cloud storage share dialog open in a browser, showing two link settings. The risky one: anyone with the link can view, no expiry. The safe one: restricted to specific people, password protected, expires in 7 days.">
+    <div class="cy-scr cy-scr--browser">
+      <div class="cy-scr__chrome">
+        <span class="cy-scr__dots"><i></i><i></i><i></i></span>
+        <span class="cy-scr__tab"><b style="background:#2b8bff"></b><span>Share &ldquo;Client_form.pdf&rdquo;</span></span>
+      </div>
+      <div class="cy-scr__addr">
+        <span class="cy-scr__nav">&#8592; &#8594;</span>
+        <span class="cy-scr__url"><span class="cy-scr__lock"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 10V7a6 6 0 0111 0v3"/><rect x="4" y="10" width="16" height="10" rx="2"/></svg></span><span>drive.yourclinic.com.au/share</span></span>
+      </div>
+      <div class="cy-scr__body">
+        <div class="cy-share">
+          <div class="cy-share__opt cy-share__opt--bad">
+            <div class="cy-share__head"><svg class="cy-i" aria-hidden="true"><use href="#i-close"/></svg> Anyone with the link can view</div>
+            <ul class="cy-share__list"><li>No sign-in needed</li><li>Never expires</li><li>Can be forwarded to anyone</li></ul>
+          </div>
+          <div class="cy-share__opt cy-share__opt--good">
+            <div class="cy-share__head"><svg class="cy-i" aria-hidden="true"><use href="#i-check"/></svg> Restricted to specific people</div>
+            <ul class="cy-share__list"><li>Password protected</li><li>Expires in 7 days</li><li>Access can be revoked</li></ul>
+          </div>
+        </div>
+      </div>
     </div>
     <figcaption class="cy-diagram__cap cy-diagram__cap--single">
       Same file, two links. The safe one controls who gets in, and lets you take it back.
@@ -615,13 +756,22 @@
   </figure>
 
 {% elif key == "wifi-evil-twin" %}
-  <figure class="cy-diagram cy-wifi" role="img"
-          aria-label="A Wi-Fi network list at a cafe. Two networks share almost the same name: Corner Cafe Free WiFi, open with no lock, and Corner_Cafe_Guest, also open. A caption warns an attacker can set up a lookalike hotspot, an evil twin, to capture your traffic.">
-    <div class="cy-wifi__panel">
-      <div class="cy-wifi__title">Wi-Fi</div>
-      <div class="cy-wifi__row cy-wifi__row--bad"><svg class="cy-i" aria-hidden="true"><use href="#i-eye"/></svg><span>Corner Cafe Free WiFi</span><span class="cy-wifi__open">open</span></div>
-      <div class="cy-wifi__row cy-wifi__row--bad"><svg class="cy-i" aria-hidden="true"><use href="#i-eye"/></svg><span>Corner_Cafe_Guest</span><span class="cy-wifi__open">open</span></div>
-      <div class="cy-wifi__row"><svg class="cy-i" aria-hidden="true"><use href="#i-lock"/></svg><span>TelstraAir</span><span class="cy-wifi__open">secured</span></div>
+  <figure class="cy-diagram" role="img"
+          aria-label="A phone Wi-Fi settings screen at a cafe. Two networks share almost the same name: Corner Cafe Free WiFi, open with no lock, and Corner_Cafe_Guest, also open. A third, TelstraAir, is secured. A caption warns an attacker can set up a lookalike hotspot, an evil twin, to capture your traffic.">
+    <div class="cy-scr cy-scr--phone">
+      <div class="cy-scr__status">
+        <span>9:41</span>
+        <span class="cy-scr__sig">&bull;&bull;&bull;&bull;&ensp;<svg viewBox="0 0 26 14" fill="none" stroke="currentColor" stroke-width="1.4" style="height:.7rem;width:1.3rem" aria-hidden="true"><rect x="1" y="2" width="20" height="10" rx="2"/><rect x="3" y="4" width="14" height="6" rx="1" fill="currentColor"/><path d="M23 5v4" stroke-linecap="round"/></svg></span>
+      </div>
+      <div class="cy-scr__appbar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="height:.9rem;width:.9rem" aria-hidden="true"><path d="M4.5 10a11 11 0 0115 0M7.5 13a7 7 0 019 0"/><circle cx="12" cy="16.5" r="1" fill="currentColor" stroke="none"/></svg> Wi-Fi</div>
+      <div class="cy-scr__body">
+        <div class="cy-wifi">
+          <div class="cy-wifi__row cy-wifi__row--bad"><svg class="cy-i" aria-hidden="true"><use href="#i-eye"/></svg><span>Corner Cafe Free WiFi</span><span class="cy-wifi__open">open</span></div>
+          <div class="cy-wifi__row cy-wifi__row--bad"><svg class="cy-i" aria-hidden="true"><use href="#i-eye"/></svg><span>Corner_Cafe_Guest</span><span class="cy-wifi__open">open</span></div>
+          <div class="cy-wifi__row"><svg class="cy-i" aria-hidden="true"><use href="#i-lock"/></svg><span>TelstraAir</span><span class="cy-wifi__open">secured</span></div>
+        </div>
+      </div>
+      <div class="cy-scr__home"></div>
     </div>
     <figcaption class="cy-diagram__cap cy-diagram__cap--single">
       Two near-identical open networks. One may be an evil twin, a fake hotspot set up to watch what you send. On open Wi-Fi, use your hotspot or a VPN.
@@ -834,5 +984,175 @@
     <figcaption class="cy-anim__cap">
       Recovery is deliberate, not a scramble: <b>clean backups brought back one system at a time, and verified.</b>
     </figcaption>
+  </figure>
+
+{% elif key == "wifi-devices" %}
+  <figure class="cy-diagram cy-wifid" role="img"
+          aria-label="A clinic Wi-Fi connected-devices screen. Four known devices are listed and tagged as belonging to the clinic: Reception iPad, Dr Chen's laptop, the waiting room TV and the clinic printer. A fifth row is an unknown device with an unfamiliar hardware address that joined two hours ago, flagged as not recognised.">
+    <div class="cy-wifid__win">
+      <div class="cy-wifid__bar">
+        <span class="cy-wifid__dot"></span><span class="cy-wifid__dot"></span><span class="cy-wifid__dot"></span>
+        <span class="cy-wifid__title"><b>Clinic Wi-Fi</b> &middot; Connected devices</span>
+        <span class="cy-wifid__wifi" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4.5 11a11 11 0 0115 0M7.5 14a7 7 0 019 0"/><circle cx="12" cy="17.5" r="1.1" fill="currentColor" stroke="none"/></svg>
+        </span>
+      </div>
+      <div class="cy-wifid__row">
+        <span class="cy-wifid__ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="6" y="3" width="12" height="18" rx="2"/><line x1="11" y1="18.5" x2="13" y2="18.5"/></svg></span>
+        <span class="cy-wifid__meta"><span class="cy-wifid__name">Reception iPad</span><span class="cy-wifid__sub">192.168.1.12 &middot; joined 9:01 am</span></span>
+        <span class="cy-wifid__tag">This clinic</span>
+      </div>
+      <div class="cy-wifid__row">
+        <span class="cy-wifid__ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="5" width="16" height="11" rx="1.5"/><line x1="2" y1="20" x2="22" y2="20"/></svg></span>
+        <span class="cy-wifid__meta"><span class="cy-wifid__name">Dr Chen&rsquo;s Laptop</span><span class="cy-wifid__sub">192.168.1.14 &middot; joined 8:32 am</span></span>
+        <span class="cy-wifid__tag">This clinic</span>
+      </div>
+      <div class="cy-wifid__row">
+        <span class="cy-wifid__ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="12" rx="1.5"/><line x1="8" y1="21" x2="16" y2="21"/></svg></span>
+        <span class="cy-wifid__meta"><span class="cy-wifid__name">Waiting Room TV</span><span class="cy-wifid__sub">192.168.1.20 &middot; joined 8:00 am</span></span>
+        <span class="cy-wifid__tag">This clinic</span>
+      </div>
+      <div class="cy-wifid__row">
+        <span class="cy-wifid__ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 9V3h12v6M6 18H4v-6h16v6h-2M8 13h8v8H8z"/></svg></span>
+        <span class="cy-wifid__meta"><span class="cy-wifid__name">Clinic Printer</span><span class="cy-wifid__sub">192.168.1.30 &middot; always on</span></span>
+        <span class="cy-wifid__tag">This clinic</span>
+      </div>
+      <div class="cy-wifid__row cy-wifid__row--unknown">
+        <span class="cy-wifid__ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.2a2.6 2.6 0 015 .4c0 1.8-2.5 2-2.5 3.9M12 17.4h.01"/></svg></span>
+        <span class="cy-wifid__meta"><span class="cy-wifid__name">UNKNOWN DEVICE</span><span class="cy-wifid__sub">4f:2a:9c:81:e0 &middot; joined 2 hours ago</span></span>
+        <span class="cy-wifid__tag">Not recognised</span>
+      </div>
+    </div>
+    <figcaption class="cy-diagram__cap cy-diagram__cap--single">
+      The list of everything connected to the clinic&rsquo;s Wi-Fi. Four are the clinic&rsquo;s own devices. One is a stranger.
+    </figcaption>
+  </figure>
+
+{% elif key == "data-journey" %}
+  <figure class="cy-diagram" role="img"
+          aria-label="An animation of data crossing the internet on two lanes. On the top lane, without the padlock, a login travels as readable text (user joe, password hunter2) and a listener on the internet reads it in the clear. On the bottom lane, with the padlock, the same login travels as scrambled characters and the listener cannot read it.">
+    <div class="cy-dj">
+      <div class="cy-dj__group">
+        <span class="cy-dj__tag cy-dj__tag--open">Without the padlock &middot; http</span>
+        <div class="cy-dj__lane cy-dj__lane--open">
+          <div class="cy-dj__node"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="1.5"/><line x1="8" y1="20" x2="16" y2="20"/></svg>Your device</div>
+          <div class="cy-dj__wire"></div>
+          <div class="cy-dj__node"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M6 16a4 4 0 010-8 5 5 0 019.6-1.5A3.5 3.5 0 0118 16z"/></svg>Internet<span class="cy-dj__listen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6z"/><circle cx="12" cy="12" r="2.5"/></svg>reads it</span></div>
+          <div class="cy-dj__wire"></div>
+          <div class="cy-dj__node"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="4" y="3" width="16" height="7" rx="1.5"/><rect x="4" y="14" width="16" height="7" rx="1.5"/><line x1="8" y1="6.5" x2="8" y2="6.5"/><line x1="8" y1="17.5" x2="8" y2="17.5"/></svg>Server</div>
+          <div class="cy-dj__pkt">user: joe &middot; pw: hunter2</div>
+        </div>
+      </div>
+      <div class="cy-dj__group">
+        <span class="cy-dj__tag cy-dj__tag--enc">With the padlock &middot; https</span>
+        <div class="cy-dj__lane cy-dj__lane--enc">
+          <div class="cy-dj__node"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="1.5"/><line x1="8" y1="20" x2="16" y2="20"/></svg>Your device</div>
+          <div class="cy-dj__wire"></div>
+          <div class="cy-dj__node"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M6 16a4 4 0 010-8 5 5 0 019.6-1.5A3.5 3.5 0 0118 16z"/></svg>Internet<span class="cy-dj__listen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6z"/><circle cx="12" cy="12" r="2.5"/></svg>can&rsquo;t read</span></div>
+          <div class="cy-dj__wire"></div>
+          <div class="cy-dj__node"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="4" y="3" width="16" height="7" rx="1.5"/><rect x="4" y="14" width="16" height="7" rx="1.5"/><line x1="8" y1="6.5" x2="8" y2="6.5"/><line x1="8" y1="17.5" x2="8" y2="17.5"/></svg>Server</div>
+          <div class="cy-dj__pkt">&bull;8f3a&bull;c1&bull;9e7d&bull;a204&bull;</div>
+        </div>
+      </div>
+      <p class="cy-dj__cap">The same login, two ways across the internet. Without the padlock, anyone in the middle can read it.</p>
+    </div>
+  </figure>
+
+{% elif key == "infection-spread" %}
+  <figure class="cy-diagram" role="img"
+          aria-label="An animation of malware spreading. On a flat network where every machine shares one space, opening an infected attachment spreads the infection from computer to computer until all are infected. On a segmented network, a barrier stops the infection after the first zone, so the other machines stay safe.">
+    <div class="cy-inf">
+      <div class="cy-inf__group cy-inf__group--flat">
+        <span class="cy-inf__tag cy-inf__tag--flat">Flat network &middot; nothing to stop it</span>
+        <div class="cy-inf__row">
+          <span class="cy-inf__pc cy-inf__pc--src"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="1.5"/><line x1="8" y1="20" x2="16" y2="20"/></svg>PC 1</span>
+          <span class="cy-inf__link">&#8212;</span>
+          <span class="cy-inf__pc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="1.5"/><line x1="8" y1="20" x2="16" y2="20"/></svg>PC 2</span>
+          <span class="cy-inf__link">&#8212;</span>
+          <span class="cy-inf__pc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="1.5"/><line x1="8" y1="20" x2="16" y2="20"/></svg>Server</span>
+          <span class="cy-inf__link">&#8212;</span>
+          <span class="cy-inf__pc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="1.5"/><line x1="8" y1="20" x2="16" y2="20"/></svg>PC 3</span>
+        </div>
+      </div>
+      <div class="cy-inf__group cy-inf__group--seg">
+        <span class="cy-inf__tag cy-inf__tag--seg">Segmented &middot; contained at the barrier</span>
+        <div class="cy-inf__row">
+          <span class="cy-inf__pc cy-inf__pc--src"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="1.5"/><line x1="8" y1="20" x2="16" y2="20"/></svg>PC 1</span>
+          <span class="cy-inf__link">&#8212;</span>
+          <span class="cy-inf__pc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="1.5"/><line x1="8" y1="20" x2="16" y2="20"/></svg>PC 2</span>
+          <span class="cy-inf__wall" title="Segment barrier"></span>
+          <span class="cy-inf__pc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="4" y="3" width="16" height="7" rx="1.5"/><rect x="4" y="14" width="16" height="7" rx="1.5"/></svg>Server</span>
+          <span class="cy-inf__link">&#8212;</span>
+          <span class="cy-inf__pc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="1.5"/><line x1="8" y1="20" x2="16" y2="20"/></svg>PC 3</span>
+        </div>
+      </div>
+      <p class="cy-inf__cap">One click, two outcomes. On a flat network it reaches everything; segmentation seals it into one zone.</p>
+    </div>
+  </figure>
+
+{% elif key == "phish-unfold" %}
+  <figure class="cy-diagram" role="img"
+          aria-label="An animation of a phishing attack in four stages. Stage one, an email arrives looking like it is from your bank. Stage two, you click the link because the message is urgent. Stage three, a fake login page captures your password. Stage four, the attacker signs in as you.">
+    <div class="cy-pf">
+      <div class="cy-pf__track">
+        <div class="cy-pf__stage">
+          <span class="cy-pf__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg></span>
+          <span class="cy-pf__lbl">Email arrives</span>
+          <span class="cy-pf__sub">Looks like your bank</span>
+        </div>
+        <span class="cy-pf__arrow">&#8594;</span>
+        <div class="cy-pf__stage cy-pf__stage--bad">
+          <span class="cy-pf__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M6 3l14 8-6 1 3 6-3 1-3-6-5 4z"/></svg></span>
+          <span class="cy-pf__lbl">You click</span>
+          <span class="cy-pf__sub">Urgency rushes you</span>
+        </div>
+        <span class="cy-pf__arrow">&#8594;</span>
+        <div class="cy-pf__stage cy-pf__stage--bad">
+          <span class="cy-pf__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="8" cy="10" r="4"/><path d="M11 12l8 8M16 17l2-2M19 20l2-2"/></svg></span>
+          <span class="cy-pf__lbl">Password captured</span>
+          <span class="cy-pf__sub">On a fake login page</span>
+        </div>
+        <span class="cy-pf__arrow">&#8594;</span>
+        <div class="cy-pf__stage cy-pf__stage--bad">
+          <span class="cy-pf__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0116 0"/></svg></span>
+          <span class="cy-pf__lbl">Attacker signs in</span>
+          <span class="cy-pf__sub">As you</span>
+        </div>
+      </div>
+      <p class="cy-pf__cap">A phish is a chain. Breaking any link, not clicking, verifying, a second factor, stops the whole thing.</p>
+    </div>
+  </figure>
+
+{% elif key == "eavesdrop" %}
+  <figure class="cy-diagram" role="img"
+          aria-label="An animation of the same cafe Wi-Fi used two ways. On open Wi-Fi, a message travels as readable text and an eavesdropper at the next table reads it. Through a VPN, the same traffic rides an encrypted tunnel and the eavesdropper sees only scrambled data.">
+    <div class="cy-eaves">
+      <div class="cy-eaves__group">
+        <span class="cy-eaves__tag cy-eaves__tag--open">On open cafe Wi-Fi</span>
+        <div class="cy-eaves__lane cy-eaves__lane--open">
+          <div class="cy-eaves__node"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="1.5"/><line x1="8" y1="20" x2="16" y2="20"/></svg>Your laptop</div>
+          <div class="cy-eaves__mid">
+            <span class="cy-eaves__spy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6z"/><circle cx="12" cy="12" r="2.5"/></svg>reads it</span>
+            <div class="cy-eaves__wire"></div>
+          </div>
+          <div class="cy-eaves__node"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M6 16a4 4 0 010-8 5 5 0 019.6-1.5A3.5 3.5 0 0118 16z"/></svg>Internet</div>
+          <div class="cy-eaves__pkt">login &middot; pw: hunter2</div>
+        </div>
+      </div>
+      <div class="cy-eaves__group">
+        <span class="cy-eaves__tag cy-eaves__tag--vpn">Same Wi-Fi, with a VPN</span>
+        <div class="cy-eaves__lane cy-eaves__lane--vpn">
+          <div class="cy-eaves__node"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="1.5"/><line x1="8" y1="20" x2="16" y2="20"/></svg>Your laptop</div>
+          <div class="cy-eaves__mid">
+            <span class="cy-eaves__spy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6z"/><circle cx="12" cy="12" r="2.5"/></svg>only sees noise</span>
+            <div class="cy-eaves__wire"></div>
+            <div class="cy-eaves__tunnel"></div>
+          </div>
+          <div class="cy-eaves__node"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M6 16a4 4 0 010-8 5 5 0 019.6-1.5A3.5 3.5 0 0118 16z"/></svg>Internet</div>
+          <div class="cy-eaves__pkt">&bull;8f3a&bull;c1&bull;9e7d&bull;</div>
+        </div>
+      </div>
+      <p class="cy-eaves__cap">A VPN wraps your traffic in an encrypted tunnel, so even on an untrusted network an eavesdropper sees only scrambled data.</p>
+    </div>
   </figure>
 {% endif %}

@@ -1,17 +1,94 @@
 {% extends "app_base.html" %}
 
 {% comment %}
-  The completion certificate — its on-screen design, plus a progress state.
-
-  Real data: the student's name and the six real modules. The verification code
-  is a clearly-labelled sample; the issue date only appears once earned. The
-  downloadable, verifiable PDF is issued with the quiz engine (Sprint 5) — this
-  page shows the design and the progress toward it, with no fake claims.
+  The formal white academic diploma, shown inside the dark app shell. Driven
+  entirely from real records (modules.views.certificate): a locked preview until
+  every module is complete, then the real serial, a QR to the public /verify/
+  page, and a link to the print-quality PDF. The certificate artwork stays white
+  and classic regardless of the app theme. Styles are inline and scoped .cy-dip*
+  (CSP allows 'unsafe-inline' styles); the QR is server-generated trusted SVG.
 {% endcomment %}
 
 {% block title %}Certificate — {{ site_name }}{% endblock %}
 
 {% block content %}
+<style>
+  .cy-dipwrap{ --dip-serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,"Times New Roman",serif;
+    --dip-body:"Iowan Old Style",Palatino,Georgia,"Times New Roman",serif;
+    --paper:#fbf7ec; --paper-2:#f6efdf; --paper-edge:#f0e7d2;
+    --ink:#23252b; --ink-soft:#3a3b40; --muted:#74705f;
+    --navy:#1f3350; --navy-soft:#3a5075; --gold:#a6842f; --gold-lt:#caa85f; --gold-dk:#7d6321;
+    display:flex; flex-direction:column; align-items:center; gap:1.4rem; }
+  .cy-dip-bar{ display:flex; flex-wrap:wrap; gap:.7rem; align-items:center; justify-content:center; }
+  .cy-dip-note{ color:var(--cy-text-2); font-size:.92rem; text-align:center; max-width:46ch; }
+
+  .cy-dip{ container-type:inline-size; width:100%; max-width:960px; aspect-ratio:1.414/1;
+    position:relative; overflow:hidden; border-radius:4px; color:var(--ink);
+    background:radial-gradient(140% 120% at 50% -10%, #fefcf6 0%, var(--paper) 42%, var(--paper-2) 100%);
+    box-shadow:0 34px 70px -26px rgba(0,0,0,.6), 0 4px 18px rgba(0,0,0,.35), 0 0 0 1px rgba(0,0,0,.05); }
+  .cy-dip::before{ content:""; position:absolute; inset:0; pointer-events:none; opacity:.5;
+    background:repeating-radial-gradient(circle at 50% 46%, transparent 0 15px, rgba(31,51,80,.02) 15px 16px),
+      repeating-linear-gradient(58deg, transparent 0 13px, rgba(166,132,47,.018) 13px 14px);
+    -webkit-mask:radial-gradient(70% 62% at 50% 46%, #000 40%, transparent 78%);
+      mask:radial-gradient(70% 62% at 50% 46%, #000 40%, transparent 78%); }
+  .cy-dip__frame{ position:absolute; inset:2.4cqw; border:2px solid var(--gold); border-radius:2px; pointer-events:none; }
+  .cy-dip__frame::before{ content:""; position:absolute; inset:5px; border:.9px solid var(--gold-lt); border-radius:1px; }
+  .cy-dip__corner{ position:absolute; width:8cqw; height:8cqw; color:var(--gold); z-index:3; opacity:.92; }
+  .cy-dip__corner--tl{ top:1.15cqw; left:1.15cqw; }
+  .cy-dip__corner--tr{ top:1.15cqw; right:1.15cqw; transform:scaleX(-1); }
+  .cy-dip__corner--bl{ bottom:1.15cqw; left:1.15cqw; transform:scaleY(-1); }
+  .cy-dip__corner--br{ bottom:1.15cqw; right:1.15cqw; transform:scale(-1,-1); }
+
+  .cy-dip__inner{ position:absolute; inset:2.4cqw; z-index:2; padding:4.6cqw 7cqw 3.4cqw;
+    display:flex; flex-direction:column; align-items:center; text-align:center; }
+  .cy-dip__wm{ display:flex; align-items:center; gap:.5em; }
+  .cy-dip__wm b{ font-family:var(--dip-serif); font-weight:700; font-size:2cqw; letter-spacing:.08em; color:var(--navy); }
+  .cy-dip__wm i{ width:.6cqw; height:.6cqw; border-radius:50%; background:var(--gold); }
+  .cy-dip__eyebrow{ font-family:var(--dip-body); font-size:1.35cqw; letter-spacing:.42em; text-transform:uppercase; color:var(--navy-soft); font-weight:600; padding-left:.42em; margin-top:.3cqw; }
+  .cy-dip__seal{ width:11cqw; height:11cqw; margin:1.8cqw 0 1.2cqw; }
+  .cy-dip__title{ font-family:var(--dip-serif); color:var(--navy); font-weight:700; font-size:3.7cqw; letter-spacing:.1em; text-transform:uppercase; line-height:1; }
+  .cy-dip__rule{ width:13cqw; height:1px; margin:1.4cqw 0 1.7cqw; position:relative;
+    background:linear-gradient(90deg,transparent,var(--gold),transparent); }
+  .cy-dip__rule::after{ content:"\2666"; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+    color:var(--gold); font-size:1.4cqw; background:var(--paper); padding:0 .5em; }
+  .cy-dip__lead{ font-family:var(--dip-body); font-style:italic; color:var(--muted); font-size:1.75cqw; }
+  .cy-dip__name{ font-family:var(--dip-serif); color:var(--ink); font-weight:700; font-size:6.6cqw; line-height:1.03; margin:1.5cqw 0 1.1cqw; max-width:84%; text-wrap:balance; }
+  .cy-dip__nameline{ width:44cqw; max-width:78%; height:1px; margin-bottom:1.8cqw;
+    background:linear-gradient(90deg,transparent,var(--navy-soft) 22%,var(--navy-soft) 78%,transparent); }
+  .cy-dip__for{ font-family:var(--dip-body); color:var(--muted); font-size:1.62cqw; max-width:66%; line-height:1.5; }
+  .cy-dip__cred{ font-family:var(--dip-serif); color:var(--navy); font-weight:700; font-size:3.3cqw; margin:1cqw 0 .4cqw; text-wrap:balance; }
+  .cy-dip__credsub{ font-family:var(--dip-body); font-style:italic; color:var(--muted); font-size:1.5cqw; }
+  .cy-dip__grade{ display:inline-flex; align-items:center; gap:.7em; margin-top:2cqw;
+    font-family:var(--dip-body); color:var(--gold-dk); font-weight:700; font-size:1.6cqw; letter-spacing:.24em; text-transform:uppercase; }
+  .cy-dip__grade svg{ width:2.5cqw; height:2.5cqw; color:var(--gold); }
+  .cy-dip__grade .r{ transform:scaleX(-1); }
+
+  .cy-dip__foot{ margin-top:auto; width:100%; display:grid; grid-template-columns:1fr auto 1fr; align-items:end; gap:2.6cqw; padding-top:2.4cqw; }
+  .cy-dip__verify{ display:flex; align-items:center; gap:1.3cqw; }
+  .cy-dip__qr{ width:9cqw; height:9cqw; flex:none; padding:.5cqw; background:#fff; border:1px solid var(--paper-edge); box-shadow:0 1px 4px rgba(0,0,0,.08); }
+  .cy-dip__qr svg{ display:block; width:100%; height:100%; }
+  .cy-dip__qr--ph{ display:flex; align-items:center; justify-content:center; color:var(--muted); font-family:var(--dip-body); font-size:1.1cqw; text-align:center; line-height:1.3; }
+  .cy-dip__vtxt{ text-align:left; display:flex; flex-direction:column; gap:.4cqw; }
+  .cy-dip__vlbl{ font-family:var(--dip-body); font-size:1cqw; letter-spacing:.22em; text-transform:uppercase; color:var(--muted); }
+  .cy-dip__code{ font-family:var(--dip-serif); font-weight:700; font-size:1.85cqw; letter-spacing:.12em; color:var(--navy); font-variant-numeric:tabular-nums; }
+  .cy-dip__url{ font-family:var(--dip-body); font-size:1.16cqw; color:var(--ink-soft); }
+  .cy-dip__issued{ grid-column:2; text-align:center; }
+  .cy-dip__date{ font-family:var(--dip-serif); color:var(--ink); font-weight:700; font-size:1.85cqw; letter-spacing:.03em; white-space:nowrap; }
+  .cy-dip__datelbl{ font-family:var(--dip-body); font-size:1cqw; letter-spacing:.22em; text-transform:uppercase; color:var(--muted); margin-top:.35cqw; }
+  .cy-dip__sign{ display:flex; flex-direction:column; align-items:center; gap:.3cqw; }
+  .cy-dip__sigmark{ width:20cqw; height:6.4cqw; display:flex; align-items:flex-end; justify-content:center; margin-bottom:.3cqw; }
+  .cy-dip__sigmark svg{ width:100%; height:100%; color:var(--navy); }
+  .cy-dip__signline{ width:14cqw; height:1px; background:var(--ink-soft); opacity:.55; }
+  .cy-dip__signwho{ font-family:var(--dip-body); font-size:1.22cqw; color:var(--ink-soft); }
+  .cy-dip__signrole{ font-family:var(--dip-body); font-size:1.06cqw; color:var(--muted); letter-spacing:.06em; text-transform:uppercase; }
+
+  .cy-dip--locked .cy-dip__inner{ filter:saturate(.85); }
+  .cy-dip__lock{ position:absolute; z-index:4; top:5cqw; left:50%; transform:translateX(-50%) rotate(-2deg);
+    background:var(--navy); color:#fdf7e6; font-family:var(--dip-body); font-weight:600; letter-spacing:.18em;
+    text-transform:uppercase; font-size:1.15cqw; padding:.5cqw 1.6cqw; border:1px solid var(--gold-lt);
+    box-shadow:0 6px 20px rgba(0,0,0,.25); }
+  @media (max-width:560px){ .cy-dip__foot{ gap:1.6cqw; } }
+</style>
 
 <div class="cy-page-title cy-rise">
   <div>
@@ -20,78 +97,102 @@
   </div>
 </div>
 
-{% if not earned %}
-  {# Progress toward the certificate #}
-  <div class="cy-cert-progress cy-elev cy-rise" style="--cy-delay: 0.05s;">
-    <div class="cy-cert-progress__body">
-      <div class="cy-cert-progress__icon"><svg class="cy-i" aria-hidden="true"><use href="#i-award"/></svg></div>
-      <div>
-        <h2 class="cy-cert-progress__title">{{ modules_done }} of {{ modules_total }} modules complete</h2>
-        <p class="cy-cert-progress__text">Complete all {{ modules_total }} modules to earn your certificate — a credential you can share with your team, your board, or your auditor.</p>
-      </div>
+<div class="cy-dipwrap cy-rise">
+  {% if earned %}
+    <div class="cy-dip-bar">
+      <a class="cy-btn cy-btn--primary" href="{{ download_url }}">
+        <svg class="cy-i" aria-hidden="true"><use href="#i-arrow-right"/></svg> Download PDF
+      </a>
+      <a class="cy-btn cy-btn--ghost" href="{{ verify_url }}" target="_blank" rel="noopener">Verify online</a>
     </div>
-    <div class="cy-progress" style="margin: 1.25rem 0 0.5rem;"><div class="cy-progress__fill" style="--cy-value: {{ percent }}%;"></div></div>
-    <a class="cy-btn cy-btn--primary" style="margin-top: 1rem;" href="{% url 'learn:browser' %}">
-      Keep going <svg class="cy-i" aria-hidden="true"><use href="#i-arrow-right"/></svg>
-    </a>
-  </div>
+  {% else %}
+    <p class="cy-dip-note">You have completed <strong>{{ modules_done }}</strong> of {{ modules_total }} modules
+      ({{ percent }}%). Finish all {{ modules_total }} to unlock your verifiable certificate and PDF.</p>
+  {% endif %}
 
-  <p class="cy-cert-preview-label">A preview of the certificate you'll earn</p>
-{% endif %}
+  <div class="cy-dip {% if not earned %}cy-dip--locked{% endif %}" role="img"
+       aria-label="Cybaroo Certificate of Completion{% if earned %} awarded to {{ student_name }}{% else %} preview{% endif %}.">
+    <div class="cy-dip__frame"></div>
+    <svg class="cy-dip__corner cy-dip__corner--tl" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M4 96 V40 Q4 4 40 4 H96"/><path d="M12 96 V44 Q12 12 44 12 H96" opacity=".55"/><circle cx="40" cy="40" r="2.4" fill="currentColor" stroke="none"/><path d="M20 40 Q34 40 40 20 M40 40 Q40 34 56 30" opacity=".8"/></svg>
+    <svg class="cy-dip__corner cy-dip__corner--tr" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M4 96 V40 Q4 4 40 4 H96"/><path d="M12 96 V44 Q12 12 44 12 H96" opacity=".55"/><circle cx="40" cy="40" r="2.4" fill="currentColor" stroke="none"/><path d="M20 40 Q34 40 40 20 M40 40 Q40 34 56 30" opacity=".8"/></svg>
+    <svg class="cy-dip__corner cy-dip__corner--bl" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M4 96 V40 Q4 4 40 4 H96"/><path d="M12 96 V44 Q12 12 44 12 H96" opacity=".55"/><circle cx="40" cy="40" r="2.4" fill="currentColor" stroke="none"/><path d="M20 40 Q34 40 40 20 M40 40 Q40 34 56 30" opacity=".8"/></svg>
+    <svg class="cy-dip__corner cy-dip__corner--br" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M4 96 V40 Q4 4 40 4 H96"/><path d="M12 96 V44 Q12 12 44 12 H96" opacity=".55"/><circle cx="40" cy="40" r="2.4" fill="currentColor" stroke="none"/><path d="M20 40 Q34 40 40 20 M40 40 Q40 34 56 30" opacity=".8"/></svg>
 
-{# The certificate document — the same design, previewed until earned. #}
-<div class="cy-cert-wrap cy-rise {% if not earned %}is-preview{% endif %}" style="--cy-delay: 0.1s;">
-  {% if not earned %}<span class="cy-cert-ribbon">Preview</span>{% endif %}
-  <div class="cy-certificate" aria-label="Certificate of completion">
-    <div class="cy-certificate__frame">
+    {% if not earned %}<div class="cy-dip__lock">Preview &middot; not yet earned</div>{% endif %}
 
-      <div class="cy-certificate__seal" aria-hidden="true">
-        <span class="cy-mark"></span>
+    <div class="cy-dip__inner">
+      <div class="cy-dip__wm"><i></i><b>CYBAROO</b><i></i></div>
+      <div class="cy-dip__eyebrow">Cyber Safety Training</div>
+
+      <svg class="cy-dip__seal" viewBox="0 0 120 120" aria-hidden="true">
+        <defs>
+          <linearGradient id="dipg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#caa85f"/><stop offset="1" stop-color="#7d6321"/></linearGradient>
+          <path id="drt" d="M60 60 m-42,0 a42,42 0 1,1 84,0" fill="none"/>
+          <path id="drb" d="M60 60 m42,0 a42,42 0 1,1 -84,0" fill="none"/>
+        </defs>
+        <circle cx="60" cy="60" r="54" fill="none" stroke="url(#dipg)" stroke-width="1.4"/>
+        <circle cx="60" cy="60" r="49" fill="none" stroke="#a6842f" stroke-width="3"/>
+        <circle cx="60" cy="60" r="42.5" fill="none" stroke="#caa85f" stroke-width="1"/>
+        <g fill="#7d6321" font-family="Georgia, serif" font-weight="700" font-size="8.4" letter-spacing="2.2">
+          <text><textPath href="#drt" startOffset="50%" text-anchor="middle">CYBAROO</textPath></text>
+          <text><textPath href="#drb" startOffset="50%" text-anchor="middle">CYBER SAFETY PROGRAM</textPath></text>
+        </g>
+        <path d="M60 34 L78 41 V60 Q78 76 60 86 Q42 76 42 60 V41 Z" fill="#1f3350" stroke="url(#dipg)" stroke-width="1.6"/>
+        <path d="M52 60 l6 6 l12 -14" fill="none" stroke="#caa85f" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M60 26 l1.6 3.4 3.7.4-2.8 2.5.8 3.6L60 34l-3.3 2 .8-3.6-2.8-2.5 3.7-.4z" fill="#caa85f"/>
+      </svg>
+
+      <h2 class="cy-dip__title">Certificate of Completion</h2>
+      <div class="cy-dip__rule"></div>
+
+      <p class="cy-dip__lead">This certificate is proudly presented to</p>
+      <div class="cy-dip__name">{{ student_name }}</div>
+      <div class="cy-dip__nameline"></div>
+
+      <p class="cy-dip__for">for successfully completing all {{ modules_total }} modules and assessments of the</p>
+      <div class="cy-dip__cred">{{ credential }}</div>
+      <p class="cy-dip__credsub">{{ credential_sub }}</p>
+
+      {% if grade %}
+      <div class="cy-dip__grade">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20 4c-5 1-8 4-9 9-3-1-5-1-7 0 2 1 3 3 3 6 3-1 5-1 7-3 3 1 5 1 7-1-2-1-3-3-3-6 1-2 2-3 2-5z"/></svg>
+        <span>Awarded with {{ grade }}</span>
+        <svg class="r" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20 4c-5 1-8 4-9 9-3-1-5-1-7 0 2 1 3 3 3 6 3-1 5-1 7-3 3 1 5 1 7-1-2-1-3-3-3-6 1-2 2-3 2-5z"/></svg>
       </div>
-      <div class="cy-certificate__brand">{{ site_name }}</div>
+      {% endif %}
 
-      <div class="cy-certificate__kicker">Certificate of Completion</div>
-
-      <p class="cy-certificate__intro">This is to certify that</p>
-      <p class="cy-certificate__name">{{ student_name }}</p>
-      <p class="cy-certificate__body">
-        has successfully completed the <strong>Network Security Training Platform</strong>,
-        covering all {{ modules_total }} modules of essential cyber-safety training.
-      </p>
-
-      <ul class="cy-certificate__modules">
-        {% for m in modules %}
-          <li class="{% if m.complete %}is-done{% endif %}">
-            <svg class="cy-i" aria-hidden="true"><use href="#{% if m.complete %}i-check{% else %}i-lock{% endif %}"/></svg>
-            {{ m.title }}
-          </li>
-        {% endfor %}
-      </ul>
-
-      <div class="cy-certificate__foot">
-        <div class="cy-certificate__foot-item">
-          <span class="cy-certificate__foot-label">Issued</span>
-          <span class="cy-certificate__foot-value">{% if earned %}{{ issue_date|date:"j F Y" }}{% else %}On completion{% endif %}</span>
+      <div class="cy-dip__foot">
+        <div class="cy-dip__verify">
+          {% if earned %}
+            <div class="cy-dip__qr">{{ qr_svg|safe }}</div>
+            <div class="cy-dip__vtxt">
+              <span class="cy-dip__vlbl">Verify authenticity</span>
+              <span class="cy-dip__code">{{ serial }}</span>
+              <span class="cy-dip__url">{{ verify_display }}</span>
+            </div>
+          {% else %}
+            <div class="cy-dip__qr cy-dip__qr--ph">QR &amp; code once earned</div>
+            <div class="cy-dip__vtxt">
+              <span class="cy-dip__vlbl">Verify authenticity</span>
+              <span class="cy-dip__code">CYB-&#9679;&#9679;&#9679;&#9679;-&#9679;&#9679;&#9679;&#9679;-&#9679;&#9679;&#9679;&#9679;</span>
+              <span class="cy-dip__url">issued on completion</span>
+            </div>
+          {% endif %}
         </div>
-        <div class="cy-certificate__foot-item">
-          <span class="cy-certificate__foot-label">Verification code <em>(sample)</em></span>
-          <span class="cy-certificate__foot-value cy-certificate__code">{{ sample_code }}</span>
+
+        <div class="cy-dip__issued">
+          <div class="cy-dip__date">{% if earned %}{{ issue_date|date:"j F Y" }}{% else %}&mdash;{% endif %}</div>
+          <div class="cy-dip__datelbl">Date of Award</div>
         </div>
-        <div class="cy-certificate__foot-item cy-certificate__sign">
-          <span class="cy-certificate__sign-line"></span>
-          <span class="cy-certificate__foot-label">AUSDAIS PTY LTD</span>
+
+        <div class="cy-dip__sign">
+          <div class="cy-dip__sigmark">{{ signature_svg|safe }}</div>
+          <div class="cy-dip__signline"></div>
+          <div class="cy-dip__signwho">Issued by Cybaroo</div>
+          <div class="cy-dip__signrole">Director of Training</div>
         </div>
       </div>
-
     </div>
   </div>
 </div>
-
-{% if earned %}
-  <div class="cy-cert-note cy-rise" style="--cy-delay: 0.14s;">
-    <svg class="cy-i" aria-hidden="true"><use href="#i-award"/></svg>
-    <span>You've earned it. A downloadable, verifiable PDF of your certificate will be available here soon.</span>
-  </div>
-{% endif %}
-
 {% endblock %}

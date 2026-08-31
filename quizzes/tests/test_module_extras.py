@@ -41,11 +41,13 @@ def test_module_one_overview_renders_its_tagline(seeded):
 
 @pytest.mark.django_db
 def test_module_one_lesson_one_has_the_hero_illustration(seeded):
-    task = LessonTask.objects.get(lesson__module__order_index=1, task_key="net-basics")
-    # The hero rides in the payload and is a distinct figure from the task's own
-    # picture-question diagram, so both render on the panel.
-    assert task.payload.get("hero") == "net-scene"
-    assert task.diagram_key == "router-admin"
+    # Lesson 1 opens on the net-scene data-flow hero (the teaching intro panel);
+    # the router-admin visual now teaches "where the weak points are" a few panels
+    # on, so both figures still appear on Lesson 1.
+    intro = LessonTask.objects.get(lesson__module__order_index=1, task_key="net-basics")
+    assert intro.payload.get("hero") == "net-scene"
+    weak = LessonTask.objects.get(lesson__module__order_index=1, task_key="weak-points")
+    assert weak.diagram_key == "router-admin"
 
 
 @pytest.mark.django_db

@@ -660,42 +660,54 @@ def badges(request):
 
 @login_required
 def certificate(request):
-    """The completion certificate — its on-screen design, plus a progress state.
+    """The completion certificate: the formal white diploma on screen.
 
-    The real awarding (a Certificate row + a downloadable, verifiable PDF) lands
-    with the quiz engine in Sprint 5. Here we render the certificate design
-    populated with real data (name, the six modules), and show a progress
-    preview until all modules are complete. The verification code is a clearly
-    labelled sample — no fake "verified" claim.
+    Everything is driven from real records. Until every module is complete the
+    page shows the diploma as a locked preview (no verification code, no "issued"
+    claim). On genuine completion a Certificate row is issued once, and the page
+    shows the real serial, a QR to the public verification page, and a link to
+    download the print-quality PDF.
     """
-    import uuid
-
+    from django.urls import reverse
     from django.utils import timezone
 
-    prog = g.module_progress(request.user)
-    done = sum(1 for mp in prog if mp.complete)
-    total = len(prog)
-    earned = total > 0 and done >= total
+    from certificates import services as cert_services
+    from certificates import signature as cert_signature
 
-    # Stable per-student sample code, so it looks like a real credential without
-    # pretending to be one (the persistent UUID is issued with the PDF later).
-    raw = uuid.uuid5(uuid.NAMESPACE_DNS, f"cybaroo-cert-{request.user.pk}").hex.upper()
-    sample_code = f"CYB-{raw[:4]}-{raw[4:8]}-{raw[8:12]}"
+    prog = list(g.module_progress(request.user))
+    comp = cert_services.completion(request.user)
+    grade, _avg = cert_services.overall_grade(request.user)
 
-    return render(
-        request,
-        "modules/certificate.html",
-        {
-            "active": "certificate",
-            "modules": [
-                {"title": mp.module.title, "complete": mp.complete} for mp in prog
-            ],
-            "modules_done": done,
-            "modules_total": total,
-            "percent": round(done / total * 100) if total else 0,
-            "earned": earned,
-            "student_name": request.user.get_full_name() or request.user.email,
-            "issue_date": timezone.localdate(),
-            "sample_code": sample_code,
-        },
-    )
+    ctx = {
+        "active": "certificate",
+        "modules": [
+            {"title": mp.module.title, "complete": mp.complete} for mp in prog
+        ],
+        "modules_done": comp.done,
+        "modules_total": comp.total,
+        "percent": comp.percent,
+        "earned": comp.earned,
+        "student_name": request.user.get_full_name() or request.user.email,
+        "credential": cert_services.CREDENTIAL,
+        "credential_sub": cert_services.CREDENTIAL_SUBTITLE,
+        "grade": grade,
+        "issue_date": timezone.localdate(),
+        "signature_svg": cert_signature.svg(),
+    }
+
+    if comp.earned:
+        cert = cert_services.issue_for(request.user)
+        verify_url = cert_services.verify_url(request, cert.serial)
+        ctx.update(
+            {
+                "serial": cert.serial,
+                "grade": cert.grade or grade,
+                "issue_date": timezone.localtime(cert.issued_at),
+                "verify_url": verify_url,
+                "verify_display": verify_url.split("://", 1)[-1],
+                "qr_svg": cert_services.qr_svg(verify_url),
+                "download_url": reverse("certificates:download"),
+            }
+        )
+
+    return render(request, "modules/certificate.html", ctx)

@@ -1,66 +1,231 @@
-"""Module 3, Phishing & Social Engineering: the con behind the click, the email
-family (phishing, spear phishing, whaling), the attacks that leave the inbox
-(smishing, vishing, pretexting, baiting), and the investigator's habits.
+"""Module 3, Phishing & Social Engineering: understand it, then apply it.
 
-Same shape and standard as Modules 1 and 2 (see modules/content/module_one.py and
-docs/module-authoring.md): a lesson is a scrollable room of collapsible task
-PANELS. Each panel is a full, deep task: several teaching paragraphs (what it is,
-a concrete Australian example, why it matters, what to do), a diagram where it
-helps, a callout box with a specific scenario, sometimes a mid-panel check, then
-the end interactive. Points sum to 10 per lesson and bank at lesson end.
+  Lesson 1  UNDERSTAND IT  — a teaching lesson. Four reading panels, each with a
+            real visual: what social engineering is and the human levers it pulls;
+            the phishing family (mass phishing, spear phishing, whaling) and the
+            four red flags that read any message; the attacks that leave the inbox
+            (smishing, vishing, and AI voice clones); and business email
+            compromise, the quiet, costly one. One light comprehension check on
+            caller ID spoofing.
+  Lesson 2  APPLY IT       — a practical lesson. Five hands-on tasks: name the
+            channel, triage a mixed inbox, read a vishing scene, work a live
+            AI voice-clone call, and spot the scam of two lookalike messages.
 
-Voice: warm, confident, human. Plain Australian English. No em-dashes, no filler,
-no repetition, and nothing recycled from earlier modules.
-
-Panel fields: key, kind, points, title, optional `diagram`, `body` (rich HTML,
-may include a `<div class="cy-callout">`), optional `inline_check`
-{question, hint, options}, optional `body2`, then either a check
-(question/hint/options) or an activity (`payload`). Check option tuples are
-(text, is_correct, explanation).
+Voice: warm, plain Australian English, no em-dashes, no emoji. Grounded in ACSC
+(cyber.gov.au) phishing and scam guidance and Scamwatch reporting on business
+email compromise and voice-cloning. Points sum to 10 per lesson and bank at
+lesson end.
 """
 
 LESSONS = [
     {
-        "title": "The con, and the channels it comes through",
-        "reading_time_minutes": 8,
-        "intro": "Social engineering does not attack your computer. It attacks "
-        "you, through whatever channel reaches you fastest: your inbox, your "
-        "phone, a text. Meet the con, and the four channels it rides in on.",
+        "title": "Know the con: how they hack the human",
+        "reading_time_minutes": 9,
+        "intro": "Social engineering does not attack your computer, it attacks "
+        "you. Learn the levers it pulls, the shapes phishing takes, the channels "
+        "beyond your inbox, and the one move that beats all of them. By the end you "
+        "will read any message the way a security analyst does.",
+        "tasks": [
+            {
+                "key": "the-con",
+                "kind": "concept",
+                "points": 2,
+                "title": "The con: they hack the human, not the machine",
+                "diagram": "se-levers",
+                "body": "<p><strong>Social engineering</strong> is the art of "
+                "manipulating a person into helping the attacker: clicking a link, "
+                "opening a file, moving money, or handing over a password. No "
+                "firewall stops it, because it does not target the machine, it "
+                "targets you. This is not a fringe problem. The OAIC reports that "
+                "<strong>phishing is the leading cause</strong> of the cyber "
+                "incidents behind Australia's data breaches, and that "
+                "<strong>social engineering and impersonation are rising</strong> "
+                "sharply.</p>"
+                "<p>It works because it borrows a real psychological shortcut: under "
+                "pressure, people stop analysing and fall back on habit and "
+                "instinct. Attackers pull five human levers to create that pressure, "
+                "and the board above lays them out:</p>"
+                "<ul>"
+                "<li><strong>Authority</strong>: it claims to be the boss, the bank, "
+                "or the tax office, because we are trained to comply with people in "
+                "charge.</li>"
+                "<li><strong>Urgency</strong>: a countdown or a deadline, to stop "
+                "you pausing to think or check.</li>"
+                "<li><strong>Fear</strong>: a threat, like your account will be "
+                "closed or you will be fined, to push you into acting.</li>"
+                "<li><strong>Curiosity</strong>: a tempting subject line or a "
+                "mystery attachment you just want to open.</li>"
+                "<li><strong>Greed</strong>: a prize, a refund, or a too-good offer "
+                "that clouds your judgement.</li>"
+                "</ul>"
+                "<div class=\"cy-callout\">Whenever a message reaches for one of "
+                "these levers, that is your cue to slow down. The pressure is the "
+                "point: it is engineered to stop you checking.</div>",
+            },
+            {
+                "key": "phishing-family",
+                "kind": "concept",
+                "points": 2,
+                "title": "The phishing family, and how a phish actually works",
+                "hero": "phish-unfold",
+                "diagram": "phishing-email",
+                "body": "<p><strong>Phishing</strong> is social engineering by "
+                "message, and it comes in three sizes. Ordinary "
+                "<strong>phishing</strong> is a wide net: one generic message sent "
+                "to thousands, hoping a few bite. <strong>Spear phishing</strong> is "
+                "aimed at one person and personalised with real details (your name, "
+                "your role, a live project), which makes it far harder to doubt. "
+                "<strong>Whaling</strong> targets the big fish, a senior leader, or "
+                "impersonates one.</p>"
+                "<p>Whatever the size, a phish is a <strong>chain</strong>, and the "
+                "animation above walks it: an email arrives looking legitimate, you "
+                "click, a fake login page copies your password as you type it, and "
+                "the attacker signs in as you. The good news is that breaking "
+                "<em>any</em> link stops the whole thing, and you do not need to spot "
+                "which size it is. You need a checklist.</p>"
+                "<p>The email above is a lookalike supplier invoice, and it trips the "
+                "four wires that catch almost every phish:</p>"
+                "<ul>"
+                "<li><strong>Fake sender</strong>: the friendly name is easy to set "
+                "to anything, but the real address after the @ is what matters. Here "
+                "it is a lookalike domain (flour-supplier-au.info), not the genuine "
+                "one. Always read the part after the @.</li>"
+                "<li><strong>Dodgy link</strong>: the visible text says one thing, "
+                "but the address it actually points to goes somewhere else. On a "
+                "computer you can hover to see the real destination before you "
+                "click.</li>"
+                "<li><strong>Pressure or secrecy</strong>: act now, or keep this "
+                "between us, both there to bypass your normal checks and your "
+                "colleagues.</li>"
+                "<li><strong>Unexpected attachment</strong>: a surprise file, "
+                "especially a .zip or an invoice you were not expecting.</li>"
+                "</ul>"
+                "<div class=\"cy-callout\">One red flag is enough to slow down. Two "
+                "or more, treat it as an attack until you have verified it a "
+                "different way.</div>",
+            },
+            {
+                "key": "beyond-the-inbox",
+                "kind": "concept",
+                "points": 2,
+                "title": "Beyond the inbox: text, voice, and cloned voices",
+                "diagram": "sms-phish",
+                "body": "<p>The same con does not stay in email. It follows you onto "
+                "the devices you trust most, and the phone in your pocket is the "
+                "softest target of all.</p>"
+                "<ul>"
+                "<li><strong>Smishing</strong> is phishing by text message, like the "
+                "parcel scam above. It works because a phone is built for speed, not "
+                "scrutiny: links are shortened and hard to inspect, you are usually "
+                "distracted, and a text feels more personal than an email. A tiny "
+                "fee and a tight deadline do the rest.</li>"
+                "<li><strong>Vishing</strong> is the con by phone call: a live voice "
+                "using authority and fear to rush you, a fake ATO officer threatening "
+                "arrest, a fake bank fraud team, a fake help desk. A real person on "
+                "the line is far more persuasive than any email.</li>"
+                "<li><strong>AI voice cloning</strong> is the frightening new twist. "
+                "From only a few seconds of someone speaking, in a podcast, a video, "
+                "or even a voicemail greeting, an attacker can now generate a voice "
+                "that sounds convincingly like them, then call and ask you to move "
+                "money. What used to be proof of identity, a familiar voice, no "
+                "longer is.</li>"
+                "</ul>"
+                "<p>That leaves two things you can no longer trust. A "
+                "<strong>caller ID</strong> can be <em>spoofed</em>: the number that "
+                "shows on your screen is just data the caller sends, so a scammer can "
+                "make it read your bank's real name. And a <strong>familiar "
+                "voice</strong> can be cloned. Neither, on its own, is proof of who "
+                "is really calling.</p>"
+                "<div class=\"cy-callout\">The defence is the same on every channel: "
+                "do not act on the message in front of you. Hang up, and call back on "
+                "a number you already have, from the back of your card or your own "
+                "contacts.</div>",
+            },
+            {
+                "key": "bec",
+                "kind": "concept",
+                "points": 2,
+                "title": "Business email compromise: the quiet, costly one",
+                "diagram": "exec-email",
+                "body": "<p><strong>Business email compromise</strong> (BEC) is "
+                "among the costliest scams for Australian organisations, and the ASD "
+                "names it a key way cybercrime is committed. Yet it rarely looks "
+                "dramatic. There is no malware and no obvious threat. It looks like a "
+                "routine email, from a leader or a supplier you know, quietly asking "
+                "you to do one reasonable-sounding thing with money.</p>"
+                "<p>Here is how the money actually moves. The attacker either "
+                "<em>spoofs</em> a trusted sender (a lookalike address), or genuinely "
+                "<em>takes over</em> a real mailbox by stealing its password, then "
+                "watches the real email flow and steps in at the right moment to "
+                "redirect a payment that was always going to happen. The email above "
+                "is the classic shape: it appears to be from the CEO, marked urgent "
+                "and confidential, asking for an unusual payment that skips the "
+                "normal checks. Two everyday versions:</p>"
+                "<ul>"
+                "<li><strong>CEO fraud</strong>: a message from the boss demanding a "
+                "fast, secret transfer, leaning hard on authority and urgency, and "
+                "usually claiming to be uncontactable so you cannot check.</li>"
+                "<li><strong>Invoice or bank-change fraud</strong>: a supplier you "
+                "know emails that their bank account has changed, so please pay the "
+                "next real invoice to a new account. Because the invoice itself is "
+                "genuine, nothing looks wrong until the money is gone.</li>"
+                "</ul>"
+                "<p>The one habit that defeats all of it: verify any new or changed "
+                "payment on a channel you already trust, a phone call to a number you "
+                "already have (not the one in the email), before a cent moves. The "
+                "attacker cannot answer that call.</p>"
+                "<div class=\"cy-callout\">Someone important, in a hurry, asking for "
+                "money or secrecy, from an address that is not quite right. That is "
+                "the signature of business email compromise.</div>",
+            },
+            {
+                "key": "caller-id-check",
+                "kind": "check",
+                "points": 2,
+                "title": "Quick check: does the caller ID prove it?",
+                "diagram": "caller-id",
+                "body": "<p>One quick check to finish. Your phone rings and the "
+                "screen shows the name and number of your CEO, Sarah, exactly as "
+                "they are saved in your contacts. The voice on the line sounds like "
+                "her too, and she needs a payment made right now. You just learned "
+                "the two things you can no longer trust.</p>"
+                "<div class=\"cy-callout\">A caller ID can be spoofed, and a voice "
+                "can be cloned. Neither is proof of who is really calling.</div>",
+                "question": "The caller ID shows your CEO's real name and number, and the voice sounds like her. What does that prove about who is calling?",
+                "hint": "Can the number that appears, and the voice, both be faked?",
+                "options": [
+                    ("Very little: caller ID can be spoofed and a voice can be cloned, so verify on a number you already have before acting", True,
+                     "Right. Both the number on screen and the voice can be faked. The only reliable move is to hang up and call back on a number you already trust."),
+                    ("It proves the call is genuinely from your CEO", False,
+                     "No. Caller ID can be spoofed to show any name or number, and a voice can be cloned. A matching display is not proof."),
+                    ("It proves your phone has been hacked", False,
+                     "No. A spoofed caller ID does not mean your phone is compromised. The display was simply faked from the other end."),
+                    ("It proves the call is safe to act on", False,
+                     "No. Because both the ID and the voice can be faked, you should still verify by calling back on a trusted number."),
+                ],
+            },
+        ],
+    },
+    {
+        "title": "Read it like an analyst: spot, verify, report",
+        "reading_time_minutes": 9,
+        "intro": "Now put the checklist to work. Name the channel each con rides "
+        "in on, triage a real morning inbox, read a live vishing scene, hold your "
+        "nerve through an AI voice-clone call, and pick the scam out of two "
+        "lookalike messages.",
         "tasks": [
             {
                 "key": "channels",
                 "kind": "classify",
                 "points": 2,
-                "title": "Which channel is this?",
-                "body": "<p><strong>Social engineering</strong> is the art of "
-                "manipulating a person into helping the attacker: clicking, paying, "
-                "or handing over a password. It works by pulling human levers, "
-                "<strong>authority</strong>, <strong>urgency</strong>, "
-                "<strong>fear</strong>, <strong>curiosity</strong> and "
-                "<strong>greed</strong>, and it arrives through four main channels. "
-                "<strong>Email phishing</strong> is the classic. "
-                "<strong>Smishing</strong> is the same con by text message. "
-                "<strong>Vishing</strong> is by phone, now supercharged by AI voice "
-                "cloning that can fake a familiar voice. And "
-                "<strong>business email compromise</strong> impersonates a boss or "
-                "supplier to redirect a real payment.</p>"
-                "<div class=\"cy-callout\">Read each message below and tap the "
-                "channel it uses. Naming the channel is the first step to seeing "
-                "through the con.</div>",
-                "inline_check": {
-                    "question": "An email that appears to be from your CEO and says 'do this in the next 10 minutes' is mainly pulling which two levers?",
-                    "hint": "Who it claims to be from, and the deadline.",
-                    "options": [
-                        ("Authority and urgency", True,
-                         "Yes. It borrows the weight of a senior figure and adds a deadline so you act before you think."),
-                        ("Curiosity and greed", False,
-                         "No. A rushed order from the boss leans on authority and urgency, not a tempting offer."),
-                        ("Fear and sympathy", False,
-                         "No. The pressure here is who it claims to be plus the deadline: authority and urgency."),
-                        ("Boredom and habit", False,
-                         "No. The two levers being pulled are authority (the CEO) and urgency (10 minutes)."),
-                    ],
-                },
+                "title": "Name the channel",
+                "body": "<p>Naming the channel is the first step to seeing through "
+                "the con. Read each message and tap the channel it uses: "
+                "<strong>email phishing</strong>, <strong>smishing</strong> by text, "
+                "<strong>vishing</strong> by voice, or <strong>business email "
+                "compromise</strong> that redirects a real payment.</p>"
+                "<div class=\"cy-callout\">The channel changes, the con does not: "
+                "authority, urgency and a request that skips your normal checks.</div>",
                 "payload": {
                     "prompt": "Read each message and tap the channel it uses. Sort all six to finish.",
                     "categories": [
@@ -92,35 +257,85 @@ LESSONS = [
                 },
             },
             {
+                "key": "inbox-triage",
+                "kind": "mailsort",
+                "points": 2,
+                "title": "Triage the morning inbox",
+                "body": "<p>The everyday skill: an inbox with a mix of genuine mail "
+                "and phishing. Read the sender, the subject and the preview, run the "
+                "four red flags, then mark each one. The verdict and the tell are "
+                "revealed as you go.</p>"
+                "<div class=\"cy-callout\">Weigh the same things each time: did you "
+                "expect it, who is it really from, is it rushing you, and is it "
+                "pushing a link or an attachment?</div>",
+                "payload": {
+                    "prompt": "Mark each message Genuine or Phishing. Sort all five to finish.",
+                    "emails": [
+                        {"from": "Payroll <payroll@yourcompany.com.au>",
+                         "subject": "Your July payslip is ready",
+                         "preview": "Your payslip is available in the usual staff portal. No action needed.",
+                         "phish": False,
+                         "why": "Expected, from your own company domain, and it points you to the portal you already use, not a link."},
+                        {"from": "IT Security <security@company-verify.net>",
+                         "subject": "Your password expires in 2 hours, act now",
+                         "preview": "Confirm your current password here to avoid being locked out.",
+                         "phish": True,
+                         "why": "A lookalike domain and a rushed link asking you to confirm a password. Real IT never asks for that."},
+                        {"from": "Linda Poulos (Reception)",
+                         "subject": "Parcel at the front desk for you",
+                         "preview": "A parcel arrived this morning, pop down when you get a chance.",
+                         "phish": False,
+                         "why": "A normal, expected note from a colleague you know, with no link, attachment or pressure."},
+                        {"from": "DocuSign <no-reply@docusign-portal-au.com>",
+                         "subject": "You have a document to sign, opens in 24 hours",
+                         "preview": "Review and sign the attached contract before it expires.",
+                         "phish": True,
+                         "why": "A lookalike DocuSign domain with a manufactured deadline. Reach signing services the way you normally do, never through the link."},
+                        {"from": "The Bean Room Cafe",
+                         "subject": "Your coffee loyalty: one free coffee waiting",
+                         "preview": "Show this email in store to claim. See you soon!",
+                         "phish": False,
+                         "why": "A genuine marketing email you signed up for, asking nothing risky and pushing no link to log in."},
+                    ],
+                },
+            },
+            {
+                "key": "read-vishing-scene",
+                "kind": "check",
+                "points": 2,
+                "title": "Read the vishing scene",
+                "diagram": "scene-vish",
+                "body": "<p>A picture-question, straight from Lesson 1. The worker "
+                "above is on the phone to a caller who sounds exactly like the CEO, "
+                "urgently demanding a $48,500 transfer, and to keep it quiet. Read "
+                "the scene the way an analyst would, then answer.</p>"
+                "<div class=\"cy-callout\">A familiar voice and a matching caller ID "
+                "are no longer proof. Secrecy is there to stop you checking.</div>",
+                "question": "Looking at the scene, what should the worker do right now?",
+                "hint": "A voice can be cloned, and 'keep it quiet' is there to stop them verifying.",
+                "options": [
+                    ("Do not act on the call: hang up and ring the CEO back on a number they already have", True,
+                     "Right. Verifying on a number you already trust is the one move a cloned voice cannot beat. Do not let the pressure or the secrecy rush you."),
+                    ("Make the transfer, since the voice clearly sounds like the CEO", False,
+                     "No. A familiar voice can now be cloned from public recordings. Never move money on a voice alone."),
+                    ("Ask the caller a personal question to prove it is really her", False,
+                     "No. A well-prepared attacker may know the answer, and a clone can respond smoothly. Hang up and call back instead."),
+                    ("Reply in the company chat to confirm the new account", False,
+                     "No. That does not verify the caller. Confirm a money request on a phone number you already trust."),
+                ],
+            },
+            {
                 "key": "ceo-call",
                 "kind": "branch",
                 "points": 2,
                 "title": "Decision drill: the CEO calls",
-                "diagram": "scene-vish",
-                "body": "<p>Vishing is a phone con, and it has a frightening new "
-                "tool: <strong>AI voice cloning</strong>. From a few seconds of a "
-                "person speaking, in a podcast, a video, a voicemail greeting, an "
-                "attacker can generate a fake voice that sounds just like them. The "
-                "worker above is living it: a caller who sounds exactly like the CEO "
-                "is urgently demanding a transfer. Read the scene, then work through "
-                "the drill and see how it plays out.</p>"
+                "body": "<p>The real test is what you do in the moment. A caller who "
+                "sounds exactly like the CEO is urgently demanding a transfer. Work "
+                "through the drill: make each call and see the consequence before the "
+                "next decision.</p>"
                 "<div class=\"cy-callout\"><strong>The rule:</strong> a familiar "
                 "voice and a matching caller ID are no longer proof. Verify any "
                 "urgent money request on a number you already have.</div>",
-                "inline_check": {
-                    "question": "Look at the worker in the scene above. A caller who sounds exactly like the CEO is urgently demanding a $48,500 transfer, and to keep it quiet. What should they do right now?",
-                    "hint": "A familiar voice can be cloned, and secrecy is there to stop them checking.",
-                    "options": [
-                        ("Do not act on the call: hang up and call the CEO back on a number they already have", True,
-                         "Right. Verifying on a number you already trust is the one move a cloned voice cannot beat. Do not let the pressure or the secrecy rush you."),
-                        ("Make the transfer, since the voice clearly sounds like the CEO", False,
-                         "No. A familiar voice can now be cloned from public recordings. Never move money on a voice alone."),
-                        ("Ask the caller a personal question to prove it is really her", False,
-                         "No. A well-prepared attacker may know the answer, and a clone can respond smoothly. Hang up and call back instead."),
-                        ("Reply to the request in the company chat to confirm the account", False,
-                         "No. That does not verify the caller. Confirm a money request on a phone number you already trust."),
-                    ],
-                },
                 "payload": {
                     "prompt": "The call comes in. Make each call and see the consequence.",
                     "start": "call",
@@ -161,262 +376,6 @@ LESSONS = [
                 },
             },
             {
-                "key": "read-sms",
-                "kind": "check",
-                "points": 2,
-                "title": "Read the text like an investigator",
-                "diagram": "sms-phish",
-                "body": "<p>Smishing lands on the device you trust most, your phone, "
-                "where links are hard to inspect and you are often distracted. The "
-                "message above looks urgent and official. Read it the way an "
-                "investigator would, starting with whether you expected it and where "
-                "the link really goes.</p>"
-                "<div class=\"cy-callout\">The tells travel together: an unexpected "
-                "message, a small fee, a tight deadline, and a link that is almost, "
-                "but not quite, the real address.</div>",
-                "question": "Looking at the text above, what most clearly marks it as a scam?",
-                "hint": "Was it expected, and where does that link actually point?",
-                "options": [
-                    ("It is unexpected, pressures you with a fee and a deadline, and links to a lookalike site, aus-post-redelivery.info, not the real Australia Post", True,
-                     "Right. Australia Post does not chase small redelivery fees by text link, and the address is a lookalike. Unexpected plus urgency plus a near-miss link is smishing."),
-                    ("It was sent to a mobile phone", False,
-                     "No. Plenty of genuine messages arrive by text. The tells are the unexpected fee, the deadline, and the lookalike link."),
-                    ("It mentions a parcel", False,
-                     "No. Real delivery updates mention parcels too. The giveaway is the fee, the pressure, and the fake address."),
-                    ("It is short", False,
-                     "No. Length proves nothing. The scam is in the unexpected fee, the deadline, and the lookalike link."),
-                ],
-            },
-            {
-                "key": "inbox-triage",
-                "kind": "mailsort",
-                "points": 2,
-                "title": "Triage the morning inbox",
-                "body": "<p>Now the everyday skill: an inbox with a mix of genuine "
-                "mail and phishing. Read the sender, the subject and the preview, "
-                "then mark each one. The verdict and the tell are revealed as you "
-                "go.</p>"
-                "<div class=\"cy-callout\">Weigh the same things each time: did you "
-                "expect it, who is it really from, is it rushing you, and is it "
-                "pushing a link or an attachment?</div>",
-                "payload": {
-                    "prompt": "Mark each message Genuine or Phishing. Sort all five to finish.",
-                    "emails": [
-                        {"from": "Payroll <payroll@yourcompany.com.au>",
-                         "subject": "Your July payslip is ready",
-                         "preview": "Your payslip is available in the usual staff portal. No action needed.",
-                         "phish": False,
-                         "why": "Expected, from your own company domain, and it points you to the portal you already use, not a link."},
-                        {"from": "IT Security <security@company-verify.net>",
-                         "subject": "Your password expires in 2 hours, act now",
-                         "preview": "Confirm your current password here to avoid being locked out.",
-                         "phish": True,
-                         "why": "A lookalike domain and a rushed link asking you to confirm a password. Real IT never asks for that."},
-                        {"from": "Linda Poulos (Reception)",
-                         "subject": "Parcel at the front desk for you",
-                         "preview": "A parcel arrived this morning, pop down when you get a chance.",
-                         "phish": False,
-                         "why": "A normal, expected note from a colleague you know, with no link, attachment or pressure."},
-                        {"from": "DocuSign <no-reply@docusign-portal-au.com>",
-                         "subject": "You have a document to sign, opens in 24 hours",
-                         "preview": "Review and sign the attached contract before it expires.",
-                         "phish": True,
-                         "why": "A lookalike DocuSign domain with a manufactured deadline. Reach signing services the way you normally do, never through the link."},
-                        {"from": "The Bean Room Cafe",
-                         "subject": "Your coffee loyalty: one free coffee waiting",
-                         "preview": "Show this email in store to claim. See you soon!",
-                         "phish": False,
-                         "why": "A genuine marketing email you signed up for, asking nothing risky and pushing no link to log in."},
-                    ],
-                },
-            },
-            {
-                "key": "multichannel-tabletop",
-                "kind": "branch",
-                "points": 2,
-                "title": "Tabletop: an attack on every channel",
-                "body": "<p>Real attacks often come through more than one channel at "
-                "once, to wear down your doubt. This is a tabletop drill: the "
-                "situation unfolds, you make a few connected calls, and you see how "
-                "it plays out.</p>"
-                "<div class=\"cy-callout\">The same instinct works whatever the "
-                "channel: do not act on the message in front of you, verify through "
-                "one you already trust, and report it.</div>",
-                "payload": {
-                    "prompt": "Handle the morning as it unfolds. Make each call and see the consequence.",
-                    "start": "email",
-                    "nodes": {
-                        "email": {
-                            "text": "9am. An email 'from IT' tells everyone to re-verify their password via a link, today. It looks a bit off. What is your first move?",
-                            "choices": [
-                                {"label": "Do not click. Check with IT the normal way and warn colleagues to hold off", "outcome": "good",
-                                 "feedback": "Right. You go to IT the way you always do, not through the email's link, and you slow everyone down.", "to": "text"},
-                                {"label": "Click the link and re-enter your password so you are not locked out", "outcome": "bad",
-                                 "feedback": "That hands your password to the attacker. Real IT does not make you confirm it through an email link.", "to": "clicked_bad"},
-                            ],
-                        },
-                        "clicked_bad": {
-                            "text": "Your password is captured and used within the hour to send more phishing from your account. A quick check with IT, instead of clicking, would have stopped it.",
-                            "choices": [],
-                        },
-                        "text": {
-                            "text": "Minutes later, a text arrives on your phone with the very same link. Then your desk phone rings: a friendly 'help desk' caller offers to walk you through the verification. What now?",
-                            "choices": [
-                                {"label": "Decline the caller, do not use the link, and report all three to IT as one coordinated scam", "outcome": "good",
-                                 "feedback": "Exactly. Three channels pushing the same link is a strong sign of a coordinated attack. Reporting it protects the whole office.", "to": "win"},
-                                {"label": "Let the caller guide you, since they clearly know about the email", "outcome": "bad",
-                                 "feedback": "Knowing about the email is part of the act. The caller is the scam, using the email and text to seem legitimate.", "to": "caller_bad"},
-                            ],
-                        },
-                        "caller_bad": {
-                            "text": "The caller talks you through 'verifying', and you hand over your login. The multi-channel act worked because each part made the others look real. Never let an unexpected caller drive.",
-                            "choices": [],
-                        },
-                        "win": {
-                            "text": "Three channels, one scam, and you stopped all of it: no click, no call, and a report that warned everyone. Verify through a channel you trust, whatever the message claims.",
-                            "choices": [],
-                        },
-                    },
-                },
-            },
-        ],
-    },
-    {
-        "title": "Read it like an analyst: spot, verify, report",
-        "reading_time_minutes": 8,
-        "intro": "You do not need to be technical to read a message like a security "
-        "analyst. You need a short checklist and the discipline to use it: check "
-        "the sender, distrust the link, verify on a separate channel, and report "
-        "what you find.",
-        "tasks": [
-            {
-                "key": "red-flags",
-                "kind": "classify",
-                "points": 2,
-                "title": "Name the red flag",
-                "body": "<p>An analyst does not need a gut feeling; they run a "
-                "checklist. Most attacks trip at least one of four wires: a "
-                "<strong>fake sender</strong> (a lookalike address), a "
-                "<strong>dodgy link</strong> (the text says one thing, the address "
-                "goes elsewhere), <strong>pressure or secrecy</strong> (act now, "
-                "tell no one), or an <strong>unexpected attachment</strong>. Read "
-                "each observation below and name the red flag it shows.</p>"
-                "<div class=\"cy-callout\">One red flag is enough to slow down. Two "
-                "or more, and you should assume it is an attack until you have "
-                "verified otherwise.</div>",
-                "payload": {
-                    "prompt": "Read each observation and tap the red flag it shows. Name all six to finish.",
-                    "categories": [
-                        {"id": "sender", "label": "Fake sender"},
-                        {"id": "link", "label": "Dodgy link"},
-                        {"id": "pressure", "label": "Pressure or secrecy"},
-                        {"id": "attach", "label": "Unexpected attachment"},
-                    ],
-                    "events": [
-                        {"text": "The name shows your bank, but the address is service@secure-bank-alerts.info.",
-                         "category": "sender",
-                         "why": "A fake sender: the friendly name is easy to set, but the real domain after the @ is a lookalike, not the bank."},
-                        {"text": "The link text reads bankofmelbourne.com, but hovering shows it goes to bankofmelb-login.co.",
-                         "category": "link",
-                         "why": "A dodgy link: the visible text and the real destination do not match. Always trust the destination, not the text."},
-                        {"text": "'Act within 30 minutes or your account will be permanently closed.'",
-                         "category": "pressure",
-                         "why": "Pressure: a manufactured deadline exists to stop you thinking and checking. Genuine services give you time."},
-                        {"text": "'Please keep this request between us and do not mention it to the team.'",
-                         "category": "pressure",
-                         "why": "Secrecy: asking you to bypass your normal checks and colleagues is a hallmark of a scam, not a real instruction."},
-                        {"text": "An invoice you were not expecting, sent as a .zip file to open.",
-                         "category": "attach",
-                         "why": "An unexpected attachment: a surprise file, especially a .zip, is a common way to deliver malware. Verify before opening."},
-                        {"text": "The email is from ceo-office-mail.com, which is not your company's domain.",
-                         "category": "sender",
-                         "why": "A fake sender: an outside lookalike domain impersonating your CEO. Check the domain, not just the display name."},
-                    ],
-                },
-            },
-            {
-                "key": "vendor-bank-change",
-                "kind": "branch",
-                "points": 2,
-                "title": "Decision drill: the vendor's bank details changed",
-                "body": "<p>Business email compromise costs Australian organisations "
-                "dearly, and it rarely looks dramatic. It looks like a routine email "
-                "from a supplier you know, quietly asking you to send the next "
-                "payment to a new account. Work through it.</p>"
-                "<div class=\"cy-callout\"><strong>The rule:</strong> a change of "
-                "bank account is always worth a phone call, on a number you already "
-                "have, before a cent moves.</div>",
-                "payload": {
-                    "prompt": "The email arrives. Make each call and see the consequence.",
-                    "start": "email",
-                    "nodes": {
-                        "email": {
-                            "text": "A long-standing supplier emails: their bank account has changed, so please pay this month's invoice, which really is due, to the new account below. The email looks entirely normal. What do you do?",
-                            "choices": [
-                                {"label": "Ring the supplier on the number you already have and confirm the change first", "outcome": "good",
-                                 "feedback": "Right. Verifying a bank-account change on a trusted number is the one habit that defeats this scam.", "to": "verify"},
-                                {"label": "Update the details and pay, so the invoice is not late", "outcome": "bad",
-                                 "feedback": "That sends the money to a criminal. A changed account plus any urgency always deserves a phone call first.", "to": "paid_bad"},
-                                {"label": "Reply to the email to confirm the new account is genuine", "outcome": "bad",
-                                 "feedback": "If the email is compromised, you are asking the attacker, who will happily confirm. Verify a different way.", "to": "reply_bad"},
-                            ],
-                        },
-                        "paid_bad": {
-                            "text": "The payment lands in a stranger's account and is gone. The supplier's email had been spoofed. One phone call to the number on last month's statement would have caught it.",
-                            "choices": [],
-                        },
-                        "reply_bad": {
-                            "text": "Your reply goes to the attacker, who cheerfully confirms the new account. Replying can never verify a suspicious message. Reach the sender a way you already trust.",
-                            "choices": [],
-                        },
-                        "verify": {
-                            "text": "You call the supplier on their known number. They are alarmed: they never changed their account, and their email was compromised. What now?",
-                            "choices": [
-                                {"label": "Hold the payment, warn your accounts team, and report the compromised supplier email", "outcome": "good",
-                                 "feedback": "Exactly. You stop the payment, protect colleagues who might get the same email, and flag the real problem.", "to": "win"},
-                                {"label": "Just pay the old account and move on quietly", "outcome": "bad",
-                                 "feedback": "Paying the old account is right, but staying quiet leaves your team and the supplier's other customers exposed. Report it.", "to": "quiet_bad"},
-                            ],
-                        },
-                        "quiet_bad": {
-                            "text": "A colleague gets the same email next week, hears nothing from you, and pays the new account. A quick warning would have stopped a second loss.",
-                            "choices": [],
-                        },
-                        "win": {
-                            "text": "Nothing lost, the team warned, the compromise reported. A bank-change email met the one check it cannot survive: a call to a number you already trust.",
-                            "choices": [],
-                        },
-                    },
-                },
-            },
-            {
-                "key": "read-exec-email",
-                "kind": "check",
-                "points": 2,
-                "title": "Read the executive's email",
-                "diagram": "exec-email",
-                "body": "<p>Here is business email compromise up close, with the red "
-                "flags called out. It impersonates a leader to push an unusual "
-                "payment through fast and quietly. Read it like an analyst: start "
-                "with the real sender address, then the pressure, then the "
-                "request.</p>"
-                "<div class=\"cy-callout\">The pattern is always the same: someone "
-                "important, in a hurry, asking for money or secrecy, from an address "
-                "that is not quite right.</div>",
-                "question": "Reading the email above, what most clearly marks it as business email compromise?",
-                "hint": "Weigh the sender address, the tone, and the request together.",
-                "options": [
-                    ("It comes from a lookalike domain (ceo-office-mail.com), pressures you with urgency and secrecy, and requests an unusual payment that skips the normal checks", True,
-                     "Right. A not-quite-right sender, plus pressure and secrecy, plus a request that avoids the usual process, is the signature of business email compromise."),
-                    ("It is addressed to you by name", False,
-                     "No. Genuine emails use your name too. The tells are the lookalike domain, the pressure and secrecy, and the unusual payment."),
-                    ("It mentions a meeting", False,
-                     "No. 'I am in meetings' is just the excuse for why you cannot call to check. The real tells are the domain, the pressure and the payment."),
-                    ("It is signed with a first name", False,
-                     "No. A signature proves nothing. The giveaways are the fake domain, the urgency and secrecy, and the out-of-process payment."),
-                ],
-            },
-            {
                 "key": "spot-the-scam",
                 "kind": "spot",
                 "points": 2,
@@ -442,60 +401,6 @@ LESSONS = [
                     },
                 },
             },
-            {
-                "key": "report-tabletop",
-                "kind": "branch",
-                "points": 2,
-                "title": "Tabletop: you spotted it, now what?",
-                "body": "<p>Spotting a phishing email is only half the job. What you "
-                "do next decides whether it stops with you or catches a colleague. "
-                "Work through this final drill.</p>"
-                "<div class=\"cy-callout\">Reporting beats deleting every time: "
-                "deleting protects only you, reporting lets the people who can block "
-                "it protect everyone.</div>",
-                "payload": {
-                    "prompt": "You have spotted a convincing phish. Make each call and see the consequence.",
-                    "start": "spotted",
-                    "nodes": {
-                        "spotted": {
-                            "text": "A convincing phishing email is sitting in your inbox, and two colleagues mention getting the same one. What do you do?",
-                            "choices": [
-                                {"label": "Report it using the report button or by telling IT, so it can be blocked and others warned", "outcome": "good",
-                                 "feedback": "Right. Reporting gets it in front of the people who can block it and alert everyone who received it.", "to": "then"},
-                                {"label": "Just delete it and get on with your day", "outcome": "bad",
-                                 "feedback": "Deleting protects only you. Your colleagues still have it in their inboxes, one click from trouble.", "to": "delete_bad"},
-                                {"label": "Forward it to the whole team to warn them", "outcome": "bad",
-                                 "feedback": "That spreads the dangerous link and invites a mis-click. Report it through the proper channel instead.", "to": "forward_bad"},
-                            ],
-                        },
-                        "delete_bad": {
-                            "text": "You are safe, but an hour later a colleague clicks the same email and enters their login. A quick report would have had it blocked for everyone.",
-                            "choices": [],
-                        },
-                        "forward_bad": {
-                            "text": "Forwarding it puts the live link in more inboxes, and someone clicks it by reflex. Warn people, yes, but by reporting it, not by passing the attack around.",
-                            "choices": [],
-                        },
-                        "then": {
-                            "text": "IT confirms it is a phishing campaign and blocks the sender. A colleague admits they already clicked the link and entered their password. What now?",
-                            "choices": [
-                                {"label": "Have them change that password, turn on two-factor, and tell IT which account", "outcome": "good",
-                                 "feedback": "Exactly. Fast, blame-free action locks the account down before the stolen password can be used.", "to": "win"},
-                                {"label": "Tell them to keep quiet so they do not get in trouble", "outcome": "bad",
-                                 "feedback": "Silence lets the attacker use the password freely. Early, blame-free reporting is what limits the damage.", "to": "quiet_bad"},
-                            ],
-                        },
-                        "quiet_bad": {
-                            "text": "Overnight the stolen login is used to send more phishing from inside the company. Owning up early, without blame, would have contained it in minutes.",
-                            "choices": [],
-                        },
-                        "win": {
-                            "text": "Reported, blocked, and the one click contained. That is the whole analyst's job for a non-technical person: spot it, verify it, and report it fast.",
-                            "choices": [],
-                        },
-                    },
-                },
-            },
         ],
     },
 ]
@@ -503,7 +408,7 @@ LESSONS = [
 QUIZ = {
     "pass_mark": 70,
     "questions": [
-        # ---- Lesson 1: The con behind the click ----
+        # ---- Lesson 1: understand it (the con and its shapes) ----
         {
             "lesson": 1, "difficulty": "EASY",
             "text": "What is social engineering?",
@@ -533,36 +438,7 @@ QUIZ = {
             ],
         },
         {
-            "lesson": 1, "difficulty": "EASY",
-            "text": "What is baiting?",
-            "options": [
-                ("Luring you with something tempting, like a found USB stick or a free prize, to make you act", True,
-                 "Yes. Baiting dangles something you want so your curiosity or greed overrides your caution."),
-                ("Sending the same scam to millions of people at once", False,
-                 "No. That is mass phishing. Baiting lures you with a tempting offer or object."),
-                ("Pretending to be your bank on the phone", False,
-                 "No. That is vishing. Baiting uses a tempting lure, like a dropped USB or a prize."),
-                ("Encrypting your files for a ransom", False,
-                 "No. That is ransomware. Baiting is a social-engineering lure."),
-            ],
-        },
-        # ---- Lesson 2: Phishing and its sharper cousins ----
-        {
-            "lesson": 2, "difficulty": "EASY",
-            "text": "How does ordinary phishing differ from a targeted attack?",
-            "options": [
-                ("It is sent generically to huge numbers of people, not tailored to any one person", True,
-                 "Yes. Mass phishing is a wide net: the same generic message to a giant list, hoping a few bite."),
-                ("It is always sent by text message, never email", False,
-                 "No. Ordinary phishing is usually email. The point is that it is generic and sent widely."),
-                ("It is aimed carefully at one named person", False,
-                 "No. That describes spear phishing. Ordinary phishing is generic and mass-sent."),
-                ("It can only be sent by someone who knows you", False,
-                 "No. Mass phishing needs no knowledge of you; it is sent blindly to huge lists."),
-            ],
-        },
-        {
-            "lesson": 2, "difficulty": "MEDIUM",
+            "lesson": 1, "difficulty": "MEDIUM",
             "text": "What makes spear phishing more dangerous than ordinary mass phishing?",
             "options": [
                 ("It is personalised with real details about you, so it slips past your guard", True,
@@ -577,21 +453,20 @@ QUIZ = {
         },
         {
             "lesson": 1, "difficulty": "MEDIUM",
-            "text": "An urgent, unusual payment request appears to come from your CEO. What is the safest defence against this kind of CEO fraud or whaling?",
+            "text": "What is business email compromise?",
             "options": [
-                ("Verify the request on a separate channel you already trust, whoever it seems to be from", True,
-                 "Yes. A quick call or message on a known number defeats CEO fraud, because the attacker cannot answer it."),
-                ("Pay it quickly because it is from the boss", False,
-                 "No. That is exactly what the scam relies on. Verify any unusual urgent payment first."),
-                ("Reply to the email and ask if it is genuine", False,
-                 "No. If it is a scam, you are asking the scammer. Verify on a separate trusted channel."),
-                ("Check whether the email has a company logo", False,
-                 "No. Logos are trivial to copy. Verify the request itself on a channel you already trust."),
+                ("A scam that impersonates a leader or supplier by email to redirect a real payment or push an unusual one", True,
+                 "Yes. There is no malware, just a convincing email quietly steering money to the attacker's account."),
+                ("A virus that spreads through a company's email server", False,
+                 "No. Business email compromise is a social-engineering scam about money, not a piece of malware."),
+                ("A rule that blocks spam before it reaches the inbox", False,
+                 "No. That is a defence. Business email compromise is the attack it tries to catch."),
+                ("A way to back up company email safely", False,
+                 "No. It is an attack that abuses trusted email relationships, not a backup method."),
             ],
         },
-        # ---- Lesson 3: Beyond the inbox ----
         {
-            "lesson": 2, "difficulty": "MEDIUM",
+            "lesson": 1, "difficulty": "MEDIUM",
             "text": "A call shows your bank's real name and phone number on your screen. What does that prove?",
             "options": [
                 ("Very little, because caller ID can be spoofed to show any name or number", True,
@@ -604,8 +479,9 @@ QUIZ = {
                  "No. Because caller ID can be spoofed, you should still hang up and call back on a trusted number."),
             ],
         },
+        # ---- Lesson 2: apply it (spot, verify, report) ----
         {
-            "lesson": 1, "difficulty": "EASY",
+            "lesson": 2, "difficulty": "EASY",
             "text": "You get an unexpected text about a held parcel, with a link to pay a small release fee. What is the best move?",
             "options": [
                 ("Do not tap the link; check with the carrier through their real app or website yourself", True,
@@ -618,7 +494,6 @@ QUIZ = {
                  "No. Do not spread the link. Check the parcel yourself through the carrier's real app or website."),
             ],
         },
-        # ---- Lesson 4: Reading an email like an investigator ----
         {
             "lesson": 2, "difficulty": "MEDIUM",
             "text": "What is the single most reliable thing to check on any suspicious email?",
@@ -634,6 +509,20 @@ QUIZ = {
             ],
         },
         {
+            "lesson": 2, "difficulty": "MEDIUM",
+            "text": "A caller sounds exactly like your manager and urgently asks you to transfer money to a new account. What is the safest action?",
+            "options": [
+                ("Hang up and call your manager back on a number you already have before moving any money", True,
+                 "Yes. A voice can be cloned, so verifying on a trusted number is the one move the scam cannot survive."),
+                ("Make the transfer, since the voice clearly sounds like them", False,
+                 "No. A familiar voice can now be cloned. Never move money on a voice alone."),
+                ("Ask the caller a personal question to confirm their identity", False,
+                 "No. A prepared attacker may know the answer, and a clone can respond smoothly. Call back on a trusted number."),
+                ("Confirm the account by replying to the caller's text", False,
+                 "No. That does not verify the caller. Use a phone number you already trust."),
+            ],
+        },
+        {
             "lesson": 2, "difficulty": "EASY",
             "text": "You spot and correctly identify a phishing email at work. What is the best thing to do with it?",
             "options": [
@@ -645,6 +534,20 @@ QUIZ = {
                  "No. Replying confirms your address is active and engages the attacker. Report it instead."),
                 ("Forward it to the whole team as a warning", False,
                  "No. That spreads the dangerous link. Report it through the proper channel."),
+            ],
+        },
+        {
+            "lesson": 2, "difficulty": "HARD",
+            "text": "A supplier you know emails that their bank account has changed, so please pay this month's real invoice to the new account. What should you do first?",
+            "options": [
+                ("Ring the supplier on a number you already have and confirm the change before paying anything", True,
+                 "Yes. A changed bank account is always worth a call to a trusted number. That one check defeats this scam."),
+                ("Update the details and pay, so the invoice is not late", False,
+                 "No. That can send the money to a criminal. A changed account deserves a phone call first."),
+                ("Reply to the email to ask if the new account is genuine", False,
+                 "No. If the email is compromised, you are asking the attacker, who will happily confirm. Verify a different way."),
+                ("Pay a small test amount first to see if it goes through", False,
+                 "No. Any payment to an unverified account is a loss. Confirm the change by phone before paying at all."),
             ],
         },
     ],
