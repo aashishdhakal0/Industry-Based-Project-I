@@ -32,11 +32,11 @@ LESSONS = [
                 "kind": "concept",
                 "points": 2,
                 "title": "The firewall: a guard reading a list of rules",
-                "hero": "firewall-flow",
+                "diagram": "firewall",
                 "body": "<p>A firewall is not magic. It is the guard on the "
                 "connection between your network and the internet, and it works from "
-                "a short list of <strong>rules</strong>. Watch the sequence above: a "
-                "connection arrives, it is checked against the rules, and it is "
+                "a short list of <strong>rules</strong>. Every "
+                "connection that arrives is checked against those rules, and is "
                 "either allowed through or blocked at the gate.</p>"
                 "<p>Two ideas make sense of every firewall you will ever meet:</p>"
                 "<ul>"
@@ -95,12 +95,12 @@ LESSONS = [
                 "kind": "concept",
                 "points": 2,
                 "title": "Segmentation: watertight compartments",
-                "hero": "segment-flow",
+                "diagram": "segmentation",
                 "body": "<p><strong>Segmentation</strong> means dividing one big "
                 "network into separate zones, so a problem in one cannot spread to "
-                "the rest. Watch the comparison above: on a flat network where "
-                "everything shares one space, an infection reaches every machine; on "
-                "a segmented one, a barrier seals it into a single zone.</p>"
+                "the rest. On a flat network where everything shares one space, an "
+                "infection reaches every machine; on a segmented one, shown in the "
+                "diagram, a barrier seals it into a single zone.</p>"
                 "<p>The everyday version is deciding which network each thing belongs "
                 "on. A small business usually wants three zones:</p>"
                 "<ul>"
@@ -135,7 +135,7 @@ LESSONS = [
                 "gets into a business, precisely because it offers attackers a "
                 "direct door with a password to guess.</p>"
                 "<p>The right way is a <strong>VPN</strong>, a virtual private "
-                "network. As the picture shows, it builds an encrypted tunnel from a "
+                "network. It builds an encrypted tunnel from a "
                 "remote device back into the office network through one guarded, "
                 "locked door. The office systems themselves stay hidden from the open "
                 "internet; only the VPN door is exposed, and it gets the strongest "
@@ -183,16 +183,23 @@ LESSONS = [
     {
         "title": "Put the defences to work: rules, zones, and weak spots",
         "reading_time_minutes": 9,
-        "intro": "Now use it. Read a real firewall rule set and judge live traffic, "
-        "sort devices into the right zones, read a segmented network, hunt the weak "
-        "spots on a business map, and think default-deny.",
+        "intro": "Now use it at Yarra Freight, a Melbourne depot where ops manager "
+        "Paul Nguyen runs dispatch, drivers carry tablets, and the accounts and "
+        "customer records sit on one server out the back. Read the firewall rule "
+        "set and judge live traffic, sort devices into the right zones, read a "
+        "segmented network, hunt the weak spots on the depot map, and think "
+        "default-deny.",
         "tasks": [
             {
                 "key": "read-the-rules",
                 "kind": "firewall",
                 "points": 2,
                 "title": "Read the firewall's rules",
-                "body": "<p>Here is a small firm's firewall. Lesson 1 gave you the "
+                "hero": "firewall-flow",
+                "body": "<p>First, watch a firewall work: the animation above shows a "
+                "connection arriving, being checked against the rules, and being "
+                "allowed or blocked at the gate. Now you read the rules yourself.</p>"
+                "<p>Here is a small firm's firewall. Lesson 1 gave you the "
                 "two ideas that decode it: read the rules top-down, and the first one "
                 "that matches wins, with a default-deny at the bottom. Read the rule "
                 "set, then decide for each connection whether it is Allowed or "
@@ -226,7 +233,12 @@ LESSONS = [
                 "kind": "classify",
                 "points": 2,
                 "title": "Put each thing on the right network",
-                "body": "<p>Segmentation in practice is deciding which network each "
+                "hero": "segment-flow",
+                "body": "<p>First, watch why zones matter: the animation above shows an "
+                "infection racing across a flat network, then being sealed into a "
+                "single zone once the network is segmented. Now you place each "
+                "device.</p>"
+                "<p>Segmentation in practice is deciding which network each "
                 "device belongs on. A trusted zone for staff work, a guest zone for "
                 "visitors and the public Wi-Fi, and a restricted zone for the "
                 "sensitive systems. Place each device where it belongs.</p>"
@@ -240,22 +252,22 @@ LESSONS = [
                         {"id": "restricted", "label": "Restricted (sensitive)"},
                     ],
                     "events": [
-                        {"text": "A staff laptop used for everyday work.",
+                        {"text": "The dispatch laptop Paul uses for everyday scheduling.",
                          "category": "trusted",
                          "why": "Trusted zone. Everyday staff devices belong on the internal work network, not mixed in with visitors or the crown jewels."},
-                        {"text": "The free Wi-Fi in the waiting room, for customers' phones.",
+                        {"text": "The Wi-Fi in the driver waiting area, for visiting drivers' phones.",
                          "category": "guest",
                          "why": "Guest zone. Visitor devices you do not control must be kept off the staff network entirely, on their own segment."},
-                        {"text": "The server holding customer records and accounts.",
+                        {"text": "The server holding customer records and accounts out the back.",
                          "category": "restricted",
                          "why": "Restricted zone. The most sensitive systems get their own tightly controlled segment, reachable only by who genuinely needs them."},
-                        {"text": "A visiting contractor's personal tablet.",
+                        {"text": "A visiting mechanic's personal tablet.",
                          "category": "guest",
                          "why": "Guest zone. An outside device you do not manage should never touch the staff or sensitive networks."},
-                        {"text": "The reception computer staff use for bookings.",
+                        {"text": "The front-desk computer used for consignment bookings.",
                          "category": "trusted",
                          "why": "Trusted zone. A managed staff machine belongs on the internal work network."},
-                        {"text": "The payment and card system.",
+                        {"text": "The payment and card terminal for freight charges.",
                          "category": "restricted",
                          "why": "Restricted zone. Payment systems carry the highest risk and the strictest rules, so they are isolated on their own segment."},
                     ],
@@ -307,7 +319,7 @@ LESSONS = [
                          "why": "A default password is public knowledge. This is often the very first thing an attacker tries."},
                         {"label": "Remote Desktop open to the internet on the office PC", "weak": True,
                          "why": "An exposed remote-login door is scanned and attacked constantly. It should be behind a VPN, not open to the world."},
-                        {"label": "Customer Wi-Fi sharing the same network as the accounts computer", "weak": True,
+                        {"label": "Driver waiting-area Wi-Fi sharing the same network as the accounts computer", "weak": True,
                          "why": "No segmentation. A problem on a visitor's device can reach the sensitive accounts machine. These belong on separate zones."},
                         {"label": "Server software two years without an update", "weak": True,
                          "why": "Unpatched software has known holes that are freely documented. It needs regular updates to stay safe."},

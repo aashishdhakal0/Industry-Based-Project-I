@@ -8968,7 +8968,7 @@ a.cy-mroad__title:hover { color: var(--cy-cyan-soft); }
 .cy-share__list { color: var(--cy-text-2); font-size: 0.84rem; line-height: 1.7; list-style: none; margin: 0; padding: 0; }
 
 /* cafe Wi-Fi picker with an evil twin */
-.cy-wifi { display: flex; justify-content: center; }
+.cy-wifi { display: flex; flex-direction: column; }
 .cy-wifi__panel { background: var(--cy-surface); border: 1px solid var(--cy-border); border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); max-width: 24rem; overflow: hidden; width: 100%; }
 .cy-wifi__title { background: var(--cy-surface-2); border-bottom: 1px solid var(--cy-border); color: var(--cy-text); font-size: 0.9rem; font-weight: 600; padding: 0.7rem 1rem; }
 .cy-wifi__row { align-items: center; border-bottom: 1px solid var(--cy-border); color: var(--cy-text); display: flex; font-size: 0.9rem; gap: 0.6rem; padding: 0.7rem 1rem; }
@@ -9883,3 +9883,147 @@ a.cy-mrow:hover { border-color: var(--cy-border-lift); transform: translateX(3px
   .cy-eaves__lane--open .cy-eaves__pkt, .cy-eaves__lane--vpn .cy-eaves__pkt { animation: none; left: 44%; }
   .cy-eaves__lane--open .cy-eaves__spy { animation: none; color: var(--cy-danger); }
 }
+
+/* ============================================================================
+   SIMULATION SCREENS (v36+) — content rendered inside .cy-scr device frames by
+   the scene engine (cybaroo.js sceneScreen). The learner reads a real router
+   page / email / device list to decide. Colour tokens come from the enclosing
+   .cy-scr, so these read correctly in light and dark.
+   ========================================================================== */
+.cy-scn__art--real { display: flex; align-items: center; justify-content: center; padding: 0.3rem 0 0.6rem; height: auto; overflow: visible; }
+.cy-scn__art--real::after { display: none; }
+.cy-scn__art--real .cy-scr { max-width: 440px; width: 100%; }
+.cy-simrows, .cy-simitems { display: flex; flex-direction: column; }
+.cy-simrow { align-items: center; border-bottom: 1px solid var(--scr-line, var(--cy-border)); display: flex; font-size: 0.82rem; gap: 1rem; justify-content: space-between; padding: 0.5rem 0.1rem; }
+.cy-simrow:last-child { border-bottom: none; }
+.cy-simrow__k { color: var(--scr-ink-2, var(--cy-text-2)); }
+.cy-simrow__v { color: var(--scr-ink, var(--cy-text)); font-family: var(--cy-font-mono); text-align: right; }
+.cy-simrow__v.is-bad { color: var(--cy-danger); }
+.cy-simrow__v.is-warn { color: var(--cy-gold); }
+.cy-simrow__v.is-ok { color: var(--cy-cyan); }
+.cy-simmail__subj { color: var(--scr-ink, var(--cy-text)); font-size: 0.9rem; font-weight: 700; margin-bottom: 0.3rem; }
+.cy-simmail__meta { color: var(--scr-ink-2, var(--cy-text-2)); display: flex; font-size: 0.74rem; gap: 1rem; justify-content: space-between; margin-bottom: 0.5rem; }
+.cy-simmail__from { font-family: var(--cy-font-mono); }
+.cy-simmail__body { color: var(--scr-ink, var(--cy-text)); font-size: 0.8rem; margin: 0 0 0.5rem; }
+.cy-simmail__att { align-items: center; border: 1px solid var(--scr-line, var(--cy-border)); border-radius: 6px; display: inline-flex; font-family: var(--cy-font-mono); font-size: 0.74rem; gap: 0.3rem; padding: 0.2rem 0.5rem; }
+.cy-simmail__att.is-bad { border-color: rgba(255, 77, 77, 0.5); color: var(--cy-danger); }
+.cy-simitem { align-items: center; border-bottom: 1px solid var(--scr-line, var(--cy-border)); display: flex; gap: 1rem; justify-content: space-between; padding: 0.5rem 0.1rem; }
+.cy-simitem:last-child { border-bottom: none; }
+.cy-simitem__meta { display: flex; flex-direction: column; }
+.cy-simitem__name { color: var(--scr-ink, var(--cy-text)); font-size: 0.82rem; }
+.cy-simitem__sub { color: var(--scr-ink-2, var(--cy-text-2)); font-family: var(--cy-font-mono); font-size: 0.66rem; }
+.cy-simitem__tag { border: 1px solid var(--scr-line, var(--cy-border)); border-radius: 999px; color: var(--cy-cyan-soft); font-family: var(--cy-font-mono); font-size: 0.6rem; letter-spacing: 0.04em; padding: 0.1rem 0.45rem; text-transform: uppercase; }
+.cy-simitem.is-bad { background: rgba(255, 77, 77, 0.06); }
+.cy-simitem.is-bad .cy-simitem__name, .cy-simitem.is-bad .cy-simitem__tag { border-color: rgba(255, 77, 77, 0.5); color: var(--cy-danger); }
+
+/* ============================================================================
+   TEACHING DIAGRAMS  cy-td  (Lesson 1, v37+) — clean, labelled SVG built to
+   published-manual quality: network topology, data hops, labelled router.
+   Dark-theme diagrams (the app is dark); colours are explicit.
+   ========================================================================== */
+.cy-td { background: radial-gradient(120% 100% at 50% 0, #0e1826, #0a0e15 72%); border: 1px solid var(--cy-border); border-radius: 14px; overflow-x: auto; padding: 1rem 0.8rem 0.5rem; }
+.cy-td__svg { display: block; width: 100%; height: auto; max-width: 700px; margin: 0 auto; min-width: 480px; font-family: var(--cy-font-sans); }
+.cy-td__eyebrow { fill: #8ea0cc; font-family: var(--cy-font-mono); font-size: 11px; letter-spacing: 0.14em; }
+.cy-td__dev rect, .cy-td__hop rect { fill: #141d29; stroke: #33465f; stroke-width: 1.5; }
+.cy-td__dev text, .cy-td__hop text { fill: #dce6f5; font-size: 13px; text-anchor: middle; font-weight: 600; }
+.cy-td__sub { fill: #8ea0cc; font-size: 10.5px; font-weight: 400; text-anchor: middle; }
+.cy-td__router { fill: #5be7ff; font-size: 12px; text-anchor: middle; font-weight: 700; letter-spacing: 0.06em; }
+.cy-td__sub2 { fill: #8ea0cc; font-size: 9.5px; text-anchor: middle; }
+.cy-td__hop--open rect { stroke: #ff4d4d; }
+.cy-td__red { fill: #ff9a9a; font-size: 10px; text-anchor: middle; font-family: var(--cy-font-mono); }
+.cy-td__lane { font-size: 11px; font-family: var(--cy-font-mono); }
+.cy-td__lane--red { fill: #ffb3b3; } .cy-td__lane--cyan { fill: #9fe9ff; }
+.cy-td__call text { fill: #dce6f5; font-size: 12.5px; font-weight: 600; }
+.cy-td__call--r text { text-anchor: end; }
+.cy-td__csub { fill: #9db2d4; font-size: 10px; font-weight: 400; }
+
+/* cy-td device variants for malware-vectors / containment (v37+) */
+.cy-td__dev--risk rect { fill: #1a1220; stroke: #7a3546; }
+.cy-td__dev--safe rect { fill: #101d22; stroke: #1f6f66; }
+
+/* ============================================================================
+   ADMIN OVERVIEW — trend strip + attention cohorts (console, Stage 1)
+   ========================================================================== */
+.cy-c-kpis--trend { grid-template-columns: repeat(3, 1fr); margin-top: -0.9rem; margin-bottom: 1.75rem; }
+@media (max-width: 720px) { .cy-c-kpis--trend { grid-template-columns: 1fr; } }
+.cy-c-cohorts { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.9rem; }
+@media (max-width: 900px) { .cy-c-cohorts { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 560px) { .cy-c-cohorts { grid-template-columns: 1fr; } }
+.cy-c-cohort { background: var(--cy-surface-2); border: 1px solid var(--cy-border); border-radius: 12px; padding: 1rem 1.05rem; display: flex; flex-direction: column; gap: 0.5rem; }
+.cy-c-cohort.is-active { border-color: var(--cy-warn-ln); }
+.cy-c-cohort__top { display: flex; align-items: baseline; gap: 0.5rem; }
+.cy-c-cohort__count { color: var(--cy-text-3); font-family: var(--cy-font-mono); font-feature-settings: "tnum"; font-size: 1.6rem; font-weight: 600; line-height: 1; }
+.cy-c-cohort.is-active .cy-c-cohort__count { color: var(--cy-accent-strong); }
+.cy-c-cohort__label { color: var(--cy-text); font-size: 0.9rem; font-weight: 600; }
+.cy-c-cohort__note { color: var(--cy-text-3); font-size: 0.76rem; line-height: 1.35; margin: 0; }
+.cy-c-cohort__names { list-style: none; margin: 0.1rem 0 0; padding: 0; display: flex; flex-direction: column; gap: 0.15rem; }
+.cy-c-cohort__names a { color: var(--cy-text-2); font-size: 0.82rem; text-decoration: none; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cy-c-cohort__names a:hover { color: var(--cy-accent-strong); text-decoration: underline; }
+.cy-c-cohort__all { color: var(--cy-accent-strong); font-size: 0.8rem; font-weight: 600; text-decoration: none; margin-top: auto; }
+.cy-c-cohort__all:hover { text-decoration: underline; }
+.cy-c-cohort__clear { color: var(--cy-text-3); font-size: 0.82rem; margin: 0; }
+
+/* Audit log — filter bar (console, Stage 1) */
+.cy-c-filterbar { align-items: flex-end; background: var(--cy-surface-2); border: 1px solid var(--cy-border); border-radius: 12px; display: flex; flex-wrap: wrap; gap: 0.7rem; margin-bottom: 1rem; padding: 0.85rem 1rem; }
+.cy-c-filterbar__field { display: flex; flex-direction: column; gap: 0.25rem; }
+.cy-c-filterbar__field label { color: var(--cy-text-3); font-size: 0.7rem; font-weight: 600; letter-spacing: 0.03em; text-transform: uppercase; }
+.cy-c-filterbar__field--grow { flex: 1 1 12rem; }
+.cy-c-filterbar__actions { display: flex; gap: 0.4rem; margin-left: auto; }
+.cy-c-empty--sm { padding: 1.4rem 1rem; text-align: left; }
+
+/* Learners — bulk-select bar + checkbox column (console, Stage 2) */
+.cy-c-check { width: 2.2rem; text-align: center; }
+.cy-c-check input { accent-color: var(--cy-accent); cursor: pointer; }
+.cy-c-bulkbar { align-items: center; background: var(--cy-surface-3); border: 1px solid var(--cy-accent); border-radius: 10px; display: flex; flex-wrap: wrap; gap: 0.7rem; margin-bottom: 0.8rem; padding: 0.6rem 0.9rem; }
+.cy-c-bulkbar__count { color: var(--cy-text); font-size: 0.85rem; }
+.cy-c-bulkbar__count strong { color: var(--cy-accent-strong); font-family: var(--cy-font-mono); }
+.cy-c-bulkbar__field { display: flex; }
+.cy-c-bulkbar .cy-btn { margin-left: auto; }
+.cy-c-bulkbar__field + .cy-c-bulkbar__field { margin-left: 0; }
+
+/* Learner detail — certificate + private notes (console, Stage 2) */
+.cy-c-cert { align-items: center; background: var(--cy-surface-2); border: 1px solid var(--cy-border); border-radius: 10px; display: flex; flex-wrap: wrap; gap: 0.6rem; padding: 0.8rem 1rem; }
+.cy-c-cert__main { display: flex; flex-direction: column; gap: 0.15rem; margin-right: auto; }
+.cy-c-cert__serial { color: var(--cy-text); font-family: var(--cy-font-mono); font-size: 0.95rem; letter-spacing: 0.02em; }
+.cy-c-cert__meta { color: var(--cy-text-3); font-size: 0.8rem; }
+.cy-c-notewrite { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 0.9rem; }
+.cy-c-notewrite .cy-btn { align-self: flex-start; }
+.cy-c-notes { display: flex; flex-direction: column; gap: 0.55rem; list-style: none; margin: 0; padding: 0; }
+.cy-c-note { background: var(--cy-surface-2); border: 1px solid var(--cy-border); border-left: 3px solid var(--cy-accent); border-radius: 8px; padding: 0.6rem 0.8rem; }
+.cy-c-note__body { color: var(--cy-text); font-size: 0.88rem; margin: 0 0 0.3rem; white-space: pre-wrap; }
+.cy-c-note__meta { color: var(--cy-text-3); font-size: 0.74rem; margin: 0; }
+
+/* Bulk invite (console, Stage 3) */
+.cy-c-form__row { display: flex; flex-wrap: wrap; gap: 1rem; }
+.cy-c-form__row .cy-c-field { flex: 1 1 12rem; }
+.cy-c-checkbox { align-items: center; color: var(--cy-text-2); display: flex; font-size: 0.86rem; gap: 0.5rem; margin: 0.2rem 0 1rem; }
+.cy-c-checkbox input { accent-color: var(--cy-accent); }
+.cy-c-invsum { display: flex; flex-direction: column; gap: 0.35rem; list-style: none; margin: 0 0 0.9rem; padding: 0; }
+.cy-c-invsum__row { align-items: baseline; color: var(--cy-text-2); display: flex; font-size: 0.85rem; gap: 0.5rem; }
+.cy-c-invsum__n { color: var(--cy-text-3); font-family: var(--cy-font-mono); font-size: 1.1rem; font-weight: 600; min-width: 1.6rem; }
+.cy-c-invsum__row.is-new .cy-c-invsum__n { color: var(--cy-accent-strong); }
+.cy-c-invlist { display: flex; flex-direction: column; gap: 0.1rem; list-style: none; margin: 0.3rem 0 0.9rem; max-height: 14rem; overflow-y: auto; padding: 0; }
+.cy-c-invlist li { color: var(--cy-text-2); font-family: var(--cy-font-mono); font-size: 0.78rem; padding: 0.15rem 0; }
+.cy-c-invlist li.is-new { color: var(--cy-text); }
+.cy-c-invlist li.is-bad { color: var(--cy-bad-fg); text-decoration: line-through; }
+.cy-c-invdetails { border-top: 1px solid var(--cy-border); margin-top: 0.6rem; padding-top: 0.6rem; }
+.cy-c-invdetails summary { color: var(--cy-text-3); cursor: pointer; font-size: 0.8rem; }
+.cy-c-steps { color: var(--cy-text-2); font-size: 0.85rem; line-height: 1.6; margin: 0 0 0.8rem; padding-left: 1.1rem; }
+
+/* Reports hub + compliance (console, Stage 4) */
+.cy-c-reports { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+@media (max-width: 780px) { .cy-c-reports { grid-template-columns: 1fr; } }
+.cy-c-report { background: var(--cy-surface-2); border: 1px solid var(--cy-border); border-radius: 12px; display: flex; flex-direction: column; gap: 0.6rem; padding: 1.15rem 1.25rem; }
+.cy-c-report__title { color: var(--cy-text); font-size: 1.05rem; margin: 0; }
+.cy-c-report__body { color: var(--cy-text-3); font-size: 0.85rem; line-height: 1.5; margin: 0; }
+.cy-c-report__actions { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: auto; padding-top: 0.3rem; }
+.cy-c-report__pick { display: flex; gap: 0.5rem; margin-top: auto; }
+.cy-c-report__pick .cy-c-input { flex: 1; }
+.cy-c-kpis--compliance { grid-template-columns: repeat(3, 1fr); }
+@media (max-width: 720px) { .cy-c-kpis--compliance { grid-template-columns: 1fr; } }
+
+/* Admin "preview as student" banner on a lesson room (Stage 5) */
+.cy-previewbar { align-items: center; background: rgba(230, 180, 85, 0.12); border: 1px solid rgba(230, 180, 85, 0.4); border-radius: 10px; color: var(--cy-text); display: flex; flex-wrap: wrap; font-size: 0.85rem; gap: 0.6rem 0.9rem; margin: 0 auto 1rem; max-width: 60rem; padding: 0.6rem 1rem; }
+.cy-previewbar__tag { background: var(--cy-gold); border-radius: 5px; color: #1a1205; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.04em; padding: 0.12rem 0.45rem; text-transform: uppercase; }
+.cy-previewbar__back { color: var(--cy-violet); font-weight: 600; margin-left: auto; text-decoration: none; }
+.cy-previewbar__back:hover { text-decoration: underline; }

@@ -1,0 +1,113 @@
+{% extends "staff/base.html" %}
+
+{% block title %}Invite people — {{ site_name }}{% endblock %}
+
+{% block console %}
+<a class="cy-c-back" href="{% url 'staff:learners' %}">
+  <svg class="cy-i" aria-hidden="true"><use href="#i-chevron-left"/></svg> Back to learners
+</a>
+
+<header class="cy-c-head">
+  <div>
+    <p class="cy-c-head__eyebrow">Administrator</p>
+    <h1 class="cy-c-head__title">Invite people</h1>
+    <p class="cy-c-head__sub">Onboard a whole workplace at once. Paste a list of emails or upload a CSV, check the preview, then create the accounts in one go.</p>
+  </div>
+  <div class="cy-c-head__actions">
+    <a class="cy-btn cy-btn--ghost cy-btn--sm" href="{% url 'staff:user_new' %}">Add one user</a>
+  </div>
+</header>
+
+<div class="cy-c-detail">
+  <div class="cy-c-detail__main">
+    <form class="cy-c-section cy-c-form" method="post" enctype="multipart/form-data" action="{% url 'staff:bulk_invite' %}">
+      {% csrf_token %}
+      <div class="cy-c-field">
+        <label class="cy-c-label" for="emails">Email addresses</label>
+        <textarea class="cy-c-input" id="emails" name="emails" rows="7"
+                  placeholder="One per line, or comma-separated:&#10;steph@wattlegrove.com.au&#10;dilan@wattlegrove.com.au&#10;karen@wattlegrove.com.au">{{ emails_raw }}</textarea>
+        <p class="cy-c-help">Any format works: one per line, commas, or “Name &lt;email&gt;” pairs.</p>
+      </div>
+      <div class="cy-c-field">
+        <label class="cy-c-label" for="csv">…or upload a CSV</label>
+        <input class="cy-c-input" id="csv" type="file" name="csv" accept=".csv,text/csv,text/plain">
+        <p class="cy-c-help">Every email-looking value in the file is picked up, whatever the columns.</p>
+      </div>
+      <div class="cy-c-form__row">
+        <div class="cy-c-field">
+          <label class="cy-c-label" for="role">Role</label>
+          <select class="cy-c-input" id="role" name="role">
+            {% for value, label in roles %}<option value="{{ value }}"{% if role == value %} selected{% endif %}>{{ label }}</option>{% endfor %}
+          </select>
+        </div>
+        <div class="cy-c-field">
+          <label class="cy-c-label" for="org">Organisation</label>
+          <select class="cy-c-input" id="org" name="org">
+            <option value="">No organisation</option>
+            {% for o in orgs %}<option value="{{ o.pk }}"{% if org and org.pk == o.pk %} selected{% endif %}>{{ o.name }}</option>{% endfor %}
+          </select>
+        </div>
+      </div>
+      <label class="cy-c-checkbox">
+        <input type="checkbox" name="send_invite" {% if send_invite or result is None %}checked{% endif %}>
+        <span>Email each person a link to set their own password</span>
+      </label>
+      <button type="submit" class="cy-btn cy-btn--primary cy-btn--sm">Preview</button>
+    </form>
+  </div>
+
+  <aside class="cy-c-detail__side">
+    {% if result is not None %}
+      <div class="cy-c-section">
+        <div class="cy-c-section__head"><h2 class="cy-c-section__title">Preview</h2></div>
+        <ul class="cy-c-invsum">
+          <li class="cy-c-invsum__row is-new"><span class="cy-c-invsum__n">{{ result.new|length }}</span> to create</li>
+          <li class="cy-c-invsum__row"><span class="cy-c-invsum__n">{{ result.existing|length }}</span> already registered (skipped)</li>
+          <li class="cy-c-invsum__row"><span class="cy-c-invsum__n">{{ result.invalid|length }}</span> not valid emails (skipped)</li>
+        </ul>
+
+        {% if result.new %}
+          <p class="cy-c-help">These will be created as <strong>{{ role_label }}</strong>{% if org %} in <strong>{{ org.name }}</strong>{% endif %}.</p>
+          <ul class="cy-c-invlist">
+            {% for e in result.new %}<li class="is-new">{{ e }}</li>{% endfor %}
+          </ul>
+          <form method="post" action="{% url 'staff:bulk_invite' %}"
+                data-confirm="Create {{ result.new|length }} account{{ result.new|length|pluralize }}?" data-confirm-yes="Create accounts">
+            {% csrf_token %}
+            <textarea name="emails" hidden>{{ emails_raw }}</textarea>
+            <input type="hidden" name="role" value="{{ role }}">
+            <input type="hidden" name="org" value="{{ org.pk|default:'' }}">
+            {% if send_invite %}<input type="hidden" name="send_invite" value="on">{% endif %}
+            <input type="hidden" name="action" value="create">
+            <button type="submit" class="cy-btn cy-btn--primary cy-btn--block cy-btn--sm">Create {{ result.new|length }} account{{ result.new|length|pluralize }}</button>
+          </form>
+        {% else %}
+          <p class="cy-c-muted">Nothing new to create. Adjust the list and preview again.</p>
+        {% endif %}
+
+        {% if result.existing %}
+          <details class="cy-c-invdetails"><summary>{{ result.existing|length }} already registered</summary>
+            <ul class="cy-c-invlist">{% for e in result.existing %}<li>{{ e }}</li>{% endfor %}</ul>
+          </details>
+        {% endif %}
+        {% if result.invalid %}
+          <details class="cy-c-invdetails"><summary>{{ result.invalid|length }} not valid</summary>
+            <ul class="cy-c-invlist">{% for e in result.invalid %}<li class="is-bad">{{ e }}</li>{% endfor %}</ul>
+          </details>
+        {% endif %}
+      </div>
+    {% else %}
+      <div class="cy-c-section">
+        <div class="cy-c-section__head"><h2 class="cy-c-section__title">How it works</h2></div>
+        <ol class="cy-c-steps">
+          <li>Paste your staff emails or upload a CSV.</li>
+          <li>Pick a role and (optionally) an organisation.</li>
+          <li>Preview shows exactly who is new, already registered, or invalid.</li>
+          <li>Confirm to create them all. Each can be emailed a link to set their password.</li>
+        </ol>
+        <p class="cy-c-muted">Accounts are created as active and verified. They are never given Django admin rights.</p>
+      </div>
+    {% endif %}
+  </aside>
+</div>
+{% endblock %}

@@ -54,6 +54,14 @@ def verify(request, serial):
             {"valid": False, "serial": serial},
             status=404,
         )
+    if cert.revoked_at is not None:
+        # Revoked by an administrator: it exists, but it no longer stands.
+        return render(
+            request,
+            "certificates/verify.html",
+            {"valid": False, "revoked": True, "serial": cert.serial},
+            status=410,
+        )
     user = cert.user
     return render(
         request,

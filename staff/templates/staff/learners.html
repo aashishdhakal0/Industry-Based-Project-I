@@ -15,6 +15,7 @@
       <a class="cy-c-metric {% if view == 'list' %}is-active{% endif %}" href="?view=list{% if q %}&q={{ q|urlencode }}{% endif %}{% if filter %}&filter={{ filter }}{% endif %}&sort={{ sort }}">List</a>
     </div>
     <a class="cy-btn cy-btn--ghost cy-btn--sm" href="{% url 'staff:user_new' %}">Add user</a>
+    <a class="cy-btn cy-btn--ghost cy-btn--sm" href="{% url 'staff:bulk_invite' %}">Invite people</a>
     <a class="cy-btn cy-btn--ghost cy-btn--sm" href="{% url 'staff:learners_csv' %}">Export CSV</a>
   </div>
 </header>
@@ -106,11 +107,39 @@
   {% endfor %}
 
 {% else %}
-  {# --------- Flat list: sortable + paginated --------- #}
+  {# --------- Flat list: sortable + paginated + bulk-select --------- #}
+  <form method="post" action="{% url 'staff:bulk_action' %}" data-bulk>
+    {% csrf_token %}
+    <input type="hidden" name="next" value="{% url 'staff:learners' %}{% if base_qs %}?{{ base_qs }}{% endif %}">
+
+    <div class="cy-c-bulkbar" data-bulk-bar hidden>
+      <span class="cy-c-bulkbar__count"><strong data-bulk-count>0</strong> selected</span>
+      <label class="cy-c-bulkbar__field">
+        <span class="visually-hidden">Bulk action</span>
+        <select class="cy-c-input" name="action" data-bulk-select>
+          <option value="">Choose an action…</option>
+          <option value="nudge">Send a nudge</option>
+          <option value="assign_org">Assign to organisation…</option>
+          <option value="activate">Activate</option>
+          <option value="deactivate">Deactivate</option>
+          <option value="export">Export selection (CSV)</option>
+        </select>
+      </label>
+      <label class="cy-c-bulkbar__field" data-bulk-org hidden>
+        <span class="visually-hidden">Organisation</span>
+        <select class="cy-c-input" name="org">
+          <option value="">No organisation</option>
+          {% for o in organisations %}<option value="{{ o.pk }}">{{ o.name }}</option>{% endfor %}
+        </select>
+      </label>
+      <button type="submit" class="cy-btn cy-btn--primary cy-btn--sm">Apply</button>
+    </div>
+
   <div class="cy-c-tablewrap">
-    <table class="cy-c-table">
+    <table class="cy-c-table cy-c-table--selectable">
       <thead>
         <tr>
+          <th class="cy-c-check"><input type="checkbox" data-bulk-all aria-label="Select all on this page"></th>
           <th><a class="cy-c-th {% if sort == 'name' %}is-sorted{% endif %}" href="?view=list&sort=name{% if q %}&q={{ q|urlencode }}{% endif %}{% if filter %}&filter={{ filter }}{% endif %}">Learner</a></th>
           <th><a class="cy-c-th {% if sort == 'completion' %}is-sorted{% endif %}" href="?view=list&sort=completion{% if q %}&q={{ q|urlencode }}{% endif %}{% if filter %}&filter={{ filter }}{% endif %}">Modules</a></th>
           <th><a class="cy-c-th {% if sort == 'grade' %}is-sorted{% endif %}" href="?view=list&sort=grade{% if q %}&q={{ q|urlencode }}{% endif %}{% if filter %}&filter={{ filter }}{% endif %}">Grade</a></th>
@@ -122,6 +151,7 @@
       <tbody>
         {% for row in rows %}
           <tr>
+            <td class="cy-c-check"><input type="checkbox" name="ids" value="{{ row.user.pk }}" data-bulk-item aria-label="Select {{ row.name }}"></td>
             <td>
               <a class="cy-c-learner" href="{% url 'staff:learner_detail' row.user.pk %}?back={{ base_qs|urlencode }}">
                 <span class="cy-c-learner__name">
@@ -147,7 +177,7 @@
             <td>{% if row.last_active %}<span title="{{ row.last_active|date:'j M Y, H:i' }}">{{ row.last_active|date:"j M Y" }}</span>{% else %}<span class="cy-c-muted">Never</span>{% endif %}</td>
           </tr>
         {% empty %}
-          <tr><td colspan="6" class="cy-c-table__empty">No learners match. <a href="?view=list">Clear</a>.</td></tr>
+          <tr><td colspan="7" class="cy-c-table__empty">No learners match. <a href="?view=list">Clear</a>.</td></tr>
         {% endfor %}
       </tbody>
     </table>
@@ -164,5 +194,6 @@
       {% else %}<span class="cy-btn cy-btn--ghost cy-btn--sm is-disabled" aria-disabled="true">Next</span>{% endif %}
     </nav>
   {% endif %}
+  </form>
 {% endif %}
 {% endblock %}

@@ -1,15 +1,18 @@
 """Module 1, Network Security Fundamentals: the gold-standard reference content.
 
-  Lesson 1  UNDERSTAND IT  — a teaching lesson. Four deep reading panels, each
-            with a real, device-framed visual: what a network actually is and why
-            small business is targeted; how data travels and what encryption does
-            (with the animated "watch your data travel" hero); the CIA triad
-            mapped to real Australian incidents; and where the weak points are,
-            framed against the ASD Essential Eight. One comprehension check.
-  Lesson 2  APPLY IT       — a practical lesson. Five hands-on, scenario-based
-            tasks (classify, a stranger-on-the-Wi-Fi branch, a HARDEN drill to
-            secure the clinic, a router-screen picture check, and a
-            three-mornings respond) that put Lesson 1 to work.
+  Lesson 1  UNDERSTAND IT (a teaching lesson). Four deep reading panels, each
+            anchored by a professional technical diagram (own-origin inline SVG,
+            CSP-safe): what a network actually is and why small business is
+            targeted (net-topology); how data travels and what encryption does
+            (data-hops); the CIA triad mapped to real Australian incidents plus
+            the Privacy Act NDB duty (cia-triad); and where the weak points are,
+            framed against the ASD Essential Eight (router-labelled, with a
+            supporting router photo). One comprehension check on a Wi-Fi screen.
+  Lesson 2  APPLY IT (a practical lesson). Five hands-on, scenario-based tasks
+            set at Wattle Grove Medical Centre in Bendigo (classify, a
+            stranger-on-the-Wi-Fi branch, a HARDEN drill to secure the clinic, a
+            router-screen picture check, and a three-mornings respond) that put
+            Lesson 1 to work.
 
 Voice: warm, confident, plain Australian English for non-technical readers. No
 em-dashes, no emoji, no filler.
@@ -41,7 +44,7 @@ LESSONS = [
                 "kind": "concept",
                 "points": 2,
                 "title": "What a network actually is, and why it is a target",
-                "hero": "net-scene",
+                "diagram": "net-topology",
                 "body": "<p>A <strong>network</strong> is simply devices connected so "
                 "they can share information. In a small Australian business that is "
                 "the front-desk computer, the printer, the eftpos machine and "
@@ -49,13 +52,13 @@ LESSONS = [
                 "and out to the internet. The router is the gateway: every message "
                 "in or out of the business passes through it, which is why so much "
                 "of security comes down to that one box.</p>"
-                "<p>Here is how the pieces fit. Each device gets its own "
-                "<strong>IP address</strong>, a number that works like a street "
-                "address so information reaches the right machine. Inside your walls, "
-                "on your own Wi-Fi, traffic between devices is on home ground. The "
-                "moment it leaves the router for the internet, it is travelling "
-                "across equipment owned by other people, and that is where most of "
-                "the risk lives.</p>"
+                "<p>Here is how the pieces fit. Each "
+                "device gets its own <strong>IP address</strong>, a number that works "
+                "like a street address so information reaches the right machine. "
+                "Inside your walls, on your own Wi-Fi, traffic between devices is on "
+                "home ground. The moment it leaves the router for the internet, it is "
+                "travelling across equipment owned by other people, and that is where "
+                "most of the risk lives.</p>"
                 "<p>Why does a small clinic or cafe get targeted at all? Because "
                 "attacks are automated and scale is free. The Australian Signals "
                 "Directorate received <strong>over 84,700 cybercrime reports in "
@@ -73,26 +76,30 @@ LESSONS = [
                 "kind": "concept",
                 "points": 2,
                 "title": "How your information travels, and what encryption does",
-                "hero": "data-journey",
+                "diagram": "data-hops",
                 "body": "<p>Your information does not sit still. When you sign in to a "
                 "website or send an email, what you type is broken into small "
                 "<strong>packets</strong> that travel from your device, to your "
                 "router, out to your internet provider, across the "
                 "<strong>shared public internet</strong>, and finally to a server "
-                "somewhere else. The animation above follows that journey.</p>"
+                "somewhere else. Each packet is passed from one piece of equipment to "
+                "the next, like a note handed along a chain of strangers.</p>"
                 "<p>That middle stretch is the catch. The public internet is shared "
                 "ground: your packets hop through equipment you do not own or "
-                "control, and someone positioned in the middle could try to read "
-                "them. Watch the top lane above: without protection, a login travels "
-                "as plain, readable text, and a listener on the network simply reads "
-                "it, password and all.</p>"
+                "control, and someone positioned in the middle, on the same cafe "
+                "Wi-Fi, or running a router along the way, could try to read them. "
+                "Without protection, a login travels as plain, readable text, and a "
+                "listener on the network simply reads it, password and all.</p>"
                 "<p>This is what <strong>encryption</strong> fixes. It scrambles your "
                 "information with a key so that, even if it is intercepted, it is "
-                "useless gibberish, exactly like the bottom lane above. You already "
-                "rely on this every day: before you type a password, look at the "
-                "address bar. <strong>https</strong> (the s is for secure) and a "
-                "small <strong>padlock</strong> mean the connection is encrypted end "
-                "to end between you and that site.</p>"
+                "useless gibberish. You already rely on this every day: before you "
+                "type a password, look at the address bar. Plain <strong>http</strong> "
+                "with no padlock is open, and the browser now warns you it is "
+                "<strong>Not secure</strong>. <strong>https</strong> (the s is for "
+                "secure) with a small <strong>padlock</strong> means the connection is "
+                "encrypted the whole way between you and that site. In the diagram above, "
+                "that is the difference between the readable red line and the "
+                "scrambled blue one.</p>"
                 "<p>One important limit. The padlock proves the <em>connection</em> "
                 "is private. It does <em>not</em> prove the website is genuine. "
                 "Criminals can get a padlock for a fake site in minutes, so treat it "
@@ -129,6 +136,16 @@ LESSONS = [
                 "sensitive health data on about <strong>9.7 million</strong> people "
                 "was stolen and later published; the same class of attack routinely "
                 "locks a business out of its own systems for days.</p>"
+                "<p>There is a legal side to this too. Under the "
+                "<strong>Privacy Act 1988</strong> and the Notifiable Data Breaches "
+                "scheme run by the OAIC, a business that suffers a breach likely to "
+                "cause serious harm generally must assess it within "
+                "<strong>30 days</strong> and notify both the OAIC and the people "
+                "affected. In the OAIC's July to December 2024 figures, "
+                "<strong>595 breaches</strong> were reported, most caused by "
+                "malicious attacks, with phishing the leading cause and health "
+                "providers the most-breached sector. Getting the three questions "
+                "right is not just good practice; for real data it is the law.</p>"
                 "<div class=\"cy-callout\">Keep information private, keep it correct, "
                 "keep it reachable. Name which one a problem threatens, and you "
                 "already understand half of how to respond.</div>",
@@ -138,16 +155,27 @@ LESSONS = [
                 "kind": "concept",
                 "points": 2,
                 "title": "Where the weak points are, and the Essential Eight",
-                "diagram": "router-admin",
+                "diagram": "router-labelled",
+                "image": {
+                    "src": "img/m1-router.webp",
+                    "alt": "A home and small-office Wi-Fi router with four antennas",
+                    "caption": "The router: every message in and out of the business "
+                    "passes through this one box, which is why it is the first place "
+                    "an attacker looks, and the first place you secure.",
+                    "credit": "Photo: Pexels (free licence)",
+                },
                 "body": "<p>Most small networks share the same handful of weak "
-                "points, and the same handful of fixes. The router page above, open "
-                "in a browser, shows the biggest one: an admin password still set to "
-                "the factory default, <strong>admin</strong>. This matters because "
-                "default passwords are not secret. Manufacturers print them in "
-                "manuals and publish them online, and attackers keep ready-made lists "
-                "of them, so anyone can look yours up and change your settings. "
-                "Changing it to something strong and unique is the single most "
-                "important fix on that screen.</p>"
+                "points, and the same handful of fixes. Start with the "
+                "<strong>router</strong>, labelled in the diagram above. Its "
+                "biggest weakness is "
+                "usually its admin password still set to the factory default, often "
+                "just <strong>admin</strong>. This matters because default passwords "
+                "are not secret. Manufacturers print them in manuals and publish them "
+                "online, and attackers keep ready-made lists of them, so anyone who "
+                "reaches the settings page can look yours up and take over. Changing "
+                "it to something strong and unique is the single most important fix "
+                "you can make (and you will read a real router settings page in "
+                "Lesson 2).</p>"
                 "<p>For the rest, the Australian Signals Directorate publishes a "
                 "baseline called the <strong>Essential Eight</strong>. You do not "
                 "need all of it on day one, but these five habits from it and the "
@@ -206,10 +234,12 @@ LESSONS = [
     {
         "title": "Put it to work: protect a real network",
         "reading_time_minutes": 9,
-        "intro": "Now use it. Every task here is a real workplace situation that "
-        "puts Lesson 1 to work: name what is at risk, handle a stranger on the "
-        "Wi-Fi, secure the clinic before it opens, read a router screen, and make "
-        "the right first move when something goes wrong.",
+        "intro": "Now use it. You are helping out at Wattle Grove Medical Centre, a "
+        "busy four-doctor clinic in Bendigo. Practice manager Karen Willis runs the "
+        "front of house with receptionists Steph and Dilan. Every task here is a "
+        "real morning at that clinic: name what is at risk, handle a stranger on the "
+        "Wi-Fi, secure the network before the doors open, read the router screen, "
+        "and make the right first move when something goes wrong.",
         "tasks": [
             {
                 "key": "pillar-triage",
@@ -218,9 +248,10 @@ LESSONS = [
                 "title": "Which pillar is at risk?",
                 "body": "<p>Lesson 1 gave you the three questions security asks: is "
                 "it private (Confidentiality), is it correct (Integrity), is it "
-                "reachable (Availability). Here are six things that could go wrong in "
-                "a clinic. For each, decide which pillar it puts at risk. This is how "
-                "a security-minded person sizes up any problem in seconds.</p>"
+                "reachable (Availability). Here are six things that actually happen "
+                "across a fortnight at Wattle Grove. For each, decide which pillar it "
+                "puts at risk. This is how a security-minded person sizes up any "
+                "problem in seconds.</p>"
                 "<div class=\"cy-callout\">Ask: was private information exposed, was "
                 "something changed, or can you no longer reach what you need?</div>",
                 "payload": {
@@ -231,24 +262,24 @@ LESSONS = [
                         {"id": "avail", "label": "Availability"},
                     ],
                     "events": [
-                        {"text": "A staff member emails the day's patient list to the wrong outside address.",
+                        {"text": "At 8:12am, receptionist Steph emails the day's patient list to 'karen.willys@gmail.com' by mistake, instead of Karen's real work address.",
                          "category": "conf",
-                         "why": "Confidentiality. Nothing was lost or changed, but private information reached someone who should not have it. Like Optus, the failure is exposure."},
-                        {"text": "A supplier's invoice arrives with its bank account quietly changed, but it still opens fine.",
+                         "why": "Confidentiality. Nothing was lost or changed, but a list of patients reached an outside address it should never have. Like Optus, the failure is exposure, and it is reportable."},
+                        {"text": "An invoice from Henry Schein Medical for $3,480 arrives with a new bank account, but the PDF opens fine and looks normal.",
                          "category": "integ",
-                         "why": "Integrity. The file is readable and available, but its details were altered without permission, which is how invoice scams work."},
-                        {"text": "Ransomware locks every file on the shared drive and demands payment.",
+                         "why": "Integrity. The file is readable and available, but its payment details were altered without permission, which is exactly how invoice-redirection scams work."},
+                        {"text": "Ransomware locks every file on the clinic's shared drive on Wednesday morning and demands payment in Bitcoin.",
                          "category": "avail",
-                         "why": "Availability. The files are not stolen or changed, but you cannot reach them, which halts the business."},
-                        {"text": "A visitor glances at a password written on a sticky note at the front desk.",
+                         "why": "Availability. The files are not stolen or changed, but the clinic cannot reach them, which stops appointments and billing."},
+                        {"text": "A patient in the waiting room reads the Wi-Fi password Dilan left on a sticky note stuck to the front monitor.",
                          "category": "conf",
-                         "why": "Confidentiality. A secret that should be private has been exposed to the wrong person."},
-                        {"text": "The online booking system is down all morning and patients cannot check in.",
+                         "why": "Confidentiality. A secret that should stay private has been exposed to someone outside the clinic."},
+                        {"text": "The online booking system is down from 8am to noon and patients cannot check in or book.",
                          "category": "avail",
-                         "why": "Availability. Nothing was stolen or altered, but a system you need is not there when you need it."},
-                        {"text": "Someone edits the clinic's price list without approval and no one notices.",
+                         "why": "Availability. Nothing was stolen or altered, but a system the clinic depends on is not there when it is needed."},
+                        {"text": "Someone edits a patient's recorded allergy in the practice software and no one notices the change.",
                          "category": "integ",
-                         "why": "Integrity. The information was changed without permission, so it can no longer be trusted as accurate."},
+                         "why": "Integrity. Clinical information was altered without approval, so it can no longer be trusted as accurate, which in a clinic is a safety risk, not just a data one."},
                     ],
                 },
             },
@@ -257,19 +288,20 @@ LESSONS = [
                 "kind": "branch",
                 "points": 2,
                 "title": "Decision drill: a stranger on the Wi-Fi",
-                "body": "<p>You just learned you can see every device on your "
-                "network. Now one of them is a stranger. This is a real decision, "
-                "made in the moment, and your first move decides how it plays out. "
-                "Work it through.</p>"
+                "body": "<p>It is 8:50am. Karen asks you to check the router because "
+                "the Wi-Fi feels slow. You open the device list and there, alongside "
+                "the four clinic devices, sits one called <strong>GALAXY-A52</strong> "
+                "that nobody recognises, connected right now. Your first move decides "
+                "how this plays out. Work it through.</p>"
                 "<div class=\"cy-callout\"><strong>The habit:</strong> an unknown "
                 "device is a door you did not open. Close it, then keep visitors off "
                 "the staff network for good.</div>",
                 "payload": {
-                    "prompt": "You spot an unknown device on the clinic Wi-Fi. Make each call and see the consequence.",
+                    "prompt": "An unknown device, GALAXY-A52, is on the clinic Wi-Fi. Make each call and see the consequence.",
                     "start": "look",
                     "nodes": {
                         "look": {
-                            "text": "You open the clinic Wi-Fi's device list and there is a device you do not recognise, connected right now. What is your first move?",
+                            "text": "GALAXY-A52 is connected to the clinic Wi-Fi right now and it is not one of the four clinic devices. What is your first move?",
                             "choices": [
                                 {"label": "Flag it to whoever manages the Wi-Fi, and change the Wi-Fi password so unknown devices are kicked off", "outcome": "good",
                                  "feedback": "Right. Changing the Wi-Fi password forces every device to reconnect with the new one, so anything you did not authorise simply drops off.", "to": "reconnect"},
@@ -312,8 +344,14 @@ LESSONS = [
                 "kind": "harden",
                 "points": 2,
                 "title": "Secure the clinic before it opens",
-                "body": "<p>It is 8am and the clinic opens in fifteen minutes. Four "
-                "parts of the network are not set up safely yet. For each one, choose "
+                "hero": "data-journey",
+                "body": "<p>First, the why. The animation above is the exact risk "
+                "Lesson 1 described: on an open connection your data travels in the "
+                "clear and a listener reads it, while encryption turns it into "
+                "gibberish. Now the how.</p>"
+                "<p>It is 8am and Wattle Grove opens in fifteen minutes. Karen has "
+                "asked you to walk the network before the doors open. Four "
+                "parts are not set up safely yet. For each one, choose "
                 "the fix that closes the gap, using the Essential Eight habits from "
                 "Lesson 1, and watch it flip to Secured. This is the real morning "
                 "checklist.</p>"
@@ -379,10 +417,10 @@ LESSONS = [
                 "points": 2,
                 "title": "Read the router screen",
                 "diagram": "router-admin",
-                "body": "<p>A real router admin page, open in a browser, the kind you "
-                "would check on your own network. Three of its four rows are set up "
-                "well. One is a wide-open door. Read it the way you now know how, "
-                "then answer.</p>"
+                "body": "<p>This is Wattle Grove's router admin page, open in a "
+                "browser, the kind Karen would check on the clinic network. Three of "
+                "its four rows are set up well. One is a wide-open door. Read it the "
+                "way you now know how, then answer.</p>"
                 "<div class=\"cy-callout\">Remember the biggest weak point from "
                 "Lesson 1: a setting that every installer and every website already "
                 "knows.</div>",
@@ -403,9 +441,9 @@ LESSONS = [
                 "key": "three-mornings",
                 "kind": "respond",
                 "points": 2,
-                "title": "Three bad mornings",
+                "title": "Three bad mornings at Wattle Grove",
                 "body": "<p>One last drill, and the most important, because this is "
-                "where it counts. A small clinic, three rough mornings, three things "
+                "where it counts. Three rough mornings at Wattle Grove, three things "
                 "going wrong. Knowing what a network is was the start. The real skill "
                 "is your first move, because it decides how far a problem spreads. "
                 "For each morning, choose your first move and see how it plays "
@@ -417,38 +455,38 @@ LESSONS = [
                     "situations": [
                         {
                             "id": "misfire",
-                            "text": "Monday. A staff member realises they just emailed the day's patient list to the wrong address.",
+                            "text": "Monday, 8:15am. Steph goes pale: she has just emailed 'Patient_list_Monday.xlsx' to a patient, David Nguyen, instead of to Dr Patel. It has 38 patients' names and phone numbers in it. What should she do?",
                             "options": [
-                                {"text": "Tell your manager and IT straight away so it can be handled", "outcome": "good",
-                                 "feedback": "Right. A privacy slip is far cheaper to handle in the first hour. Owning up fast is the whole game, and it is a confidentiality problem, so it must be reported."},
-                                {"text": "Delete your sent copy and hope nobody noticed", "outcome": "bad",
-                                 "feedback": "Deleting your copy changes nothing at the other end, and the delay only makes it worse. Report it."},
-                                {"text": "Email the stranger asking them to delete it, then move on", "outcome": "risky",
-                                 "feedback": "Worth asking, but not instead of reporting it. Your manager and IT need to know so it is handled properly."},
+                                {"text": "Tell Karen and the clinic's IT support straight away so it can be handled", "outcome": "good",
+                                 "feedback": "Right. A privacy slip is far cheaper to handle in the first hour. Owning up fast is the whole game, and because private data reached the wrong person it is a notifiable-breach question that Karen must assess, not hide."},
+                                {"text": "Delete the sent copy and hope David did not open it", "outcome": "bad",
+                                 "feedback": "Deleting Steph's copy changes nothing in David's inbox, and the delay only makes it worse. Report it to Karen now."},
+                                {"text": "Email David asking him to delete it, then say nothing to Karen", "outcome": "risky",
+                                 "feedback": "Worth asking David, but not instead of telling Karen. She has to assess whether this breach needs reporting under the Privacy Act, and she cannot do that if she does not know."},
                             ],
                         },
                         {
                             "id": "locked",
-                            "text": "Wednesday. Every file on the shared drive is suddenly renamed, and a note on screen demands payment.",
+                            "text": "Wednesday, 7:55am. Dilan turns on the front-desk PC and every file on the shared drive is renamed to '.locked', with a full-screen note demanding $2,000 in Bitcoin within 48 hours. What is the first move?",
                             "options": [
-                                {"text": "Disconnect the computer from the network and report it", "outcome": "good",
-                                 "feedback": "Exactly. Getting it off the network first stops the ransomware spreading to other machines and the shared drive. That protects availability for everyone else."},
-                                {"text": "Pay quickly to get the files back", "outcome": "bad",
-                                 "feedback": "Paying is unreliable, funds crime, and marks you as a payer. Contain it first, then recover from backup."},
-                                {"text": "Keep working and hope it stops", "outcome": "bad",
-                                 "feedback": "Every second it stays connected, more files and machines are locked. Disconnect first."},
+                                {"text": "Unplug the network cable and turn off the Wi-Fi on that PC, then call Karen and IT", "outcome": "good",
+                                 "feedback": "Exactly. Getting it off the network first stops the ransomware spreading to the other clinic machines and the shared drive. That protects availability for everyone else, then IT recovers from backup."},
+                                {"text": "Pay the $2,000 quickly so the clinic can open on time", "outcome": "bad",
+                                 "feedback": "Paying is unreliable, funds crime, and marks Wattle Grove as a clinic that pays. Contain it first, then recover from backup. Never pay to reopen faster."},
+                                {"text": "Leave it running and start seeing patients on paper", "outcome": "bad",
+                                 "feedback": "Every second that PC stays connected, more files and machines are locked. Disconnect it first, then worry about the day's workaround."},
                             ],
                         },
                         {
                             "id": "changed",
-                            "text": "Friday. An invoice you are about to pay has a bank account that looks different from last month.",
+                            "text": "Friday, 9:30am. An emailed invoice from 'Henry Schein Medical' for $3,480 asks Karen to pay today to a BSB and account that are different from last month's. The email signature looks normal. What should she do?",
                             "options": [
-                                {"text": "Ring the supplier on a number you already have and check", "outcome": "good",
-                                 "feedback": "Yes. A changed account plus any pressure to pay is the classic invoice scam, an integrity attack. Verify on a channel you already trust."},
-                                {"text": "Pay it, the invoice looks genuine", "outcome": "bad",
-                                 "feedback": "A tampered invoice looks perfectly genuine. That is the point. Verify the changed details first."},
-                                {"text": "Email back to ask if the account really changed", "outcome": "risky",
-                                 "feedback": "If the email is a scam, you are asking the scammer. Use a number you already have, not the one in the email."},
+                                {"text": "Ring Henry Schein on the number from last month's statement and confirm the account change", "outcome": "good",
+                                 "feedback": "Yes. A changed account plus pressure to pay today is the classic invoice-redirection scam, an integrity attack. Verify on a number she already has, never the one in the new email."},
+                                {"text": "Pay the $3,480, the invoice and signature look genuine", "outcome": "bad",
+                                 "feedback": "A tampered or spoofed invoice looks perfectly genuine. That is the point. A changed bank account always deserves a phone call to a known number first."},
+                                {"text": "Reply to the email asking if the account really changed", "outcome": "risky",
+                                 "feedback": "If that email is the scam, Karen is asking the scammer, who will happily say yes. Use the number from last month's statement, not any detail in the new email."},
                             ],
                         },
                     ],

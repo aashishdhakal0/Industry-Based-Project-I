@@ -199,6 +199,26 @@ def test_verify_is_public_and_rejects_invalid_codes(client, seeded):
 
 
 @pytest.mark.django_db
+def test_signature_is_an_svg_flourish_not_text(client, seeded):
+    from certificates import signature
+
+    # The geometry renders as hand-drawn bezier strokes, not a font.
+    svg = signature.svg()
+    assert svg.startswith("<svg") and svg.count("<path") >= 3
+    assert "stroke-linecap=\"round\"" in svg and "Cybaroo" not in svg
+
+    # On the page the mark sits in its holder as an SVG, and the old typed
+    # script mark is gone.
+    user = User.objects.create_user(email="sig@example.com", password="x" * 14, is_verified=True)
+    client.force_login(user)
+    html = client.get(reverse("learn:certificate")).content.decode()
+    assert 'class="cy-dip__sigmark"' in html
+    assert "cy-dip__signmark" not in html  # the retired typed "Cybaroo" script
+    holder = html.split('class="cy-dip__sigmark"', 1)[1][:600]
+    assert "<svg" in holder and "<path" in holder
+
+
+@pytest.mark.django_db
 def test_verify_is_case_insensitive(client, seeded):
     user = User.objects.create_user(email="ci@example.com", password="x" * 14, is_verified=True)
     _finish_all(user)

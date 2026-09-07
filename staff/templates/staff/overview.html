@@ -46,6 +46,53 @@
     </div>
   </div>
 
+  {# Movement over the last 7 days, each compared with the 7 days before. #}
+  {% with p=period %}
+  <div class="cy-c-kpis cy-c-kpis--trend">
+    {% for m in p.metrics %}
+      <div class="cy-c-kpi">
+        <div class="cy-c-kpi__row">
+          <span class="cy-c-kpi__label">{{ m.label }}</span>
+          {% if m.delta > 0 %}<span class="cy-c-delta cy-c-delta--up">▲ {{ m.delta }}</span>
+          {% elif m.delta < 0 %}<span class="cy-c-delta cy-c-delta--down">▼ {{ m.delta|stringformat:"+d" }}</span>
+          {% else %}<span class="cy-c-delta cy-c-delta--flat">no change</span>{% endif %}
+        </div>
+        <span class="cy-c-kpi__value">{{ m.current }}</span>
+        <span class="cy-c-kpi__sub">vs {{ m.previous }} the {{ p.days }} days before</span>
+      </div>
+    {% endfor %}
+  </div>
+  {% endwith %}
+
+  {# What needs your attention today — the four cohorts an admin actually chases. #}
+  <section class="cy-c-section">
+    <div class="cy-c-section__head">
+      <h2 class="cy-c-section__title">Needs your attention today</h2>
+      <span class="cy-c-section__note">the people to chase</span>
+    </div>
+    <div class="cy-c-cohorts">
+      {% for c in cohorts %}
+        <div class="cy-c-cohort{% if c.count %} is-active{% endif %}">
+          <div class="cy-c-cohort__top">
+            <span class="cy-c-cohort__count">{{ c.count }}</span>
+            <span class="cy-c-cohort__label">{{ c.label }}</span>
+          </div>
+          <p class="cy-c-cohort__note">{{ c.note }}</p>
+          {% if c.count %}
+            <ul class="cy-c-cohort__names">
+              {% for r in c.sample %}
+                <li><a href="{% url 'staff:learner_detail' r.user.pk %}?back=filter%3D{{ c.key }}">{{ r.name }}</a></li>
+              {% endfor %}
+            </ul>
+            <a class="cy-c-cohort__all" href="{% url 'staff:learners' %}?filter={{ c.key }}">View all {{ c.count }} &rarr;</a>
+          {% else %}
+            <p class="cy-c-cohort__clear">All caught up</p>
+          {% endif %}
+        </div>
+      {% endfor %}
+    </div>
+  </section>
+
   <div class="cy-c-grid cy-c-grid--chart">
     {# Activity calendar — real learner + admin activity, by day. #}
     <section class="cy-c-section cy-c-panel">
@@ -104,51 +151,25 @@
     </section>
   </div>
 
-  {# Needs attention + recent audit activity. #}
-  <div class="cy-c-grid">
-    <section class="cy-c-section">
-      <div class="cy-c-section__head">
-        <h2 class="cy-c-section__title">Needs attention</h2>
-        <a class="cy-c-section__link" href="{% url 'staff:learners' %}?filter=attention">View</a>
-      </div>
-      {% if stats.attention %}
-        <ul class="cy-c-list">
-          {% for r in stats.attention %}
-            <li>
-              <a class="cy-c-list__row" href="{% url 'staff:learner_detail' r.user.pk %}">
-                <span class="cy-c-list__name">{{ r.name }}</span>
-                <span class="cy-c-list__meta">
-                  {% if r.flagged %}<span class="cy-pill cy-pill--warn">Flagged</span>{% endif %}
-                  {% if r.inactive %}<span class="cy-pill">{{ r.days_inactive }}d quiet</span>{% endif %}
-                </span>
-              </a>
-            </li>
-          {% endfor %}
-        </ul>
-      {% else %}
-        <p class="cy-c-muted">Nobody's fallen behind.</p>
-      {% endif %}
-    </section>
-
-    <section class="cy-c-section">
-      <div class="cy-c-section__head">
-        <h2 class="cy-c-section__title">Recent activity</h2>
-        <a class="cy-c-section__link" href="{% url 'staff:activity' %}">View all</a>
-      </div>
-      {% if recent_actions %}
-        <ul class="cy-c-feed">
-          {% for a in recent_actions %}
-            <li class="cy-c-feed__row">
-              <span class="cy-c-feed__what">{{ a.summary }}</span>
-              <span class="cy-c-feed__meta">{% if a.actor %}{{ a.actor.get_full_name|default:a.actor.email }}{% else %}(removed){% endif %} · {{ a.created_at|date:"j M, H:i" }}</span>
-            </li>
-          {% endfor %}
-        </ul>
-      {% else %}
-        <p class="cy-c-muted">Admin actions will appear here.</p>
-      {% endif %}
-    </section>
-  </div>
+  {# Recent audit activity. #}
+  <section class="cy-c-section">
+    <div class="cy-c-section__head">
+      <h2 class="cy-c-section__title">Recent activity</h2>
+      <a class="cy-c-section__link" href="{% url 'staff:activity' %}">View all</a>
+    </div>
+    {% if recent_actions %}
+      <ul class="cy-c-feed">
+        {% for a in recent_actions %}
+          <li class="cy-c-feed__row">
+            <span class="cy-c-feed__what">{{ a.summary }}</span>
+            <span class="cy-c-feed__meta">{% if a.actor %}{{ a.actor.get_full_name|default:a.actor.email }}{% else %}(removed){% endif %} · {{ a.created_at|date:"j M, H:i" }}</span>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="cy-c-muted">Admin actions will appear here.</p>
+    {% endif %}
+  </section>
 {% endif %}
 
 <section class="cy-c-section">

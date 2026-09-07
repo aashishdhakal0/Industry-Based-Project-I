@@ -1,0 +1,56 @@
+{% extends "staff/base.html" %}
+
+{% block title %}Reports — {{ site_name }}{% endblock %}
+
+{% block console %}
+<header class="cy-c-head">
+  <div>
+    <p class="cy-c-head__eyebrow">Administrator</p>
+    <h1 class="cy-c-head__title">Reports</h1>
+    <p class="cy-c-head__sub">Everything you need to prove and manage training compliance.</p>
+  </div>
+</header>
+
+<div class="cy-c-reports">
+  <section class="cy-c-report">
+    <h2 class="cy-c-report__title">Compliance summary</h2>
+    <p class="cy-c-report__body">Who has completed the course as at any date you choose. The report to hand an auditor, a manager or an insurer. Filter to one organisation and check it against their due date.</p>
+    <div class="cy-c-report__actions">
+      <a class="cy-btn cy-btn--primary cy-btn--sm" href="{% url 'staff:report_compliance' %}">Open compliance report</a>
+    </div>
+  </section>
+
+  <section class="cy-c-report">
+    <h2 class="cy-c-report__title">Certificate register</h2>
+    <p class="cy-c-report__body">{{ cert_count }} certificate{{ cert_count|pluralize }} on record. Every holder with their verification code, grade and issue date, and whether it still stands.</p>
+    <div class="cy-c-report__actions">
+      <a class="cy-btn cy-btn--primary cy-btn--sm" href="{% url 'staff:certificate_register' %}">Open register</a>
+      <a class="cy-btn cy-btn--ghost cy-btn--sm" href="{% url 'staff:certificate_register' %}?format=csv" rel="nofollow">Download CSV</a>
+    </div>
+  </section>
+
+  <section class="cy-c-report">
+    <h2 class="cy-c-report__title">Full learner progress</h2>
+    <p class="cy-c-report__body">{{ learner_count }} learner{{ learner_count|pluralize }}. Every person's modules completed, overall score and grade, and last activity, as one spreadsheet.</p>
+    <div class="cy-c-report__actions">
+      <a class="cy-btn cy-btn--primary cy-btn--sm" href="{% url 'staff:learners_csv' %}" rel="nofollow">Download CSV</a>
+      <a class="cy-btn cy-btn--ghost cy-btn--sm" href="{% url 'staff:learners' %}?view=list">View learners</a>
+    </div>
+  </section>
+
+  <section class="cy-c-report">
+    <h2 class="cy-c-report__title">Per-organisation report</h2>
+    <p class="cy-c-report__body">{{ org_count }} organisation{{ org_count|pluralize }}. Download one client's whole cohort as their own progress report.</p>
+    {% if organisations %}
+      <form class="cy-c-report__pick" method="get" action="{% url 'staff:report_compliance' %}">
+        <select class="cy-c-input" name="org" aria-label="Organisation">
+          {% for o in organisations %}<option value="{{ o.pk }}">{{ o.name }}</option>{% endfor %}
+        </select>
+        <button type="submit" class="cy-btn cy-btn--primary cy-btn--sm">Open</button>
+      </form>
+    {% else %}
+      <p class="cy-c-muted">No organisations yet. <a href="{% url 'staff:org_new' %}">Create one</a>.</p>
+    {% endif %}
+  </section>
+</div>
+{% endblock %}

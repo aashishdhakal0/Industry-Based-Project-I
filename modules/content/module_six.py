@@ -36,17 +36,17 @@ LESSONS = [
                 "kind": "concept",
                 "points": 2,
                 "title": "Incident response, and why the first hours decide everything",
-                "hero": "incident-escalation",
+                "diagram": "first-hours",
                 "body": "<p><strong>Incident response</strong> is the calm, "
                 "rehearsed way a team handles a security incident: not improvising in "
                 "a panic, but following a plan from the moment something is noticed "
                 "to the lessons drawn afterwards. You do not need to be technical to "
                 "play your part; you need to know the shape of it.</p>"
-                "<p>Watch the two timelines above. It is the same attack, handled two "
-                "ways. Left alone, treated as a glitch, the impact climbs to a "
-                "disaster. Caught early and contained, it stays a scare. The "
-                "difference is almost entirely about the first hours: how fast "
-                "someone names it as an incident and starts the plan.</p>"
+                "<p>Picture the same attack handled two ways. Left alone, treated as a "
+                "glitch, the impact climbs hour after hour into a disaster. Caught "
+                "early and contained, it stays a scare. The difference is almost "
+                "entirely about the first hours: how fast someone names it as an "
+                "incident and starts the plan.</p>"
                 "<p>This is not a rare event to prepare for once and forget. The "
                 "Australian Signals Directorate received <strong>over 84,700 "
                 "cybercrime reports in 2024-25, about one every six minutes</strong>, "
@@ -67,8 +67,8 @@ LESSONS = [
                 "points": 2,
                 "title": "The six phases, and why the order matters",
                 "diagram": "ir-lifecycle",
-                "body": "<p>Every professional response follows the same shape, shown "
-                "above. It is worth knowing by name, because each phase depends on "
+                "body": "<p>Every professional response follows the same shape. It is "
+                "worth knowing by name, because each phase depends on "
                 "the one before it.</p>"
                 "<ul>"
                 "<li><strong>Preparation</strong>: have a plan, backups and contacts "
@@ -96,10 +96,10 @@ LESSONS = [
                 "kind": "concept",
                 "points": 2,
                 "title": "Detect and contain, without making it worse",
-                "diagram": "ransom-screen",
+                "diagram": "containment",
                 "body": "<p>The first hours are where good instincts matter most, and "
-                "where the wrong instinct does the damage. Picture the screen above "
-                "on a Monday morning: files that will not open, and a demand for "
+                "where the wrong instinct does the damage. Picture a Monday morning: "
+                "files that will not open, and a demand for "
                 "payment. Here is how a level head handles it.</p>"
                 "<ul>"
                 "<li><strong>Name it fast.</strong> Treat it as a security incident "
@@ -127,14 +127,14 @@ LESSONS = [
                 "kind": "concept",
                 "points": 2,
                 "title": "Coming back, and the law that follows",
-                "hero": "recovery-board",
+                "diagram": "breach-notify",
                 "body": "<p>Once the spread is stopped, the incident is far from "
                 "over. <strong>Eradication</strong> means removing the attack for "
                 "good, wiping and rebuilding affected machines, and closing the way "
                 "in (an unpatched remote login, an exposed service). "
                 "<strong>Recovery</strong> means coming back deliberately: restoring "
                 "from clean, verified backups and bringing systems online one at a "
-                "time, as the board above shows, never all at once in a scramble.</p>"
+                "time, never all at once in a scramble.</p>"
                 "<p>Then comes the part many businesses forget. If the incident "
                 "exposed personal information, the <strong>Notifiable Data Breaches "
                 "scheme</strong>, under the Privacy Act 1988, may require you to act, "

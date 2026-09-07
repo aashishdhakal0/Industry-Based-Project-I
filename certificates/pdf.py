@@ -16,7 +16,7 @@ from reportlab.lib.colors import HexColor
 from reportlab.lib.pagesizes import A4, landscape
 from reportlab.pdfgen import canvas
 
-from . import services
+from . import services, signature
 
 PAPER = HexColor("#fbf7ec")
 INK = HexColor("#23252b")
@@ -198,9 +198,9 @@ def render_bytes(*, name, credential, credential_sub, grade, date_str, serial, v
     _tracked(c, cx, 78, "DATE OF AWARD", "Times-Roman", 7.5, MUTED, tracking=2)
 
     rx = W - 150
-    c.setFont("Times-Italic", 22)
-    c.setFillColor(NAVY)
-    c.drawCentredString(rx, 108, "Cybaroo")
+    # The hand-crafted signature flourish, drawn above the line (same geometry
+    # as the on-screen mark), never a typed name.
+    signature.draw(c, rx - 58, 103, 116, 44, color="#1f3350")
     c.setStrokeColor(HexColor("#3a3b40"))
     c.setLineWidth(0.8)
     c.line(rx - 70, 100, rx + 70, 100)

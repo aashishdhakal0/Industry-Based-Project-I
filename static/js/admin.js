@@ -136,4 +136,49 @@
       });
     }
   );
+
+  // --- Bulk-select on the learners table -----------------------------------
+  // The action bar is hidden until at least one learner is ticked. A select-all
+  // in the header toggles the page; the action dropdown reveals the org picker
+  // only when "Assign to organisation" is chosen. The POST endpoint enforces
+  // every guardrail server-side regardless of what the UI shows.
+  Array.prototype.forEach.call(
+    document.querySelectorAll("form[data-bulk]"),
+    function (form) {
+      var items = form.querySelectorAll("[data-bulk-item]");
+      var bar = form.querySelector("[data-bulk-bar]");
+      var count = form.querySelector("[data-bulk-count]");
+      var all = form.querySelector("[data-bulk-all]");
+      var select = form.querySelector("[data-bulk-select]");
+      var orgField = form.querySelector("[data-bulk-org]");
+      if (!items.length || !bar) return;
+
+      function refresh() {
+        var n = 0;
+        Array.prototype.forEach.call(items, function (i) { if (i.checked) n += 1; });
+        if (count) count.textContent = n;
+        bar.hidden = n === 0;
+        if (all) {
+          all.checked = n === items.length;
+          all.indeterminate = n > 0 && n < items.length;
+        }
+      }
+
+      if (all) {
+        all.addEventListener("change", function () {
+          Array.prototype.forEach.call(items, function (i) { i.checked = all.checked; });
+          refresh();
+        });
+      }
+      Array.prototype.forEach.call(items, function (i) {
+        i.addEventListener("change", refresh);
+      });
+      if (select && orgField) {
+        select.addEventListener("change", function () {
+          orgField.hidden = select.value !== "assign_org";
+        });
+      }
+      refresh();
+    }
+  );
 })();

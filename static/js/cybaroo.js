@@ -294,6 +294,94 @@
     root.innerHTML = "";
     root.appendChild(stage);
 
+    // Build a realistic, device-framed screen from a scene's `screen` spec,
+    // reusing the .cy-scr device chrome. Supports a browser / window / phone
+    // frame with generic rows, an email, or a device list as its content, so
+    // the learner reads a genuine interface rather than an icon.
+    function sceneScreen(s) {
+      var art = el("div", "cy-scn__art cy-scn__art--real");
+      art.setAttribute("aria-hidden", "true");
+      var chrome = s.chrome || "browser";
+      var scr = el("div", "cy-scr cy-scr--" + chrome);
+
+      if (chrome === "browser") {
+        var top = el("div", "cy-scr__chrome");
+        var dots = el("span", "cy-scr__dots");
+        dots.appendChild(el("i")); dots.appendChild(el("i")); dots.appendChild(el("i"));
+        top.appendChild(dots);
+        var tab = el("div", "cy-scr__tab");
+        tab.appendChild(el("b")); tab.appendChild(el("span", null, s.tab || s.title || ""));
+        top.appendChild(tab);
+        scr.appendChild(top);
+        var addr = el("div", "cy-scr__addr");
+        addr.appendChild(el("span", "cy-scr__nav", "← →"));
+        var url = el("div", "cy-scr__url" + (s.secure === false ? " cy-scr__url--insecure" : ""));
+        var lock = el("span", "cy-scr__lock"); lock.appendChild(iconEl("i-lock")); url.appendChild(lock);
+        if (s.secure === false) url.appendChild(el("span", "cy-scr__insecure", "Not secure"));
+        url.appendChild(el("span", null, s.url || ""));
+        addr.appendChild(url); scr.appendChild(addr);
+      } else if (chrome === "window") {
+        var top2 = el("div", "cy-scr__chrome");
+        var ttl = el("span", "cy-scr__title");
+        ttl.appendChild(iconEl(s.icon || "i-shield"));
+        ttl.appendChild(el("span", null, " " + (s.title || "")));
+        top2.appendChild(ttl);
+        top2.appendChild(el("span", "cy-scr__winctl", "− □ ✕"));
+        scr.appendChild(top2);
+        if (s.menu) scr.appendChild(el("div", "cy-scr__menu", s.menu));
+      } else if (chrome === "phone") {
+        var stat = el("div", "cy-scr__status");
+        stat.appendChild(el("span", null, s.time || "9:41"));
+        stat.appendChild(el("span", "cy-scr__sig", "••••"));
+        scr.appendChild(stat);
+        if (s.app) scr.appendChild(el("div", "cy-scr__appbar", s.app));
+      }
+
+      var body = el("div", "cy-scr__body");
+      if (s.rows) {
+        var rl = el("div", "cy-simrows");
+        s.rows.forEach(function (r) {
+          var row = el("div", "cy-simrow");
+          row.appendChild(el("span", "cy-simrow__k", r.k));
+          row.appendChild(el("span", "cy-simrow__v" + (r.flag ? " is-" + r.flag : ""), r.v));
+          rl.appendChild(row);
+        });
+        body.appendChild(rl);
+      }
+      if (s.email) {
+        var m = s.email, mail = el("div", "cy-simmail");
+        mail.appendChild(el("div", "cy-simmail__subj", m.subject || ""));
+        var meta = el("div", "cy-simmail__meta");
+        meta.appendChild(el("span", "cy-simmail__from", m.from || ""));
+        if (m.date) meta.appendChild(el("span", "cy-simmail__date", m.date));
+        mail.appendChild(meta);
+        if (m.preview) mail.appendChild(el("p", "cy-simmail__body", m.preview));
+        if (m.attachment) {
+          var att = el("span", "cy-simmail__att" + (m.attachmentBad ? " is-bad" : ""));
+          att.appendChild(iconEl(m.attachmentBad ? "i-close" : "i-book"));
+          att.appendChild(el("span", null, " " + m.attachment));
+          mail.appendChild(att);
+        }
+        body.appendChild(mail);
+      }
+      if (s.items) {
+        var il = el("div", "cy-simitems");
+        s.items.forEach(function (it) {
+          var row = el("div", "cy-simitem" + (it.flag ? " is-" + it.flag : ""));
+          var meta2 = el("span", "cy-simitem__meta");
+          meta2.appendChild(el("span", "cy-simitem__name", it.name));
+          if (it.sub) meta2.appendChild(el("span", "cy-simitem__sub", it.sub));
+          row.appendChild(meta2);
+          if (it.tag) row.appendChild(el("span", "cy-simitem__tag", it.tag));
+          il.appendChild(row);
+        });
+        body.appendChild(il);
+      }
+      scr.appendChild(body);
+      art.appendChild(scr);
+      return art;
+    }
+
     function render(id) {
       var sc = scenes[id];
       if (!sc) return;
@@ -315,20 +403,24 @@
       // the landing-page hero animation and would stack these children into one
       // overlapping grid cell.
       var scene = el("div", "cy-scn cy-scn--" + (sc.backdrop || "email"));
-      var art = el("div", "cy-scn__art");
-      art.setAttribute("aria-hidden", "true");
-      // A composed illustration: a small device/window mock with the glyph on its
-      // "screen", so each scene reads as a backdrop rather than a floating icon.
-      var screen = el("div", "cy-scn__screen");
-      var bar = el("div", "cy-scn__bar");
-      bar.appendChild(el("span", "cy-scn__dots"));
-      screen.appendChild(bar);
-      var glass = el("div", "cy-scn__glass");
-      var emblem = iconEl(BACKDROP_ICON[sc.backdrop] || "i-shield");
-      emblem.setAttribute("class", "cy-i cy-scn__emblem");
-      glass.appendChild(emblem);
-      screen.appendChild(glass);
-      art.appendChild(screen);
+      var art;
+      if (sc.screen) {
+        // A realistic, device-framed screen the learner must READ to decide.
+        art = sceneScreen(sc.screen);
+      } else {
+        art = el("div", "cy-scn__art");
+        art.setAttribute("aria-hidden", "true");
+        var screen = el("div", "cy-scn__screen");
+        var bar = el("div", "cy-scn__bar");
+        bar.appendChild(el("span", "cy-scn__dots"));
+        screen.appendChild(bar);
+        var glass = el("div", "cy-scn__glass");
+        var emblem = iconEl(BACKDROP_ICON[sc.backdrop] || "i-shield");
+        emblem.setAttribute("class", "cy-i cy-scn__emblem");
+        glass.appendChild(emblem);
+        screen.appendChild(glass);
+        art.appendChild(screen);
+      }
       scene.appendChild(art);
       var body = el("div", "cy-scn__body");
       if (isDecision) body.appendChild(el("span", "cy-scn__step", "Scene " + step + " of " + total));

@@ -1,0 +1,79 @@
+{% extends "staff/base.html" %}
+
+{% block title %}Compliance report — {{ site_name }}{% endblock %}
+
+{% block console %}
+<a class="cy-c-back" href="{% url 'staff:reports' %}">
+  <svg class="cy-i" aria-hidden="true"><use href="#i-chevron-left"/></svg> Back to reports
+</a>
+
+<header class="cy-c-head">
+  <div>
+    <p class="cy-c-head__eyebrow">Administrator</p>
+    <h1 class="cy-c-head__title">Compliance summary</h1>
+    <p class="cy-c-head__sub">Who has completed the course{% if report.as_at %} as at {{ report.as_at|date:"j M Y" }}{% else %} as at today{% endif %}{% if report.org %}, in {{ report.org.name }}{% endif %}.</p>
+  </div>
+  <div class="cy-c-head__actions">
+    <a class="cy-btn cy-btn--ghost cy-btn--sm" href="?{% if org_id %}org={{ org_id }}&amp;{% endif %}{% if as_at_value %}as_at={{ as_at_value }}&amp;{% endif %}format=csv" rel="nofollow">Export CSV</a>
+  </div>
+</header>
+
+<form class="cy-c-filterbar" method="get" action="{% url 'staff:report_compliance' %}">
+  <div class="cy-c-filterbar__field">
+    <label for="cf-date">As at date</label>
+    <input class="cy-c-input" id="cf-date" type="date" name="as_at" value="{{ as_at_value }}">
+  </div>
+  <div class="cy-c-filterbar__field cy-c-filterbar__field--grow">
+    <label for="cf-org">Organisation</label>
+    <select class="cy-c-input" id="cf-org" name="org">
+      <option value="">All organisations</option>
+      {% for o in organisations %}<option value="{{ o.pk }}"{% if org_id == o.pk %} selected{% endif %}>{{ o.name }}</option>{% endfor %}
+    </select>
+  </div>
+  <div class="cy-c-filterbar__actions">
+    <button type="submit" class="cy-btn cy-btn--primary cy-btn--sm">Run</button>
+    {% if as_at_value or org_id %}<a class="cy-btn cy-btn--ghost cy-btn--sm" href="{% url 'staff:report_compliance' %}">Reset</a>{% endif %}
+  </div>
+</form>
+
+<div class="cy-c-kpis cy-c-kpis--compliance">
+  <div class="cy-c-kpi cy-c-kpi--primary">
+    <span class="cy-c-kpi__label">Completion</span>
+    <span class="cy-c-kpi__value">{{ report.rate }}<span class="cy-c-kpi__unit">%</span></span>
+    <span class="cy-c-kpi__sub">{{ report.completed }} of {{ report.total }} done</span>
+  </div>
+  <div class="cy-c-kpi">
+    <span class="cy-c-kpi__label">Completed</span>
+    <span class="cy-c-kpi__value">{{ report.completed }}</span>
+    <span class="cy-c-kpi__sub">have finished all modules</span>
+  </div>
+  <div class="cy-c-kpi">
+    <span class="cy-c-kpi__label">Not yet complete</span>
+    <span class="cy-c-kpi__value">{{ report.not_completed }}</span>
+    <span class="cy-c-kpi__sub">{% if report.due and report.past_due %}<span class="cy-pill cy-pill--warn">Past due {{ report.due|date:"j M Y" }}</span>{% elif report.due %}due {{ report.due|date:"j M Y" }}{% else %}still in progress{% endif %}</span>
+  </div>
+</div>
+
+<div class="cy-c-tablewrap">
+  <table class="cy-c-table">
+    <thead><tr><th>Learner</th><th>Organisation</th><th>Modules</th><th>Completed course</th></tr></thead>
+    <tbody>
+      {% for r in report.rows %}
+        <tr>
+          <td>
+            <a class="cy-c-learner" href="{% url 'staff:learner_detail' r.user.pk %}">
+              <span class="cy-c-learner__name">{{ r.name }}</span>
+              <span class="cy-c-learner__email">{{ r.user.email }}</span>
+            </a>
+          </td>
+          <td>{% if r.user.profile.organisation %}{{ r.user.profile.organisation }}{% else %}<span class="cy-c-muted">—</span>{% endif %}</td>
+          <td><span class="cy-c-mod"><span class="cy-c-mod__count">{{ r.modules_completed }}/{{ r.modules_total }}</span><span class="cy-c-bar__track cy-c-mod__track"><span class="cy-c-bar__fill" style="width: {{ r.completion_percent }}%;"></span></span></span></td>
+          <td>{% if r.completed_course %}<span class="cy-pill cy-pill--ok">Complete</span>{% else %}<span class="cy-pill {% if report.past_due %}cy-pill--warn{% else %}cy-pill--off{% endif %}">Not yet</span>{% endif %}</td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="4" class="cy-c-table__empty">No learners{% if report.org %} in this organisation{% endif %} yet.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

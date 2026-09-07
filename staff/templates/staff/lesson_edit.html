@@ -13,8 +13,11 @@
     <h1 class="cy-c-detailhead__name">{{ lesson.title }}</h1>
     <div class="cy-c-tags">
       {% if lesson.is_active %}<span class="cy-pill cy-pill--ok">Active</span>{% else %}<span class="cy-pill cy-pill--off">Hidden</span>{% endif %}
-      {% if lesson.admin_edited %}<span class="cy-pill cy-pill--warn">Edited in console</span>{% endif %}
+      {% if lesson.admin_edited %}<span class="cy-pill cy-pill--warn">Edited in console</span>{% else %}<span class="cy-pill">Authored in code</span>{% endif %}
     </div>
+  </div>
+  <div class="cy-c-head__actions">
+    <a class="cy-btn cy-btn--ghost cy-btn--sm" href="{% url 'staff:lesson_preview' lesson.pk %}" target="_blank" rel="noopener">Preview as student</a>
   </div>
 </header>
 

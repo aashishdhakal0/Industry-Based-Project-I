@@ -113,6 +113,12 @@ class Organisation(models.Model):
     )
     contact_email = models.EmailField(blank=True)
     notes = models.CharField(max_length=500, blank=True)
+    training_due = models.DateField(
+        null=True,
+        blank=True,
+        help_text="The date this organisation's staff are expected to have "
+        "completed training by. Drives the overdue and compliance reporting.",
+    )
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

@@ -239,12 +239,17 @@ def test_flag_and_unflag(client, env):
 
 # --- Overview: attention + empty state -------------------------------------
 
-def test_overview_surfaces_flagged_and_inactive(client, env):
+def test_overview_surfaces_the_attention_cohorts(client, env):
     as_admin(client, env)
     body = client.get(reverse("staff:overview")).content.decode()
-    assert "Needs attention" in body
-    assert "Fred" in body      # flagged
-    assert "Quinn" in body     # 20 days quiet
+    assert "Needs your attention today" in body
+    assert "Fred" in body      # never started -> Not started cohort
+    assert "Quinn" in body     # started then went quiet -> Stalled cohort
+    # a populated cohort links to its matching learner-list quick-filter
+    assert "filter=stalled" in body
+    # every cohort is labelled, even the empty ones (with a positive state)
+    assert "Awaiting verification" in body
+    assert "All caught up" in body
 
 
 def test_overview_empty_state_when_no_learners(client, db):

@@ -162,163 +162,546 @@ know what to look for, and to slow down when something feels rushed.</blockquote
 
 MODULE1_SIM = {
     "kind": "scenes",
-    "intro": "Two situations, one ordinary morning at a small clinic. Read each "
-    "one carefully, weigh your options, and make the call. See how it plays out.",
-    "start": "invoice",
+    "intro": "You look after the network at Wattle Grove Medical Centre, a busy "
+    "Bendigo clinic. Two things need your attention this morning. Read what is "
+    "actually on each screen, then make the call, using what Lesson 1 taught about "
+    "weak points and who is on your Wi-Fi.",
+    "start": "router",
     "scenes": {
-        "invoice": {
-            "backdrop": "email",
-            "title": "9:00am, an invoice that is not quite right",
-            "narrative": "An email arrives from a supplier you deal with every "
-            "month. It says their bank account has changed, and this month's "
-            "invoice, which really is due, must now go to a new account by end of "
-            "day. The wording is polite and the logo looks right. The reply-to "
-            "address is a little different from usual, and there is quiet pressure "
-            "to pay today. What do you do?",
+        "router": {
+            "backdrop": "win",
+            "screen": {
+                "chrome": "browser",
+                "tab": "Router admin",
+                "secure": False,
+                "url": "192.168.0.1/settings/security",
+                "rows": [
+                    {"k": "Admin password", "v": "admin", "flag": "bad"},
+                    {"k": "Wi-Fi encryption", "v": "WPA2 (on)", "flag": "ok"},
+                    {"k": "Guest network", "v": "On · Open, no password", "flag": "warn"},
+                    {"k": "Firmware", "v": "Up to date", "flag": "ok"},
+                ],
+            },
+            "title": "9:05am, the router settings page is open",
+            "narrative": "You have logged in to the clinic router to check it over. "
+            "Read the four settings above. Three are fine, but one is a wide-open "
+            "door that Lesson 1 called the single most important fix. Which do you "
+            "deal with first?",
             "choices": [
-                {"label": "Ring the supplier on the number you already have and confirm the change",
-                 "outcome": "good", "to": "ransom",
-                 "consequence": "You call the number from last month's statement, "
-                 "not one from the email. The supplier knows nothing about any "
-                 "change: their own account is the same as always. The email was a "
-                 "scam, and by verifying through a channel you already trust, you "
-                 "stopped a real payment from going to a stranger. A changed bank "
-                 "account plus time pressure is the classic invoice scam."},
-                {"label": "Pay the new account now so the invoice is not late",
-                 "outcome": "bad", "to": "ransom",
-                 "consequence": "The money lands in a criminal's account and is "
-                 "almost impossible to recover. The invoice was real, but the "
-                 "bank-account change was not. A genuine change of payment details "
-                 "is always worth a quick phone call to a number you already have, "
-                 "however routine the email looks."},
-                {"label": "Reply to the email to ask whether the new account is genuine",
-                 "outcome": "bad", "to": "ransom",
-                 "consequence": "If the email is a scam, your question goes straight "
-                 "to the scammer, who cheerfully confirms the new account is real. "
-                 "Replying can never verify a suspicious message. Reach the sender a "
-                 "different way, on a number or address you already trust."},
+                {"label": "Change the admin password, still set to the factory default 'admin'",
+                 "outcome": "good", "to": "devices",
+                 "consequence": "Right. Default router passwords like 'admin' are "
+                 "printed in manuals and listed online, so anyone who reaches the "
+                 "page can log in and change anything. Setting a long, unique "
+                 "password is the single most important fix. The open guest network "
+                 "is worth a look next, but the default admin password is the "
+                 "wide-open front door."},
+                {"label": "Turn off WPA2, since encryption seems to be slowing the Wi-Fi",
+                 "outcome": "bad", "to": "devices",
+                 "consequence": "That removes the very protection keeping your "
+                 "wireless traffic private, and it has nothing to do with speed. "
+                 "WPA2 is a good setting. The real problem on this page is the admin "
+                 "password still set to the factory default 'admin'."},
+                {"label": "Nothing needs changing; up-to-date firmware means it is secure",
+                 "outcome": "bad", "to": "devices",
+                 "consequence": "Up-to-date firmware is good, but it does not make up "
+                 "for a default password. Anyone who reaches this page can log in "
+                 "with 'admin' and take over the router. Change that password "
+                 "first."},
             ],
         },
-        "ransom": {
-            "backdrop": "ransom",
-            "title": "2:30pm, a colleague calls you over",
-            "narrative": "Every file on their screen has been renamed, and a red "
-            "message demands payment in Bitcoin to unlock them. A countdown is "
-            "ticking. Around the office, a couple of other people say their shared "
-            "files have just stopped opening too. Everyone is looking at you. What "
-            "is your first move?",
+        "devices": {
+            "backdrop": "win",
+            "screen": {
+                "chrome": "window",
+                "icon": "i-shield",
+                "title": "Clinic Wi-Fi · Connected devices",
+                "items": [
+                    {"name": "Reception iPad", "sub": "192.168.1.12 · joined 9:01am", "tag": "This clinic"},
+                    {"name": "Dr Chen's Laptop", "sub": "192.168.1.14 · joined 8:32am", "tag": "This clinic"},
+                    {"name": "Clinic Printer", "sub": "192.168.1.30 · always on", "tag": "This clinic"},
+                    {"name": "UNKNOWN DEVICE", "sub": "4f:2a:9c:81:e0 · joined 2 hours ago", "tag": "Not recognised", "flag": "bad"},
+                ],
+            },
+            "title": "11:20am, the connected-devices list",
+            "narrative": "You open the list of everything on the clinic Wi-Fi. Three "
+            "devices are the clinic's own. One, with an unfamiliar hardware address, "
+            "joined two hours ago and is not recognised. What do you do?",
             "choices": [
-                {"label": "Disconnect that computer from the network, then report it straight away",
+                {"label": "Change the Wi-Fi password so unknown devices drop off, then set up a guest network",
                  "outcome": "good", "to": "end",
-                 "consequence": "Exactly right. Pulling it off the network first "
-                 "stops the ransomware spreading further across the shared drive and "
-                 "other machines, and reporting it quickly brings the right help. "
-                 "With a tested backup, the files can be restored, and nothing is "
-                 "paid to the attacker. Contain, report, recover."},
-                {"label": "Pay the ransom quickly, before the countdown runs out",
+                 "consequence": "Exactly. Changing the Wi-Fi password forces every "
+                 "device to reconnect with the new one, so anything you did not "
+                 "authorise simply falls off. A separate guest network then keeps "
+                 "visitors' phones away from the computers holding patient records "
+                 "for good."},
+                {"label": "Leave it; it is probably a patient's phone that found the password",
                  "outcome": "bad", "to": "end",
-                 "consequence": "Paying is unreliable, funds more crime, and leaves "
-                 "the door it came through wide open, so it can happen again. The "
-                 "countdown exists precisely to rush you into paying. Contain it "
-                 "first, then recover from a backup instead."},
-                {"label": "Tell everyone to keep working so no unsaved work is lost",
+                 "consequence": "Maybe, but you cannot assume that. An unrecognised "
+                 "device sharing the same network as your patient records is worth "
+                 "two minutes to shut out. Change the Wi-Fi password so it drops "
+                 "off."},
+                {"label": "Unplug the router for the rest of the day to be safe",
                  "outcome": "bad", "to": "end",
-                 "consequence": "Every extra second connected, more files and more "
-                 "machines are locked. Staying on the network to save a little "
-                 "unsaved work costs far more than it saves. The first move is "
-                 "always to disconnect and contain the spread."},
+                 "consequence": "That takes the whole clinic offline, staff and all, "
+                 "for one unknown device, and it can simply reconnect when the "
+                 "router comes back. Change the Wi-Fi password instead of pulling "
+                 "the plug."},
             ],
         },
         "end": {
             "backdrop": "win",
-            "title": "That is the morning handled",
-            "narrative": "Two very different situations, one steady instinct behind "
-            "both: slow down, verify through a channel you trust, and when "
-            "something goes wrong, contain it and report it before you do anything "
-            "else. That calm habit is worth more than any single piece of "
-            "technology.",
+            "title": "That is the clinic network looked after",
+            "narrative": "Two ordinary checks, one steady habit behind both: read "
+            "what the screen is actually telling you, close the door you did not "
+            "mean to leave open, and keep the people you do not know off the "
+            "systems that hold what matters. That is what looking after a network "
+            "really means.",
         },
     },
 }
 
 MODULE2_SIM = {
     "kind": "scenes",
-    "intro": "Two moments from a week when a threat came knocking. Recognise it, "
-    "then handle it. Make each call and see the consequence before moving on.",
-    "start": "attach",
+    "intro": "It is a normal Tuesday at Corangamite Accounting, a small firm in "
+    "Colac, until the shared drive starts behaving strangely. Read what is on each "
+    "screen, then make the call, using what Lesson 1 taught about ransomware.",
+    "start": "files",
     "scenes": {
-        "attach": {
-            "backdrop": "attach",
-            "title": "Monday, an attachment that wants opening",
-            "narrative": "An unexpected email arrives, addressed to the accounts "
-            "inbox, with an attachment named Invoice_4471.pdf.exe and a short note "
-            "urging you to open it for the amount due. It looks like an invoice at a "
-            "glance, and the sender name reads Accounts. Something about the file "
-            "name is not right. What do you do?",
+        "files": {
+            "backdrop": "win",
+            "screen": {
+                "chrome": "window", "icon": "i-lock",
+                "title": "File Explorer", "menu": "This PC › Shared › Clients",
+                "items": [
+                    {"name": "Nguyen_BAS_2026.xlsx.locked", "sub": "LOCKED File · 2:00pm", "tag": "Locked", "flag": "bad"},
+                    {"name": "Patel_tax_return.pdf.locked", "sub": "LOCKED File · 2:00pm", "tag": "Locked", "flag": "bad"},
+                    {"name": "payroll_march.csv.locked", "sub": "LOCKED File · 2:01pm", "tag": "Locked", "flag": "bad"},
+                    {"name": "READ_ME_TO_UNLOCK.txt", "sub": "Text · added 2:01pm", "tag": "Ransom note", "flag": "bad"},
+                ],
+            },
+            "title": "2:03pm, the shared drive looks wrong",
+            "narrative": "Every file on the Clients folder has been renamed to end "
+            ".locked, and a file called READ_ME_TO_UNLOCK has appeared. A colleague "
+            "two desks over says their files just stopped opening too. What is your "
+            "first move?",
             "choices": [
-                {"label": "Do not open it, and report it to whoever looks after IT",
-                 "outcome": "good", "to": "lock",
-                 "consequence": "Well spotted. The double extension, .pdf.exe, means "
-                 "the real file type is the last one: .exe, a program that runs "
-                 "code, dressed up to look like a harmless PDF. Opening it would run "
-                 "malware. Not opening it, and reporting it, protects you and warns "
-                 "everyone else who got the same email."},
-                {"label": "Open it to see what the invoice says",
-                 "outcome": "bad", "to": "lock",
-                 "consequence": "Opening it runs the hidden program and infects the "
-                 "machine in seconds. The tell was in the file name all along: "
-                 ".pdf.exe is a program wearing a PDF disguise. When a file name "
-                 "ends in .exe, or in a double extension, do not open it."},
-                {"label": "Forward it to a colleague to check whether it is real",
-                 "outcome": "bad", "to": "lock",
-                 "consequence": "Forwarding a booby-trapped attachment just puts the "
-                 "next person one careless click from infection. Do not pass a "
-                 "suspicious file around. Report it to IT, who can check it safely "
-                 "and warn the whole team."},
+                {"label": "Disconnect the affected computers from the network, then report it",
+                 "outcome": "good", "to": "backup",
+                 "consequence": "Right. Getting the machines off the network first "
+                 "stops the ransomware reaching more of the shared drive and other "
+                 "computers, and reporting it brings the right help fast. Contain, "
+                 "then report, then recover."},
+                {"label": "Open READ_ME_TO_UNLOCK and pay the demand to get the files back",
+                 "outcome": "bad", "to": "backup",
+                 "consequence": "Paying is unreliable, funds more crime, and leaves "
+                 "the way in open so it can happen again. And while you read the note, "
+                 "the encryption keeps spreading. Disconnect and contain first."},
+                {"label": "Tell everyone to keep working so no unsaved work is lost",
+                 "outcome": "bad", "to": "backup",
+                 "consequence": "Every second the machines stay connected, more files "
+                 "and more computers are locked. A little unsaved work is nothing "
+                 "against the whole drive. The first move is to disconnect."},
             ],
         },
-        "lock": {
-            "backdrop": "ransom",
-            "title": "Wednesday, the files start locking",
-            "narrative": "On another computer, files are renaming themselves one "
-            "after another, and a message demands Bitcoin to unlock them. It is "
-            "spreading to the shared drive that the whole office uses. Two days ago "
-            "you dodged the attachment, but something else has got in. You have a "
-            "few seconds to act well. What is your first move?",
+        "backup": {
+            "backdrop": "win",
+            "screen": {
+                "chrome": "window", "icon": "i-shield",
+                "title": "Backup console", "menu": "Backups › Nightly",
+                "rows": [
+                    {"k": "Last backup", "v": "Last night, 2:00am", "flag": "ok"},
+                    {"k": "Integrity", "v": "Verified", "flag": "ok"},
+                    {"k": "Location", "v": "Offline copy, kept off the network", "flag": "ok"},
+                    {"k": "Ransom demand", "v": "0.05 BTC · 72h countdown", "flag": "bad"},
+                ],
+            },
+            "title": "The machines are contained. Now recover.",
+            "narrative": "IT has checked the backup console. Last night's backup is "
+            "complete, verified, and was kept on an offline copy the ransomware could "
+            "not reach. The ransom note still demands payment. How do you get back to "
+            "work?",
             "choices": [
-                {"label": "Disconnect the machine from the network straight away",
+                {"label": "Wipe the affected machines and restore from the clean, verified backup",
                  "outcome": "good", "to": "end",
-                 "consequence": "Exactly. Isolating the machine first is the single "
-                 "most useful thing you can do: it stops the ransomware reaching the "
-                 "shared drive and other computers. From there you report it, and "
-                 "restore from a tested backup rather than paying a cent."},
-                {"label": "Pay the Bitcoin quickly to get everyone back to work",
+                 "consequence": "Exactly. A tested, offline backup is what takes away "
+                 "the attacker's power entirely. You rebuild the machines, restore the "
+                 "files, and pay nothing. That is how a business beats ransomware."},
+                {"label": "Pay the 0.05 BTC anyway, to be quick",
                  "outcome": "bad", "to": "end",
-                 "consequence": "Paying is unreliable and funds more crime, and the "
-                 "way in stays open, so it can strike again. Speed matters here, but "
-                 "the right fast action is to disconnect and contain, not to pay. "
-                 "Recover from a backup instead."},
-                {"label": "Keep working and hope it stops on its own",
+                 "consequence": "With a clean backup in hand, paying makes no sense at "
+                 "all. It rewards the attacker and there is no guarantee the files come "
+                 "back. Restore from the backup instead."},
+                {"label": "Reconnect an infected machine to check if the files came back",
                  "outcome": "bad", "to": "end",
-                 "consequence": "It will not stop on its own. Every second the "
-                 "machine stays connected, more files and more computers are locked. "
-                 "The first move is always to pull it off the network and contain "
-                 "the spread."},
+                 "consequence": "Reconnecting an infected machine can spread the "
+                 "ransomware all over again. Keep the infected machines isolated, wipe "
+                 "them, and restore from the clean backup."},
             ],
         },
         "end": {
             "backdrop": "win",
-            "title": "That is the week handled",
-            "narrative": "You read the threat before it opened, and when a second "
-            "one got through, you contained it fast and recovered without paying. "
-            "Recognising trouble early and reacting calmly, contain then report "
-            "then restore, is what keeps a small business standing when something "
-            "goes wrong.",
+            "title": "That is the incident handled",
+            "narrative": "You recognised ransomware the moment the files changed, "
+            "contained it before it spread further, and recovered from a clean backup "
+            "without paying a cent. Contain, report, restore: that steady order is "
+            "what keeps a small business standing.",
         },
     },
 }
 
-MODULE_SIMS = {1: MODULE1_SIM, 2: MODULE2_SIM}
+MODULE3_SIM = {
+    "kind": "scenes",
+    "intro": "You are on the front desk at Brunswick Family Dental. Two messages "
+    "this afternoon both want money moved. Read exactly what is on each screen, then "
+    "decide, using what Lesson 1 taught about business email compromise and voice "
+    "clones.",
+    "start": "email",
+    "scenes": {
+        "email": {
+            "backdrop": "email",
+            "screen": {
+                "chrome": "browser", "tab": "Mail · Inbox", "secure": True,
+                "url": "mail.brunswickfamilydental.com.au/inbox",
+                "email": {
+                    "from": "Dr Priya Lam <p.lam@dental-admin-mail.com>",
+                    "subject": "URGENT: confidential payment needed today",
+                    "date": "2:11pm",
+                    "preview": "I'm between patients and can't take calls. Please pay "
+                    "our new dental lab $48,500 before 4pm today, and keep this "
+                    "between us for now. I'll explain later. Thanks, Priya.",
+                },
+            },
+            "title": "2:11pm, an urgent email from Dr Lam",
+            "narrative": "It looks like it is from the principal, Dr Lam. Read the "
+            "sender address after the name, and the request itself: an unusual "
+            "payment, a deadline, and a request to keep it quiet. What do you do?",
+            "choices": [
+                {"label": "Call Dr Lam on the number you already have and confirm before doing anything",
+                 "outcome": "good", "to": "call",
+                 "consequence": "Right. The address is a lookalike (dental-admin-mail.com, "
+                 "not the practice's domain), and the pressure and secrecy are there to "
+                 "stop you checking. Verifying on a number you already trust is the one "
+                 "move this scam cannot survive."},
+                {"label": "Pay the $48,500 to the new dental lab, since it is from Dr Lam",
+                 "outcome": "bad", "to": "call",
+                 "consequence": "That is exactly what business email compromise relies "
+                 "on. The lookalike domain, the urgency, and the secrecy are all red "
+                 "flags. Any new or urgent payment deserves a call to a trusted number "
+                 "first."},
+                {"label": "Reply to the email asking Dr Lam to confirm the account",
+                 "outcome": "bad", "to": "call",
+                 "consequence": "If the mailbox is impersonated or compromised, your "
+                 "question goes to the attacker, who happily confirms. Replying can "
+                 "never verify a suspicious message. Use a channel you already trust."},
+            ],
+        },
+        "call": {
+            "backdrop": "phone",
+            "screen": {
+                "chrome": "phone", "time": "2:14pm", "app": "Incoming call",
+                "rows": [
+                    {"k": "Caller", "v": "Dr Priya Lam (principal)"},
+                    {"k": "Number", "v": "+61 4●● ●●● 118"},
+                    {"k": "Note", "v": "Saved in your contacts", "flag": "warn"},
+                ],
+            },
+            "title": "2:14pm, the front desk phone rings",
+            "narrative": "The caller ID shows Dr Lam's name and number, and the voice "
+            "on the line sounds exactly like her. She is insistent: make the transfer "
+            "now, and why are you asking questions? What do you do?",
+            "choices": [
+                {"label": "Hang up and call Dr Lam back on the number saved from before, not this call",
+                 "outcome": "good", "to": "end",
+                 "consequence": "Exactly. A caller ID can be spoofed and a voice can be "
+                 "cloned from a few seconds of public audio. Calling back on a number "
+                 "you already trust is the one check neither trick can beat."},
+                {"label": "Make the transfer; the voice is clearly Dr Lam",
+                 "outcome": "bad", "to": "end",
+                 "consequence": "A familiar voice is no longer proof. AI voice cloning "
+                 "can copy a person from a short clip. Never move money on a voice and "
+                 "a caller ID alone."},
+                {"label": "Ask a personal question to check it is really her",
+                 "outcome": "bad", "to": "end",
+                 "consequence": "A well-prepared attacker may know the answer, and a "
+                 "clone can respond smoothly. Do not try to out-quiz the caller. Hang "
+                 "up and call back on a trusted number."},
+            ],
+        },
+        "end": {
+            "backdrop": "win",
+            "title": "Nothing paid, everyone warned",
+            "narrative": "Two convincing approaches, one steady habit: do not act on "
+            "the message in front of you, verify through a channel you already trust, "
+            "and report it so the next person is ready. That is reading a con like an "
+            "analyst.",
+        },
+    },
+}
+
+MODULE4_SIM = {
+    "kind": "scenes",
+    "intro": "You look after admin at Kensington Physiotherapy and you are working "
+    "from a cafe today. Two everyday moments, each with a safer and a riskier "
+    "path. Read the screen, then choose, using what Lesson 1 taught about secure "
+    "sending and untrusted Wi-Fi.",
+    "start": "send",
+    "scenes": {
+        "send": {
+            "backdrop": "email",
+            "screen": {
+                "chrome": "window", "icon": "i-mail", "title": "New message",
+                "rows": [
+                    {"k": "To", "v": "joe.private@gmail.com", "flag": "warn"},
+                    {"k": "Subject", "v": "the form"},
+                    {"k": "Attached", "v": "Nguyen_medical_history.pdf", "flag": "warn"},
+                    {"k": "Encryption", "v": "None (ordinary email)", "flag": "bad"},
+                ],
+            },
+            "title": "10:40am, about to send a patient's medical history",
+            "narrative": "A colleague has asked you to send a patient's medical "
+            "history to their personal Gmail, as a plain attachment, so they can read "
+            "it at home. It is highly sensitive health data. What do you do?",
+            "choices": [
+                {"label": "Stop, and send it through the clinic's secure portal, or password-protect it and send the password separately",
+                 "outcome": "good", "to": "wifi",
+                 "consequence": "Right. Health data is exactly what needs a sealed "
+                 "channel, so only the intended person can open it and one wrong "
+                 "address is not a breach. If you password-protect the file, send the "
+                 "password by a different channel, never in the same email."},
+                {"label": "Send it as-is; plain email is quicker and the colleague is waiting",
+                 "outcome": "bad", "to": "wifi",
+                 "consequence": "Plain email is a postcard, and a personal Gmail is "
+                 "outside the clinic's control. One wrong address, or anyone along the "
+                 "way, and sensitive health data is exposed. Use a sealed channel."},
+                {"label": "Send it, but CC your manager so there is a second copy",
+                 "outcome": "bad", "to": "wifi",
+                 "consequence": "That just exposes the private file to more inboxes. "
+                 "The fix is a sealed, access-controlled channel, not more copies of an "
+                 "unprotected one."},
+            ],
+        },
+        "wifi": {
+            "backdrop": "wifi",
+            "screen": {
+                "chrome": "phone", "time": "10:52am", "app": "Wi-Fi",
+                "items": [
+                    {"name": "Corner Cafe Free WiFi", "sub": "Open · no password", "tag": "Open", "flag": "bad"},
+                    {"name": "Corner Cafe Free WiFi", "sub": "Open · no password", "tag": "Open", "flag": "bad"},
+                    {"name": "TelstraAir", "sub": "Secured", "tag": "Secured"},
+                ],
+            },
+            "title": "10:52am, time to get online",
+            "narrative": "You need to reach the clinic system. The cafe Wi-Fi list "
+            "shows two networks with exactly the same name, both open, and one "
+            "secured network. One of the identical two may be an evil twin. How do "
+            "you connect?",
+            "choices": [
+                {"label": "Use your phone's mobile data, or a VPN, rather than any open cafe network",
+                 "outcome": "good", "to": "end",
+                 "consequence": "Right. Two identical open networks is a classic "
+                 "evil-twin setup: connect to the wrong one and everything you send "
+                 "runs through an attacker. Your own mobile data is encrypted and "
+                 "yours; a VPN protects you even on untrusted Wi-Fi."},
+                {"label": "Join the first 'Corner Cafe Free WiFi' in the list",
+                 "outcome": "bad", "to": "end",
+                 "consequence": "You cannot tell the real cafe network from a "
+                 "lookalike by name alone, and an open network carries your traffic in "
+                 "the clear anyway. Use mobile data or a VPN instead."},
+                {"label": "Join the other 'Corner Cafe Free WiFi', it has a stronger signal",
+                 "outcome": "bad", "to": "end",
+                 "consequence": "A strong signal often means the attacker's hotspot is "
+                 "closest to you. Signal strength proves nothing. Do not trust either "
+                 "open network; use mobile data or a VPN."},
+            ],
+        },
+        "end": {
+            "backdrop": "win",
+            "title": "Sent safely, connected safely",
+            "narrative": "Match the care to the sensitivity, and never trust a "
+            "network you do not control. Sealed channels for private data, and your "
+            "own connection or a VPN when you are out: two habits that keep client "
+            "information where it belongs.",
+        },
+    },
+}
+
+MODULE5_SIM = {
+    "kind": "scenes",
+    "intro": "You help run IT for Yarra Freight, a Melbourne logistics firm. Two "
+    "requests land on your desk this week. Read what each screen shows, then decide, "
+    "using what Lesson 1 taught about firewalls, remote access, and keeping things "
+    "patched.",
+    "start": "remote",
+    "scenes": {
+        "remote": {
+            "backdrop": "win",
+            "screen": {
+                "chrome": "window", "icon": "i-shield",
+                "title": "Firewall · Rules", "menu": "Security › Rules (top-down)",
+                "rows": [
+                    {"k": "1  ALLOW", "v": "Staff → internet (web, email)", "flag": "ok"},
+                    {"k": "2  ALLOW", "v": "Office → payment gateway", "flag": "ok"},
+                    {"k": "3  DENY", "v": "Everything else (default-deny)", "flag": "ok"},
+                    {"k": "Pending", "v": "Open Remote Desktop to the internet?", "flag": "warn"},
+                ],
+            },
+            "title": "Monday, a request to allow working from home",
+            "narrative": "A manager wants to work from home and asks you to 'just "
+            "open Remote Desktop to the internet' so they can log in. The firewall "
+            "is currently default-deny. What do you do?",
+            "choices": [
+                {"label": "Say no; set up a VPN with multi-factor sign-in so the office systems stay hidden",
+                 "outcome": "good", "to": "patch",
+                 "consequence": "Right. Remote Desktop exposed to the internet is one "
+                 "of the most common ways attackers and ransomware get in: automated "
+                 "scanners find it within hours and hammer the login. A VPN with "
+                 "multi-factor is one guarded door, and the office systems stay out of "
+                 "sight."},
+                {"label": "Add a rule opening Remote Desktop to the internet",
+                 "outcome": "bad", "to": "patch",
+                 "consequence": "That punches a hole straight through your default-deny "
+                 "firewall to a login attackers scan for constantly. This is exactly "
+                 "how the Medibank-style break-ins begin. Use a VPN with multi-factor "
+                 "instead."},
+                {"label": "Open it for one week only, then close it",
+                 "outcome": "bad", "to": "patch",
+                 "consequence": "A week is more than enough for automated scanners to "
+                 "find the open port and start guessing passwords, and 'temporary' "
+                 "rules are famous for staying open. Set up the VPN properly."},
+            ],
+        },
+        "patch": {
+            "backdrop": "win",
+            "screen": {
+                "chrome": "window", "icon": "i-shield",
+                "title": "Security dashboard", "menu": "Overview",
+                "rows": [
+                    {"k": "VPN", "v": "On · multi-factor required", "flag": "ok"},
+                    {"k": "Firewall", "v": "Default-deny", "flag": "ok"},
+                    {"k": "Guest Wi-Fi", "v": "Separate zone", "flag": "ok"},
+                    {"k": "Updates", "v": "3 servers overdue by 40 days", "flag": "bad"},
+                ],
+            },
+            "title": "The dashboard shows one thing outstanding",
+            "narrative": "The remote access is sorted. The security dashboard is "
+            "mostly green, but three servers are 40 days behind on updates. What do "
+            "you do?",
+            "choices": [
+                {"label": "Schedule and apply the overdue updates now",
+                 "outcome": "good", "to": "end",
+                 "consequence": "Right. Most break-ins use a hole a patch had already "
+                 "fixed. A firewall cannot save a server with a known, unpatched flaw. "
+                 "Applying updates promptly is a core part of defence in depth."},
+                {"label": "Ignore them; the firewall will keep the servers safe",
+                 "outcome": "bad", "to": "end",
+                 "consequence": "A firewall controls which connections are allowed; it "
+                 "does not fix a known flaw in a service you do allow. Defence in depth "
+                 "means the updates matter too. Patch them."},
+                {"label": "Turn off automatic updates so they stop nagging",
+                 "outcome": "bad", "to": "end",
+                 "consequence": "That is the opposite of the fix. Turning updates off "
+                 "leaves every known hole wide open. Apply the overdue ones and keep "
+                 "automatic updates on."},
+            ],
+        },
+        "end": {
+            "backdrop": "win",
+            "title": "The defences are holding",
+            "narrative": "One guarded, encrypted door instead of many exposed to the "
+            "internet, and every layer kept up to date. A firewall is one wall; real "
+            "security is layers, each covering what the others cannot."},
+    },
+}
+
+MODULE6_SIM = {
+    "kind": "scenes",
+    "intro": "You are the office manager at Riverside Dental in Geelong when the "
+    "monitoring board lights up. Read what each screen tells you, then make the "
+    "call, using the response steps and the law from Lesson 1.",
+    "start": "alert",
+    "scenes": {
+        "alert": {
+            "backdrop": "win",
+            "screen": {
+                "chrome": "window", "icon": "i-shield",
+                "title": "Monitoring · Alerts", "menu": "Live › Today",
+                "rows": [
+                    {"k": "09:14", "v": "Many failed logins, then one success", "flag": "bad"},
+                    {"k": "09:20", "v": "Files encrypting on the records server", "flag": "bad"},
+                    {"k": "Patient records", "v": "At risk", "flag": "bad"},
+                    {"k": "Backups", "v": "Last night, verified, offline", "flag": "ok"},
+                ],
+            },
+            "title": "09:22, the alert board lights up",
+            "narrative": "The monitoring board shows a break-in an hour ago and files "
+            "now encrypting on the patient-records server. Staff are asking what to "
+            "do. What is your first move?",
+            "choices": [
+                {"label": "Isolate the affected machines from the network, then start the response plan and report it",
+                 "outcome": "good", "to": "notify",
+                 "consequence": "Right. Disconnecting the affected machines contains "
+                 "the spread without destroying the evidence a full power-off would "
+                 "lose, and starting the plan brings the right people in. Contain "
+                 "first, then work through the phases in order."},
+                {"label": "Pull the power on every machine at the wall, immediately",
+                 "outcome": "bad", "to": "notify",
+                 "consequence": "A blind power-off can destroy useful evidence, may not "
+                 "stop the spread, and knocks out systems you did not need to lose. "
+                 "Isolate the affected machines from the network instead."},
+                {"label": "Wait to see if it stops before worrying anyone",
+                 "outcome": "bad", "to": "notify",
+                 "consequence": "Waiting is the most expensive choice in an incident. "
+                 "Every minute, more records are encrypted and the break-in spreads. "
+                 "Name it as an incident and contain it now."},
+            ],
+        },
+        "notify": {
+            "backdrop": "leak",
+            "screen": {
+                "chrome": "window", "icon": "i-book",
+                "title": "Privacy · Breach assessment", "menu": "Notifiable Data Breaches",
+                "rows": [
+                    {"k": "Data exposed", "v": "Patient health records", "flag": "bad"},
+                    {"k": "Serious harm", "v": "Likely", "flag": "bad"},
+                    {"k": "Assess within", "v": "30 days", "flag": "warn"},
+                    {"k": "Regulator", "v": "OAIC", "flag": "warn"},
+                ],
+            },
+            "title": "Contained and recovered. Now the law.",
+            "narrative": "The machines are isolated, and clean backups are restoring "
+            "the records. But patient health data was copied before the encryption. "
+            "Under the Notifiable Data Breaches scheme, what do you do?",
+            "choices": [
+                {"label": "Notify the OAIC and the affected patients, and tell them how to protect themselves",
+                 "outcome": "good", "to": "end",
+                 "consequence": "Right. Exposed health data is very likely to cause "
+                 "serious harm, so the Privacy Act requires notifying the OAIC and the "
+                 "affected people as soon as practicable. Telling people promptly is "
+                 "the law, and it lets them protect themselves."},
+                {"label": "Keep it quiet to avoid embarrassing the practice",
+                 "outcome": "bad", "to": "end",
+                 "consequence": "Staying quiet about an eligible breach of health data "
+                 "breaks the law and leaves patients unable to protect themselves. The "
+                 "scheme exists precisely so people are told."},
+                {"label": "Wait several months and decide later",
+                 "outcome": "bad", "to": "end",
+                 "consequence": "The scheme runs on a clock: you must assess a "
+                 "suspected eligible breach within 30 days and notify as soon as "
+                 "practicable. Drifting for months is not an option."},
+            ],
+        },
+        "end": {
+            "backdrop": "win",
+            "title": "Handled, start to finish",
+            "narrative": "You named the incident fast, contained it before it spread, "
+            "recovered from clean backups, and met the practice's legal duty to the "
+            "people whose data was exposed. Panic is optional; a plan is not."},
+    },
+}
+
+MODULE_SIMS = {1: MODULE1_SIM, 2: MODULE2_SIM, 3: MODULE3_SIM, 4: MODULE4_SIM,
+               5: MODULE5_SIM, 6: MODULE6_SIM}
 
 
 def _placeholder_sim(module_title):

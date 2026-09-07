@@ -29,16 +29,16 @@ LESSONS = [
                 "key": "encryption",
                 "kind": "concept",
                 "points": 2,
+                "diagram": "encryption",
                 "title": "Encryption: a sealed envelope, not a postcard",
-                "diagram": "msg-encrypted",
                 "body": "<p>To <strong>encrypt</strong> information is to scramble it "
                 "using a <strong>key</strong>, so that only someone with the matching "
                 "key can turn it back into something readable. The readable version "
                 "is called <em>plaintext</em>; the scrambled version is "
                 "<em>ciphertext</em>. To anyone without the key, the ciphertext is "
                 "just noise, and modern encryption is strong enough that guessing the "
-                "key is not realistically possible. The picture above shows the same "
-                "patient record sent two ways.</p>"
+                "key is not realistically possible. The same message can be sent two "
+                "ways.</p>"
                 "<ul>"
                 "<li><strong>Out in the open</strong>: the plain version is readable "
                 "by anyone who can see the traffic along the way, like a postcard a "
@@ -63,13 +63,13 @@ LESSONS = [
                 "kind": "concept",
                 "points": 2,
                 "title": "The padlock, https, and end-to-end",
-                "diagram": "secure-bars",
+                "diagram": "msg-encrypted",
                 "body": "<p>The padlock and <strong>https</strong> in the address "
                 "bar mean the connection between your browser and that website is "
                 "encrypted, using a technology called TLS. When you connect, your "
                 "browser and the site agree on a shared key and scramble everything "
                 "that passes between them, so someone watching the network sees only "
-                "ciphertext. The two address bars above show the difference: plain "
+                "ciphertext. In the address bar you see the difference: plain "
                 "<strong>http</strong> with no padlock is open and readable; "
                 "<strong>https</strong> with a padlock is encrypted in transit.</p>"
                 "<p>But here is the catch that catches people out: the padlock says "
@@ -94,12 +94,12 @@ LESSONS = [
                 "key": "sharing-safely",
                 "kind": "concept",
                 "points": 2,
-                "title": "Sharing safely: keep control, keep the key separate",
                 "diagram": "secure-share",
+                "title": "Sharing safely: keep control, keep the key separate",
                 "body": "<p>Sending a file is easy; keeping control of it is the "
                 "skill. Once a loose copy leaves your hands, in a plain attachment or "
-                "a public link, you can never pull it back. The share settings above "
-                "show the two ends of the spectrum.</p>"
+                "a public link, you can never pull it back. There are two ends of the "
+                "spectrum.</p>"
                 "<ul>"
                 "<li><strong>A public 'anyone with the link' share</strong>: no "
                 "sign-in, never expires, and can be forwarded to anyone. Convenient, "
@@ -125,8 +125,7 @@ LESSONS = [
                 "kind": "concept",
                 "points": 2,
                 "title": "Staying private on someone else's network",
-                "hero": "eavesdrop",
-                "diagram": "vpn-tunnel",
+                "diagram": "wifi-evil-twin",
                 "body": "<p>Working from a cafe, an airport, or a hotel is normal now, "
                 "and so are the risks. Public Wi-Fi is a shared space, and two traps "
                 "stand out.</p>"
@@ -144,7 +143,7 @@ LESSONS = [
                 "</ul>"
                 "<p>The fix is to stop trusting the network at all. Use your phone's "
                 "<strong>mobile data</strong>, which is encrypted and yours, or a "
-                "<strong>VPN</strong>. As the animation above shows, a VPN builds an "
+                "<strong>VPN</strong>. A VPN builds an "
                 "encrypted tunnel from your device to a trusted server, so even on an "
                 "untrusted Wi-Fi, and even against an evil twin, an eavesdropper sees "
                 "only scrambled traffic. And lock your screen whenever you step away: "
@@ -185,9 +184,11 @@ LESSONS = [
     {
         "title": "Put it to work: sharing safely, files, links, and Wi-Fi",
         "reading_time_minutes": 9,
-        "intro": "Now use it. Sort what is sealed from what is open, tell a safe "
-        "share from a leak, read a real share-settings screen, make a live sharing "
-        "decision, and harden a workspace for life on the move.",
+        "intro": "Now use it at Kensington Physiotherapy, a two-site clinic where "
+        "owner Dan Whitmore, admin Lucy and physio Sam send patient files between "
+        "the rooms and the road all day. Sort what is sealed from what is open, tell "
+        "a safe share from a leak, read a real share-settings screen, make a live "
+        "sharing decision, and harden a workspace for life on the move.",
         "tasks": [
             {
                 "key": "encrypted-or-open",
@@ -293,10 +294,11 @@ LESSONS = [
                 "kind": "branch",
                 "points": 2,
                 "title": "Decision drill: secure link, or email attachment?",
-                "body": "<p>A real sharing decision, start to finish. A colleague at "
-                "another office needs a client's file. The choice you make about how "
-                "to share it decides who can reach it, and whether you can ever take "
-                "it back. Work through it.</p>"
+                "body": "<p>A real sharing decision, start to finish. Sam is at the "
+                "Kensington rooms and needs a patient's rehab file that Lucy has at "
+                "the second site. The choice Lucy makes about how to send it decides "
+                "who can reach it, and whether she can ever take it back. Work "
+                "through it.</p>"
                 "<div class=\"cy-callout\"><strong>The rule:</strong> share a "
                 "permissioned link, not a loose copy. Control who can open it, and "
                 "keep the power to revoke.</div>",
@@ -305,7 +307,7 @@ LESSONS = [
                     "start": "share",
                     "nodes": {
                         "share": {
-                            "text": "A colleague across town needs a client's file. How do you get it to them?",
+                            "text": "Sam needs a patient's rehab file (Nguyen_rehab_plan.pdf) that is at the other site. How does Lucy get it to him?",
                             "choices": [
                                 {"label": "Share a link restricted to them, that you can expire or revoke later", "outcome": "good",
                                  "feedback": "Right. A permissioned link keeps you in control of who can open it, and lets you take access back.", "to": "perms"},
@@ -348,11 +350,16 @@ LESSONS = [
                 "kind": "harden",
                 "points": 2,
                 "title": "Secure the workspace before you leave",
+                "hero": "eavesdrop",
                 "diagram": "wifi-evil-twin",
-                "body": "<p>The final drill puts life on the move to work. The Wi-Fi "
-                "picker above shows a classic trap: two near-identical open networks, "
-                "one of which may be an <strong>evil twin</strong> set up to watch "
-                "your traffic. Secure each part of your mobile setup.</p>"
+                "body": "<p>First, the why. The animation above shows the same cafe "
+                "Wi-Fi two ways: in the open, an eavesdropper reads your login; "
+                "through a VPN, they see only scrambled noise. Now secure your own "
+                "setup.</p>"
+                "<p>The Wi-Fi picker below shows a classic trap: two near-identical "
+                "open networks, one of which may be an <strong>evil twin</strong> set "
+                "up to watch your traffic. Secure each part of your mobile "
+                "setup.</p>"
                 "<div class=\"cy-callout\">For each item, choose the option that "
                 "closes the gap and watch it flip to Secured.</div>",
                 "payload": {

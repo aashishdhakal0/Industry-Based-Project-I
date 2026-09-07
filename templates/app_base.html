@@ -78,6 +78,9 @@
           <a class="cy-side__item {% if active == 'admin_content' %}is-active{% endif %}" href="{% url 'staff:content' %}">
             <svg class="cy-i" aria-hidden="true"><use href="#i-book"/></svg> Content
           </a>
+          <a class="cy-side__item {% if active == 'admin_reports' %}is-active{% endif %}" href="{% url 'staff:reports' %}">
+            <svg class="cy-i" aria-hidden="true"><use href="#i-chart"/></svg> Reports
+          </a>
           <a class="cy-side__item {% if active == 'admin_activity' %}is-active{% endif %}" href="{% url 'staff:activity' %}">
             <svg class="cy-i" aria-hidden="true"><use href="#i-clock"/></svg> Activity
           </a>

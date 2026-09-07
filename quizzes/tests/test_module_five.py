@@ -35,8 +35,14 @@ ACTIVITY_KINDS = {
     "HARDEN", "NETMAP", "RESPOND", "FIREWALL", "TABLETOP",
 }
 # Real visuals this module teaches from (diagram keys plus the two animated heroes).
-FIGURES = {"firewall-flow", "defence-in-depth", "segment-flow", "vpn-tunnel", "firewall", "segmentation"}
+FIGURES = {"firewall-flow", "segment-flow", "firewall", "segmentation"}
 HEROES = {"firewall-flow", "segment-flow"}
+L1_DIAGRAMS = {
+    "the-firewall": "firewall",
+    "defence-in-depth": "defence-in-depth",
+    "segmentation": "segmentation",
+    "remote-access": "vpn-tunnel",
+}
 DASHES = ("—", "–")
 
 
@@ -54,7 +60,8 @@ def _content_blob(task):
 
 
 def _visual(task):
-    return task.diagram_key or (task.payload or {}).get("hero", "")
+    return (task.diagram_key or (task.payload or {}).get("hero", "")
+            or (task.image or {}).get("src", ""))
 
 
 # --- shape: L1 teaches, L2 applies -----------------------------------------
@@ -103,9 +110,19 @@ def test_uses_the_defence_figures_including_animated_heroes(seeded):
         if v:
             used.add(v)
     assert FIGURES <= used, f"missing figures: {FIGURES - used}"
-    # The two "watch it unfold" heroes are carried on Lesson 1 teaching panels.
+    # Lesson 1's four teaching panels use professional TECHNICAL DIAGRAMS
+    # (firewall, defence-in-depth, segmentation, VPN tunnel), not stock photos.
+    l1 = seeded.lessons.get(lesson_number=1)
+    diagrams = {t.task_key: t.diagram_key for t in l1.tasks.filter(kind="CONCEPT")}
+    assert diagrams == L1_DIAGRAMS
+    for t in l1.tasks.filter(kind="CONCEPT"):
+        assert not (t.image or {}).get("src"), f"{t.task_key} should be diagram-only"
+    # Lesson 1 is theory-only: NO animated heroes there. Both "watch it unfold"
+    # heroes now live on Lesson 2 practical tasks.
     l1_heroes = {(t.payload or {}).get("hero") for t in seeded.lessons.get(lesson_number=1).tasks.all()}
-    assert HEROES <= l1_heroes, f"missing animated heroes on L1: {HEROES - l1_heroes}"
+    assert not (HEROES & l1_heroes), f"Lesson 1 must have no animations: {HEROES & l1_heroes}"
+    l2_heroes = {(t.payload or {}).get("hero") for t in seeded.lessons.get(lesson_number=2).tasks.all()}
+    assert HEROES <= l2_heroes, f"animations must be relocated to L2: {HEROES - l2_heroes}"
 
 
 # --- activity well-formedness (each solvable) ------------------------------
@@ -280,3 +297,14 @@ def test_full_interactive_module_five_journey(learner_at_module_five):
     progress = {mp.module.order_index: mp for mp in g.module_progress(student)}
     assert progress[5].complete is True
     assert progress[6].unlocked is True
+
+
+@pytest.mark.django_db
+def test_simulation_is_screen_driven(seeded):
+    sim = seeded.simulation.decision_points
+    assert sim["kind"] == "scenes"
+    decisions = [s for s in sim["scenes"].values() if s.get("choices")]
+    assert len(decisions) >= 2
+    for sc in decisions:
+        assert sc.get("screen") and sc["screen"].get("chrome") in ("browser", "window", "phone")
+        assert sc["screen"].get("rows") or sc["screen"].get("email") or sc["screen"].get("items")

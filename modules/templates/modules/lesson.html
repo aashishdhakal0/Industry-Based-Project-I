@@ -17,6 +17,13 @@
 {% block title %}{{ lesson.title }} — {{ site_name }}{% endblock %}
 
 {% block content %}
+{% if preview %}
+  <div class="cy-previewbar" role="note">
+    <span class="cy-previewbar__tag">Preview</span>
+    <span>You are viewing this lesson as a student would. Nothing here is recorded.</span>
+    <a class="cy-previewbar__back" href="{{ focus_back_url }}">{{ focus_back_label }}</a>
+  </div>
+{% endif %}
 <div class="cy-reader-progress" aria-hidden="true">
   <div class="cy-reader-progress__fill" style="width: {{ progress_percent }}%;"></div>
 </div>

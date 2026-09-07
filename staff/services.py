@@ -42,6 +42,7 @@ class LearnerRow:
     level: int
     flagged: bool
     days_inactive: int | None
+    repeat_failed: bool = False
 
     @property
     def name(self):
@@ -73,6 +74,21 @@ class LearnerRow:
     @property
     def needs_attention(self):
         return self.flagged or self.inactive
+
+    @property
+    def is_verified(self):
+        return self.user.is_verified
+
+    @property
+    def awaiting_verification(self):
+        """A student account that has not yet confirmed its email."""
+        return self.is_student and not self.user.is_verified
+
+    @property
+    def stalled(self):
+        """Started the course, not finished it, and gone quiet — the learner who
+        needs a nudge (distinct from someone who has never begun)."""
+        return self.is_student and self.started and not self.completed_course and self.inactive
 
     @property
     def is_student(self):
@@ -123,12 +139,17 @@ SORTS = {
 DEFAULT_SORT = "name"
 
 
-def collect_learners(now=None, roles=None):
+def collect_learners(now=None, roles=None, as_at=None):
     """Every user in `roles`, with progress, grade and activity. Constant query
     count. Defaults to Students only (what every existing caller wants); the
     org-grouped learners view passes the staff roles too, so admins show up in
     their organisation. Non-students carry empty progress — the UI shows them as
-    staff, not as never-started learners."""
+    staff, not as never-started learners.
+
+    `as_at` (a datetime) computes everything *as it stood on that date*: only
+    lessons completed and quizzes submitted at or before it count. This is what
+    the compliance report needs to answer "who had finished by 30 June".
+    """
     now = now or timezone.now()
     roles = roles or (User.Role.STUDENT,)
 
@@ -147,27 +168,44 @@ def collect_learners(now=None, roles=None):
         )
     )
 
+    lesson_qs = ProgressRecord.objects.filter(
+        lesson__is_active=True, lesson__module__is_published=True
+    )
+    quiz_qs = QuizResult.objects.all()
+    if as_at is not None:
+        lesson_qs = lesson_qs.filter(completed_at__lte=as_at)
+        quiz_qs = quiz_qs.filter(submitted_at__lte=as_at)
+
     lessons_map = {}
     for row in (
-        ProgressRecord.objects.filter(
-            lesson__is_active=True, lesson__module__is_published=True
-        )
-        .values("user_id", "lesson__module_id")
+        lesson_qs.values("user_id", "lesson__module_id")
         .annotate(n=Count("lesson", distinct=True))
     ):
         lessons_map[(row["user_id"], row["lesson__module_id"])] = row["n"]
 
     passed = {
         (row["user_id"], row["quiz__module_id"])
-        for row in QuizResult.objects.filter(passed=True)
+        for row in quiz_qs.filter(passed=True)
         .values("user_id", "quiz__module_id")
         .distinct()
     }
     best_map = {}
-    for row in QuizResult.objects.values("user_id", "quiz__module_id").annotate(
+    for row in quiz_qs.values("user_id", "quiz__module_id").annotate(
         best=Max("score")
     ):
         best_map[(row["user_id"], row["quiz__module_id"])] = row["best"]
+
+    # Repeat quiz-failers: two or more failed attempts on a module they still
+    # have not passed. One bounded aggregate; the query count stays constant.
+    repeat_fail_ids = set()
+    for row in (
+        QuizResult.objects.filter(passed=False)
+        .values("user_id", "quiz__module_id")
+        .annotate(n=Count("id"))
+    ):
+        key = (row["user_id"], row["quiz__module_id"])
+        if row["n"] >= 2 and key not in passed:
+            repeat_fail_ids.add(row["user_id"])
 
     students = (
         User.objects.filter(role__in=roles)
@@ -207,6 +245,7 @@ def collect_learners(now=None, roles=None):
                 level=g.level_for_points(points).level,
                 flagged=bool(profile and profile.flagged),
                 days_inactive=days_inactive,
+                repeat_failed=user.id in repeat_fail_ids,
             )
         )
     return rows
@@ -245,6 +284,9 @@ QUICK_FILTERS = {
     "in_progress": ("In progress", lambda r: r.is_student and r.started and not r.completed_course),
     "completed": ("Completed", lambda r: r.completed_course),
     "attention": ("Needs attention", lambda r: r.needs_attention),
+    "stalled": ("Stalled mid-course", lambda r: r.stalled),
+    "repeat_failed": ("Repeat quiz fails", lambda r: r.is_student and r.repeat_failed),
+    "unverified": ("Awaiting verification", lambda r: r.awaiting_verification),
     "active": ("Active (7 days)", lambda r: r.days_inactive is not None and r.days_inactive <= 7),
     "dormant": ("Dormant (14+ days)", lambda r: r.inactive),
     "distinction": ("Distinction", lambda r: r.tier.slug == "distinction"),
@@ -252,7 +294,8 @@ QUICK_FILTERS = {
     "pass": ("Pass", lambda r: r.tier.slug == "pass"),
     "not-yet": ("Not yet", lambda r: r.tier.slug == "not-yet"),
 }
-STATUS_FILTER_KEYS = ["not_started", "in_progress", "completed", "attention", "dormant"]
+STATUS_FILTER_KEYS = ["not_started", "in_progress", "stalled", "completed",
+                      "attention", "repeat_failed", "unverified", "dormant"]
 GRADE_FILTER_KEYS = ["distinction", "merit", "pass", "not-yet"]
 
 
@@ -292,6 +335,97 @@ def overview(rows):
     }
 
 
+# --- Trends over time and the attention cohorts ------------------------------
+
+
+def period_metrics(now=None, days=7):
+    """Movement over the last `days`, each compared with the `days` before it,
+    so the overview shows direction, not just a static number. A fixed handful of
+    bounded aggregates: active learners, new sign-ups, and learning events (a
+    lesson completed or a quiz submitted)."""
+    now = now or timezone.now()
+    cur_start = now - timedelta(days=days)
+    prev_start = now - timedelta(days=2 * days)
+
+    def _delta(cur, prev):
+        return {"current": cur, "previous": prev, "delta": cur - prev}
+
+    def _events(start, end):
+        return (
+            ProgressRecord.objects.filter(
+                completed_at__gte=start, completed_at__lt=end
+            ).count()
+            + QuizResult.objects.filter(
+                submitted_at__gte=start, submitted_at__lt=end
+            ).count()
+        )
+
+    def _active(start, end):
+        pr = set(
+            ProgressRecord.objects.filter(
+                completed_at__gte=start, completed_at__lt=end
+            ).values_list("user_id", flat=True)
+        )
+        qr = set(
+            QuizResult.objects.filter(
+                submitted_at__gte=start, submitted_at__lt=end
+            ).values_list("user_id", flat=True)
+        )
+        return len(pr | qr)
+
+    def _signups(start, end):
+        return User.objects.filter(
+            role=User.Role.STUDENT, date_joined__gte=start, date_joined__lt=end
+        ).count()
+
+    active = _delta(_active(cur_start, now), _active(prev_start, cur_start))
+    signups = _delta(_signups(cur_start, now), _signups(prev_start, cur_start))
+    events = _delta(_events(cur_start, now), _events(prev_start, cur_start))
+    return {
+        "days": days,
+        "active": active,
+        "signups": signups,
+        "events": events,
+        # A labelled list for the template to iterate.
+        "metrics": [
+            {"label": "Active learners", **active},
+            {"label": "New sign-ups", **signups},
+            {"label": "Lessons + quizzes", **events},
+        ],
+    }
+
+
+# The four cohorts an administrator actually chases, each linking to the matching
+# learner-list quick-filter so "view all" lands on exactly this group.
+_COHORTS = [
+    ("not_started", "Not started", "have an account but have never begun"),
+    ("stalled", "Stalled mid-course", "started, then went quiet for 14 days or more"),
+    ("repeat_failed", "Failing a quiz", "failed the same quiz twice or more without passing"),
+    ("unverified", "Awaiting verification", "have not confirmed their email yet"),
+]
+
+
+def attention_cohorts(rows, sample=6):
+    """The 'what needs your attention today' groups, from the composed rows."""
+    students = [r for r in rows if r.is_student]
+    out = []
+    for key, label, note in _COHORTS:
+        predicate = QUICK_FILTERS[key][1]
+        members = [r for r in students if predicate(r)]
+        members.sort(key=lambda r: r.name.lower())
+        out.append(
+            {
+                "key": key,
+                "label": label,
+                "note": note,
+                "count": len(members),
+                "sample": members[:sample],
+                "more": max(0, len(members) - sample),
+            }
+        )
+    return out
+
+
 def organisations(rows, limit=6):
     """Learners per organisation, most populous first, for the overview chart."""
     buckets = {}
@@ -324,11 +458,20 @@ def managed_organisations():
     by_name = {o["name"]: o for o in organisation_rollup(rows)}
     keys = ("learners", "started", "completed", "attention", "avg_score", "completion")
 
+    today = timezone.localdate()
     out = []
     for org in Organisation.objects.all():
         stats = by_name.get(org.name, _blank_org_stats())
-        out.append({"org": org, **{k: stats[k] for k in keys}})
-    out.sort(key=lambda o: (-o["learners"], o["org"].name.lower()))
+        row = {"org": org, **{k: stats[k] for k in keys}}
+        # Overdue: the due date has passed and not everyone has finished.
+        row["overdue"] = bool(
+            org.training_due
+            and org.training_due < today
+            and row["completed"] < row["learners"]
+        )
+        out.append(row)
+    # Overdue organisations float to the top, then by size.
+    out.sort(key=lambda o: (not o["overdue"], -o["learners"], o["org"].name.lower()))
     return out
 
 
@@ -457,6 +600,169 @@ def recent_actions(limit=8):
     return list(
         AdminAction.objects.select_related("actor", "target_user")[:limit]
     )
+
+
+def filter_admin_actions(params):
+    """Apply the audit-log filters from a querystring, returning the narrowed
+    queryset plus the active filter values (so the form can re-show them).
+
+    Filters: actor (id), action kind, a date range over the local day, and a
+    free-text search across the summary and both parties' emails. All bounded and
+    indexed; shared by the log page and its CSV export so they never diverge.
+    """
+    import datetime as _dt
+
+    qs = AdminAction.objects.select_related("actor", "target_user")
+    active = {"actor": "", "kind": "", "q": "", "from": "", "to": ""}
+
+    actor = (params.get("actor") or "").strip()
+    if actor.isdigit():
+        qs = qs.filter(actor_id=int(actor))
+        active["actor"] = actor
+
+    kind = (params.get("kind") or "").strip()
+    if kind in AdminAction.Kind.values:
+        qs = qs.filter(action=kind)
+        active["kind"] = kind
+
+    q = (params.get("q") or "").strip()
+    if q:
+        qs = qs.filter(
+            Q(summary__icontains=q)
+            | Q(actor__email__icontains=q)
+            | Q(target_user__email__icontains=q)
+        )
+        active["q"] = q
+
+    def _date(name):
+        raw = (params.get(name) or "").strip()
+        try:
+            return _dt.date.fromisoformat(raw), raw
+        except ValueError:
+            return None, ""
+
+    d_from, raw_from = _date("from")
+    if d_from:
+        qs = qs.filter(created_at__date__gte=d_from)
+        active["from"] = raw_from
+    d_to, raw_to = _date("to")
+    if d_to:
+        qs = qs.filter(created_at__date__lte=d_to)
+        active["to"] = raw_to
+
+    return qs, active
+
+
+def audit_actors():
+    """Administrators who appear as an actor in the log, for the filter dropdown."""
+    return list(
+        User.objects.filter(admin_actions__isnull=False)
+        .distinct()
+        .order_by("first_name", "last_name", "email")
+    )
+
+
+# --- Bulk invite (onboarding a whole workplace at once) ----------------------
+
+import re as _re
+
+_EMAIL_TOKEN = _re.compile(r"[^@\s,;<>()\[\]\"']+@[^@\s,;<>()\[\]\"']+")
+
+
+def parse_emails(text):
+    """Pull every email-looking token out of pasted text or an uploaded CSV.
+
+    Deliberately forgiving: one per line, comma/semicolon/space separated, or a
+    'Name <email>' pair all work, so an admin can paste a staff list however they
+    have it. Lower-cased; order preserved; de-duplicated by the caller.
+    """
+    return [m.group(0).strip().lower() for m in _EMAIL_TOKEN.finditer(text or "")]
+
+
+def classify_invites(emails):
+    """Sort a list of emails into new / already-registered / invalid, de-duped.
+
+    One bounded query for the existing set; the rest is Python. Returns three
+    ordered, unique lists so the preview can show exactly what will happen.
+    """
+    from django.core.exceptions import ValidationError
+    from django.core.validators import validate_email
+
+    cleaned = []
+    seen = set()
+    for e in emails:
+        e = (e or "").strip().lower()
+        if e and e not in seen:
+            seen.add(e)
+            cleaned.append(e)
+
+    existing = set(
+        User.objects.filter(email__in=cleaned).values_list("email", flat=True)
+    )
+
+    new, already, invalid = [], [], []
+    for e in cleaned:
+        try:
+            validate_email(e)
+        except ValidationError:
+            invalid.append(e)
+            continue
+        (already if e in existing else new).append(e)
+    return {"new": new, "existing": already, "invalid": invalid}
+
+
+# --- Reporting: compliance + certificate register ----------------------------
+
+
+def compliance_report(as_at=None, org=None):
+    """Who has completed the course as at a chosen date. The compliance officer's
+    core question ("prove staff finished by the deadline"). One bounded pass with
+    the `as_at` cutoff; optionally scoped to one organisation.
+
+    When the organisation has a training due date, anyone not complete is flagged
+    overdue if that due date has already passed.
+    """
+    rows = collect_learners(as_at=as_at)
+    if org is not None:
+        rows = [r for r in rows if getattr(r.user, "profile", None) and r.user.profile.org_id == org.id]
+    rows.sort(key=lambda r: (not r.completed_course, r.name.lower()))
+
+    total = len(rows)
+    completed = sum(1 for r in rows if r.completed_course)
+
+    due = org.training_due if org else None
+    overdue = False
+    if due is not None:
+        cutoff = as_at.date() if as_at is not None else timezone.localdate()
+        overdue = due < cutoff
+
+    return {
+        "rows": rows,
+        "total": total,
+        "completed": completed,
+        "not_completed": total - completed,
+        "rate": round(completed / total * 100) if total else 0,
+        "as_at": as_at,
+        "org": org,
+        "due": due,
+        "past_due": overdue,
+    }
+
+
+def certificate_register(status=None):
+    """Every certificate on the platform, newest first, for the register.
+
+    Bounded: one query with the holder and organisation joined. `status` narrows
+    to valid or revoked.
+    """
+    from certificates.models import Certificate
+
+    qs = Certificate.objects.select_related("user", "user__profile", "user__profile__org")
+    if status == "valid":
+        qs = qs.filter(revoked_at__isnull=True)
+    elif status == "revoked":
+        qs = qs.filter(revoked_at__isnull=False)
+    return list(qs.order_by("-issued_at"))
 
 
 def content_health():
@@ -621,6 +927,15 @@ def learner_detail(learner):
     level = g.level_for_points(profile.points)
     stats = g.student_stats(learner)
 
+    from certificates.models import Certificate
+
+    from .models import LearnerNote
+
+    notes = list(
+        LearnerNote.objects.filter(learner=learner).select_related("author")
+    )
+    certificate = Certificate.objects.filter(user=learner).order_by("-issued_at").first()
+
     return {
         "learner": learner,
         "profile": profile,
@@ -635,7 +950,38 @@ def learner_detail(learner):
         "streak": g.streak_status(profile),
         "stats": stats,
         "timeline": _timeline(learner),
+        "notes": notes,
+        "certificate": certificate,
     }
+
+
+# --- Resets (audited remediation) --------------------------------------------
+
+
+def reset_quiz_attempts(learner, module):
+    """Delete every quiz attempt this learner has on one module, then reconcile
+    the cached points/badges from the records. Returns how many were removed."""
+    deleted, _ = QuizResult.objects.filter(
+        user=learner, quiz__module=module
+    ).delete()
+    g.refresh_profile(learner)
+    return deleted
+
+
+def reset_module_progress(learner, module):
+    """Wipe a learner's progress on one module: its lesson records, task
+    progress, quiz attempts and simulation results, then reconcile the cache.
+    A remediation tool (let someone start a module again), always audited."""
+    from modules.models import ProgressRecord as _PR
+    from modules.models import SimulationResult as _SR
+    from modules.models import TaskProgress as _TP
+
+    n_lessons, _ = _PR.objects.filter(user=learner, lesson__module=module).delete()
+    _TP.objects.filter(user=learner, task__lesson__module=module).delete()
+    QuizResult.objects.filter(user=learner, quiz__module=module).delete()
+    _SR.objects.filter(user=learner, simulation__module=module).delete()
+    g.refresh_profile(learner)
+    return n_lessons
 
 
 def _timeline(learner, limit=15):

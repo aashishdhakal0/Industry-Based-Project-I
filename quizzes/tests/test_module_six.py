@@ -54,7 +54,8 @@ def _content_blob(task):
 
 
 def _visual(task):
-    return task.diagram_key or (task.payload or {}).get("hero", "")
+    return (task.diagram_key or (task.payload or {}).get("hero", "")
+            or (task.image or {}).get("src", ""))
 
 
 # --- shape: L1 teaches, L2 applies -----------------------------------------
@@ -75,8 +76,10 @@ def test_lesson_one_is_a_teaching_lesson(seeded):
     assert len([t for t in tasks if t.kind == "CONCEPT"]) >= 3
     assert len([t for t in tasks if t.kind == "CHECK"]) <= 2
     assert not [t for t in tasks if t.kind in ACTIVITY_KINDS], "L1 teaches; activities belong in L2"
-    for t in tasks:
-        assert _visual(t), f"L1 task {t.task_key} has no teaching visual"
+    # Most L1 panels carry a teaching visual; a concept panel that stands on its
+    # text (the 'why the first hours matter' overview) may have none, rather than
+    # a decorative filler image.
+    assert len([t for t in tasks if _visual(t)]) >= 4
 
 
 @pytest.mark.django_db
@@ -97,16 +100,38 @@ def test_every_teaching_panel_has_enough_substance(seeded):
 
 
 @pytest.mark.django_db
-def test_carries_the_animated_heroes(seeded):
+def test_lesson_one_uses_technical_diagrams(seeded):
+    # Lesson 1's four teaching panels use professional TECHNICAL DIAGRAMS
+    # (a first-hour timeline, the response lifecycle, a containment map and the
+    # Notifiable Data Breaches flow), not stock photos.
+    l1 = seeded.lessons.get(lesson_number=1)
+    diagrams = {t.task_key: t.diagram_key for t in l1.tasks.filter(kind="CONCEPT")}
+    assert diagrams == {
+        "first-hours": "first-hours",
+        "the-lifecycle": "ir-lifecycle",
+        "detect-contain": "containment",
+        "recover-and-law": "breach-notify",
+    }
+    for t in l1.tasks.filter(kind="CONCEPT"):
+        assert not (t.image or {}).get("src"), f"{t.task_key} should be diagram-only"
+    # The comprehension CHECK keeps its readable lifecycle diagram.
+    assert l1.tasks.get(kind="CHECK").diagram_key == "ir-lifecycle"
+
+
+@pytest.mark.django_db
+def test_animations_live_in_lesson_two_only(seeded):
     heroes = set()
     for t in LessonTask.objects.filter(lesson__module=seeded):
         h = (t.payload or {}).get("hero")
         if h:
             heroes.add(h)
     assert ANIMATED_HEROES <= heroes, f"missing animated heroes: {ANIMATED_HEROES - heroes}"
-    # The teaching lesson uses both heroes to introduce the discipline.
+    # Lesson 1 is theory-only: both "watch it unfold" heroes live on Lesson 2's
+    # tabletop exercises, not on a teaching panel.
     l1_heroes = {(t.payload or {}).get("hero") for t in seeded.lessons.get(lesson_number=1).tasks.all()}
-    assert ANIMATED_HEROES <= l1_heroes, f"L1 should introduce both heroes: {ANIMATED_HEROES - l1_heroes}"
+    assert not (ANIMATED_HEROES & l1_heroes), f"Lesson 1 must have no animations: {ANIMATED_HEROES & l1_heroes}"
+    l2_heroes = {(t.payload or {}).get("hero") for t in seeded.lessons.get(lesson_number=2).tasks.all()}
+    assert ANIMATED_HEROES <= l2_heroes
 
 
 # --- activity well-formedness (each solvable) ------------------------------
@@ -280,3 +305,14 @@ def test_full_interactive_module_six_journey(learner_at_module_six):
     progress = {mp.module.order_index: mp for mp in g.module_progress(student)}
     assert progress[6].complete is True
     assert all(progress[i].complete for i in range(1, 7)), "the whole course should now be complete"
+
+
+@pytest.mark.django_db
+def test_simulation_is_screen_driven(seeded):
+    sim = seeded.simulation.decision_points
+    assert sim["kind"] == "scenes"
+    decisions = [s for s in sim["scenes"].values() if s.get("choices")]
+    assert len(decisions) >= 2
+    for sc in decisions:
+        assert sc.get("screen") and sc["screen"].get("chrome") in ("browser", "window", "phone")
+        assert sc["screen"].get("rows") or sc["screen"].get("email") or sc["screen"].get("items")

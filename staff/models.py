@@ -36,6 +36,14 @@ class AdminAction(models.Model):
         ASSIGN_ORG = "assign_org", "Changed a learner's organisation"
         NOTE_ORG = "note_org", "Sent a note to an organisation"
         NOTE_USER = "note_user", "Sent a note to a learner"
+        ADD_NOTE = "add_note", "Added a private note"
+        RESET_QUIZ = "reset_quiz", "Reset a quiz attempt"
+        RESET_PROGRESS = "reset_progress", "Reset course progress"
+        BULK_ACTION = "bulk_action", "Ran a bulk action"
+        BULK_INVITE = "bulk_invite", "Bulk-invited users"
+        REVOKE_CERT = "revoke_cert", "Revoked a certificate"
+        SET_DUE = "set_due", "Set a training due date"
+        PASSWORD_RESET = "password_reset", "Sent a password reset"
 
     # SET_NULL, not CASCADE: deleting an admin account must never erase the
     # record of what they did. The trail outlives the actor.
@@ -65,3 +73,36 @@ class AdminAction(models.Model):
 
     def __str__(self):
         return self.summary
+
+
+class LearnerNote(models.Model):
+    """A private, internal note an administrator keeps against a learner record.
+
+    Distinct from the "send a note" action, which emails the learner. These are
+    never shown to the learner: they are the admin's own running record of
+    interactions (chased on 3 May, manager aware, on extended leave, etc.). The
+    author is kept for accountability but SET_NULL so a removed admin does not
+    erase the note.
+    """
+
+    learner = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="learner_notes",
+    )
+    author = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="authored_notes",
+    )
+    body = models.TextField(max_length=2000)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = "learner_notes"
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"Note on {self.learner_id} by {self.author_id}"

@@ -79,22 +79,22 @@ LESSONS = [
                 "kind": "concept",
                 "points": 2,
                 "title": "How it gets in, and why one click spreads",
-                "hero": "infection-spread",
-                "diagram": "attachment-exe",
+                "diagram": "malware-vectors",
                 "body": "<p>Malware almost never appears on its own. Someone has to "
                 "let it in, usually a person tricked in a busy moment, which is "
                 "exactly why <strong>phishing is the single leading cause</strong> "
-                "of the cyber-incident breaches reported to the OAIC. The animation "
-                "above shows what makes it so serious: on a flat network, where "
+                "of the cyber-incident breaches reported to the OAIC. What makes one "
+                "click so serious is what happens next: on a flat network, where "
                 "every machine shares one space, a single opened attachment can "
                 "spread from computer to computer until the whole office is hit. "
-                "Splitting the network into zones (segmentation) is what stops it at "
-                "the first machine.</p>"
+                "Splitting the network into zones, called segmentation, is what stops "
+                "it at the first machine. A dropped USB like the one above is one of "
+                "the everyday ways it arrives.</p>"
                 "<p>The everyday routes in are few, and once you know them you can "
                 "see them coming:</p>"
                 "<ul>"
-                "<li><strong>A dodgy attachment.</strong> The email above looks like "
-                "an invoice, but read the file name to the very end: "
+                "<li><strong>A dodgy attachment.</strong> An email attachment can look "
+                "like an invoice, but read the file name to the very end: "
                 "<strong>Invoice_4471.pdf.exe</strong>. A file name can carry more "
                 "than one extension, and only the <em>last</em> one decides what it "
                 "really is. Here that is <strong>.exe</strong>, a program that runs "
@@ -126,15 +126,14 @@ LESSONS = [
                 "kind": "concept",
                 "points": 2,
                 "title": "Ransomware, and how a business beats it",
-                "diagram": "locked-files",
+                "diagram": "ransom-screen",
                 "body": "<p><strong>Ransomware</strong> is the one that hits a whole "
                 "business at once. It works by <strong>encryption</strong>, the same "
                 "maths that protects a banking website, turned against you: it "
                 "scrambles your files with a key only the attacker holds, renames "
                 "them (often with an ending like <strong>.locked</strong>), and "
                 "leaves a note demanding payment for the key, usually with a "
-                "countdown to rush you. The File Explorer above shows exactly "
-                "that.</p>"
+                "countdown to rush you.</p>"
                 "<p>It attacks <strong>availability</strong>: the files are still "
                 "there, byte for byte, you simply cannot read them without the key. "
                 "If it reaches a shared drive, everyone is stopped at once. Modern "
@@ -167,7 +166,7 @@ LESSONS = [
                 "kind": "concept",
                 "points": 2,
                 "title": "Data breaches, and the law that follows",
-                "diagram": "breach-notify",
+                "diagram": "data-breach",
                 "body": "<p>A <strong>data breach</strong> is the opposite failure "
                 "to ransomware. Nothing is locked, but private information is copied "
                 "and exposed to people who should not have it, a failure of "
@@ -192,8 +191,8 @@ LESSONS = [
                 "multi-factor authentication on remote access is not optional.</li>"
                 "</ul>"
                 "<p>The law here is the <strong>Notifiable Data Breaches "
-                "scheme</strong> under the Privacy Act 1988, shown in the diagram "
-                "above. If personal information is exposed in a way "
+                "scheme</strong> under the Privacy Act 1988. If personal information "
+                "is exposed in a way "
                 "<strong>likely to result in serious harm</strong>, the organisation "
                 "must <strong>assess it within 30 days</strong> and, where the bar is "
                 "met, notify both the regulator (the OAIC) and the affected people, "
@@ -235,9 +234,12 @@ LESSONS = [
     {
         "title": "Put it to work: name it, triage it, react to it",
         "reading_time_minutes": 9,
-        "intro": "Now use it. Sort malware by how it behaves, triage a real morning "
-        "inbox, diagnose what kind of trouble you are looking at, read a fake-update "
-        "pop-up, and work a ransomware incident from the first move to recovery.",
+        "intro": "Now use it. You are at Corangamite Accounting, a six-person firm in "
+        "Colac, in the thick of tax season with client returns due. Principal Megan "
+        "Foley, bookkeeper Trevor and admin Priya keep it running. Sort malware by how "
+        "it behaves, triage the real morning inbox, diagnose what kind of trouble you "
+        "are looking at, read a fake-update pop-up, and work a ransomware incident "
+        "from the first move to recovery.",
         "tasks": [
             {
                 "key": "sort-malware",
@@ -292,31 +294,31 @@ LESSONS = [
                 "payload": {
                     "prompt": "Mark each message Genuine or Phishing. Sort all five to finish.",
                     "emails": [
-                        {"from": "IT Helpdesk <help@yourclinic.com.au>",
-                         "subject": "Planned maintenance this Saturday, 7am",
-                         "preview": "The email system will be briefly offline for updates. No action needed from you.",
+                        {"from": "Megan Foley <megan@corangamite-accounting.com.au>",
+                         "subject": "Reminder: staff meeting moved to 9am Thursday",
+                         "preview": "Quick change to the diary before the BAS rush. Nothing to action, just a heads up.",
                          "phish": False,
-                         "why": "An expected notice from your real internal helpdesk, on your own domain, asking nothing of you."},
-                        {"from": "Accounts <billing@invoices-au-secure.net>",
-                         "subject": "OVERDUE invoice, open attached to avoid late fees",
-                         "preview": "Your payment is overdue. Open the attached Invoice.zip within 24 hours or fees apply.",
+                         "why": "An expected note from the principal on the firm's own domain, asking nothing of you and pushing no link or attachment."},
+                        {"from": "ATO Online <no-reply@ato-refund-portal.net>",
+                         "subject": "Your business refund of $4,220 is ready, confirm now",
+                         "preview": "Open the attached Refund_form.zip within 24 hours or the refund is cancelled.",
                          "phish": True,
-                         "why": "An unexpected, urgent demand with a .zip attachment from a lookalike sender. Opening it can install malware."},
+                         "why": "The real ATO does not email refunds with a .zip and a countdown. A lookalike domain, urgency and an attachment: opening it can install malware."},
                         {"from": "Microsoft 365 <no-reply@m365-mailcheck.com>",
                          "subject": "Your mailbox is full, log in to keep access",
                          "preview": "Verify your account through the link below or lose access within the hour.",
                          "phish": True,
                          "why": "A manufactured deadline pushing you to a login link. Reach the service the way you normally do, never through the link."},
-                        {"from": "Priya (Reception)",
-                         "subject": "Team lunch Friday, who is in?",
-                         "preview": "Booking a table at the cafe on the corner. Reply if you can make it.",
+                        {"from": "Priya <priya@corangamite-accounting.com.au>",
+                         "subject": "Trevor's client folder, which drive?",
+                         "preview": "Can't find the Nguyen return, is it on the shared drive or your desktop? No rush.",
                          "phish": False,
-                         "why": "A normal, expected message from a colleague you know, with no link, no attachment and no pressure."},
-                        {"from": "Payroll <hr@yourclinic-payroll.com>",
-                         "subject": "Update your bank details, enable macros to view",
-                         "preview": "Open the attached form and click Enable content to update where your pay goes.",
+                         "why": "A normal, expected message from a colleague you know, on the firm domain, with no link, no attachment and no pressure."},
+                        {"from": "Xero Billing <accounts@xero-invoice-au.com>",
+                         "subject": "Action required: update bank details, enable macros to view",
+                         "preview": "Open the attached statement and click Enable content to keep your subscription active.",
                          "phish": True,
-                         "why": "The Enable macros trick from a lookalike payroll domain. Enabling content can run hidden malware."},
+                         "why": "The Enable macros trick from a lookalike of a tool you really use. Enabling content can run hidden malware. Log in to Xero directly instead."},
                     ],
                 },
             },
@@ -392,7 +394,12 @@ LESSONS = [
                 "kind": "branch",
                 "points": 2,
                 "title": "Decision drill: a ransom note takes over your screen",
-                "body": "<p>The real test is what you do in the moment. The incident "
+                "hero": "infection-spread",
+                "body": "<p>First, watch it happen. The animation above is why your "
+                "first move matters so much: on a flat network the infection reaches "
+                "every machine, while segmentation seals it into one zone. Now the "
+                "drill.</p>"
+                "<p>The real test is what you do in the moment. The incident "
                 "unfolds below: you choose your move and see the consequence before "
                 "the next decision. Your first move decides how far it spreads and "
                 "whether you recover cleanly. Draw on everything Lesson 1 taught "
@@ -404,7 +411,7 @@ LESSONS = [
                     "start": "note",
                     "nodes": {
                         "note": {
-                            "text": "You are working when your files start renaming one after another, and a red screen takes over: your files are encrypted, pay 0.05 Bitcoin within 72 hours. What is your first move?",
+                            "text": "It is 4pm on a Tuesday in tax season. Trevor is finishing a client return when files across his screen start renaming one after another, and a red screen takes over: your files are encrypted, pay 0.05 Bitcoin (about $3,400) within 72 hours. Half-finished returns are on the shared drive. What is your first move?",
                             "choices": [
                                 {"label": "Disconnect the machine from the network straight away.", "outcome": "good",
                                  "feedback": "Exactly. Getting it off the network first stops the ransomware reaching shared drives and other machines.", "to": "contain"},

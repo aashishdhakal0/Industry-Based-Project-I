@@ -37,6 +37,16 @@ class Certificate(models.Model):
     pdf_path = models.CharField(
         max_length=500, blank=True, help_text="Path to the generated PDF under MEDIA_ROOT."
     )
+    revoked_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text="Set when an administrator revokes this certificate. A revoked "
+        "certificate fails public verification.",
+    )
+
+    @property
+    def is_valid(self):
+        return self.revoked_at is None
 
     class Meta:
         db_table = "certificates"

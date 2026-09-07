@@ -40,26 +40,30 @@ def test_module_one_overview_renders_its_tagline(seeded):
 
 
 @pytest.mark.django_db
-def test_module_one_lesson_one_has_the_hero_illustration(seeded):
-    # Lesson 1 opens on the net-scene data-flow hero (the teaching intro panel);
-    # the router-admin visual now teaches "where the weak points are" a few panels
-    # on, so both figures still appear on Lesson 1.
+def test_module_one_lesson_one_uses_technical_diagrams(seeded):
+    # Lesson 1 is theory-only and its teaching panels use professional TECHNICAL
+    # DIAGRAMS (own-origin inline-SVG partials), no animation. The router photo is
+    # kept only as a supporting aid on the weak-points panel, beside its diagram.
     intro = LessonTask.objects.get(lesson__module__order_index=1, task_key="net-basics")
-    assert intro.payload.get("hero") == "net-scene"
+    assert intro.diagram_key == "net-topology"
+    assert not (intro.image or {}).get("src") and not intro.payload.get("hero")
     weak = LessonTask.objects.get(lesson__module__order_index=1, task_key="weak-points")
-    assert weak.diagram_key == "router-admin"
+    assert weak.diagram_key == "router-labelled"
+    assert (weak.image or {}).get("src") == "img/m1-router.webp"
 
 
 @pytest.mark.django_db
-def test_module_one_lesson_page_renders_the_hero_and_the_router_visual(seeded):
+def test_module_one_lesson_page_renders_diagrams_and_no_animation(seeded):
     student = User.objects.create_user(
         email="hero-learner@example.com", password="x" * 14, is_verified=True
     )
     client = Client()
     client.force_login(student)
     html = client.get(reverse("learn:lesson", args=[1, 1]), HTTP_HOST="127.0.0.1").content.decode()
-    # The hero scene (its own class) and the existing router-admin picture-question
-    # both appear on Lesson 1.
-    assert "cy-scene2" in html
-    assert "YOUR NETWORK" in html
-    assert "cy-radmin" in html  # router-admin picture-question still present
+    # Teaching diagrams render as own-origin inline SVG; the router aid photo is
+    # present; the comprehension CHECK keeps its readable mockup; no animation.
+    assert "cy-td__svg" in html and "<svg" in html
+    assert "cy-photo__img" in html and "m1-router.webp" in html
+    assert "m1-network.webp" not in html          # retired filler photo gone
+    assert "cy-wifid" in html          # who-is-on comprehension mockup still present
+    assert "cy-scene2" not in html

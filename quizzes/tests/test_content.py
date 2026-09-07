@@ -14,6 +14,7 @@ from collections import Counter
 import pytest
 from django.contrib.auth import get_user_model
 from django.core.management import call_command
+from django.urls import reverse
 
 from modules.gamification import POINTS_PER_LESSON
 from modules.models import LessonTask, Module
@@ -44,7 +45,8 @@ def _content_blob(task):
 
 
 def _has_visual(task):
-    return bool(task.diagram_key) or bool((task.payload or {}).get("hero"))
+    # a real photo (image), a mockup diagram, or an animated hero all count
+    return bool((task.image or {}).get("src")) or bool(task.diagram_key) or bool((task.payload or {}).get("hero"))
 
 
 # --------------------------------------------------------------------------
@@ -153,15 +155,27 @@ def test_harden_activities_are_well_formed(seeded):
                 assert o.get("text") and o.get("why")
 
 
+ANIMATIONS = {
+    "data-journey", "infection-spread", "phish-unfold", "eavesdrop",
+    "firewall-flow", "segment-flow", "incident-escalation", "recovery-board", "net-scene",
+}
+
+
 @pytest.mark.django_db
-def test_lesson_one_carries_the_animated_hero(seeded):
-    """The 'watch your data travel' animation is Module 1's step-by-step sequence,
-    carried on a Lesson 1 teaching panel."""
-    heroes = {
+def test_lesson_one_is_theory_only_no_animations(seeded):
+    """Lesson 1 teaches; every animation and drill lives in Lesson 2. No animated
+    hero may sit on a Lesson 1 panel."""
+    l1_heroes = {
         (t.payload or {}).get("hero")
         for t in seeded.lessons.get(lesson_number=1).tasks.all()
     }
-    assert "data-journey" in heroes
+    assert not (l1_heroes & ANIMATIONS), f"Lesson 1 must have no animations: {l1_heroes & ANIMATIONS}"
+    # The 'watch your data travel' animation was relocated to Lesson 2.
+    l2_heroes = {
+        (t.payload or {}).get("hero")
+        for t in seeded.lessons.get(lesson_number=2).tasks.all()
+    }
+    assert "data-journey" in l2_heroes
 
 
 @pytest.mark.django_db
@@ -204,6 +218,22 @@ def _all_strings(value):
 
 
 @pytest.mark.django_db
+def test_module_one_simulation_is_screen_driven(seeded):
+    """The rebuilt simulation is scene-based, and every decision scene shows a
+    realistic device-framed screen the learner reads to decide."""
+    sim = seeded.simulation.decision_points
+    assert sim["kind"] == "scenes"
+    decisions = [s for s in sim["scenes"].values() if s.get("choices")]
+    assert len(decisions) >= 2
+    for sc in decisions:
+        screen = sc.get("screen")
+        assert screen, "each decision scene must carry a device-framed screen"
+        assert screen.get("chrome") in ("browser", "window", "phone")
+        # something concrete to read: rows, an email, or a device list
+        assert screen.get("rows") or screen.get("email") or screen.get("items")
+
+
+@pytest.mark.django_db
 def test_module_one_covers_the_required_ground(seeded):
     parts = [l.body_text for l in seeded.lessons.all()]
     for t in LessonTask.objects.filter(lesson__module=seeded):
@@ -218,30 +248,52 @@ def test_module_one_covers_the_required_ground(seeded):
 
 
 @pytest.mark.django_db
-def test_module_one_uses_the_teaching_visuals(seeded):
-    """Lesson 1's teaching panels use realistic, own-origin visuals (CSP-safe):
-    the data-flow scene, the data-travels flow, the CIA board, a router admin
-    page, and the who's-on-your-Wi-Fi device screen."""
+def test_module_one_uses_technical_diagrams_in_lesson_one(seeded):
+    """Lesson 1's teaching panels carry professional TECHNICAL DIAGRAMS (own-origin
+    inline-SVG partials, CSP-safe), not stock photos: a network topology, the data
+    hops, the CIA triad and a labelled router. The one physical device photo
+    (the router) is kept only as a supporting aid alongside its diagram. The
+    comprehension CHECK reads a mockup router/Wi-Fi screen."""
     l1 = seeded.lessons.get(lesson_number=1)
     by_key = {t.task_key: t for t in l1.tasks.all()}
-    assert by_key["net-basics"].payload.get("hero") == "net-scene"
-    # The data-travels panel now teaches with the animated "watch your data
-    # travel" hero (data-journey) instead of a static diagram.
-    assert by_key["data-travels"].payload.get("hero") == "data-journey"
-    assert by_key["cia-triad"].diagram_key == "cia-triad"
-    assert by_key["weak-points"].diagram_key == "router-admin"
-    assert by_key["who-is-on"].diagram_key == "wifi-devices"
-    # Custom visuals, never uploaded photos.
-    assert all(not t.image for t in l1.tasks.all())
+    diagrams = {
+        "net-basics": "net-topology",
+        "data-travels": "data-hops",
+        "cia-triad": "cia-triad",
+        "weak-points": "router-labelled",
+        "who-is-on": "wifi-devices",
+    }
+    for key, dk in diagrams.items():
+        assert by_key[key].diagram_key == dk, f"{key} should use diagram {dk}"
+    # The generic filler photos are gone from the teaching panels.
+    for key in ("net-basics", "data-travels", "cia-triad"):
+        assert not (by_key[key].image or {}).get("src"), f"{key} should be diagram-only"
+    # The router photo stays only as a supporting aid on weak-points.
+    aid = by_key["weak-points"].image
+    assert aid and aid.get("src") == "img/m1-router.webp"
+    assert aid.get("caption") and aid.get("credit"), "the router aid keeps caption + credit"
+    # No animations on any Lesson 1 panel (teaching lesson).
+    for t in l1.tasks.all():
+        assert (t.payload or {}).get("hero") not in ANIMATIONS
 
 
 @pytest.mark.django_db
-def test_module_one_uses_the_cia_diagram(seeded):
-    keys = set(
-        LessonTask.objects.filter(lesson__module=seeded)
-        .exclude(diagram_key="").values_list("diagram_key", flat=True)
+def test_module_one_lesson_one_visuals_are_own_origin(seeded, client):
+    from django.contrib.auth import get_user_model
+
+    user = get_user_model().objects.create_user(
+        email="m1photo@example.com", password="x" * 14, is_verified=True
     )
-    assert "cia-triad" in keys
+    client.force_login(user)
+    html = client.get(reverse("learn:lesson", args=[1, 1])).content.decode()
+    # The teaching diagrams render as inline SVG figures (own-origin, CSP-safe).
+    assert "cy-td__svg" in html and "<svg" in html
+    # The router aid photo renders as an own-origin figure with a caption.
+    assert "cy-photo__img" in html and "cy-photo__cap" in html
+    assert "/static/img/m1-router.webp" in html or "img/m1-router.webp" in html
+    # The retired filler photos are no longer on the page.
+    for src in ("m1-network.webp", "m1-encryption.webp", "m1-records.webp"):
+        assert src not in html, f"{src} should be gone from Lesson 1"
 
 
 @pytest.mark.django_db

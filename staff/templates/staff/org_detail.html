@@ -15,8 +15,15 @@
       {% if org.sector %}<span class="cy-pill">{{ org.sector }}</span>{% endif %}
       <span class="cy-pill">{{ student_count }} student{{ student_count|pluralize }}</span>
       <span class="cy-pill">{{ members|length }} member{{ members|length|pluralize }}</span>
+      {% if org.training_due %}
+        {% if overdue %}<span class="cy-pill cy-pill--warn">Overdue {{ org.training_due|date:"j M Y" }}</span>
+        {% else %}<span class="cy-pill cy-pill--ok">Due {{ org.training_due|date:"j M Y" }}</span>{% endif %}
+      {% endif %}
       {% if org.contact_email %}<span class="cy-c-muted">{{ org.contact_email }}</span>{% endif %}
     </div>
+  </div>
+  <div class="cy-c-head__actions">
+    <a class="cy-btn cy-btn--ghost cy-btn--sm" href="{% url 'staff:report_compliance' %}?org={{ org.pk }}">Compliance report</a>
   </div>
 </header>
 

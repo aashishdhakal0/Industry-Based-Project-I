@@ -1155,4 +1155,144 @@
       <p class="cy-eaves__cap">A VPN wraps your traffic in an encrypted tunnel, so even on an untrusted network an eavesdropper sees only scrambled data.</p>
     </div>
   </figure>
+{% elif key == "net-topology" %}
+  <figure class="cy-diagram cy-td" role="img"
+          aria-label="A small-business network. The front-desk computer, the eftpos terminal, the printer and staff phones all connect to one router, which is the single gateway out to the internet.">
+    <svg viewBox="0 0 640 336" xmlns="http://www.w3.org/2000/svg" class="cy-td__svg">
+      <rect x="12" y="30" width="392" height="292" rx="14" fill="rgba(0,217,255,0.03)" stroke="#33465f" stroke-dasharray="5 6"/>
+      <text x="24" y="22" class="cy-td__eyebrow">YOUR OFFICE NETWORK</text>
+      <!-- connectors -->
+      <g stroke="#3a5075" stroke-width="2" fill="none">
+        <path d="M104 96 L196 150"/><path d="M312 96 L232 150"/>
+        <path d="M104 258 L196 178"/><path d="M312 258 L232 178"/>
+        <path d="M266 164 H470" stroke="#0e6f78" stroke-width="2.4" stroke-dasharray="2 5"/>
+      </g>
+      <!-- devices -->
+      <g class="cy-td__dev"><rect x="40" y="70" width="118" height="52" rx="8"/><text x="99" y="93">Front-desk PC</text><text x="99" y="110" class="cy-td__sub">reception</text></g>
+      <g class="cy-td__dev"><rect x="254" y="70" width="118" height="52" rx="8"/><text x="313" y="93">Eftpos terminal</text><text x="313" y="110" class="cy-td__sub">payments</text></g>
+      <g class="cy-td__dev"><rect x="40" y="232" width="118" height="52" rx="8"/><text x="99" y="255">Clinic printer</text><text x="99" y="272" class="cy-td__sub">shared</text></g>
+      <g class="cy-td__dev"><rect x="254" y="232" width="118" height="52" rx="8"/><text x="313" y="255">Staff phones</text><text x="313" y="272" class="cy-td__sub">on the Wi-Fi</text></g>
+      <!-- router -->
+      <g><line x1="196" y1="150" x2="196" y2="132" stroke="#00d9ff" stroke-width="2"/><line x1="232" y1="150" x2="232" y2="132" stroke="#00d9ff" stroke-width="2"/>
+        <rect x="176" y="150" width="76" height="42" rx="9" fill="#12202b" stroke="#00d9ff" stroke-width="2"/>
+        <text x="214" y="170" class="cy-td__router">ROUTER</text><text x="214" y="184" class="cy-td__sub2">the gateway</text></g>
+      <!-- internet -->
+      <g><path d="M486 138 q-26 0 -26 24 q-24 2 -20 26 q2 20 26 18 h84 q26 2 26 -22 q22 -4 14 -26 q-6 -18 -28 -14 q-8 -18 -30 -14 q-20 -4 -46 8 z" fill="#141d29" stroke="#5be7ff" stroke-width="1.8"/>
+        <text x="524" y="176" class="cy-td__router">INTERNET</text></g>
+    </svg>
+    <figcaption class="cy-diagram__cap cy-diagram__cap--single">A network is just devices sharing information. In a small business they all talk through one router, the single door in and out.</figcaption>
+  </figure>
+
+{% elif key == "data-hops" %}
+  <figure class="cy-diagram cy-td" role="img"
+          aria-label="How data travels in hops from your device to your router, your internet provider, across the public internet, to a server. On the public internet an eavesdropper can read plain http text, while https encrypts it end to end.">
+    <svg viewBox="0 0 700 320" xmlns="http://www.w3.org/2000/svg" class="cy-td__svg">
+      <g stroke="#3a5075" stroke-width="2" fill="none">
+        <path d="M118 150 H150" marker-end="url(#tar)"/><path d="M256 150 H288" marker-end="url(#tar)"/>
+        <path d="M394 150 H426" marker-end="url(#tar)"/><path d="M532 150 H564" marker-end="url(#tar)"/>
+      </g>
+      <defs><marker id="tar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0 0 L7 4 L0 8 z" fill="#5be7ff"/></marker></defs>
+      <g class="cy-td__hop"><rect x="18" y="124" width="100" height="52" rx="8"/><text x="68" y="148">Your device</text><text x="68" y="164" class="cy-td__sub">where you type</text></g>
+      <g class="cy-td__hop"><rect x="156" y="124" width="100" height="52" rx="8"/><text x="206" y="148">Your router</text><text x="206" y="164" class="cy-td__sub">the gateway</text></g>
+      <g class="cy-td__hop"><rect x="294" y="124" width="100" height="52" rx="8"/><text x="344" y="148">Your ISP</text><text x="344" y="164" class="cy-td__sub">Telstra, etc.</text></g>
+      <g class="cy-td__hop cy-td__hop--open"><rect x="432" y="124" width="100" height="52" rx="8"/><text x="482" y="148">The internet</text><text x="482" y="164" class="cy-td__sub">shared ground</text></g>
+      <g class="cy-td__hop"><rect x="570" y="124" width="112" height="52" rx="8"/><text x="626" y="148">The server</text><text x="626" y="164" class="cy-td__sub">the website</text></g>
+      <!-- eavesdropper over the internet hop -->
+      <g transform="translate(482 60)"><path d="M-16 20 q16 -16 32 0 q-16 16 -32 0z" fill="none" stroke="#ff4d4d" stroke-width="1.8"/><circle cx="0" cy="20" r="4.5" fill="#ff4d4d"/><line x1="0" y1="34" x2="0" y2="112" stroke="#ff4d4d" stroke-width="1.4" stroke-dasharray="3 4"/><text x="0" y="10" class="cy-td__red">a listener here</text></g>
+      <!-- two lanes -->
+      <g><rect x="192" y="220" width="316" height="30" rx="7" fill="rgba(255,77,77,0.08)" stroke="#ff4d4d" stroke-width="1.2"/><text x="207" y="239" class="cy-td__lane cy-td__lane--red">http, no padlock: "PASSWORD: hunter2" is readable</text></g>
+      <g><rect x="192" y="258" width="316" height="30" rx="7" fill="rgba(0,217,255,0.08)" stroke="#00d9ff" stroke-width="1.2"/><text x="207" y="277" class="cy-td__lane cy-td__lane--cyan">https, padlock: "&bull;8f3a&bull;c1&bull;9e7d&bull;" is scrambled</text></g>
+    </svg>
+    <figcaption class="cy-diagram__cap cy-diagram__cap--single">Your data is handed along a chain of equipment you do not own. Encryption (https, the padlock) is what keeps a listener in the middle from reading it.</figcaption>
+  </figure>
+
+{% elif key == "router-labelled" %}
+  <figure class="cy-diagram cy-td" role="img"
+          aria-label="A labelled router. Four things to secure: change the default admin password, use WPA2 or WPA3 with a long passphrase, keep visitors on a separate guest network, and turn on automatic firmware updates.">
+    <svg viewBox="0 0 680 330" xmlns="http://www.w3.org/2000/svg" class="cy-td__svg">
+      <!-- router body -->
+      <g><line x1="312" y1="150" x2="300" y2="118" stroke="#00e5cc" stroke-width="3" stroke-linecap="round"/><line x1="340" y1="148" x2="340" y2="112" stroke="#00e5cc" stroke-width="3" stroke-linecap="round"/><line x1="368" y1="150" x2="380" y2="118" stroke="#00e5cc" stroke-width="3" stroke-linecap="round"/>
+        <rect x="284" y="150" width="112" height="66" rx="12" fill="#12202b" stroke="#33465f" stroke-width="2"/>
+        <circle cx="304" cy="196" r="3.4" fill="#00e5cc"/><circle cx="320" cy="196" r="3.4" fill="#00e5cc"/><circle cx="336" cy="196" r="3.4" fill="#e6b455"/>
+        <rect x="352" y="189" width="34" height="14" rx="3" fill="none" stroke="#33465f"/><line x1="360" y1="189" x2="360" y2="203" stroke="#33465f"/><line x1="369" y1="189" x2="369" y2="203" stroke="#33465f"/><line x1="378" y1="189" x2="378" y2="203" stroke="#33465f"/>
+        <text x="340" y="176" class="cy-td__router">ROUTER</text></g>
+      <!-- callouts -->
+      <g stroke="#3a5075" stroke-width="1.4"><path d="M284 164 H176"/><path d="M284 202 H176"/><path d="M396 164 H504"/><path d="M396 202 H504"/></g>
+      <circle cx="176" cy="164" r="2.6" fill="#5be7ff"/><circle cx="176" cy="202" r="2.6" fill="#5be7ff"/><circle cx="504" cy="164" r="2.6" fill="#5be7ff"/><circle cx="504" cy="202" r="2.6" fill="#5be7ff"/>
+      <g class="cy-td__call cy-td__call--r"><text x="166" y="150">Admin password</text><text x="166" y="167" class="cy-td__csub">Change the default.</text></g>
+      <g class="cy-td__call cy-td__call--r"><text x="166" y="205">Wi-Fi encryption</text><text x="166" y="222" class="cy-td__csub">WPA2/WPA3, long key.</text></g>
+      <g class="cy-td__call"><text x="514" y="150">Guest network</text><text x="514" y="167" class="cy-td__csub">Keep visitors apart.</text></g>
+      <g class="cy-td__call"><text x="514" y="205">Automatic updates</text><text x="514" y="222" class="cy-td__csub">Turn on auto-patching.</text></g>
+    </svg>
+    <figcaption class="cy-diagram__cap cy-diagram__cap--single">The four settings that turn a factory-fresh router into a secure one. None of them is technical, and each is done once.</figcaption>
+  </figure>
+
+{% elif key == "malware-vectors" %}
+  <figure class="cy-diagram cy-td" role="img"
+          aria-label="The four ways malware gets onto a device: an email attachment, a USB stick, a dodgy download, and a fake update pop-up. All four lead to the same place, your devices and files.">
+    <svg viewBox="0 0 660 316" xmlns="http://www.w3.org/2000/svg" class="cy-td__svg">
+      <defs><marker id="mv-ar" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0 0 L8 4.5 L0 9 z" fill="#ff7a7a"/></marker></defs>
+      <!-- entry vectors -->
+      <g class="cy-td__dev cy-td__dev--risk"><rect x="26" y="44" width="150" height="52" rx="8"/><text x="101" y="67">Email attachment</text><text x="101" y="84" class="cy-td__sub">"Invoice.pdf.exe"</text></g>
+      <g class="cy-td__dev cy-td__dev--risk"><rect x="484" y="44" width="150" height="52" rx="8"/><text x="559" y="67">USB stick</text><text x="559" y="84" class="cy-td__sub">"found in the car park"</text></g>
+      <g class="cy-td__dev cy-td__dev--risk"><rect x="26" y="220" width="150" height="52" rx="8"/><text x="101" y="243">Dodgy download</text><text x="101" y="260" class="cy-td__sub">cracked app, fake site</text></g>
+      <g class="cy-td__dev cy-td__dev--risk"><rect x="484" y="220" width="150" height="52" rx="8"/><text x="559" y="243">Fake update pop-up</text><text x="559" y="260" class="cy-td__sub">"your Flash is out of date"</text></g>
+      <!-- arrows to centre -->
+      <g stroke="#ff5d5d" stroke-width="2" fill="none" opacity="0.8">
+        <path d="M176 78 C 250 96, 250 132, 268 146" marker-end="url(#mv-ar)"/>
+        <path d="M484 78 C 410 96, 410 132, 392 146" marker-end="url(#mv-ar)"/>
+        <path d="M176 238 C 250 220, 250 184, 268 170" marker-end="url(#mv-ar)"/>
+        <path d="M484 238 C 410 220, 410 184, 392 170" marker-end="url(#mv-ar)"/>
+      </g>
+      <!-- centre target -->
+      <g><rect x="266" y="128" width="128" height="60" rx="11" fill="#1a1120" stroke="#ff5d5d" stroke-width="2"/>
+        <text x="330" y="152" class="cy-td__router" style="fill:#ff9a9a">YOUR DEVICES</text><text x="330" y="170" class="cy-td__sub2">files, email, records</text></g>
+    </svg>
+    <figcaption class="cy-diagram__cap cy-diagram__cap--single">Malware almost always arrives through one of four doors. Close these, and you have shut out most of it.</figcaption>
+  </figure>
+
+{% elif key == "first-hours" %}
+  <figure class="cy-diagram cy-td" role="img"
+          aria-label="A one-hour timeline of an incident. The alert fires at zero minutes. The window that matters is the first thirty minutes, when containing the incident stops it spreading. Every hour of delay lets the damage grow.">
+    <svg viewBox="0 0 660 250" xmlns="http://www.w3.org/2000/svg" class="cy-td__svg">
+      <!-- golden window shading -->
+      <rect x="70" y="96" width="256" height="52" rx="6" fill="rgba(0,229,204,0.10)" stroke="#00e5cc" stroke-width="1" stroke-dasharray="4 4"/>
+      <text x="198" y="90" class="cy-td__eyebrow" style="fill:#4fecd8;text-anchor:middle">THE WINDOW THAT MATTERS</text>
+      <!-- axis -->
+      <line x1="70" y1="148" x2="600" y2="148" stroke="#3a5075" stroke-width="2"/>
+      <g stroke="#3a5075" stroke-width="1.5">
+        <line x1="70" y1="142" x2="70" y2="154"/><line x1="198" y1="142" x2="198" y2="154"/>
+        <line x1="326" y1="142" x2="326" y2="154"/><line x1="454" y1="142" x2="454" y2="154"/><line x1="592" y1="142" x2="592" y2="154"/>
+      </g>
+      <g class="cy-td__sub" style="text-anchor:middle"><text x="70" y="170">0 min</text><text x="198" y="170">15</text><text x="326" y="170">30</text><text x="454" y="170">45</text><text x="592" y="170">60</text></g>
+      <!-- markers -->
+      <circle cx="70" cy="148" r="6" fill="#ff4d4d"/><text x="70" y="126" class="cy-td__red" style="text-anchor:middle">Alert fires</text>
+      <circle cx="326" cy="148" r="6" fill="#00e5cc"/><text x="326" y="126" class="cy-td__lane--cyan" style="font-size:11px;text-anchor:middle;font-family:var(--cy-font-mono)">Contained</text>
+      <!-- cost note -->
+      <g><rect x="70" y="196" width="522" height="34" rx="7" fill="rgba(255,77,77,0.07)" stroke="#3a5075" stroke-width="1"/><text x="331" y="217" class="cy-td__sub" style="text-anchor:middle;font-size:11.5px">Every hour of delay lets the incident spread to more machines, files and people.</text></g>
+    </svg>
+    <figcaption class="cy-diagram__cap cy-diagram__cap--single">In the first hours, speed beats cleverness. Detecting and containing early is what keeps a small incident small.</figcaption>
+  </figure>
+
+{% elif key == "containment" %}
+  <figure class="cy-diagram cy-td" role="img"
+          aria-label="Containment on a network. One infected computer is cut off from the switch, shown by a broken red link, while the other three machines stay connected and safe.">
+    <svg viewBox="0 0 660 316" xmlns="http://www.w3.org/2000/svg" class="cy-td__svg">
+      <!-- switch -->
+      <g><rect x="270" y="40" width="120" height="46" rx="9" fill="#12202b" stroke="#33465f" stroke-width="2"/><text x="330" y="68" class="cy-td__router">SWITCH</text></g>
+      <!-- safe links to the two healthy devices -->
+      <g stroke="#00e5cc" stroke-width="2" fill="none" opacity="0.75"><path d="M330 86 L330 208"/><path d="M362 86 L508 208"/></g>
+      <!-- cut link to the infected machine -->
+      <path d="M298 86 L214 150" stroke="#ff4d4d" stroke-width="2" fill="none"/>
+      <path d="M198 168 L152 208" stroke="#ff4d4d" stroke-width="2" fill="none" stroke-dasharray="4 5" opacity="0.45"/>
+      <g stroke="#ff4d4d" stroke-width="2.6"><line x1="238" y1="150" x2="258" y2="170"/><line x1="258" y1="150" x2="238" y2="170"/></g>
+      <text x="268" y="150" class="cy-td__red" style="text-anchor:start">unplugged</text>
+      <!-- devices -->
+      <g class="cy-td__dev cy-td__dev--risk"><rect x="90" y="210" width="120" height="56" rx="8"/><text x="150" y="234">Infected PC</text><text x="150" y="252" class="cy-td__sub" style="fill:#ff9a9a">isolated first</text></g>
+      <g class="cy-td__dev cy-td__dev--safe"><rect x="270" y="210" width="120" height="56" rx="8"/><text x="330" y="234">Reception PC</text><text x="330" y="252" class="cy-td__sub" style="fill:#4fecd8">safe</text></g>
+      <g class="cy-td__dev cy-td__dev--safe"><rect x="450" y="210" width="120" height="56" rx="8"/><text x="510" y="234">Server</text><text x="510" y="252" class="cy-td__sub" style="fill:#4fecd8">safe</text></g>
+    </svg>
+    <figcaption class="cy-diagram__cap cy-diagram__cap--single">Contain first: get the infected machine off the network so the trouble cannot spread, then clean up. The rest of the clinic keeps working.</figcaption>
+  </figure>
+
 {% endif %}

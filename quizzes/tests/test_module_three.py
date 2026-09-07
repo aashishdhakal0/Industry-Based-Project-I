@@ -53,7 +53,8 @@ def _content_blob(task):
 
 
 def _has_visual(task):
-    return bool(task.diagram_key) or bool((task.payload or {}).get("hero"))
+    return (bool(task.diagram_key) or bool((task.payload or {}).get("hero"))
+            or bool((task.image or {}).get("src")))
 
 
 # --- shape: L1 teaches, L2 applies -----------------------------------------
@@ -98,11 +99,24 @@ def test_every_teaching_panel_has_enough_substance(seeded):
 
 @pytest.mark.django_db
 def test_uses_the_threat_figures(seeded):
+    # Lesson 1's four teaching panels use professional TECHNICAL DIAGRAMS
+    # (annotated email/SMS mockups and a social-engineering figure), not photos.
+    l1 = seeded.lessons.get(lesson_number=1)
+    diagrams = {t.task_key: t.diagram_key for t in l1.tasks.filter(kind="CONCEPT")}
+    assert diagrams == {
+        "the-con": "se-levers",
+        "phishing-family": "phishing-email",
+        "beyond-the-inbox": "sms-phish",
+        "bec": "exec-email",
+    }
+    for t in l1.tasks.filter(kind="CONCEPT"):
+        assert not (t.image or {}).get("src"), f"{t.task_key} should be diagram-only"
+    # The readable picture-question mockups remain (caller-id check, scene-vish L2).
     keys = set(
         LessonTask.objects.filter(lesson__module=seeded)
         .exclude(diagram_key="").values_list("diagram_key", flat=True)
     )
-    assert FIGURES <= keys, f"missing figures: {FIGURES - keys}"
+    assert {"caller-id", "scene-vish"} <= keys, f"mockups missing: {keys}"
 
 
 # --- activity well-formedness (each solvable) ------------------------------
@@ -288,3 +302,24 @@ def test_full_interactive_module_three_journey(learner_at_module_three):
     progress = {mp.module.order_index: mp for mp in g.module_progress(student)}
     assert progress[3].complete is True
     assert progress[4].unlocked is True
+
+
+ANIMATIONS = {
+    "data-journey", "infection-spread", "phish-unfold", "eavesdrop",
+    "firewall-flow", "segment-flow", "incident-escalation", "recovery-board", "net-scene",
+}
+
+
+@pytest.mark.django_db
+def test_lesson_one_is_theory_only_and_sim_is_screen_driven(seeded):
+    # Lesson 1 carries no animation (they live in Lesson 2).
+    l1_heroes = {(t.payload or {}).get("hero") for t in seeded.lessons.get(lesson_number=1).tasks.all()}
+    assert not (ANIMATIONS & l1_heroes), f"Lesson 1 must have no animations: {ANIMATIONS & l1_heroes}"
+    # The simulation is scene-based and every decision reads a device-framed screen.
+    sim = seeded.simulation.decision_points
+    assert sim["kind"] == "scenes"
+    decisions = [s for s in sim["scenes"].values() if s.get("choices")]
+    assert len(decisions) >= 2
+    for sc in decisions:
+        assert sc.get("screen") and sc["screen"].get("chrome") in ("browser", "window", "phone")
+        assert sc["screen"].get("rows") or sc["screen"].get("email") or sc["screen"].get("items")

@@ -88,13 +88,17 @@ class OrganisationForm(forms.ModelForm):
 
     class Meta:
         model = Organisation
-        fields = ("name", "sector", "contact_email", "notes")
-        widgets = {"notes": forms.Textarea(attrs={"rows": 2})}
+        fields = ("name", "sector", "contact_email", "training_due", "notes")
+        widgets = {
+            "notes": forms.Textarea(attrs={"rows": 2}),
+            "training_due": forms.DateInput(attrs={"type": "date"}),
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["name"].help_text = "The organisation's name. Must be unique."
         self.fields["sector"].help_text = "Optional. e.g. Local council, School, Small business."
+        self.fields["training_due"].help_text = "Optional. The date staff should complete training by. Drives overdue reporting."
         _style(self.fields)
 
 

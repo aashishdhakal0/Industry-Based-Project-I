@@ -65,6 +65,47 @@
     </section>
 
     <section class="cy-c-section">
+      <div class="cy-c-section__head"><h2 class="cy-c-section__title">Certificate</h2></div>
+      {% if certificate %}
+        <div class="cy-c-cert">
+          <div class="cy-c-cert__main">
+            <span class="cy-c-cert__serial">{{ certificate.serial }}</span>
+            <span class="cy-c-cert__meta">{{ certificate.grade }} · issued {{ certificate.issued_at|date:"j M Y" }}</span>
+          </div>
+          {% if certificate.revoked_at %}
+            <span class="cy-pill cy-pill--off">Revoked {{ certificate.revoked_at|date:"j M Y" }}</span>
+          {% else %}
+            <span class="cy-pill cy-pill--ok">Valid</span>
+            <a class="cy-c-help" href="{% url 'certificates:verify' certificate.serial %}" target="_blank" rel="noopener">Verify page</a>
+          {% endif %}
+        </div>
+      {% else %}
+        <p class="cy-c-muted">No certificate yet. It is issued automatically when the learner completes the whole course.</p>
+      {% endif %}
+    </section>
+
+    <section class="cy-c-section">
+      <div class="cy-c-section__head"><h2 class="cy-c-section__title">Private notes</h2><span class="cy-c-section__note">internal only</span></div>
+      <form class="cy-c-notewrite" method="post" action="{% url 'staff:add_note' learner.pk %}">
+        {% csrf_token %}
+        <textarea class="cy-c-input" name="body" rows="2" maxlength="2000" placeholder="Add an internal note (never shown to the learner)…" required></textarea>
+        <button type="submit" class="cy-btn cy-btn--ghost cy-btn--sm">Add note</button>
+      </form>
+      {% if notes %}
+        <ul class="cy-c-notes">
+          {% for n in notes %}
+            <li class="cy-c-note">
+              <p class="cy-c-note__body">{{ n.body|linebreaksbr }}</p>
+              <p class="cy-c-note__meta">{% if n.author %}{{ n.author.get_full_name|default:n.author.email }}{% else %}(removed){% endif %} · {{ n.created_at|date:"j M Y, H:i" }}</p>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="cy-c-muted">No notes yet. Keep a private record of interactions here.</p>
+      {% endif %}
+    </section>
+
+    <section class="cy-c-section">
       <div class="cy-c-section__head"><h2 class="cy-c-section__title">Badges</h2></div>
       <ul class="cy-c-badges">
         {% for b in badges %}
@@ -150,7 +191,29 @@
           <button type="submit" class="cy-btn cy-btn--ghost cy-btn--block cy-btn--sm">Flag as behind</button>
         {% endif %}
       </form>
+
+      <div class="cy-c-actions__group">
+        <form method="post" action="{% url 'staff:send_password_reset' learner.pk %}">{% csrf_token %}<button type="submit" class="cy-btn cy-btn--ghost cy-btn--block cy-btn--sm">Send password reset</button></form>
+      </div>
     </div>
+
+    {# Remediation — reset a learner's quiz or module so they start it again. #}
+    <form class="cy-c-section cy-c-actions" method="post" action="{% url 'staff:reset' learner.pk %}"
+          data-confirm="Reset this learner's chosen scope on the chosen module? This cannot be undone." data-confirm-yes="Reset">
+      {% csrf_token %}
+      <h2 class="cy-c-section__title">Reset progress</h2>
+      <p class="cy-c-help">Let this learner sit a quiz or a whole module again. Recorded in the audit log, and the points and grade are recomputed.</p>
+      <label class="cy-c-label" for="reset-module">Module</label>
+      <select class="cy-c-input" id="reset-module" name="module">
+        {% for m in modules %}<option value="{{ m.module.pk }}">{{ m.module.title }}</option>{% endfor %}
+      </select>
+      <label class="cy-c-label" for="reset-scope">What to reset</label>
+      <select class="cy-c-input" id="reset-scope" name="scope">
+        <option value="quiz">Quiz attempts only</option>
+        <option value="module">Whole module (lessons, quiz, simulation)</option>
+      </select>
+      <button type="submit" class="cy-btn cy-btn--danger cy-btn--block cy-btn--sm">Reset</button>
+    </form>
 
     {% if actions %}
       <div class="cy-c-section">

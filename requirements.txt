@@ -50,6 +50,11 @@ python-decouple==3.8
 
 # --- Static files / deployment ---
 whitenoise==6.12.0
+# Production WSGI server (Render start command: gunicorn nstp.wsgi:application).
+gunicorn==23.0.0
+# Parses Render's DATABASE_URL into Django's DATABASES. Only used when
+# DATABASE_URL is set (production); local dev keeps the DB_* variables.
+dj-database-url==2.3.0
 
 # --- Testing ---
 pytest==8.4.1

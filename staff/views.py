@@ -5,7 +5,9 @@ an Administrator, not merely a hidden sidebar link.
 """
 
 import csv
+import datetime
 
+from django.conf import settings
 from django.contrib import messages
 from django.core.paginator import Paginator
 from django.db.models import Count, Q
@@ -93,6 +95,8 @@ def overview(request):
         {
             "active": "admin_overview",
             "stats": stats,
+            "period": services.period_metrics(),
+            "cohorts": services.attention_cohorts(rows),
             "greeting": g.greeting(),
             "recent_actions": services.recent_actions(),
             "content_health": services.content_health(),
@@ -162,6 +166,7 @@ def learners(request):
             "status_chips": [(k, services.QUICK_FILTERS[k][0]) for k in services.STATUS_FILTER_KEYS],
             "grade_chips": [(k, services.QUICK_FILTERS[k][0]) for k in services.GRADE_FILTER_KEYS],
             "base_qs": base_qs,
+            "organisations": Organisation.objects.all(),
         },
     )
 
@@ -233,6 +238,15 @@ def org_detail(request, org_id):
         form = OrganisationForm(instance=org)
 
     members = services.organisation_members(org)
+    students = [m for m in members if m.is_student]
+    completed = sum(1 for m in students if m.completed_course)
+    from django.utils import timezone
+
+    overdue = bool(
+        org.training_due
+        and org.training_due < timezone.localdate()
+        and completed < len(students)
+    )
     return _render(
         request,
         "staff/org_detail.html",
@@ -241,20 +255,172 @@ def org_detail(request, org_id):
             "org": org,
             "form": form,
             "members": members,
-            "student_count": sum(1 for m in members if m.is_student),
+            "student_count": len(students),
+            "overdue": overdue,
         },
     )
 
 
 @administrator_required
 def activity(request):
-    """The full admin audit trail, newest first, paginated."""
-    qs = AdminAction.objects.select_related("actor", "target_user")
+    """The full admin audit trail: newest first, filterable, searchable, paginated."""
+    qs, active_filters = services.filter_admin_actions(request.GET)
+    total = qs.count()
     page_obj = Paginator(qs, 40).get_page(request.GET.get("page"))
+
+    params = request.GET.copy()
+    params.pop("page", None)
+    base_qs = params.urlencode()
+
     return _render(
         request,
         "staff/activity.html",
-        {"active": "admin_activity", "page_obj": page_obj, "actions": page_obj.object_list},
+        {
+            "active": "admin_activity",
+            "page_obj": page_obj,
+            "actions": page_obj.object_list,
+            "filters": active_filters,
+            "any_filter": any(active_filters.values()),
+            "match_count": total,
+            "actors": services.audit_actors(),
+            "kinds": AdminAction.Kind.choices,
+            "base_qs": base_qs,
+        },
+    )
+
+
+@administrator_required
+def activity_csv(request):
+    """Download the audit log (respecting the current filters) as CSV."""
+    qs, _ = services.filter_admin_actions(request.GET)
+
+    response = HttpResponse(content_type="text/csv")
+    response["Content-Disposition"] = 'attachment; filename="cybaroo-audit-log.csv"'
+    writer = csv.writer(response)
+    writer.writerow(["When", "Administrator", "Action", "Affected account", "Detail"])
+    for a in qs.iterator():
+        writer.writerow(
+            [
+                a.created_at.strftime("%Y-%m-%d %H:%M"),
+                a.actor.email if a.actor else "(removed)",
+                a.get_action_display(),
+                a.target_user.email if a.target_user else "",
+                a.summary,
+            ]
+        )
+    return response
+
+
+def _parse_date(raw):
+    import datetime as _dt
+
+    try:
+        return _dt.date.fromisoformat((raw or "").strip())
+    except (ValueError, TypeError):
+        return None
+
+
+@administrator_required
+def reports(request):
+    """The reporting hub: the exports and summaries a compliance officer needs."""
+    from certificates.models import Certificate
+
+    return _render(
+        request,
+        "staff/reports.html",
+        {
+            "active": "admin_reports",
+            "learner_count": User.objects.filter(role=User.Role.STUDENT).count(),
+            "org_count": Organisation.objects.count(),
+            "cert_count": Certificate.objects.count(),
+            "organisations": Organisation.objects.all(),
+        },
+    )
+
+
+@administrator_required
+def report_compliance(request):
+    """Compliance summary as at a chosen date, optionally scoped to one org.
+    On-screen, or CSV with ?format=csv (same filters)."""
+    from django.utils import timezone
+
+    date = _parse_date(request.GET.get("as_at"))
+    as_at = None
+    if date is not None:
+        # Count everything up to the end of the chosen day.
+        as_at = timezone.make_aware(datetime.datetime.combine(date, datetime.time.max))
+    org_id = (request.GET.get("org") or "").strip()
+    org = Organisation.objects.filter(pk=org_id).first() if org_id.isdigit() else None
+
+    report = services.compliance_report(as_at=as_at, org=org)
+
+    if request.GET.get("format") == "csv":
+        response = HttpResponse(content_type="text/csv")
+        label = (org.name.lower().replace(" ", "-") + "-") if org else ""
+        response["Content-Disposition"] = f'attachment; filename="cybaroo-{label}compliance.csv"'
+        writer = csv.writer(response)
+        writer.writerow(["As at", date.isoformat() if date else "today"])
+        writer.writerow(["Name", "Email", "Organisation", "Modules completed",
+                         "Modules total", "Completed course"])
+        for r in report["rows"]:
+            profile = getattr(r.user, "profile", None)
+            writer.writerow([
+                r.name, r.user.email, profile.organisation if profile else "",
+                r.modules_completed, r.modules_total,
+                "Yes" if r.completed_course else "No",
+            ])
+        return response
+
+    return _render(
+        request,
+        "staff/report_compliance.html",
+        {
+            "active": "admin_reports",
+            "report": report,
+            "as_at_value": date.isoformat() if date else "",
+            "organisations": Organisation.objects.all(),
+            "org_id": org.pk if org else "",
+        },
+    )
+
+
+@administrator_required
+def certificate_register(request):
+    """The certificate register: who holds a valid certificate, with codes and
+    dates. On-screen, or CSV with ?format=csv."""
+    status = request.GET.get("status")
+    if status not in ("valid", "revoked"):
+        status = None
+    certs = services.certificate_register(status=status)
+
+    if request.GET.get("format") == "csv":
+        from django.utils import timezone
+
+        response = HttpResponse(content_type="text/csv")
+        response["Content-Disposition"] = 'attachment; filename="cybaroo-certificate-register.csv"'
+        writer = csv.writer(response)
+        writer.writerow(["Serial", "Holder", "Email", "Organisation", "Grade",
+                         "Issued", "Status", "Revoked"])
+        for c in certs:
+            profile = getattr(c.user, "profile", None)
+            writer.writerow([
+                c.serial, c.user.get_full_name() or c.user.email, c.user.email,
+                profile.organisation if profile else "", c.grade,
+                timezone.localtime(c.issued_at).strftime("%Y-%m-%d"),
+                "Revoked" if c.revoked_at else "Valid",
+                timezone.localtime(c.revoked_at).strftime("%Y-%m-%d") if c.revoked_at else "",
+            ])
+        return response
+
+    return _render(
+        request,
+        "staff/certificates.html",
+        {
+            "active": "admin_reports",
+            "certs": certs,
+            "status": status or "",
+            "valid_count": sum(1 for c in certs if not c.revoked_at) if not status else None,
+        },
     )
 
 
@@ -381,6 +547,90 @@ def user_new(request):
 
 
 @administrator_required
+def bulk_invite(request):
+    """Onboard a whole workplace at once: paste a list of emails or upload a CSV,
+    preview exactly what will happen, then create the accounts in one audited
+    batch. Each new account is Student (or the chosen role), admin-vouched
+    (active + verified), assigned to the chosen organisation, and — least
+    privilege — never granted Django staff/superuser. Optionally each is emailed
+    a link to set their own password.
+    """
+    from django.contrib.auth.forms import PasswordResetForm
+    from django.utils.crypto import get_random_string
+
+    from authentication.models import UserProfile
+
+    roles = User.Role.choices
+    orgs = Organisation.objects.all()
+
+    if request.method != "POST":
+        return _render(request, "staff/user_invite.html",
+                       {"active": "admin_learners", "roles": roles, "orgs": orgs})
+
+    raw = request.POST.get("emails", "")
+    upload = request.FILES.get("csv")
+    if upload:
+        try:
+            raw += "\n" + upload.read().decode("utf-8", "ignore")
+        except Exception:
+            messages.error(request, "Could not read that file. Paste the emails instead.")
+
+    role = request.POST.get("role") if request.POST.get("role") in User.Role.values else User.Role.STUDENT
+    org_id = (request.POST.get("org") or "").strip()
+    org = Organisation.objects.filter(pk=org_id).first() if org_id.isdigit() else None
+    send_invite = request.POST.get("send_invite") == "on"
+
+    result = services.classify_invites(services.parse_emails(raw))
+    ctx = {
+        "active": "admin_learners", "roles": roles, "orgs": orgs,
+        "result": result, "role": role, "org": org,
+        "emails_raw": raw, "send_invite": send_invite,
+        "role_label": dict(roles).get(role, role),
+    }
+
+    if request.POST.get("action") != "create":
+        # Step 1: show the preview.
+        return _render(request, "staff/user_invite.html", ctx)
+
+    # Step 2: create the valid, new accounts.
+    if not result["new"]:
+        messages.error(request, "No new accounts to create.")
+        return _render(request, "staff/user_invite.html", ctx)
+
+    created = []
+    for email in result["new"]:
+        user = User(email=email, role=role, is_active=True, is_verified=True)
+        user.set_password(get_random_string(20))  # usable but unknown; they reset it
+        user.save()
+        UserProfile.objects.create(user=user)
+        services.assign_learner_org(user.profile, org)
+        created.append(user)
+        if send_invite:
+            form = PasswordResetForm({"email": email})
+            if form.is_valid():
+                form.save(
+                    request=request,
+                    use_https=request.is_secure(),
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    email_template_name="authentication/email/password_reset_email.txt",
+                    subject_template_name="authentication/email/password_reset_subject.txt",
+                )
+
+    where = f" in “{org.name}”" if org else ""
+    services.log_action(
+        request.user, AdminAction.Kind.BULK_INVITE,
+        f"Bulk-invited {len(created)} {dict(roles).get(role, role)} account"
+        f"{'' if len(created) == 1 else 's'}{where}",
+    )
+    messages.success(
+        request,
+        f"Created {len(created)} account{'' if len(created) == 1 else 's'}"
+        f"{' and emailed each a set-password link' if send_invite else ''}.",
+    )
+    return redirect("staff:learners")
+
+
+@administrator_required
 def content(request):
     """A read view of every module and its lessons, with publish status."""
     modules = list(
@@ -485,6 +735,20 @@ def lesson_edit(request, lesson_id):
             "form": form,
             "tasks": lesson.tasks.order_by("order"),
         },
+    )
+
+
+@administrator_required
+def lesson_preview(request, lesson_id):
+    """See a lesson exactly as a student would, past the sequential lock and with
+    no progress writes. Reuses the real student room renderer."""
+    from modules.views import _render_lesson
+
+    lesson = get_object_or_404(Lesson.objects.select_related("module"), pk=lesson_id)
+    return _render_lesson(
+        request, lesson, preview=True,
+        back_url=reverse("staff:lesson_edit", args=[lesson.pk]),
+        back_label="Back to editing",
     )
 
 

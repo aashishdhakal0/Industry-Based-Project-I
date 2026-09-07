@@ -1,0 +1,57 @@
+# Render Blueprint for Cybaroo (NSTP).
+#
+# Deploy from the Render dashboard: New > Blueprint, point it at this repo, and
+# Render reads this file to create the web service and a free PostgreSQL
+# database, wiring them together. SECRET_KEY is generated for you; DATABASE_URL
+# is injected from the database; RENDER_EXTERNAL_HOSTNAME is injected
+# automatically (settings.py trusts it for ALLOWED_HOSTS and CSRF).
+#
+# Fill the EMAIL_* variables in the dashboard to send real 2FA / verification
+# emails. Left unset, email falls back to the console backend and codes are
+# printed to the service logs instead of being delivered.
+
+databases:
+  - name: cybaroo-db
+    plan: free
+    databaseName: nstp_db
+    user: nstp
+
+services:
+  - type: web
+    name: cybaroo
+    runtime: python
+    plan: free
+    buildCommand: "./build.sh"
+    # One worker keeps the in-memory rate-limit cache coherent and fits the free
+    # tier's 512 MB. Raise WEB_CONCURRENCY only alongside a shared cache (Redis).
+    startCommand: "gunicorn nstp.wsgi:application"
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: cybaroo-db
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: "False"
+      - key: PYTHON_VERSION
+        value: "3.13.4"
+      - key: SITE_NAME
+        value: "Cybaroo"
+      - key: DEFAULT_FROM_EMAIL
+        value: "noreply@ausdais.com.au"
+      - key: RATELIMIT_ENABLE
+        value: "True"
+      # --- Email: set these in the dashboard to send real emails ---
+      - key: EMAIL_BACKEND
+        sync: false      # e.g. django.core.mail.backends.smtp.EmailBackend
+      - key: EMAIL_HOST
+        sync: false      # e.g. smtp.sendgrid.net
+      - key: EMAIL_PORT
+        sync: false      # e.g. 587
+      - key: EMAIL_USE_TLS
+        sync: false      # True
+      - key: EMAIL_HOST_USER
+        sync: false
+      - key: EMAIL_HOST_PASSWORD
+        sync: false

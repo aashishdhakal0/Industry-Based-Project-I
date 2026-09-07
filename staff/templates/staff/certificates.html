@@ -1,0 +1,69 @@
+{% extends "staff/base.html" %}
+
+{% block title %}Certificate register — {{ site_name }}{% endblock %}
+
+{% block console %}
+<a class="cy-c-back" href="{% url 'staff:reports' %}">
+  <svg class="cy-i" aria-hidden="true"><use href="#i-chevron-left"/></svg> Back to reports
+</a>
+
+<header class="cy-c-head">
+  <div>
+    <p class="cy-c-head__eyebrow">Administrator</p>
+    <h1 class="cy-c-head__title">Certificate register</h1>
+    <p class="cy-c-head__sub">Everyone who holds a certificate, with their verification code, grade and date.</p>
+  </div>
+  <div class="cy-c-head__actions">
+    <a class="cy-btn cy-btn--ghost cy-btn--sm" href="?{% if status %}status={{ status }}&amp;{% endif %}format=csv" rel="nofollow">Export CSV</a>
+  </div>
+</header>
+
+<div class="cy-c-chips" role="group" aria-label="Filter">
+  <a class="cy-c-chip {% if not status %}is-active{% endif %}" href="{% url 'staff:certificate_register' %}">All</a>
+  <a class="cy-c-chip {% if status == 'valid' %}is-active{% endif %}" href="?status=valid">Valid</a>
+  <a class="cy-c-chip {% if status == 'revoked' %}is-active{% endif %}" href="?status=revoked">Revoked</a>
+</div>
+
+{% if certs %}
+  <div class="cy-c-tablewrap">
+    <table class="cy-c-table">
+      <thead><tr><th>Serial</th><th>Holder</th><th>Organisation</th><th>Grade</th><th>Issued</th><th>Status</th><th></th></tr></thead>
+      <tbody>
+        {% for c in certs %}
+          <tr>
+            <td><span class="cy-c-cert__serial">{{ c.serial }}</span></td>
+            <td>
+              <a class="cy-c-learner" href="{% url 'staff:learner_detail' c.user.pk %}">
+                <span class="cy-c-learner__name">{{ c.user.get_full_name|default:c.user.email }}</span>
+                <span class="cy-c-learner__email">{{ c.user.email }}</span>
+              </a>
+            </td>
+            <td>{% if c.user.profile.organisation %}{{ c.user.profile.organisation }}{% else %}<span class="cy-c-muted">—</span>{% endif %}</td>
+            <td>{{ c.grade }}</td>
+            <td>{{ c.issued_at|date:"j M Y" }}</td>
+            <td>{% if c.revoked_at %}<span class="cy-pill cy-pill--off">Revoked</span>{% else %}<span class="cy-pill cy-pill--ok">Valid</span>{% endif %}</td>
+            <td class="cy-c-num">
+              <form method="post" action="{% url 'staff:revoke_cert' c.pk %}"
+                    {% if not c.revoked_at %}data-confirm="Revoke {{ c.serial }}? It will fail public verification." data-confirm-yes="Revoke"{% endif %}>
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{% url 'staff:certificate_register' %}{% if status %}?status={{ status }}{% endif %}">
+                {% if c.revoked_at %}
+                  <button type="submit" class="cy-btn cy-btn--ghost cy-btn--sm">Reinstate</button>
+                {% else %}
+                  <button type="submit" class="cy-btn cy-btn--ghost cy-btn--sm">Revoke</button>
+                {% endif %}
+              </form>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% else %}
+  <div class="cy-c-empty">
+    <h2 class="cy-c-empty__title">No certificates {% if status %}{{ status }}{% endif %}</h2>
+    <p class="cy-c-empty__body">{% if status %}Nothing matches this filter.{% else %}Certificates are issued automatically when a learner completes the whole course. They will appear here.{% endif %}</p>
+    {% if status %}<div class="cy-c-empty__actions"><a class="cy-btn cy-btn--ghost cy-btn--sm" href="{% url 'staff:certificate_register' %}">Show all</a></div>{% endif %}
+  </div>
+{% endif %}
+{% endblock %}

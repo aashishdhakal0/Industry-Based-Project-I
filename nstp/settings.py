@@ -22,6 +22,19 @@ SECRET_KEY = config("SECRET_KEY")
 DEBUG = config("DEBUG", default=False, cast=bool)
 ALLOWED_HOSTS = config("ALLOWED_HOSTS", default="localhost,127.0.0.1", cast=Csv())
 
+# CSRF trusted origins are full origins (scheme + host), required for HTTPS POSTs
+# behind a TLS-terminating proxy like Render. Comma-separated in the env var,
+# e.g. "https://cybaroo.onrender.com".
+CSRF_TRUSTED_ORIGINS = config("CSRF_TRUSTED_ORIGINS", default="", cast=Csv())
+
+# Render injects RENDER_EXTERNAL_HOSTNAME automatically (e.g. cybaroo.onrender.com).
+# Trust it for both the Host header check and CSRF, so a deploy needs no manual
+# host wiring. Unset locally, so this whole block is a no-op in development.
+RENDER_EXTERNAL_HOSTNAME = config("RENDER_EXTERNAL_HOSTNAME", default="")
+if RENDER_EXTERNAL_HOSTNAME:
+    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
+    CSRF_TRUSTED_ORIGINS.append(f"https://{RENDER_EXTERNAL_HOSTNAME}")
+
 
 # --- Applications ----------------------------------------------------------
 
@@ -119,19 +132,37 @@ LOGIN_REDIRECT_URL = reverse_lazy("dashboard")
 
 # --- Database --------------------------------------------------------------
 #
-# PostgreSQL 18 in production (spec). DB_ENGINE lets local dev fall back to
-# SQLite until PostgreSQL is installed — production must always be postgresql.
+# Two paths, one setting:
+#
+#   1. Production (Render) provides a single DATABASE_URL. When it is present we
+#      parse it with dj-database-url, keep connections alive for 10 minutes, and
+#      require SSL (in production DEBUG is False). The import is lazy — inside the
+#      branch — so local development never needs the package on its path.
+#   2. Local development leaves DATABASE_URL unset and keeps the DB_* variables,
+#      which themselves fall back to SQLite until PostgreSQL is configured. This
+#      path is byte-for-byte what it was before, so `runserver` and the test
+#      suite are unaffected.
 
-DATABASES = {
-    "default": {
-        "ENGINE": config("DB_ENGINE", default="django.db.backends.sqlite3"),
-        "NAME": config("DB_NAME", default=str(BASE_DIR / "db.sqlite3")),
-        "USER": config("DB_USER", default=""),
-        "PASSWORD": config("DB_PASSWORD", default=""),
-        "HOST": config("DB_HOST", default=""),
-        "PORT": config("DB_PORT", default=""),
+DATABASE_URL = config("DATABASE_URL", default="")
+if DATABASE_URL:
+    import dj_database_url
+
+    DATABASES = {
+        "default": dj_database_url.parse(
+            DATABASE_URL, conn_max_age=600, ssl_require=not DEBUG
+        )
     }
-}
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": config("DB_ENGINE", default="django.db.backends.sqlite3"),
+            "NAME": config("DB_NAME", default=str(BASE_DIR / "db.sqlite3")),
+            "USER": config("DB_USER", default=""),
+            "PASSWORD": config("DB_PASSWORD", default=""),
+            "HOST": config("DB_HOST", default=""),
+            "PORT": config("DB_PORT", default=""),
+        }
+    }
 
 
 # --- Password validation ---------------------------------------------------

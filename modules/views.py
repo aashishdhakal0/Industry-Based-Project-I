@@ -228,7 +228,16 @@ def lesson(request, order_index, lesson_number):
     lesson, blocked = _lesson_or_locked(request, order_index, lesson_number)
     if blocked:
         return blocked
+    return _render_lesson(request, lesson)
 
+
+def _render_lesson(request, lesson, *, preview=False, back_url=None, back_label=None):
+    """Render one lesson's room. Shared by the student lesson view and the
+    administrator's read-only preview (which reaches it past the sequential lock).
+    Read-only: it writes nothing, so previewing has no side effects on GET.
+    """
+    order_index = lesson.module.order_index
+    lesson_number = lesson.lesson_number
     module = lesson.module
     siblings = list(module.lessons.filter(is_active=True).order_by("lesson_number"))
     numbers = [s.lesson_number for s in siblings]
@@ -316,9 +325,10 @@ def lesson(request, order_index, lesson_number):
             # Focused, distraction-free room: the app shell drops the sidebar and
             # shows a slim focus bar with a clear way back to the module.
             "focus": True,
-            "focus_back_url": reverse("learn:module", args=[order_index]),
-            "focus_back_label": module.title,
+            "focus_back_url": back_url or reverse("learn:module", args=[order_index]),
+            "focus_back_label": back_label or module.title,
             "focus_meta": f"Lesson {position + 1} of {len(siblings)}",
+            "preview": preview,
         },
     )
 

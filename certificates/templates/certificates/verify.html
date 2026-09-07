@@ -49,9 +49,16 @@
       <div class="cy-vf__badge cy-vf__badge--no" aria-hidden="true">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
       </div>
-      <h1 class="cy-vf__status">Certificate not found</h1>
-      <p class="cy-vf__sub">We could not find a certificate with the code
-        <span class="cy-vf__tried">{{ serial }}</span>. Check the code and try again.</p>
+      {% if revoked %}
+        <h1 class="cy-vf__status">Certificate revoked</h1>
+        <p class="cy-vf__sub">The certificate with the code
+          <span class="cy-vf__tried">{{ serial }}</span> was issued but has since
+          been revoked by {{ site_name }}, and no longer stands.</p>
+      {% else %}
+        <h1 class="cy-vf__status">Certificate not found</h1>
+        <p class="cy-vf__sub">We could not find a certificate with the code
+          <span class="cy-vf__tried">{{ serial }}</span>. Check the code and try again.</p>
+      {% endif %}
     {% endif %}
     <p class="cy-vf__foot">Verify any {{ site_name }} certificate at {{ request.scheme }}://{{ request.get_host }}/verify/&lt;code&gt;/</p>
   </div>

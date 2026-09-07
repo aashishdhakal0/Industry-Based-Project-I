@@ -27,7 +27,7 @@
   <div class="cy-c-tablewrap">
     <table class="cy-c-table">
       <thead>
-        <tr><th>Organisation</th><th class="cy-c-num">Students</th><th class="cy-c-num">Active</th><th>Completion</th><th class="cy-c-num">Avg score</th><th class="cy-c-num">Attention</th></tr>
+        <tr><th>Organisation</th><th class="cy-c-num">Students</th><th class="cy-c-num">Active</th><th>Completion</th><th>Due</th><th class="cy-c-num">Avg score</th><th class="cy-c-num">Attention</th></tr>
       </thead>
       <tbody>
         {% for o in orgs %}
@@ -48,6 +48,12 @@
                 </span>
               {% else %}<span class="cy-c-muted">—</span>{% endif %}
             </td>
+            <td>
+              {% if o.org.training_due %}
+                {% if o.overdue %}<span class="cy-pill cy-pill--warn">Overdue {{ o.org.training_due|date:"j M Y" }}</span>
+                {% else %}<span class="cy-c-muted">{{ o.org.training_due|date:"j M Y" }}</span>{% endif %}
+              {% else %}<span class="cy-c-muted">—</span>{% endif %}
+            </td>
             <td class="cy-c-num">{% if o.avg_score is None %}—{% else %}{{ o.avg_score }}%{% endif %}</td>
             <td class="cy-c-num">{% if o.attention %}<span class="cy-pill cy-pill--warn">{{ o.attention }}</span>{% else %}<span class="cy-c-muted">0</span>{% endif %}</td>
           </tr>
@@ -61,7 +67,7 @@
               <span class="cy-c-muted"> · people not yet assigned</span>
             </td>
             <td class="cy-c-num">{{ unassigned_count }}</td>
-            <td class="cy-c-num">—</td><td><span class="cy-c-muted">—</span></td><td class="cy-c-num">—</td><td class="cy-c-num">—</td>
+            <td class="cy-c-num">—</td><td><span class="cy-c-muted">—</span></td><td><span class="cy-c-muted">—</span></td><td class="cy-c-num">—</td><td class="cy-c-num">—</td>
           </tr>
         {% endif %}
       </tbody>
