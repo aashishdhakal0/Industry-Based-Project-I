@@ -80,6 +80,11 @@ class Module(models.Model):
         settings.AUTH_USER_MODEL,
         on_delete=models.PROTECT,
         related_name="modules_created",
+        # Nullable so `seed_learning_content` can run against a brand-new,
+        # empty database (no users yet) on first deploy. The content gets a real
+        # owner as soon as one exists; PROTECT still stops deleting an owner.
+        null=True,
+        blank=True,
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

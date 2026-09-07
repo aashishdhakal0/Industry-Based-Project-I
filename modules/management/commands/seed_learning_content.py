@@ -868,15 +868,16 @@ class Command(BaseCommand):
     @transaction.atomic
     def handle(self, *args, **options):
         force = options["force"]
+        # Prefer a superuser, then any administrator, then any user, as the
+        # content owner. On a brand-new, empty database this is None, which is
+        # fine: Module.created_by is nullable, so seeding still succeeds and the
+        # content gains a real owner as soon as one exists (start.sh creates the
+        # first administrator before this runs, via `ensure_admin`).
         author = (
             User.objects.filter(is_superuser=True).order_by("pk").first()
+            or User.objects.filter(role=User.Role.ADMINISTRATOR).order_by("pk").first()
             or User.objects.order_by("pk").first()
         )
-        if author is None:
-            raise CommandError(
-                "No users exist to own the content. Create a superuser first: "
-                "manage.py createsuperuser"
-            )
 
         for index, (title, desc, difficulty, lesson_titles) in enumerate(MODULES, start=1):
             module, created = Module.objects.get_or_create(

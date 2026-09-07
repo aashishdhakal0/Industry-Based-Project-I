@@ -49,6 +49,18 @@ services:
         value: "noreply@ausdais.com.au"
       - key: RATELIMIT_ENABLE
         value: "True"
+      # --- First administrator (created once, on first deploy) ---
+      # start.sh runs `ensure_admin` before seeding. Set ADMIN_EMAIL and
+      # ADMIN_PASSWORD in the dashboard; the account is created as an
+      # administrator you can sign in with at /admin/. Names are optional.
+      - key: ADMIN_EMAIL
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: ADMIN_FIRST_NAME
+        sync: false
+      - key: ADMIN_LAST_NAME
+        sync: false
       # --- Email: set these in the dashboard to send real emails ---
       - key: EMAIL_BACKEND
         sync: false      # e.g. django.core.mail.backends.smtp.EmailBackend
