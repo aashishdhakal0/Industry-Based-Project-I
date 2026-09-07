@@ -61,16 +61,12 @@ services:
         sync: false
       - key: ADMIN_LAST_NAME
         sync: false
-      # --- Email: set these in the dashboard to send real emails ---
+      # --- Email via Resend's HTTPS API (SMTP is blocked on Render's free tier) ---
+      # The backend is set here; add your Resend API key in the dashboard. Emails
+      # fail silently (logged, never a 500) if the provider is down.
       - key: EMAIL_BACKEND
-        sync: false      # e.g. django.core.mail.backends.smtp.EmailBackend
-      - key: EMAIL_HOST
-        sync: false      # e.g. smtp.sendgrid.net
-      - key: EMAIL_PORT
-        sync: false      # e.g. 587
-      - key: EMAIL_USE_TLS
-        sync: false      # True
-      - key: EMAIL_HOST_USER
-        sync: false
-      - key: EMAIL_HOST_PASSWORD
-        sync: false
+        value: "nstp.email.ResendEmailBackend"
+      - key: EMAIL_FAIL_SILENTLY
+        value: "True"
+      - key: RESEND_API_KEY
+        sync: false      # paste your Resend API key (re_...) in the dashboard

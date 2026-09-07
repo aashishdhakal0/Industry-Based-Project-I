@@ -266,12 +266,31 @@ CONTENT_SECURITY_POLICY = {
 
 # --- Email -----------------------------------------------------------------
 #
-# Registration sends a time-limited signed verification URL. Console backend in
-# dev prints the email to the terminal instead of sending it.
+# All app email (2FA codes, verification links, password resets, nudges) goes
+# through Django's email framework, so the backend is swappable by env var:
+#
+#   - Local dev: the console backend (default) prints emails to the terminal.
+#   - Production on Render: SMTP (port 587) is blocked on the free tier and hangs
+#     the worker, so point EMAIL_BACKEND at the HTTPS API backend instead:
+#         EMAIL_BACKEND=nstp.email.ResendEmailBackend
+#     configured by RESEND_API_KEY below. See nstp/email.py.
+#   - Any SMTP host still works via the EMAIL_HOST/PORT/... variables if unblocked.
 
 EMAIL_BACKEND = config(
     "EMAIL_BACKEND", default="django.core.mail.backends.console.EmailBackend"
 )
+
+# HTTPS email API (Resend). Only read by nstp.email.ResendEmailBackend.
+RESEND_API_KEY = config("RESEND_API_KEY", default="")
+# A hard per-request timeout, so an API stall can never hang a worker the way a
+# blocked SMTP socket did (well inside Gunicorn's 30s worker timeout).
+EMAIL_API_TIMEOUT = config("EMAIL_API_TIMEOUT", default=10, cast=int)
+# When true, an email failure is logged and swallowed rather than raised, so a
+# provider outage never 500s the site. Set True in production; False in dev so
+# real problems surface loudly.
+EMAIL_FAIL_SILENTLY = config("EMAIL_FAIL_SILENTLY", default=False, cast=bool)
+
+# SMTP settings (used only if EMAIL_BACKEND is an SMTP backend).
 EMAIL_HOST = config("EMAIL_HOST", default="")
 EMAIL_PORT = config("EMAIL_PORT", default=587, cast=int)
 EMAIL_USE_TLS = config("EMAIL_USE_TLS", default=True, cast=bool)
