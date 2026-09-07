@@ -1,30 +1,24 @@
 # Render Blueprint for Cybaroo (NSTP).
 #
-# Deploy from the Render dashboard: New > Blueprint, point it at this repo, and
-# Render reads this file to create the web service and a free PostgreSQL
-# database, wiring them together. SECRET_KEY is generated for you; DATABASE_URL
-# is injected from the database; RENDER_EXTERNAL_HOSTNAME is injected
-# automatically (settings.py trusts it for ALLOWED_HOSTS and CSRF).
+# This Blueprint manages the WEB SERVICE ONLY. It deliberately does NOT declare a
+# `databases:` block: Render's free tier allows just one free database per
+# account and Cybaroo already has one, so declaring a database here would make
+# the sync try to create a second one and fail ("cannot have more than one active
+# free tier database"), cancelling every other change in the sync.
 #
-# Fill the EMAIL_* variables in the dashboard to send real 2FA / verification
-# emails. Left unset, email falls back to the console backend and codes are
-# printed to the service logs instead of being delivered.
-
-databases:
-  - name: cybaroo-db
-    plan: free
-    # region MUST match the web service's region below. The database's internal
-    # hostname (dpg-xxxxx-a) only resolves from services in the SAME region.
-    region: oregon
-    databaseName: nstp_db
-    user: nstp
+# Instead, DATABASE_URL is set in the dashboard (sync: false), pointing at the
+# EXISTING database's Internal Database URL. SECRET_KEY is generated for you;
+# RENDER_EXTERNAL_HOSTNAME is injected automatically (settings.py trusts it for
+# ALLOWED_HOSTS and CSRF). Set every `sync: false` variable in the dashboard.
 
 services:
   - type: web
     name: cybaroo
     runtime: python
     plan: free
-    # Same region as the database above (see the note there).
+    # Must be the SAME region as your existing database, or the internal DB
+    # hostname will not resolve. Your current deploy already connects, so this
+    # matches it; change it only if you move the database.
     region: oregon
     buildCommand: "./build.sh"
     # Migrations run at start-up, not in the build: the build environment cannot
@@ -33,10 +27,11 @@ services:
     # in-memory rate-limit cache coherent and fits the free tier's 512 MB.
     startCommand: "./start.sh"
     envVars:
+      # Set in the dashboard to your existing database's INTERNAL Database URL
+      # (Dashboard > cybaroo-db > Connect > Internal Database URL). Not managed
+      # by this Blueprint, so it is never touched by a sync and you can edit it.
       - key: DATABASE_URL
-        fromDatabase:
-          name: cybaroo-db
-          property: connectionString
+        sync: false
       - key: SECRET_KEY
         generateValue: true
       - key: DEBUG
