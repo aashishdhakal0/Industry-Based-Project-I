@@ -13,6 +13,9 @@
 databases:
   - name: cybaroo-db
     plan: free
+    # region MUST match the web service's region below. The database's internal
+    # hostname (dpg-xxxxx-a) only resolves from services in the SAME region.
+    region: oregon
     databaseName: nstp_db
     user: nstp
 
@@ -21,10 +24,14 @@ services:
     name: cybaroo
     runtime: python
     plan: free
+    # Same region as the database above (see the note there).
+    region: oregon
     buildCommand: "./build.sh"
-    # One worker keeps the in-memory rate-limit cache coherent and fits the free
-    # tier's 512 MB. Raise WEB_CONCURRENCY only alongside a shared cache (Redis).
-    startCommand: "gunicorn nstp.wsgi:application"
+    # Migrations run at start-up, not in the build: the build environment cannot
+    # resolve the internal database hostname, but the running service can.
+    # `start.sh` runs migrate + seed, then execs gunicorn. One worker keeps the
+    # in-memory rate-limit cache coherent and fits the free tier's 512 MB.
+    startCommand: "./start.sh"
     envVars:
       - key: DATABASE_URL
         fromDatabase:
