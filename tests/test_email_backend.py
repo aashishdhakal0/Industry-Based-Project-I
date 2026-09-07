@@ -44,6 +44,7 @@ def _capture(monkeypatch):
     def fake_urlopen(request, timeout=None):
         grabbed["url"] = request.full_url
         grabbed["auth"] = request.get_header("Authorization")
+        grabbed["user_agent"] = request.get_header("User-agent")
         grabbed["timeout"] = timeout
         grabbed["body"] = json.loads(request.data.decode("utf-8"))
         return _FakeResp()
@@ -63,6 +64,18 @@ def test_send_mail_posts_to_the_resend_api(use_resend, monkeypatch):
     assert grabbed["body"]["subject"] == "Your Cybaroo code"
     assert grabbed["body"]["text"] == "123456"
     assert grabbed["body"]["from"] == "noreply@x.com"
+
+
+def test_request_sets_an_explicit_user_agent(use_resend, monkeypatch):
+    # Resend/Cloudflare 403s (code 1010) without a User-Agent, or with the
+    # default urllib one. Assert we send an explicit product User-Agent.
+    from nstp.email import USER_AGENT
+
+    grabbed = _capture(monkeypatch)
+    send_mail("s", "b", "noreply@x.com", ["user@x.com"])
+    assert grabbed["user_agent"] == USER_AGENT
+    assert grabbed["user_agent"]                       # never empty
+    assert "urllib" not in (grabbed["user_agent"] or "").lower()
 
 
 def test_html_alternative_is_carried(use_resend, monkeypatch):

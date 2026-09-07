@@ -31,6 +31,13 @@ logger = logging.getLogger("nstp.email")
 
 RESEND_ENDPOINT = "https://api.resend.com/emails"
 
+# Resend's API (behind Cloudflare) rejects requests with no User-Agent, or with
+# a default library one, returning HTTP 403 with error code 1010 even when the
+# API key is valid. stdlib urllib would otherwise send "Python-urllib/x.y", so
+# we set an explicit product User-Agent to get past it.
+# See https://resend.com/docs/api-reference/introduction
+USER_AGENT = "Cybaroo/1.0"
+
 
 class ResendEmailBackend(BaseEmailBackend):
     """Send Django EmailMessages via Resend's HTTPS API."""
@@ -93,6 +100,8 @@ class ResendEmailBackend(BaseEmailBackend):
             headers={
                 "Authorization": f"Bearer {self.api_key}",
                 "Content-Type": "application/json",
+                # Required: Resend/Cloudflare 403s (code 1010) without it.
+                "User-Agent": USER_AGENT,
             },
         )
         try:
