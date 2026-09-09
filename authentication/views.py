@@ -244,15 +244,14 @@ def _complete_login(request, user):
 # Student, exactly as it should.
 LOGIN_FRAMES = {
     "student": {
+        # title frames the single-role sign-in form (login.html); accent
+        # colour-codes the role chooser's option (login_choose.html). Neither the
+        # chooser nor the framed form carries a descriptive lede any more.
         "title": "Student sign-in",
-        "lede": "Your lessons, quizzes and progress.",
-        "icon": "i-book",
         "accent": "student",
     },
     "admin": {
         "title": "Administrator sign-in",
-        "lede": "Manage the platform.",
-        "icon": "i-shield",
         "accent": "admin",
     },
 }

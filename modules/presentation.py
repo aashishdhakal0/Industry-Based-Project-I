@@ -20,6 +20,10 @@ TILES = [
 # Icon id (see templates/_icons.html) per module position.
 ICONS = ["i-layers", "i-shield", "i-mail", "i-lock", "i-bolt", "i-clock"]
 
+# Bespoke per-module emblem (a mark drawn for each module's theme), used by the
+# module-path roadmap. Falls back to ICONS by position for any 7th+ module.
+EMBLEMS = ["i-mod-1", "i-mod-2", "i-mod-3", "i-mod-4", "i-mod-5", "i-mod-6"]
+
 
 def decorate(module):
     """Attach presentation attributes to a Module for the templates.
@@ -31,6 +35,7 @@ def decorate(module):
     i = (module.order_index - 1) % len(TILES)
     module.tile_a, module.tile_b = TILES[i]
     module.icon = ICONS[(module.order_index - 1) % len(ICONS)]
+    module.emblem = EMBLEMS[(module.order_index - 1) % len(EMBLEMS)]
     module.index = module.order_index
     module.subtitle = module.description
     return module

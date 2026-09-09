@@ -3,7 +3,7 @@
 {% block title %}Learners — {{ site_name }}{% endblock %}
 
 {% block console %}
-<header class="cy-c-head">
+<header class="cy-c-head cy-c-head--learners">
   <div>
     <p class="cy-c-head__eyebrow">Administrator</p>
     <h1 class="cy-c-head__title">Learners</h1>
@@ -11,39 +11,69 @@
   </div>
   <div class="cy-c-head__actions">
     <div class="cy-c-viewtoggle" role="group" aria-label="Layout">
-      <a class="cy-c-metric {% if view == 'grouped' %}is-active{% endif %}" href="?view=grouped{% if q %}&q={{ q|urlencode }}{% endif %}{% if filter %}&filter={{ filter }}{% endif %}">By organisation</a>
-      <a class="cy-c-metric {% if view == 'list' %}is-active{% endif %}" href="?view=list{% if q %}&q={{ q|urlencode }}{% endif %}{% if filter %}&filter={{ filter }}{% endif %}&sort={{ sort }}">List</a>
+      <a class="cy-c-metric {% if view == 'grouped' %}is-active{% endif %}" href="?view=grouped{% if q %}&q={{ q|urlencode }}{% endif %}{% if status %}&status={{ status }}{% endif %}{% if grade %}&grade={{ grade }}{% endif %}">By organisation</a>
+      <a class="cy-c-metric {% if view == 'list' %}is-active{% endif %}" href="?view=list{% if q %}&q={{ q|urlencode }}{% endif %}{% if status %}&status={{ status }}{% endif %}{% if grade %}&grade={{ grade }}{% endif %}&sort={{ sort }}">List</a>
     </div>
+    <a class="cy-btn cy-btn--icon cy-btn--ghost cy-btn--sm" href="{% url 'staff:learners_csv' %}" title="Export CSV" aria-label="Export CSV">
+      <svg class="cy-i" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>
+    </a>
     <a class="cy-btn cy-btn--ghost cy-btn--sm" href="{% url 'staff:user_new' %}">Add user</a>
-    <a class="cy-btn cy-btn--ghost cy-btn--sm" href="{% url 'staff:bulk_invite' %}">Invite people</a>
-    <a class="cy-btn cy-btn--ghost cy-btn--sm" href="{% url 'staff:learners_csv' %}">Export CSV</a>
+    <a class="cy-btn cy-btn--primary cy-btn--sm" href="{% url 'staff:bulk_invite' %}">Invite people</a>
   </div>
 </header>
 
-{# Search — keeps the current view, sort and filter. #}
-<form class="cy-c-search" method="get" action="{% url 'staff:learners' %}" role="search">
-  <svg class="cy-i cy-c-search__icon" aria-hidden="true"><use href="#i-eye"/></svg>
-  <input class="cy-c-search__input" type="search" name="q" value="{{ q }}"
-         placeholder="Search name, email or organisation" aria-label="Search learners">
-  <input type="hidden" name="view" value="{{ view }}">
-  {% if sort %}<input type="hidden" name="sort" value="{{ sort }}">{% endif %}
-  {% if filter %}<input type="hidden" name="filter" value="{{ filter }}">{% endif %}
-  <button type="submit" class="cy-btn cy-btn--primary cy-btn--sm">Search</button>
-</form>
+{# Toolbar: search + two independent filter dropdowns (Status, Grade). #}
+<div class="cy-c-toolbar">
+  <form class="cy-c-search cy-c-search--flex" method="get" action="{% url 'staff:learners' %}" role="search">
+    <svg class="cy-i cy-c-search__icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg>
+    <input class="cy-c-search__input" type="search" name="q" value="{{ q }}"
+           placeholder="Search name, email or organisation" aria-label="Search learners">
+    <input type="hidden" name="view" value="{{ view }}">
+    {% if sort %}<input type="hidden" name="sort" value="{{ sort }}">{% endif %}
+    {% if status %}<input type="hidden" name="status" value="{{ status }}">{% endif %}
+    {% if grade %}<input type="hidden" name="grade" value="{{ grade }}">{% endif %}
+    <button type="submit" class="visually-hidden">Search</button>
+  </form>
 
-{# Quick filters — one click each. #}
+  <details class="cy-c-filter">
+    <summary class="cy-c-filter__btn {% if status %}is-set{% endif %}">
+      {% if status %}<span class="cy-c-filter__dot"></span>{% endif %}
+      <span class="cy-c-filter__k">Status</span>
+      <span class="cy-c-filter__v">{{ status_label }}</span>
+      <svg class="cy-c-filter__cw" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+    </summary>
+    <div class="cy-c-filter__menu" role="menu">
+      <a class="cy-c-filter__opt {% if not status %}is-on{% endif %}" href="?view={{ view }}{% if q %}&q={{ q|urlencode }}{% endif %}{% if grade %}&grade={{ grade }}{% endif %}{% if view == 'list' %}&sort={{ sort }}{% endif %}">Any status</a>
+      {% for key, label in status_options %}
+        <a class="cy-c-filter__opt {% if status == key %}is-on{% endif %}" href="?view={{ view }}&status={{ key }}{% if q %}&q={{ q|urlencode }}{% endif %}{% if grade %}&grade={{ grade }}{% endif %}{% if view == 'list' %}&sort={{ sort }}{% endif %}">{{ label }}</a>
+      {% endfor %}
+    </div>
+  </details>
+
+  <details class="cy-c-filter">
+    <summary class="cy-c-filter__btn {% if grade %}is-set{% endif %}">
+      {% if grade %}<span class="cy-c-filter__dot"></span>{% endif %}
+      <span class="cy-c-filter__k">Grade</span>
+      <span class="cy-c-filter__v">{{ grade_label }}</span>
+      <svg class="cy-c-filter__cw" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+    </summary>
+    <div class="cy-c-filter__menu" role="menu">
+      <a class="cy-c-filter__opt {% if not grade %}is-on{% endif %}" href="?view={{ view }}{% if q %}&q={{ q|urlencode }}{% endif %}{% if status %}&status={{ status }}{% endif %}{% if view == 'list' %}&sort={{ sort }}{% endif %}">Any grade</a>
+      {% for key, label in grade_options %}
+        <a class="cy-c-filter__opt {% if grade == key %}is-on{% endif %}" href="?view={{ view }}&grade={{ key }}{% if q %}&q={{ q|urlencode }}{% endif %}{% if status %}&status={{ status }}{% endif %}{% if view == 'list' %}&sort={{ sort }}{% endif %}">{{ label }}</a>
+      {% endfor %}
+    </div>
+  </details>
+</div>
+
+{# Three quick chips — the common one-click status picks. Grade is preserved. #}
 <div class="cy-c-chips" role="group" aria-label="Quick filters">
-  <a class="cy-c-chip {% if not filter %}is-active{% endif %}"
-     href="?view={{ view }}{% if q %}&q={{ q|urlencode }}{% endif %}&sort={{ sort }}">All</a>
-  {% for key, label in status_chips %}
-    <a class="cy-c-chip {% if filter == key %}is-active{% endif %}"
-       href="?view={{ view }}&filter={{ key }}{% if q %}&q={{ q|urlencode }}{% endif %}&sort={{ sort }}">{{ label }}</a>
-  {% endfor %}
-  <span class="cy-c-chips__sep" aria-hidden="true"></span>
-  {% for key, label in grade_chips %}
-    <a class="cy-c-chip {% if filter == key %}is-active{% endif %}"
-       href="?view={{ view }}&filter={{ key }}{% if q %}&q={{ q|urlencode }}{% endif %}&sort={{ sort }}">{{ label }}</a>
-  {% endfor %}
+  <a class="cy-c-chip {% if not status %}is-active{% endif %}"
+     href="?view={{ view }}{% if q %}&q={{ q|urlencode }}{% endif %}{% if grade %}&grade={{ grade }}{% endif %}{% if view == 'list' %}&sort={{ sort }}{% endif %}">All</a>
+  <a class="cy-c-chip {% if status == 'attention' %}is-active{% endif %}"
+     href="?view={{ view }}&status=attention{% if q %}&q={{ q|urlencode }}{% endif %}{% if grade %}&grade={{ grade }}{% endif %}{% if view == 'list' %}&sort={{ sort }}{% endif %}">Needs attention{% if chip_counts.attention %} <span class="cy-c-chip__n">{{ chip_counts.attention }}</span>{% endif %}</a>
+  <a class="cy-c-chip {% if status == 'not_started' %}is-active{% endif %}"
+     href="?view={{ view }}&status=not_started{% if q %}&q={{ q|urlencode }}{% endif %}{% if grade %}&grade={{ grade }}{% endif %}{% if view == 'list' %}&sort={{ sort }}{% endif %}">Not started{% if chip_counts.not_started %} <span class="cy-c-chip__n">{{ chip_counts.not_started }}</span>{% endif %}</a>
 </div>
 
 {% if view == "grouped" %}
@@ -61,11 +91,11 @@
         {% if g.org_id %}<a class="cy-c-org__csv" href="{% url 'staff:org_learners_csv' g.org_id %}">Export CSV</a>{% endif %}
       </summary>
       <div class="cy-c-tablewrap">
-        <table class="cy-c-table">
+        <table class="cy-c-table cy-c-table--learners">
           <thead><tr><th>Person</th><th>Role</th><th>Modules</th><th>Grade</th><th>Status</th><th>Last active</th></tr></thead>
           <tbody>
             {% for row in g.members %}
-              <tr>
+              <tr class="{% if not row.is_student %}cy-c-row--staff{% endif %}">
                 <td>
                   <a class="cy-c-learner" href="{% url 'staff:learner_detail' row.user.pk %}?back={{ base_qs|urlencode }}">
                     <span class="cy-c-learner__name">
@@ -75,23 +105,29 @@
                     <span class="cy-c-learner__email">{{ row.user.email }}</span>
                   </a>
                 </td>
-                <td><span class="cy-role cy-role--{{ row.user.role|lower }}">{{ row.role_label }}</span></td>
+                <td>
+                  {% if row.is_student %}
+                    <span class="cy-c-rolelabel">Student</span>
+                  {% else %}
+                    <span class="cy-c-rolepill cy-c-rolepill--{{ row.user.role|lower }}">{{ row.role_label }}</span>
+                  {% endif %}
+                </td>
                 <td>
                   {% if row.is_student %}
                     <span class="cy-c-mod">
-                      <span class="cy-c-mod__count">{{ row.modules_completed }}/{{ row.modules_total }}</span>
+                      <span class="cy-c-mod__count">{{ row.modules_completed }} / {{ row.modules_total }}</span>
                       <span class="cy-c-bar__track cy-c-mod__track"><span class="cy-c-bar__fill" style="width: {{ row.completion_percent }}%;"></span></span>
                     </span>
-                  {% else %}<span class="cy-c-muted">—</span>{% endif %}
+                  {% else %}<span class="cy-c-dash">—</span>{% endif %}
                 </td>
                 <td>
                   {% if row.is_student and row.overall_score is not None %}
                     <span class="cy-tierbadge cy-tierbadge--{{ row.tier.slug }}">{{ row.tier.name }}</span>
                     <span class="cy-c-score">{{ row.overall_score }}%</span>
-                  {% else %}<span class="cy-c-muted">—</span>{% endif %}
+                  {% else %}<span class="cy-c-dash">—</span>{% endif %}
                 </td>
-                <td><span class="cy-status cy-status--{{ row.status }}">{{ row.status_label }}</span></td>
-                <td>{% if row.last_active %}<span title="{{ row.last_active|date:'j M Y, H:i' }}">{{ row.last_active|date:"j M Y" }}</span>{% else %}<span class="cy-c-muted">Never</span>{% endif %}</td>
+                <td><span class="cy-status cy-status--{{ row.status }}"><span class="cy-status__dot"></span>{{ row.status_label }}</span></td>
+                <td class="cy-c-when">{% if row.last_active %}<span title="{{ row.last_active|date:'j M Y, H:i' }}">{{ row.last_active|date:"j M Y" }}</span>{% else %}<span class="cy-c-muted">Never</span>{% endif %}</td>
               </tr>
             {% endfor %}
           </tbody>
@@ -136,16 +172,16 @@
     </div>
 
   <div class="cy-c-tablewrap">
-    <table class="cy-c-table cy-c-table--selectable">
+    <table class="cy-c-table cy-c-table--learners cy-c-table--selectable">
       <thead>
         <tr>
           <th class="cy-c-check"><input type="checkbox" data-bulk-all aria-label="Select all on this page"></th>
-          <th><a class="cy-c-th {% if sort == 'name' %}is-sorted{% endif %}" href="?view=list&sort=name{% if q %}&q={{ q|urlencode }}{% endif %}{% if filter %}&filter={{ filter }}{% endif %}">Learner</a></th>
-          <th><a class="cy-c-th {% if sort == 'completion' %}is-sorted{% endif %}" href="?view=list&sort=completion{% if q %}&q={{ q|urlencode }}{% endif %}{% if filter %}&filter={{ filter }}{% endif %}">Modules</a></th>
-          <th><a class="cy-c-th {% if sort == 'grade' %}is-sorted{% endif %}" href="?view=list&sort=grade{% if q %}&q={{ q|urlencode }}{% endif %}{% if filter %}&filter={{ filter }}{% endif %}">Grade</a></th>
+          <th><a class="cy-c-th {% if sort == 'name' %}is-sorted{% endif %}" href="?view=list&sort=name{% if q %}&q={{ q|urlencode }}{% endif %}{% if status %}&status={{ status }}{% endif %}{% if grade %}&grade={{ grade }}{% endif %}">Learner</a></th>
+          <th><a class="cy-c-th {% if sort == 'completion' %}is-sorted{% endif %}" href="?view=list&sort=completion{% if q %}&q={{ q|urlencode }}{% endif %}{% if status %}&status={{ status }}{% endif %}{% if grade %}&grade={{ grade }}{% endif %}">Modules</a></th>
+          <th><a class="cy-c-th {% if sort == 'grade' %}is-sorted{% endif %}" href="?view=list&sort=grade{% if q %}&q={{ q|urlencode }}{% endif %}{% if status %}&status={{ status }}{% endif %}{% if grade %}&grade={{ grade }}{% endif %}">Grade</a></th>
           <th>Status</th>
-          <th class="cy-c-num">Points</th>
-          <th><a class="cy-c-th {% if sort == 'activity' %}is-sorted{% endif %}" href="?view=list&sort=activity{% if q %}&q={{ q|urlencode }}{% endif %}{% if filter %}&filter={{ filter }}{% endif %}">Last active</a></th>
+          <th class="cy-c-num"><a class="cy-c-th {% if sort == 'points' %}is-sorted{% endif %}" href="?view=list&sort=points{% if q %}&q={{ q|urlencode }}{% endif %}{% if status %}&status={{ status }}{% endif %}{% if grade %}&grade={{ grade }}{% endif %}">Points</a></th>
+          <th><a class="cy-c-th {% if sort == 'activity' %}is-sorted{% endif %}" href="?view=list&sort=activity{% if q %}&q={{ q|urlencode }}{% endif %}{% if status %}&status={{ status }}{% endif %}{% if grade %}&grade={{ grade }}{% endif %}">Last active</a></th>
         </tr>
       </thead>
       <tbody>
@@ -164,17 +200,19 @@
             </td>
             <td>
               <span class="cy-c-mod">
-                <span class="cy-c-mod__count">{{ row.modules_completed }}/{{ row.modules_total }}</span>
+                <span class="cy-c-mod__count">{{ row.modules_completed }} / {{ row.modules_total }}</span>
                 <span class="cy-c-bar__track cy-c-mod__track"><span class="cy-c-bar__fill" style="width: {{ row.completion_percent }}%;"></span></span>
               </span>
             </td>
             <td>
-              <span class="cy-tierbadge cy-tierbadge--{{ row.tier.slug }}">{{ row.tier.name }}</span>
-              {% if row.overall_score is not None %}<span class="cy-c-score">{{ row.overall_score }}%</span>{% endif %}
+              {% if row.overall_score is not None %}
+                <span class="cy-tierbadge cy-tierbadge--{{ row.tier.slug }}">{{ row.tier.name }}</span>
+                <span class="cy-c-score">{{ row.overall_score }}%</span>
+              {% else %}<span class="cy-c-dash">—</span>{% endif %}
             </td>
-            <td><span class="cy-status cy-status--{{ row.status }}">{{ row.status_label }}</span></td>
+            <td><span class="cy-status cy-status--{{ row.status }}"><span class="cy-status__dot"></span>{{ row.status_label }}</span></td>
             <td class="cy-c-num">{{ row.points }}</td>
-            <td>{% if row.last_active %}<span title="{{ row.last_active|date:'j M Y, H:i' }}">{{ row.last_active|date:"j M Y" }}</span>{% else %}<span class="cy-c-muted">Never</span>{% endif %}</td>
+            <td class="cy-c-when">{% if row.last_active %}<span title="{{ row.last_active|date:'j M Y, H:i' }}">{{ row.last_active|date:"j M Y" }}</span>{% else %}<span class="cy-c-muted">Never</span>{% endif %}</td>
           </tr>
         {% empty %}
           <tr><td colspan="7" class="cy-c-table__empty">No learners match. <a href="?view=list">Clear</a>.</td></tr>

@@ -146,17 +146,53 @@ def test_new_quick_filters_narrow_the_list(client, world, key, present, absent):
     assert absent not in body
 
 
+def test_status_filter_uses_new_param(client, world):
+    """The status axis reads from ?status= (the dropdown/chip param)."""
+    client.force_login(world["admin"])
+    body = client.get(
+        reverse("staff:learners") + "?view=list&status=stalled"
+    ).content.decode()
+    assert "stan@example.com" in body
+    assert "carol@example.com" not in body
+
+
+def test_status_and_grade_are_independent_and_combine(client, world):
+    """Status and grade are two filters applied together, not one exclusive pick."""
+    client.force_login(world["admin"])
+    # rey is a repeat-failer whose grade is Not yet (two failed attempts).
+    both = client.get(
+        reverse("staff:learners") + "?view=list&status=repeat_failed&grade=not-yet"
+    ).content.decode()
+    assert "rey@example.com" in both
+    # The same status with a grade rey does NOT hold excludes him.
+    narrowed = client.get(
+        reverse("staff:learners") + "?view=list&status=repeat_failed&grade=distinction"
+    ).content.decode()
+    assert "rey@example.com" not in narrowed
+
+
+def test_legacy_filter_param_still_maps(client, world):
+    """Old ?filter= links (grade or status) keep working after the split."""
+    client.force_login(world["admin"])
+    ctx = client.get(reverse("staff:learners") + "?view=list&filter=unverified")
+    assert ctx.context["status"] == "unverified" and ctx.context["grade"] == ""
+    ctx2 = client.get(reverse("staff:learners") + "?view=list&filter=distinction")
+    assert ctx2.context["grade"] == "distinction" and ctx2.context["status"] == ""
+
+
 # --- overview page renders the new sections ---------------------------------
 
 
-def test_overview_shows_trends_and_cohorts(client, world):
+def test_overview_shows_activity_and_consolidated_attention(client, world):
     client.force_login(world["admin"])
     body = client.get(reverse("staff:overview")).content.decode()
-    assert "Needs your attention today" in body
-    assert "Stalled mid-course" in body
-    assert "Awaiting verification" in body
-    assert "cy-c-cohort" in body
-    assert "cy-c-delta" in body      # the trend deltas render
+    # Completion-led hero + the two charts + the consolidated attention section.
+    assert "Training completion" in body
+    assert "Activity over time" in body
+    assert "Grade distribution" in body
+    assert "Needs attention" in body
+    assert "cy-c-attchip" in body               # the four category chips, consolidated
+    assert "cy-c-chart" in body                 # the activity area chart (world has activity)
 
 
 # --- audit log: filtering, search, CSV, access control ----------------------

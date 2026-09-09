@@ -242,14 +242,13 @@ def test_flag_and_unflag(client, env):
 def test_overview_surfaces_the_attention_cohorts(client, env):
     as_admin(client, env)
     body = client.get(reverse("staff:overview")).content.decode()
-    assert "Needs your attention today" in body
-    assert "Fred" in body      # never started -> Not started cohort
-    assert "Quinn" in body     # started then went quiet -> Stalled cohort
-    # a populated cohort links to its matching learner-list quick-filter
-    assert "filter=stalled" in body
-    # every cohort is labelled, even the empty ones (with a positive state)
-    assert "Awaiting verification" in body
-    assert "All caught up" in body
+    # The four cohorts are consolidated into one "Needs attention" section.
+    assert "Needs attention" in body
+    assert "cy-c-attchip" in body            # the category-count chips
+    assert "Fred" in body      # never started -> tagged Not started
+    assert "Quinn" in body     # started then went quiet -> tagged with days quiet
+    assert "days quiet" in body               # Quinn's stalled reason tag
+    assert "stalled" in body                  # a category chip label
 
 
 def test_overview_empty_state_when_no_learners(client, db):
@@ -264,8 +263,9 @@ def test_overview_empty_state_when_no_learners(client, db):
 
 
 def test_overview_renders_gracefully_when_nobody_has_started(client, db):
-    """Learners exist but none have progress: the dashboard still renders clean
-    stat cards + the activity calendar, no charts, no crash."""
+    """Learners exist but none have progress: the dashboard still renders the
+    completion hero (0%) and the activity chart degrades to an empty state rather
+    than a flat line of zeros. No crash."""
     admin = make_user("q-admin@example.com", "Q", role=User.Role.ADMINISTRATOR)
     admin.is_staff = True
     admin.save(update_fields=["is_staff"])
@@ -275,9 +275,10 @@ def test_overview_renders_gracefully_when_nobody_has_started(client, db):
     resp = client.get(reverse("staff:overview"))
     assert resp.status_code == 200
     body = resp.content.decode()
-    assert "cy-c-kpis" in body                    # stat cards
-    assert "Activity calendar" in body            # calendar widget
-    assert "cy-cal2__grid" in body
+    assert "cy-c-hero" in body                        # the completion hero
+    assert "Training completion" in body
+    assert "No learning activity" in body             # chart empty state, not zeros
+    assert "cy-cal2__grid" not in body                # the old calendar is gone
 
 
 def test_overview_uses_the_scoped_console_theme(client, env):

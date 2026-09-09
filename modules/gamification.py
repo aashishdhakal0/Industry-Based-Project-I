@@ -500,13 +500,13 @@ def streak_status(profile, today=None):
     count = profile.streak_count
 
     if not count or last is None:
-        state, display, msg = "none", 0, "Complete a lesson today to start a streak."
+        state, display, msg = "none", 0, "Do a lesson today to start a streak."
     elif last == today:
         state, display = "safe", count
-        msg = f"Locked in for today — see you tomorrow to make it {count + 1}."
+        msg = f"Active today. Back tomorrow to reach {count + 1}."
     elif (today - last).days == 1:
         state, display = "at_risk", count
-        msg = f"Don't break your {count}-day streak — finish a lesson today before midnight."
+        msg = "Streak at risk. Finish a lesson today to keep it."
     else:
         # Older than yesterday: the next activity resets it, so it's gone.
         state, display, msg = "none", 0, "Start a new streak today."
@@ -838,6 +838,48 @@ class WeeklyGoal:
     met: bool            # already reached the target
     percent: int         # active/target as 0..100 (capped)
     days: list           # 7 dicts, Monday-first: {abbr, active, is_today, future}
+    days_left: int       # days left this week, today included
+    state: str           # "met" | "on_track" | "behind" | "none"
+    message: str         # an adaptive, concise line for the widget
+
+
+# A study day for the weekly goal is any day the student actually did something:
+# a completed lesson, a finished quiz or simulation, OR a completed lesson panel
+# (TaskProgress). The calendar counts whole lessons/quizzes/sims; the goal is
+# deliberately broader so a student mid-lesson today still registers as active.
+# (Bare logins keep the streak alive but are NOT study, so they don't count here.)
+_STUDY_DAY_SOURCES = _ACTIVITY_SOURCES + ((TaskProgress, "completed_at", "tasks"),)
+
+
+def _study_days_in_range(user, start_dt, end_dt):
+    """The set of local (Melbourne) dates in [start_dt, end_dt) on which the
+    student has any real study record. A handful of rows per week, so loading the
+    timestamps and bucketing in Python is both correct at day boundaries and
+    cheap."""
+    days = set()
+    for model, field, _kind in _STUDY_DAY_SOURCES:
+        for stamp in model.objects.filter(
+            user=user, **{f"{field}__gte": start_dt, f"{field}__lt": end_dt}
+        ).values_list(field, flat=True):
+            days.add(timezone.localdate(stamp))
+    return days
+
+
+def _weekly_goal_message(state, active, target, remaining, days_left):
+    """A concise, human line for the weekly goal, tuned to where the week stands.
+    Celebratory when met, encouraging on track, motivating when behind."""
+    if state == "met":
+        return f"Goal reached, {active} study day{'s' if active != 1 else ''} this week. Brilliant work."
+    if state == "none":
+        return "No study days yet this week. A lesson today gets you going."
+    days_word = "day" if remaining == 1 else "days"
+    if state == "on_track":
+        return f"{active} of {target} study days. {remaining} {days_word} to go, and you're on track."
+    left_word = "day" if days_left == 1 else "days"
+    return (
+        f"Behind this week, {remaining} {days_word} to go with {days_left} {left_word} left. "
+        "A lesson today keeps it alive."
+    )
 
 
 def weekly_goal(user, *, target=5, today=None):
@@ -856,12 +898,12 @@ def weekly_goal(user, *, target=5, today=None):
     end_dt = timezone.make_aware(
         datetime.datetime.combine(monday + datetime.timedelta(days=7), datetime.time.min)
     )
-    counts = _activity_counts_in_range(user, start_dt, end_dt)
+    study_days = _study_days_in_range(user, start_dt, end_dt)
 
     days, active = [], 0
     for i in range(7):
         d = monday + datetime.timedelta(days=i)
-        did = bool(counts.get(d) and counts[d]["total"] > 0) and d <= today
+        did = d in study_days and d <= today
         if did:
             active += 1
         days.append(
@@ -872,11 +914,27 @@ def weekly_goal(user, *, target=5, today=None):
                 "future": d > today,
             }
         )
+
+    remaining = max(0, target - active)
+    met = active >= target
+    days_left = 7 - today.weekday()  # today counts as one of the days left
+    if met:
+        state = "met"
+    elif active == 0:
+        state = "none"
+    elif remaining <= days_left:
+        state = "on_track"
+    else:
+        state = "behind"
+
     return WeeklyGoal(
         target=target,
         active=active,
-        remaining=max(0, target - active),
-        met=active >= target,
+        remaining=remaining,
+        met=met,
         percent=min(100, round(active / target * 100)) if target else 100,
         days=days,
+        days_left=days_left,
+        state=state,
+        message=_weekly_goal_message(state, active, target, remaining, days_left),
     )

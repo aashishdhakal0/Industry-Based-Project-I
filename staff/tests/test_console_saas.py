@@ -107,15 +107,21 @@ def test_overview_has_the_topbar_and_theme_toggle(client, world):
     assert "cy-themetoggle" in body                            # toggle form
 
 
-def test_overview_shows_stat_cards_and_calendar_no_charts(client, world):
+def test_overview_leads_with_completion_and_charts(client, world):
     as_admin(client, world)
     body = client.get(reverse("staff:overview")).content.decode()
-    assert "cy-c-kpis" in body                 # clean stat cards
-    assert "Activity calendar" in body         # the calendar widget
-    assert "cy-cal2__grid" in body
-    # No charts anywhere.
-    for gone in ("cy-c-metrictoggle", "cy-c-goals", "cy-spark", "cy-donut", "cy-area", "cy-c-funnel"):
-        assert gone not in body
+    # Completion-led hero + the two data visualisations.
+    assert "Training completion" in body
+    assert "cy-c-ring" in body                 # the completion ring
+    assert "Activity over time" in body
+    assert "Grade distribution" in body
+    assert "Needs attention" in body           # consolidated attention section
+    # The enriched hero: the cohort-engagement split bar (finn is a learner).
+    assert "cy-c-ebar" in body
+    assert "Where the cohort stands" in body
+    # The old calendar and equal-weight KPI cards are gone.
+    assert "cy-cal2__grid" not in body
+    assert "cy-c-kpis" not in body
 
 
 # --- Preserved functionality (no regression) -------------------------------

@@ -296,8 +296,12 @@ def test_content_health_counts_are_right(world):
     assert h["edited_total"] == 1          # the one locked lesson
 
 
-def test_overview_shows_the_content_card(client, world):
+def test_content_lives_on_the_content_page_not_the_overview(client, world):
+    # The content-health block was removed from the overview in the redesign; the
+    # content details live on the Content page instead.
     as_admin(client, world)
-    body = client.get(reverse("staff:overview")).content.decode()
-    assert "Modules published" in body
-    assert "Quiz questions" in body
+    overview = client.get(reverse("staff:overview")).content.decode()
+    assert "Modules published" not in overview
+    # Content is still one click away and fully functional.
+    content = client.get(reverse("staff:content"))
+    assert content.status_code == 200

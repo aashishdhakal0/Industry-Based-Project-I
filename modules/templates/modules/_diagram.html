@@ -1184,26 +1184,61 @@
   </figure>
 
 {% elif key == "data-hops" %}
-  <figure class="cy-diagram cy-td" role="img"
-          aria-label="How data travels in hops from your device to your router, your internet provider, across the public internet, to a server. On the public internet an eavesdropper can read plain http text, while https encrypts it end to end.">
-    <svg viewBox="0 0 700 320" xmlns="http://www.w3.org/2000/svg" class="cy-td__svg">
-      <g stroke="#3a5075" stroke-width="2" fill="none">
-        <path d="M118 150 H150" marker-end="url(#tar)"/><path d="M256 150 H288" marker-end="url(#tar)"/>
-        <path d="M394 150 H426" marker-end="url(#tar)"/><path d="M532 150 H564" marker-end="url(#tar)"/>
+  <figure class="cy-diagram cy-nf" role="img"
+          aria-label="How data travels in hops from your device to your router, your internet provider, across the public internet, to a server. On the public internet an eavesdropper can tap the line and read plain http text, while https encrypts it end to end so the tap sees only scrambled characters.">
+    <svg viewBox="0 0 700 300" xmlns="http://www.w3.org/2000/svg" class="cy-nf__svg">
+      <defs>
+        <marker id="nf-ar" markerWidth="9" markerHeight="9" refX="5.5" refY="4" orient="auto">
+          <path d="M0 0 L7 4 L0 8 z" fill="#5be7ff"/>
+        </marker>
+      </defs>
+      <!-- the wire, node to node -->
+      <g stroke="#3a5075" stroke-width="2.2" fill="none">
+        <path d="M118 132 H154" marker-end="url(#nf-ar)"/>
+        <path d="M256 132 H292" marker-end="url(#nf-ar)"/>
+        <path d="M394 132 H430" marker-end="url(#nf-ar)"/>
+        <path d="M532 132 H568" marker-end="url(#nf-ar)"/>
       </g>
-      <defs><marker id="tar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0 0 L7 4 L0 8 z" fill="#5be7ff"/></marker></defs>
-      <g class="cy-td__hop"><rect x="18" y="124" width="100" height="52" rx="8"/><text x="68" y="148">Your device</text><text x="68" y="164" class="cy-td__sub">where you type</text></g>
-      <g class="cy-td__hop"><rect x="156" y="124" width="100" height="52" rx="8"/><text x="206" y="148">Your router</text><text x="206" y="164" class="cy-td__sub">the gateway</text></g>
-      <g class="cy-td__hop"><rect x="294" y="124" width="100" height="52" rx="8"/><text x="344" y="148">Your ISP</text><text x="344" y="164" class="cy-td__sub">Telstra, etc.</text></g>
-      <g class="cy-td__hop cy-td__hop--open"><rect x="432" y="124" width="100" height="52" rx="8"/><text x="482" y="148">The internet</text><text x="482" y="164" class="cy-td__sub">shared ground</text></g>
-      <g class="cy-td__hop"><rect x="570" y="124" width="112" height="52" rx="8"/><text x="626" y="148">The server</text><text x="626" y="164" class="cy-td__sub">the website</text></g>
-      <!-- eavesdropper over the internet hop -->
-      <g transform="translate(482 60)"><path d="M-16 20 q16 -16 32 0 q-16 16 -32 0z" fill="none" stroke="#ff4d4d" stroke-width="1.8"/><circle cx="0" cy="20" r="4.5" fill="#ff4d4d"/><line x1="0" y1="34" x2="0" y2="112" stroke="#ff4d4d" stroke-width="1.4" stroke-dasharray="3 4"/><text x="0" y="10" class="cy-td__red">a listener here</text></g>
-      <!-- two lanes -->
-      <g><rect x="192" y="220" width="316" height="30" rx="7" fill="rgba(255,77,77,0.08)" stroke="#ff4d4d" stroke-width="1.2"/><text x="207" y="239" class="cy-td__lane cy-td__lane--red">http, no padlock: "PASSWORD: hunter2" is readable</text></g>
-      <g><rect x="192" y="258" width="316" height="30" rx="7" fill="rgba(0,217,255,0.08)" stroke="#00d9ff" stroke-width="1.2"/><text x="207" y="277" class="cy-td__lane cy-td__lane--cyan">https, padlock: "&bull;8f3a&bull;c1&bull;9e7d&bull;" is scrambled</text></g>
+
+      <!-- 1 · your device (laptop) -->
+      <g class="cy-nf__node"><rect x="18" y="96" width="100" height="72" rx="9"/>
+        <g class="cy-nf__ic" transform="translate(54 106)"><rect x="0" y="0" width="24" height="15" rx="1.6"/><path d="M-3 20 H27 M7 15 H17"/></g>
+        <text x="68" y="145" class="cy-nf__name">Your device</text><text x="68" y="160" class="cy-nf__sub">where you type</text></g>
+      <!-- 2 · your router -->
+      <g class="cy-nf__node"><rect x="156" y="96" width="100" height="72" rx="9"/>
+        <g class="cy-nf__ic" transform="translate(192 108)"><rect x="0" y="10" width="24" height="11" rx="2"/><path d="M6 10V4 M18 10V4 M6 4l-3-3 M18 4l3-3"/><circle cx="7" cy="15.5" r="1" fill="currentColor" stroke="none"/><circle cx="12" cy="15.5" r="1" fill="currentColor" stroke="none"/></g>
+        <text x="206" y="145" class="cy-nf__name">Your router</text><text x="206" y="160" class="cy-nf__sub">the gateway</text></g>
+      <!-- 3 · your ISP (tower) -->
+      <g class="cy-nf__node"><rect x="294" y="96" width="100" height="72" rx="9"/>
+        <g class="cy-nf__ic" transform="translate(332 106)"><path d="M12 5V22 M6 22h12"/><path d="M7.5 9a6.4 6.4 0 0 1 9 0 M4.8 6.2a10.2 10.2 0 0 1 14.4 0"/></g>
+        <text x="344" y="145" class="cy-nf__name">Your ISP</text><text x="344" y="160" class="cy-nf__sub">Telstra, etc.</text></g>
+      <!-- 4 · the internet (cloud), the open ground -->
+      <g class="cy-nf__node cy-nf__node--open"><rect x="432" y="96" width="100" height="72" rx="9"/>
+        <g class="cy-nf__ic cy-nf__ic--open" transform="translate(466 110)"><path d="M7 17a5 5 0 0 1 0-10 a6.2 6.2 0 0 1 11.4-1.8 a4.2 4.2 0 0 1 2.6 11.8 z"/></g>
+        <text x="482" y="145" class="cy-nf__name">The internet</text><text x="482" y="160" class="cy-nf__sub cy-nf__sub--open">shared ground</text></g>
+      <!-- 5 · the server (rack) -->
+      <g class="cy-nf__node"><rect x="570" y="96" width="112" height="72" rx="9"/>
+        <g class="cy-nf__ic" transform="translate(614 106)"><rect x="0" y="0" width="24" height="10" rx="1.6"/><rect x="0" y="12" width="24" height="10" rx="1.6"/><circle cx="5" cy="5" r="1.1" fill="currentColor" stroke="none"/><circle cx="5" cy="17" r="1.1" fill="currentColor" stroke="none"/><path d="M10 5h10 M10 17h10"/></g>
+        <text x="626" y="145" class="cy-nf__name">The server</text><text x="626" y="160" class="cy-nf__sub">the website</text></g>
+
+      <!-- interception: a tap clamped onto the open internet hop (not a floating icon) -->
+      <g class="cy-nf__tap">
+        <line x1="482" y1="96" x2="482" y2="66" stroke="#ff5a5a" stroke-width="2"/>
+        <path d="M476 92 l12 0" stroke="#ff5a5a" stroke-width="3" stroke-linecap="round"/>
+        <rect x="440" y="40" width="84" height="26" rx="6" fill="rgba(255,77,77,0.12)" stroke="#ff5a5a" stroke-width="1.6"/>
+        <g transform="translate(450 47)" stroke="#ff5a5a" stroke-width="1.7" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M0 6 a7 4.5 0 0 0 12 0 a7 4.5 0 0 0 -12 0z"/><circle cx="6" cy="6" r="1.9" fill="#ff5a5a" stroke="none"/>
+        </g>
+        <text x="490" y="57" class="cy-nf__tap-t">tap</text>
+      </g>
+
+      <!-- two lanes: what the tap sees, with vs without the padlock -->
+      <g><rect x="150" y="210" width="400" height="30" rx="7" fill="rgba(255,77,77,0.08)" stroke="#ff5a5a" stroke-width="1.2"/>
+        <text x="166" y="229" class="cy-nf__lane cy-nf__lane--red">http, no padlock:  PASSWORD: hunter2  is read in the clear</text></g>
+      <g><rect x="150" y="248" width="400" height="30" rx="7" fill="rgba(0,217,255,0.08)" stroke="#00d9ff" stroke-width="1.2"/>
+        <text x="166" y="267" class="cy-nf__lane cy-nf__lane--cyan">https, padlock:  8f3a&#183;c1&#183;9e7d&#183;a2  is scrambled</text></g>
     </svg>
-    <figcaption class="cy-diagram__cap cy-diagram__cap--single">Your data is handed along a chain of equipment you do not own. Encryption (https, the padlock) is what keeps a listener in the middle from reading it.</figcaption>
+    <figcaption class="cy-diagram__cap cy-diagram__cap--single">Your data is handed along a chain of equipment you do not own. On the open internet a tap can read plain <b>http</b>. The padlock (<b>https</b>) scrambles it end to end, so the tap sees nothing useful.</figcaption>
   </figure>
 
 {% elif key == "router-labelled" %}

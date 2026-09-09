@@ -303,13 +303,17 @@ body.cy-body {
      cyan/teal glows, all pure-CSS (CSP-safe), fixed behind scrolling content.
      Faint enough to keep text readable (copy sits on solid panels). */
   background-color: var(--cy-bg);
+  /* Two-tier blueprint paper: a stronger major grid every 120px over a fainter
+     30px minor grid, with two calm corner glows. Faint enough that copy (which
+     sits on solid panels) stays AA-readable. */
   background-image:
-    radial-gradient(1150px 660px at 87% -12%, rgba(0, 217, 255, 0.10), transparent 60%),
-    radial-gradient(820px 480px at 2% 114%, rgba(0, 229, 204, 0.06), transparent 55%),
-    radial-gradient(rgba(0, 217, 255, 0.05) 1px, transparent 1.7px),
-    linear-gradient(rgba(120, 170, 200, 0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(120, 170, 200, 0.04) 1px, transparent 1px);
-  background-size: auto, auto, 30px 30px, 30px 30px, 30px 30px;
+    radial-gradient(1150px 640px at 88% -14%, rgba(0, 217, 255, 0.07), transparent 60%),
+    radial-gradient(760px 460px at -2% 116%, rgba(0, 229, 204, 0.045), transparent 55%),
+    linear-gradient(rgba(120, 170, 200, 0.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(120, 170, 200, 0.055) 1px, transparent 1px),
+    linear-gradient(rgba(120, 170, 200, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(120, 170, 200, 0.025) 1px, transparent 1px);
+  background-size: auto, auto, 120px 120px, 120px 120px, 30px 30px, 30px 30px;
   background-attachment: fixed;
   color: var(--cy-text);
   font-family: var(--cy-font);
@@ -685,6 +689,9 @@ body.cy-body {
   color: var(--cy-text);
   transform: translateY(-2px);
 }
+/* A compact icon-only button (e.g. Export CSV in the learners header). */
+.cy-btn--icon { padding: 0.5rem 0.6rem; }
+.cy-btn--icon .cy-i { display: block; height: 15px; width: 15px; }
 
 .cy-btn--quiet {
   color: var(--cy-text-2);
@@ -734,6 +741,11 @@ body.cy-body {
 }
 
 .cy-field { margin-bottom: 1.4rem; }
+
+/* Two fields on one row (first name + last name on the sign-up form). Wraps to
+   stacked on a narrow card; each field keeps its own bottom margin for spacing. */
+.cy-frow { display: flex; flex-wrap: wrap; gap: 0 0.85rem; }
+.cy-frow .cy-field { flex: 1 1 9rem; min-width: 0; }
 
 .cy-label {
   color: var(--cy-text);
@@ -1387,6 +1399,95 @@ body.cy-body {
   grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr));
 }
 
+/* ===========================================================================
+   MODULE PATH — a vertical journey spine: bespoke emblem waypoints joined by a
+   conduit that fills as you progress. One system, scales to any module count.
+   =========================================================================== */
+.cy-path { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.cy-path__row { display: grid; grid-template-columns: 60px minmax(0, 1fr); gap: 1.15rem; padding-bottom: 1.4rem; }
+.cy-path__row:last-child { padding-bottom: 0; }
+
+/* The spine column: a node with a connector segment above and below it. */
+.cy-path__spine { position: relative; display: flex; justify-content: center; }
+.cy-path__spine::before, .cy-path__spine::after {
+  content: ""; position: absolute; left: 50%; width: 3px; transform: translateX(-50%);
+  background: var(--cy-surface-3); border-radius: 2px;
+}
+.cy-path__spine::after { top: 0; height: 30px; }               /* above the node */
+.cy-path__spine::before { top: 30px; bottom: 0; }              /* below the node */
+.cy-path__row:first-child .cy-path__spine::after { display: none; }
+.cy-path__row:last-child .cy-path__spine::before { display: none; }
+/* The conduit fills cyan through everywhere you have already reached. */
+.cy-path__row--complete .cy-path__spine::after,
+.cy-path__row--current .cy-path__spine::after { background: var(--cy-violet); }
+.cy-path__row--complete .cy-path__spine::before { background: var(--cy-violet); }
+
+/* The waypoint node. */
+.cy-path__node {
+  position: relative; z-index: 1; margin-top: 4px; height: 52px; width: 52px;
+  display: grid; place-items: center; border-radius: 16px;
+  background: var(--cy-surface-2); border: 1px solid var(--cy-border-lift); color: var(--cy-text-2);
+  transition: transform var(--cy-fast) var(--cy-ease);
+}
+.cy-path__emblem { height: 28px; width: 28px; }
+.cy-path__badge {
+  position: absolute; right: -6px; bottom: -6px; height: 20px; width: 20px; border-radius: 50%;
+  display: grid; place-items: center; border: 2px solid var(--cy-bg);
+}
+.cy-path__badge .cy-i { height: 11px; width: 11px; }
+.cy-path__badge--done { background: var(--cy-violet); color: #04121a; }
+.cy-path__badge--lock { background: var(--cy-surface-3); color: var(--cy-text-3); }
+
+/* Node states. */
+.cy-path__row--complete .cy-path__node { background: rgba(0, 217, 255, 0.12); border-color: var(--cy-violet); color: var(--cy-violet-soft); }
+.cy-path__row--current .cy-path__node { border-color: var(--cy-violet); color: var(--cy-violet-soft); box-shadow: 0 0 0 4px rgba(0, 217, 255, 0.14), 0 0 22px -4px rgba(0, 217, 255, 0.5); }
+.cy-path__row--open .cy-path__node { color: var(--cy-text-2); }
+.cy-path__row--locked .cy-path__node { opacity: 0.55; color: var(--cy-text-3); }
+/* A gentle pulse on the current waypoint (disabled for reduced motion). */
+@media (prefers-reduced-motion: no-preference) {
+  .cy-path__row--current .cy-path__node { animation: cy-path-pulse 2.4s ease-in-out infinite; }
+}
+@keyframes cy-path-pulse {
+  0%, 100% { box-shadow: 0 0 0 4px rgba(0, 217, 255, 0.14), 0 0 22px -4px rgba(0, 217, 255, 0.45); }
+  50% { box-shadow: 0 0 0 6px rgba(0, 217, 255, 0.06), 0 0 28px -2px rgba(0, 217, 255, 0.65); }
+}
+
+/* The card beside each waypoint. */
+.cy-path__card {
+  display: block; text-decoration: none; color: inherit;
+  background: linear-gradient(180deg, var(--cy-surface-2), var(--cy-surface));
+  border: 1px solid var(--cy-border); border-radius: var(--cy-r-lg);
+  padding: 0.95rem 1.15rem 1.05rem;
+  transition: transform var(--cy-fast) var(--cy-ease), border-color var(--cy-fast) var(--cy-ease), box-shadow var(--cy-fast) var(--cy-ease);
+}
+a.cy-path__card:hover { border-color: var(--cy-border-lift); transform: translateY(-2px); box-shadow: 0 12px 30px -18px rgba(0, 217, 255, 0.5); }
+.cy-path__row--current .cy-path__card { border-color: rgba(0, 217, 255, 0.35); }
+.cy-path__row--locked .cy-path__card { opacity: 0.62; }
+
+.cy-path__head { align-items: center; display: flex; gap: 0.7rem; justify-content: space-between; }
+.cy-path__idx { color: var(--cy-text-3); font-family: var(--cy-font-mono); font-size: 0.66rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; }
+.cy-path__chip { align-items: center; border-radius: 999px; display: inline-flex; font-size: 0.7rem; font-weight: 700; gap: 0.3rem; padding: 0.16rem 0.6rem; }
+.cy-path__chip .cy-i { height: 12px; width: 12px; }
+.cy-path__chip--done { background: rgba(0, 217, 255, 0.14); color: var(--cy-violet-soft); }
+.cy-path__chip--current { background: rgba(0, 229, 204, 0.14); color: var(--cy-cyan-soft); }
+.cy-path__chip--open { background: var(--cy-surface-3); color: var(--cy-text-2); }
+.cy-path__chip--locked { background: var(--cy-surface-3); color: var(--cy-text-3); }
+.cy-path__title { color: var(--cy-text); font-family: var(--cy-font-display); font-size: 1.15rem; font-weight: 700; letter-spacing: -0.01em; margin: 0.5rem 0 0.2rem; }
+.cy-path__desc { color: var(--cy-text-2); font-size: 0.86rem; margin: 0; }
+.cy-path__hint { color: var(--cy-text-3); font-size: 0.8rem; margin: 0.6rem 0 0; }
+.cy-path__foot { align-items: center; display: flex; gap: 0.85rem; margin-top: 0.9rem; }
+.cy-path__bar { flex: 1; max-width: 12rem; }
+.cy-path__lessons { color: var(--cy-text-3); font-family: var(--cy-font-mono); font-size: 0.72rem; white-space: nowrap; }
+.cy-path__go { align-items: center; color: var(--cy-violet-soft); display: inline-flex; font-size: 0.82rem; font-weight: 600; gap: 0.3rem; margin-left: auto; }
+.cy-path__go .cy-i { height: 14px; width: 14px; transition: transform var(--cy-fast) var(--cy-ease); }
+a.cy-path__card:hover .cy-path__go .cy-i { transform: translateX(3px); }
+@media (max-width: 560px) {
+  .cy-path__row { grid-template-columns: 46px minmax(0, 1fr); gap: 0.8rem; }
+  .cy-path__node { height: 44px; width: 44px; }
+  .cy-path__emblem { height: 24px; width: 24px; }
+  .cy-path__spine::after { height: 26px; } .cy-path__spine::before { top: 26px; }
+}
+
 /* When a tile is a link, the anchor is the layout box (it carries the grid
    cell) and the article fills it. Colour and underline are reset so the tile
    looks identical linked or not. */
@@ -1807,59 +1908,53 @@ body.cy-body {
 .cy-source a:hover { color: var(--cy-cyan); }
 
 
-/* Role chooser — the primary way in. Two large, institutional "log in as…"
-   buttons that are the visual focus of the sign-in page. Student carries the
-   violet accent, Administrator the cyan, so they read as two distinct doors of
-   equal weight. Picking one only frames the form; it never grants a role. */
+/* Role chooser — the primary way in. Two understated "log in as…" options, the
+   visual focus of the sign-in page. A slim colour-coded bar marks each door
+   (violet = Student, teal = Administrator) in place of an icon; the accent lifts
+   on hover and the chevron slides. Picking one only frames the form you land
+   on; it never grants a role (the role comes from the account, server-side). */
 .cy-rolepick {
   display: flex;
   flex-direction: column;
-  gap: 0.85rem;
+  gap: 0.7rem;
   margin: 1.75rem 0 0.5rem;
 }
 .cy-rolepick__btn {
+  position: relative;
   align-items: center;
   background: var(--cy-surface-2);
   border: 1px solid var(--cy-border-lift);
-  border-radius: 16px;
+  border-radius: 14px;
   color: var(--cy-text);
   display: flex;
   gap: 1rem;
-  padding: 1.1rem 1.2rem;
+  /* extra left padding leaves room for the accent bar */
+  padding: 1.05rem 1.15rem 1.05rem 1.3rem;
   text-decoration: none;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease,
-    background 0.15s ease, transform 0.15s ease;
+  transition: border-color 0.16s ease, box-shadow 0.16s ease,
+    background 0.16s ease, transform 0.16s ease;
+}
+/* the accent bar — the "mark"; its colour is set per role below */
+.cy-rolepick__btn::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 12px;
+  bottom: 12px;
+  width: 3px;
+  border-radius: 3px;
 }
 .cy-rolepick__btn:hover,
 .cy-rolepick__btn:focus-visible {
   transform: translateY(-1px);
   outline: none;
 }
-.cy-rolepick__icon {
-  align-items: center;
-  border-radius: 12px;
-  display: flex;
-  flex: 0 0 auto;
-  height: 46px;
-  justify-content: center;
-  width: 46px;
-}
-.cy-rolepick__icon .cy-i { height: 22px; width: 22px; }
-.cy-rolepick__text {
-  display: flex;
-  flex-direction: column;
-  gap: 0.15rem;
-  min-width: 0;
-}
 .cy-rolepick__title {
   color: var(--cy-text);
-  font-size: 1.05rem;
-  font-weight: 650;
+  font-size: 1.06rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
   line-height: 1.2;
-}
-.cy-rolepick__sub {
-  color: var(--cy-text-3);
-  font-size: 0.85rem;
 }
 .cy-rolepick__go {
   align-items: center;
@@ -1867,32 +1962,26 @@ body.cy-body {
   display: flex;
   flex: 0 0 auto;
   margin-left: auto;
-  transition: transform 0.15s ease, color 0.15s ease;
+  transition: transform 0.16s ease, color 0.16s ease;
 }
-.cy-rolepick__go .cy-i { height: 18px; width: 18px; }
+.cy-rolepick__go .cy-i { height: 17px; width: 17px; }
 .cy-rolepick__btn:hover .cy-rolepick__go { transform: translateX(3px); }
 
 /* Student = violet door. */
-.cy-rolepick__btn--student .cy-rolepick__icon {
-  background: rgba(91, 231, 255, 0.14);
-  color: var(--cy-violet);
-}
+.cy-rolepick__btn--student::before { background: var(--cy-violet); }
 .cy-rolepick__btn--student:hover,
 .cy-rolepick__btn--student:focus-visible {
   border-color: rgba(91, 231, 255, 0.7);
-  box-shadow: 0 0 0 1px rgba(91, 231, 255, 0.4), 0 8px 26px var(--cy-glow-violet-soft);
+  box-shadow: 0 8px 26px var(--cy-glow-violet-soft);
 }
 .cy-rolepick__btn--student:hover .cy-rolepick__go { color: var(--cy-violet); }
 
-/* Administrator = cyan door. */
-.cy-rolepick__btn--admin .cy-rolepick__icon {
-  background: rgba(91, 231, 255, 0.13);
-  color: var(--cy-cyan);
-}
+/* Administrator = teal door. */
+.cy-rolepick__btn--admin::before { background: var(--cy-cyan); }
 .cy-rolepick__btn--admin:hover,
 .cy-rolepick__btn--admin:focus-visible {
-  border-color: rgba(91, 231, 255, 0.6);
-  box-shadow: 0 0 0 1px var(--cy-glow-cyan), 0 8px 26px rgba(91, 231, 255, 0.12);
+  border-color: rgba(0, 229, 204, 0.6);
+  box-shadow: 0 8px 26px var(--cy-glow-cyan);
 }
 .cy-rolepick__btn--admin:hover .cy-rolepick__go { color: var(--cy-cyan); }
 
@@ -2401,21 +2490,23 @@ body.cy-body {
 }
 .cy-side__item:hover .cy-i { color: var(--cy-text-2); }
 
-/* Active: gradient-soft tint, accent bar, violet text and icon, faint glow. */
+/* Active: a clean solid raised fill, one solid cyan indicator bar at the panel
+   edge, crisp text and a cyan icon. No gradient wash, no glow — minimal and
+   unmistakable, so the current section reads at a glance. */
 .cy-side__item.is-active {
-  background: var(--cy-grad-soft);
+  background: var(--cy-surface-3);
   color: var(--cy-text);
+  font-weight: 600;
 }
-.cy-side__item.is-active .cy-i { color: var(--cy-violet-soft); }
+.cy-side__item.is-active .cy-i { color: var(--cy-violet); }
 .cy-side__item.is-active::before {
-  background: var(--cy-grad);
+  background: var(--cy-violet);
   border-radius: 0 3px 3px 0;
-  bottom: 0.55rem;
-  box-shadow: 0 0 12px var(--cy-glow-violet);
+  bottom: 0.5rem;
   content: "";
   left: -0.9rem;
   position: absolute;
-  top: 0.55rem;
+  top: 0.5rem;
   width: 3px;
 }
 
@@ -2574,6 +2665,62 @@ body.cy-body {
 
 /* --- Progress list (My Progress) ----------------------------------------- */
 
+/* ===========================================================================
+   MY PROGRESS — an overall completion ring + rich per-module cards (lesson dots,
+   quiz state, emblem). Reuses the module-path visual system.
+   =========================================================================== */
+.cy-psum { align-items: center; display: flex; flex-wrap: wrap; gap: 1.6rem 2.2rem;
+  background: linear-gradient(180deg, var(--cy-surface-2), var(--cy-surface));
+  border: 1px solid var(--cy-border); border-radius: var(--cy-r-lg); padding: 1.4rem 1.6rem; }
+.cy-psum__ring { flex: none; height: 116px; width: 116px; border-radius: 50%; display: grid; place-items: center; text-align: center;
+  background: radial-gradient(closest-side, var(--cy-surface) 72%, transparent 73%), conic-gradient(var(--cy-violet) var(--cy-value, 0%), var(--cy-surface-3) 0); }
+.cy-psum__ring.is-done { background: radial-gradient(closest-side, var(--cy-surface) 72%, transparent 73%), conic-gradient(var(--cy-cyan) var(--cy-value, 100%), var(--cy-surface-3) 0); }
+.cy-psum__ring b { color: var(--cy-text); font-family: var(--cy-font-display); font-size: 1.9rem; font-weight: 800; letter-spacing: -0.02em; line-height: 1; }
+.cy-psum__ring b small { color: var(--cy-text-3); font-size: 0.9rem; }
+.cy-psum__ring span { color: var(--cy-text-3); display: block; font-family: var(--cy-font-mono); font-size: 0.58rem; letter-spacing: 0.1em; text-transform: uppercase; margin-top: 0.2rem; }
+.cy-psum__stats { display: grid; gap: 1rem 2rem; grid-template-columns: repeat(4, auto); }
+.cy-psum__v { color: var(--cy-text); display: block; font-family: var(--cy-font-display); font-size: 1.7rem; font-weight: 800; font-variant-numeric: tabular-nums; line-height: 1; }
+.cy-psum__v small { color: var(--cy-text-3); font-size: 0.85rem; }
+.cy-psum__k { color: var(--cy-text-3); display: block; font-family: var(--cy-font-mono); font-size: 0.6rem; font-weight: 700; letter-spacing: 0.08em; margin-top: 0.35rem; text-transform: uppercase; }
+@media (max-width: 620px) { .cy-psum { justify-content: center; text-align: center; } .cy-psum__stats { grid-template-columns: repeat(2, auto); } }
+
+.cy-pmods { display: flex; flex-direction: column; gap: 0.75rem; }
+.cy-pmod { align-items: center; display: flex; gap: 1.1rem;
+  background: linear-gradient(180deg, var(--cy-surface-2), var(--cy-surface));
+  border: 1px solid var(--cy-border); border-radius: var(--cy-r-lg); padding: 0.95rem 1.15rem; }
+.cy-pmod--current { border-color: rgba(0, 217, 255, 0.32); }
+.cy-pmod--locked { opacity: 0.6; }
+.cy-pmod__emblem { flex: none; height: 46px; width: 46px; display: grid; place-items: center; border-radius: 13px; color: var(--cy-tile-a);
+  background: color-mix(in srgb, var(--cy-tile-a) 12%, var(--cy-surface-3)); border: 1px solid color-mix(in srgb, var(--cy-tile-a) 40%, var(--cy-border-lift)); }
+.cy-pmod--locked .cy-pmod__emblem { color: var(--cy-text-3); background: var(--cy-surface-3); border-color: var(--cy-border); }
+.cy-pmod__emblem .cy-i { height: 26px; width: 26px; }
+.cy-pmod__body { flex: 1; min-width: 0; }
+.cy-pmod__top { align-items: center; display: flex; gap: 0.7rem; }
+.cy-pmod__idx { color: var(--cy-text-3); font-family: var(--cy-font-mono); font-size: 0.62rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; }
+.cy-pmod__chip { align-items: center; border-radius: 999px; display: inline-flex; font-size: 0.66rem; font-weight: 700; gap: 0.25rem; padding: 0.12rem 0.5rem; }
+.cy-pmod__chip .cy-i { height: 11px; width: 11px; }
+.cy-pmod__chip--done { background: rgba(0, 217, 255, 0.14); color: var(--cy-violet-soft); }
+.cy-pmod__chip--current { background: rgba(0, 229, 204, 0.14); color: var(--cy-cyan-soft); }
+.cy-pmod__chip--open { background: var(--cy-surface-3); color: var(--cy-text-2); }
+.cy-pmod__chip--locked { background: var(--cy-surface-3); color: var(--cy-text-3); }
+.cy-pmod__name { color: var(--cy-text); display: inline-block; font-family: var(--cy-font-display); font-size: 1.05rem; font-weight: 700; letter-spacing: -0.01em; margin: 0.3rem 0 0; text-decoration: none; }
+a.cy-pmod__name:hover { color: var(--cy-violet-soft); }
+.cy-pmod__name--locked { color: var(--cy-text-2); }
+.cy-pmod__track { align-items: center; color: var(--cy-text-3); display: flex; flex-wrap: wrap; gap: 0.5rem 0.9rem; margin-top: 0.5rem; }
+.cy-pmod__dots { display: inline-flex; gap: 0.3rem; }
+.cy-pmod__dot { background: var(--cy-surface-3); border: 1px solid var(--cy-border-lift); border-radius: 50%; height: 10px; width: 10px; }
+.cy-pmod__dot.is-done { background: var(--cy-violet); border-color: var(--cy-violet); box-shadow: 0 0 8px -1px rgba(0, 217, 255, 0.55); }
+.cy-pmod__count { font-family: var(--cy-font-mono); font-size: 0.72rem; }
+.cy-pmod__quiz { align-items: center; display: inline-flex; font-size: 0.72rem; font-weight: 600; gap: 0.3rem; }
+.cy-pmod__quiz .cy-i { height: 13px; width: 13px; }
+.cy-pmod__quiz--passed { color: var(--cy-violet-soft); }
+.cy-pmod__quiz--ready { color: var(--cy-cyan-soft); }
+.cy-pmod__quiz--todo { color: var(--cy-text-3); }
+.cy-pmod__pct { color: var(--cy-text); flex: none; font-family: var(--cy-font-display); font-size: 1.5rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+.cy-pmod__pct small { color: var(--cy-text-3); font-size: 0.8rem; }
+.cy-pmod--locked .cy-pmod__pct { color: var(--cy-text-3); }
+@media (max-width: 560px) { .cy-pmod__pct { display: none; } }
+
 .cy-prog {
   display: flex;
   flex-direction: column;
@@ -2677,53 +2824,56 @@ body.cy-body {
 }
 .cy-collect.is-earned:hover { border-color: rgba(91, 231, 255, 0.5); transform: translateY(-4px); }
 
+/* A struck medallion: a brushed-metal rim around a domed gem, with the badge's
+   symbol glossed on top. The rim is a conic gradient (metal segments); the gem
+   is the badge's own colour, domed with an inset highlight and shadow. */
 .cy-collect__medal {
-  align-items: center;
-  border-radius: 22px;
-  display: flex;
-  height: 72px;
-  justify-content: center;
-  margin-bottom: 0.3rem;
-  overflow: hidden;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  height: 78px;
+  width: 78px;
+  margin-bottom: 0.45rem;
   position: relative;
-  width: 72px;
+  background: conic-gradient(from 210deg, #eef2f8, #9aa9c1 12%, #5f6d86 24%, #d2dae8 38%, #7f8da6 52%, #eef2f8 66%, #6b7a94 78%, #7889a2 88%, #d2dae8);
+  box-shadow: 0 5px 14px rgba(0, 0, 0, 0.5), inset 0 1px 2px rgba(255, 255, 255, 0.55);
 }
-.cy-collect__medal .cy-i { height: 32px; position: relative; width: 32px; z-index: 1; }
+/* the domed gem centre */
+.cy-collect__medal::before {
+  content: "";
+  position: absolute;
+  inset: 7px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 36% 26%, rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0) 44%),
+    linear-gradient(155deg, var(--tile-a), var(--tile-b));
+  box-shadow: inset 0 -6px 10px rgba(0, 0, 0, 0.4), inset 0 2px 3px rgba(255, 255, 255, 0.35);
+}
+.cy-collect__medal .cy-i { color: #fff; height: 32px; position: relative; width: 32px; z-index: 2; filter: drop-shadow(0 1px 1.5px rgba(0, 0, 0, 0.45)); }
 
-/* Earned: the badge's own gradient, glossed and glowing. */
-.cy-collect.is-earned .cy-collect__medal {
-  background: linear-gradient(155deg, var(--tile-a), var(--tile-b));
-  box-shadow:
-    inset 0 2px 2px rgba(255, 255, 255, 0.35),
-    inset 0 -4px 8px rgba(0, 0, 0, 0.22),
-    0 6px 16px rgba(0, 0, 0, 0.4),
-    0 0 22px rgba(91, 231, 255, 0.28);
-  color: #fff;
-}
-/* A slow diagonal shine sweeping across earned medals, staggered per badge. */
+/* Earned: full colour, a soft outer glow, and a shine sweeping the gem. */
+.cy-collect.is-earned .cy-collect__medal { box-shadow: 0 5px 14px rgba(0, 0, 0, 0.5), inset 0 1px 2px rgba(255, 255, 255, 0.6), 0 0 24px rgba(91, 231, 255, 0.3); }
 .cy-collect.is-earned .cy-collect__medal::after {
+  content: "";
+  position: absolute;
+  inset: 7px;
+  border-radius: 50%;
+  z-index: 3;
+  background: linear-gradient(115deg, transparent 40%, rgba(255, 255, 255, 0.55) 50%, transparent 60%);
+  background-size: 260% 260%;
+  background-position: 150% 0;
   animation: cy-shine 4.5s ease-in-out infinite;
   animation-delay: var(--shine-delay, 0s);
-  background: linear-gradient(115deg, transparent 42%, rgba(255, 255, 255, 0.5) 50%, transparent 58%);
-  content: "";
-  inset: 0;
-  position: absolute;
-  transform: translateX(-130%);
 }
 @keyframes cy-shine {
-  0%        { transform: translateX(-130%); }
-  55%, 100% { transform: translateX(130%); }
+  0%        { background-position: 150% 0; }
+  55%, 100% { background-position: -60% 0; }
 }
 
-/* Locked: greyed, dashed, with a lock chip — but still shows what it is. */
-.cy-collect.is-locked { opacity: 0.9; }
-.cy-collect.is-locked .cy-collect__medal {
-  background: var(--cy-surface-3);
-  border: 1px dashed var(--cy-border-lift);
-  box-shadow: inset 0 -3px 6px rgba(0, 0, 0, 0.3);
-  color: var(--cy-text-3);
-  filter: grayscale(0.4);
-}
+/* Locked: the metal and gem drop to a cold grey, with a lock chip — the shape
+   still reads, so you can see what is waiting to be earned. */
+.cy-collect.is-locked .cy-collect__medal { filter: grayscale(0.9) brightness(0.68); }
+.cy-collect.is-locked .cy-collect__medal::before { background: linear-gradient(155deg, #3c4859, #232b38); }
 .cy-collect__lock {
   align-items: center;
   background: var(--cy-surface);
@@ -6662,6 +6812,16 @@ a.cy-path__link:hover { background: var(--cy-surface-2); }
 }
 .cy-callout strong { color: var(--cy-text); }
 
+/* Citations: a superscript marker next to a claim, and a compact source list at
+   the foot of a panel. Real sources, plainly attributed, the way a credible
+   learning platform footnotes a statistic or a named incident. */
+.cy-cite { color: var(--cy-violet-soft); font-family: var(--cy-font-mono); font-size: 0.62em; font-weight: 700; vertical-align: super; margin-left: 1px; }
+.cy-sources { border-top: 1px solid var(--cy-border); margin-top: 1.2rem; padding-top: 0.8rem; }
+.cy-sources__h { color: var(--cy-text-3); font-family: var(--cy-font-mono); font-size: 0.66rem; font-weight: 700; letter-spacing: 0.12em; margin: 0 0 0.4rem; text-transform: uppercase; }
+.cy-sources ol { color: var(--cy-text-3); display: flex; flex-direction: column; gap: 0.3rem; font-size: 0.78rem; list-style: none; margin: 0; padding: 0; }
+.cy-sources li { align-items: baseline; display: flex; gap: 0.45rem; }
+.cy-sources__n { color: var(--cy-violet-soft); font-family: var(--cy-font-mono); font-size: 0.7rem; font-weight: 700; flex: none; }
+
 /* Options: radio-driven. Hide the native control, style the label. */
 .cy-task__options { display: grid; gap: 0.6rem; }
 .cy-room2 .cy-task__opt input { height: 1px; opacity: 0; position: absolute; width: 1px; }
@@ -7736,12 +7896,19 @@ a.cy-path__link:hover { background: var(--cy-surface-2); }
   font-family: "Instrument Sans", system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
-/* --- Status pills + role badges: token-driven, so both themes flip together */
-.cy-status { border-radius: 999px; display: inline-block; font-size: 0.72rem; font-weight: 600; padding: 0.14rem 0.55rem; white-space: nowrap; }
-.cy-status--completed { background: var(--cy-good-bg); color: var(--cy-good-fg); }
-.cy-status--progress { background: var(--cy-warn-bg); color: var(--cy-warn-fg); }
-.cy-status--not_started { background: var(--cy-neutral-bg); color: var(--cy-text-2); }
-.cy-status--staff { background: var(--cy-info-bg); color: var(--cy-info-fg); }
+/* --- Status: a coloured dot + label (quieter than a filled pill, so a table
+   column of them reads as calm text with a state cue, not a wall of colour) -- */
+.cy-status { align-items: center; color: var(--cy-text-2); display: inline-flex; font-size: 0.82rem; font-weight: 500; gap: 0.45rem; white-space: nowrap; }
+.cy-status__dot { background: var(--cy-text-3); border-radius: 50%; flex: none; height: 7px; width: 7px; }
+.cy-status--completed { color: var(--cy-good-fg); }
+.cy-status--completed .cy-status__dot { background: var(--cy-good-fg); }
+.cy-status--progress .cy-status__dot { background: var(--cy-accent-strong); }
+.cy-status--stalled { color: var(--cy-warn-fg); }
+.cy-status--stalled .cy-status__dot { background: var(--cy-warn-fg); }
+.cy-status--not_started { color: var(--cy-text-3); }
+.cy-status--not_started .cy-status__dot { background: var(--cy-border-lift); }
+.cy-status--staff { color: var(--cy-text-3); }
+.cy-status--staff .cy-status__dot { background: var(--cy-border-lift); }
 
 .cy-role { border: 1px solid var(--cy-neutral-ln); border-radius: 6px; color: var(--cy-text-2); display: inline-block; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.02em; padding: 0.1rem 0.45rem; }
 .cy-role--administrator { border-color: var(--cy-info-ln); color: var(--cy-info-fg); }
@@ -7856,6 +8023,52 @@ a.cy-path__link:hover { background: var(--cy-surface-2); }
 .cy-c-mod { align-items: center; display: flex; gap: 0.6rem; }
 .cy-c-mod__count { color: var(--cy-text-2); font-family: var(--cy-font-mono); font-feature-settings: "tnum"; font-size: 0.85rem; white-space: nowrap; }
 .cy-c-mod__track { width: 4.5rem; height: 6px; }
+
+/* --- Learners table: refined columns, role treatment, staff rows ----------- */
+.cy-c-table--learners { min-width: 44rem; }
+.cy-c-table--learners tbody td:first-child { min-width: 12rem; }
+.cy-c-table--learners .cy-c-mod__track { flex: 1; max-width: 5.5rem; }
+.cy-c-when { color: var(--cy-text-2); font-size: 0.85rem; white-space: nowrap; }
+.cy-c-dash { color: var(--cy-text-3); }
+
+/* A student's role reads as plain quiet text; a staff role earns a pill so the
+   handful of non-learners are unmistakable without shouting. */
+.cy-c-rolelabel { color: var(--cy-text-3); font-size: 0.82rem; }
+.cy-c-rolepill { border-radius: 6px; display: inline-block; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.03em; padding: 0.12rem 0.5rem; text-transform: uppercase; }
+.cy-c-rolepill--administrator { background: var(--cy-info-bg); border: 1px solid var(--cy-info-ln); color: var(--cy-info-fg); }
+.cy-c-rolepill--instructor { background: var(--cy-teal-bg); border: 1px solid var(--cy-teal-ln); color: var(--cy-teal-fg); }
+
+/* Staff rows: a whisper of tint and dimmed cells, present but clearly not
+   learners (their learner-only cells carry a muted em dash). */
+.cy-c-row--staff { background: rgba(255, 255, 255, 0.012); }
+.cy-app--console[data-theme="light"] .cy-c-row--staff { background: rgba(16, 24, 40, 0.02); }
+.cy-c-row--staff .cy-c-learner__name { color: var(--cy-text-2); font-weight: 500; }
+
+/* --- Toolbar: search + independent Status / Grade dropdowns ----------------- */
+.cy-c-toolbar { align-items: center; display: flex; flex-wrap: wrap; gap: 0.6rem; margin-bottom: 1rem; }
+.cy-c-search--flex { flex: 1; margin-bottom: 0; min-width: 15rem; position: relative; }
+.cy-c-search--flex .cy-c-search__icon { margin-left: 0; left: 0.85rem; top: 50%; transform: translateY(-50%); }
+
+.cy-c-filter { position: relative; }
+.cy-c-filter__btn { align-items: center; background: var(--cy-surface-2); border: 1px solid var(--cy-border); border-radius: 9px; color: var(--cy-text-2); cursor: pointer; display: inline-flex; font-size: 0.85rem; gap: 0.5rem; list-style: none; padding: 0.55rem 0.8rem; white-space: nowrap; }
+.cy-c-filter__btn::-webkit-details-marker { display: none; }
+.cy-c-filter__btn:hover { border-color: var(--cy-border-lift); }
+.cy-c-filter__btn.is-set { border-color: var(--cy-accent-line); }
+.cy-c-filter__k { color: var(--cy-text-3); }
+.cy-c-filter__v { color: var(--cy-text); font-weight: 500; }
+.cy-c-filter__dot { background: var(--cy-accent-strong); border-radius: 50%; height: 7px; width: 7px; }
+.cy-c-filter__cw { color: var(--cy-text-3); height: 13px; width: 13px; transition: transform 0.15s ease; }
+.cy-c-filter[open] .cy-c-filter__cw { transform: rotate(180deg); }
+.cy-c-filter__menu { background: var(--cy-surface-2); border: 1px solid var(--cy-border-lift); border-radius: 10px; box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35); display: flex; flex-direction: column; margin-top: 0.4rem; min-width: 12rem; padding: 0.35rem; position: absolute; right: 0; top: 100%; z-index: 30; }
+.cy-app--console[data-theme="light"] .cy-c-filter__menu { box-shadow: 0 12px 30px rgba(16, 24, 40, 0.12); }
+.cy-c-filter__opt { border-radius: 7px; color: var(--cy-text-2); font-size: 0.85rem; padding: 0.45rem 0.6rem; text-decoration: none; }
+.cy-c-filter__opt:hover { background: var(--cy-surface-3); color: var(--cy-text); }
+.cy-c-filter__opt.is-on { background: var(--cy-accent-tint); color: var(--cy-accent-strong); font-weight: 500; }
+.cy-c-chip__n { color: var(--cy-text-3); font-variant-numeric: tabular-nums; margin-left: 0.3rem; }
+.cy-c-chip.is-active .cy-c-chip__n { color: var(--cy-accent-strong); }
+@media (prefers-reduced-motion: reduce) { .cy-c-filter__cw { transition: none; } }
+@media (max-width: 640px) { .cy-c-filter, .cy-c-search--flex { flex: 1 1 100%; }
+  .cy-c-filter__btn { width: 100%; } .cy-c-filter__menu { left: 0; right: auto; } }
 
 /* --- Pagination ----------------------------------------------------------- */
 .cy-c-pager { align-items: center; display: flex; gap: 1rem; justify-content: center; margin-top: 1.2rem; }
@@ -8844,6 +9057,29 @@ a.cy-course__hit:hover { background: var(--cy-surface-2); }
  * Module overview roadmap (cy-mroad — a UNIQUE namespace; cy-road *
  * is the dashboard's horizontal progress track).                 *
  * ============================================================ */
+/* Module header: the module's bespoke emblem as a tinted waypoint beside a
+   clear title/tagline/lede stack — ties the overview to the module path. */
+.cy-mhead { align-items: center; display: flex; gap: 1.25rem; margin: 0.5rem 0 1.4rem;
+  background: linear-gradient(180deg, var(--cy-surface-2), var(--cy-surface));
+  border: 1px solid var(--cy-border); border-radius: var(--cy-r-lg); padding: 1.2rem 1.4rem; position: relative; overflow: hidden; }
+.cy-mhead::before { content: ""; position: absolute; inset: 0 auto 0 0; width: 3px;
+  background: linear-gradient(180deg, var(--cy-tile-a), var(--cy-tile-b)); }
+.cy-mhead__emblem { align-items: center; flex: none; height: 66px; width: 66px; display: grid; place-items: center;
+  border-radius: 18px; color: var(--cy-tile-a);
+  background: color-mix(in srgb, var(--cy-tile-a) 12%, var(--cy-surface-3));
+  border: 1px solid color-mix(in srgb, var(--cy-tile-a) 45%, var(--cy-border-lift)); }
+.cy-mhead__emblem .cy-i { height: 36px; width: 36px; }
+.cy-mhead__body { min-width: 0; }
+.cy-mhead__idx { color: var(--cy-text-3); font-family: var(--cy-font-mono); font-size: 0.68rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; }
+.cy-mhead__title { color: var(--cy-text); font-family: var(--cy-font-display); font-size: 1.75rem; font-weight: 800; letter-spacing: -0.02em; line-height: 1.1; margin: 0.25rem 0 0; }
+.cy-mhead__tagline { align-items: center; color: var(--cy-cyan-soft); display: inline-flex; font-size: 0.82rem; font-weight: 600; gap: 0.35rem; margin: 0.5rem 0 0; }
+.cy-mhead__tagline .cy-i { height: 14px; width: 14px; }
+.cy-mhead__lede { color: var(--cy-text-2); font-size: 0.92rem; margin: 0.5rem 0 0; }
+@media (max-width: 560px) {
+  .cy-mhead { flex-direction: column; align-items: flex-start; gap: 0.9rem; }
+  .cy-mhead__emblem { height: 54px; width: 54px; } .cy-mhead__emblem .cy-i { height: 30px; width: 30px; }
+}
+
 .cy-mroad { display: flex; flex-direction: column; gap: 1rem; list-style: none; margin: 0; padding: 0; }
 .cy-mroad__item { display: grid; gap: 1rem; grid-template-columns: 40px 1fr; position: relative; }
 /* connecting spine between nodes */
@@ -9451,42 +9687,43 @@ a.cy-mroad__title:hover { color: var(--cy-cyan-soft); }
 .cy-db .cy-tierpanel__max { align-items: center; color: var(--cy-gold, #e6b455); display: inline-flex; font-size: 0.82rem; font-weight: 600; gap: 0.35rem; margin-top: 0.4rem; }
 .cy-db .cy-tierpanel__max .cy-i { height: 15px; width: 15px; }
 
-/* --- stats: primary composition + secondary strip ------------------------ */
-.cy-db__stats { align-items: stretch; display: grid; gap: 1.1rem; grid-template-columns: 1fr auto; }
-.cy-stats-primary {
-  background: linear-gradient(180deg, var(--cy-surface-2), var(--cy-surface)); border: 1px solid var(--cy-border-lift);
-  border-radius: var(--cy-r-lg); box-shadow: var(--cy-shadow-lift); display: grid; grid-template-columns: repeat(3, 1fr); overflow: hidden;
+/* --- stats: six cards in a single compact row ---------------------------- */
+/* One shared anatomy per card — icon chip, a dominant display number, a mono
+   label, a thin accent bar, then one sub-line. Compact so all six sit in a
+   single row on desktop without excess height; each element is an explicit
+   block with its own margin, so nothing can run together. */
+.cy-db__stats { display: grid; gap: 0.7rem; grid-template-columns: repeat(6, 1fr); }
+.cy-stat {
+  background: linear-gradient(180deg, var(--cy-surface-2), var(--cy-surface));
+  border: 1px solid var(--cy-border); border-radius: var(--cy-r);
+  display: flex; flex-direction: column; min-width: 0; overflow: hidden;
+  padding: 0.85rem 0.9rem 0.8rem; position: relative; text-decoration: none;
+  transition: transform 0.22s cubic-bezier(0.2, 0.7, 0.3, 1), border-color 0.22s, box-shadow 0.22s;
 }
-/* Redesigned stats: a dominant display number, a mono label, a thin cyan
-   progress bar, then a clearly separated sub-line. One system across all six. */
-.cy-pstat { align-items: flex-start; display: flex; gap: 0.85rem; padding: 1.3rem 1.35rem; position: relative; }
-.cy-pstat + .cy-pstat::before { background: var(--cy-border); bottom: 16%; content: ""; left: 0; position: absolute; top: 16%; width: 1px; }
-.cy-pstat__ic { align-items: center; background: var(--cy-surface-3); border: 1px solid var(--cy-border-lift); border-radius: 10px; color: var(--cy-cyan-soft); display: grid; flex: none; height: 40px; place-items: center; width: 40px; }
-.cy-pstat__ic .cy-i { height: 19px; width: 19px; }
-.cy-pstat--streak .cy-pstat__ic { color: var(--cy-cyan); }
-/* The column stacks the number, label, bar and sub-line. Each child is also an
-   explicit block with its own top margin, so they can NEVER run together into
-   one line even if the flex context is missing (stale cache, odd fallback). */
-.cy-pstat__col { display: flex; flex: 1; flex-direction: column; min-width: 0; }
-.cy-pstat__v { color: var(--cy-text); display: block; font-family: var(--cy-font-display); font-size: 2.2rem; font-variant-numeric: tabular-nums; font-weight: 800; letter-spacing: -0.02em; line-height: 0.95; }
-.cy-pstat__v small { color: var(--cy-text-3); font-size: 1rem; font-weight: 700; letter-spacing: 0; }
-.cy-pstat__k { color: var(--cy-text-3); display: block; font-family: var(--cy-font-mono); font-size: 0.66rem; font-weight: 700; letter-spacing: 0.1em; margin-top: 0.5rem; text-transform: uppercase; }
-.cy-pstat__bar { background: var(--cy-surface-3); border-radius: 999px; display: block; height: 4px; margin-top: 0.55rem; overflow: hidden; }
-.cy-pstat__bar i { background: linear-gradient(90deg, var(--cy-violet), var(--cy-violet-soft)); border-radius: 999px; display: block; height: 100%; }
-.cy-pstat__sub { color: var(--cy-text-2); display: block; font-size: 0.76rem; margin-top: 0.4rem; }
-.cy-pstat__sub b { color: var(--cy-text); font-weight: 600; }
-.cy-pstat--streak .cy-pstat__sub { color: var(--cy-text-3); }
-.cy-pstat--at_risk .cy-pstat__sub { color: var(--cy-danger); }
+/* An accent edge-rail that fades in on hover. */
+.cy-stat::before { background: linear-gradient(180deg, var(--cy-violet), var(--cy-violet-deep)); bottom: 0; content: ""; left: 0; opacity: 0; position: absolute; top: 0; transition: opacity 0.22s; width: 3px; }
+.cy-stat:hover { border-color: var(--cy-border-lift); box-shadow: 0 12px 26px -16px rgba(0, 217, 255, 0.5), 0 5px 14px -10px rgba(0, 0, 0, 0.6); transform: translateY(-3px); }
+.cy-stat:hover::before { opacity: 1; }
 
-.cy-stats-secondary { align-items: stretch; background: var(--cy-surface); border: 1px solid var(--cy-border); border-radius: var(--cy-r-lg); box-shadow: var(--cy-shadow); display: flex; }
-.cy-mstat { align-items: flex-start; display: flex; flex-direction: column; gap: 0.3rem; justify-content: center; min-width: 6.2rem; padding: 1rem 1.25rem; text-decoration: none; }
-.cy-mstat + .cy-mstat { border-left: 1px solid var(--cy-border); }
-.cy-mstat__top { align-items: center; display: flex; gap: 0.4rem; }
-.cy-mstat .cy-i { color: var(--cy-cyan-soft); height: 14px; width: 14px; }
-.cy-mstat__v { color: var(--cy-text); font-family: var(--cy-font-display); font-size: 1.7rem; font-variant-numeric: tabular-nums; font-weight: 800; line-height: 1; }
-.cy-mstat__v small { color: var(--cy-text-3); font-size: 0.85rem; font-weight: 700; }
-.cy-mstat__k { color: var(--cy-text-3); display: block; font-family: var(--cy-font-mono); font-size: 0.6rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
-.cy-mstat--link:hover .cy-mstat__v { color: var(--cy-cyan-soft); }
+.cy-stat__ic { align-items: center; background: var(--cy-surface-3); border: 1px solid var(--cy-border-lift); border-radius: 8px; color: var(--cy-cyan-soft); display: grid; flex: none; height: 30px; place-items: center; width: 30px; }
+.cy-stat__ic .cy-i { height: 15px; width: 15px; }
+.cy-stat__v { color: var(--cy-text); display: block; font-family: var(--cy-font-display); font-size: 1.75rem; font-variant-numeric: tabular-nums; font-weight: 800; letter-spacing: -0.02em; line-height: 0.95; margin-top: 0.6rem; }
+.cy-stat__v small { color: var(--cy-text-3); font-size: 0.82rem; font-weight: 700; letter-spacing: 0; }
+.cy-stat__k { color: var(--cy-text-3); display: block; font-family: var(--cy-font-mono); font-size: 0.56rem; font-weight: 700; letter-spacing: 0.1em; margin-top: 0.4rem; text-transform: uppercase; }
+.cy-stat__bar { background: var(--cy-surface-3); border-radius: 999px; display: block; height: 3px; margin-top: 0.5rem; overflow: hidden; }
+.cy-stat__bar i { background: linear-gradient(90deg, var(--cy-violet), var(--cy-violet-soft)); border-radius: 999px; display: block; height: 100%; }
+.cy-stat__sub { color: var(--cy-text-2); display: block; font-size: 0.72rem; margin-top: 0.45rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cy-stat__sub b { color: var(--cy-text); font-weight: 700; }
+
+/* Streak uses the teal energy accent; its at-risk state turns red. */
+.cy-stat--streak .cy-stat__ic { color: var(--cy-cyan); }
+.cy-stat--at_risk .cy-stat__ic { color: var(--cy-danger); border-color: rgba(255, 77, 77, 0.4); }
+.cy-stat--at_risk .cy-stat__sub { color: var(--cy-danger); }
+.cy-stat--at_risk:hover { box-shadow: 0 14px 34px -18px rgba(255, 77, 77, 0.45), 0 6px 18px -12px rgba(0, 0, 0, 0.6); }
+/* Badges is the one link card: a gold accent. */
+.cy-stat--link .cy-stat__ic { color: var(--cy-gold); }
+.cy-stat--link .cy-stat__bar i { background: linear-gradient(90deg, var(--cy-gold), #f4d08a); }
+.cy-stat--link:hover .cy-stat__v { color: var(--cy-text); }
 
 /* --- lower grid: main + rail --------------------------------------------- */
 .cy-db__lower { display: grid; gap: 1.1rem; grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr); }
@@ -9520,15 +9757,22 @@ a.cy-mrow:hover { border-color: var(--cy-border-lift); transform: translateX(3px
 /* weekly goal */
 .cy-goal { align-items: center; display: flex; gap: 1.1rem; padding: 1.15rem 1.25rem; }
 .cy-goal__ring { align-items: center; background: radial-gradient(closest-side, var(--cy-surface) 70%, transparent 71%), conic-gradient(var(--cy-cyan) var(--cy-value, 0%), var(--cy-surface-3) 0); border-radius: 50%; display: grid; flex: none; height: 74px; place-items: center; width: 74px; }
-.cy-goal__ring.is-met { background: radial-gradient(closest-side, var(--cy-surface) 70%, transparent 71%), conic-gradient(var(--cy-cyan) var(--cy-value, 100%), var(--cy-surface-3) 0); }
+/* When the goal is met the ring turns gold, matching the achievement accent. */
+.cy-goal--met .cy-goal__ring, .cy-goal__ring.is-met { background: radial-gradient(closest-side, var(--cy-surface) 70%, transparent 71%), conic-gradient(var(--cy-gold) var(--cy-value, 100%), var(--cy-surface-3) 0); }
 .cy-goal__ring b { color: var(--cy-text); font-family: var(--cy-font-display); font-size: 1.15rem; font-weight: 700; line-height: 1; }
 .cy-goal__ring small { color: var(--cy-text-3); display: block; font-family: var(--cy-font-mono); font-size: 0.56rem; letter-spacing: 0.05em; text-align: center; text-transform: uppercase; }
 .cy-goal__txt h2 { color: var(--cy-text); font-family: var(--cy-font-display); font-size: var(--cy-fs-h3); font-weight: 600; margin: 0 0 0.2rem; }
 .cy-goal__txt p { color: var(--cy-text-2); font-size: 0.82rem; margin: 0; }
-.cy-goal__dots { display: flex; gap: 0.28rem; margin-top: 0.5rem; }
-.cy-goal__dots i { background: var(--cy-surface-3); border: 1px solid var(--cy-border-lift); border-radius: 50%; height: 11px; width: 11px; }
-.cy-goal__dots i.is-on { background: var(--cy-cyan); border-color: var(--cy-cyan); }
-.cy-goal__dots i.is-today { box-shadow: 0 0 0 2px rgba(94,231,247,0.5); }
+/* Day markers: a dot per weekday (Mon..Sun) with its letter, so the student can
+   see which days they actually studied this week. */
+.cy-goal__days { display: flex; gap: 0.5rem; margin-top: 0.7rem; }
+.cy-goal__day { align-items: center; display: flex; flex-direction: column; gap: 0.3rem; }
+.cy-goal__day i { background: var(--cy-surface-3); border: 1px solid var(--cy-border-lift); border-radius: 50%; display: block; height: 12px; width: 12px; }
+.cy-goal__day span { color: var(--cy-text-3); font-family: var(--cy-font-mono); font-size: 0.56rem; letter-spacing: 0.03em; }
+.cy-goal__day.is-on i { background: var(--cy-cyan); border-color: var(--cy-cyan); box-shadow: 0 0 9px -1px rgba(0, 229, 204, 0.6); }
+.cy-goal__day.is-on span { color: var(--cy-cyan-soft); }
+.cy-goal__day.is-today i { outline: 2px solid rgba(0, 229, 204, 0.5); outline-offset: 2px; }
+.cy-goal__day.is-future i { opacity: 0.4; }
 
 /* --- compact calendar (rail) --------------------------------------------- */
 .cy-db .cy-cal { padding: 1.1rem 1.2rem; }
@@ -9572,16 +9816,25 @@ a.cy-mrow:hover { border-color: var(--cy-border-lift); transform: translateX(3px
 /* --- responsive ---------------------------------------------------------- */
 @media (max-width: 1080px) {
   .cy-db__hero { grid-template-columns: 1fr; }
-  .cy-db__stats { grid-template-columns: 1fr; }
-  .cy-stats-secondary { justify-content: space-around; }
   .cy-db__lower { grid-template-columns: 1fr; }
 }
+/* The single row of six reflows 6 -> 3 -> 2 -> 1 columns. */
+@media (max-width: 1160px) { .cy-db__stats { grid-template-columns: repeat(3, 1fr); } }
 @media (max-width: 640px) {
   .cy-topbar__greet { font-size: 1.5rem; }
-  .cy-stats-primary { grid-template-columns: 1fr; }
-  .cy-pstat + .cy-pstat::before { display: none; }
-  .cy-pstat + .cy-pstat { border-top: 1px solid var(--cy-border); }
   .cy-chip__meta { display: none; }
+  .cy-db__stats { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 420px) {
+  .cy-db__stats { grid-template-columns: 1fr; }
+  .cy-goal { flex-direction: column; text-align: center; }
+  .cy-goal__days { justify-content: center; }
+}
+/* The lift is motion; hold the accent/glow but drop the transform for users who
+   ask for reduced motion. */
+@media (prefers-reduced-motion: reduce) {
+  .cy-stat { transition: border-color 0.22s, box-shadow 0.22s; }
+  .cy-stat:hover { transform: none; }
 }
 
 /* --- wifi-devices: a "who's on your Wi-Fi" connected-devices screen (M1) ---- */
@@ -9937,6 +10190,23 @@ a.cy-mrow:hover { border-color: var(--cy-border-lift); transform: translateX(3px
 .cy-td__call--r text { text-anchor: end; }
 .cy-td__csub { fill: #9db2d4; font-size: 10px; font-weight: 400; }
 
+/* --- Reusable network-flow diagram component (cy-nf): real device icons, a
+   clean wire, colour-coded secure/open paths, and a tap clamped to the line
+   instead of a floating icon. Other network diagrams can adopt these classes. */
+.cy-nf { background: radial-gradient(120% 100% at 50% 0, #0e1826, #0a0e15 72%); border: 1px solid var(--cy-border); border-radius: 14px; overflow-x: auto; padding: 1.1rem 0.9rem 0.6rem; }
+.cy-nf__svg { display: block; width: 100%; height: auto; max-width: 700px; min-width: 500px; margin: 0 auto; }
+.cy-nf__node rect { fill: var(--cy-surface-2); stroke: #33465f; stroke-width: 1.4; }
+.cy-nf__node--open rect { fill: rgba(230, 180, 85, 0.06); stroke: #7a6634; stroke-dasharray: 5 5; }
+.cy-nf__ic { fill: none; stroke: #5be7ff; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.cy-nf__ic--open { stroke: #e6b455; }
+.cy-nf__name { fill: var(--cy-text); font-family: var(--cy-font-mono); font-size: 12px; font-weight: 700; text-anchor: middle; }
+.cy-nf__sub { fill: var(--cy-text-3); font-size: 10px; text-anchor: middle; }
+.cy-nf__sub--open { fill: #d8b877; }
+.cy-nf__tap-t { fill: #ff9a9a; font-family: var(--cy-font-mono); font-size: 10px; font-weight: 700; text-anchor: middle; letter-spacing: 0.08em; }
+.cy-nf__lane { font-family: var(--cy-font-mono); font-size: 12px; }
+.cy-nf__lane--red { fill: #ff9a9a; }
+.cy-nf__lane--cyan { fill: #8fe8ff; }
+
 /* cy-td device variants for malware-vectors / containment (v37+) */
 .cy-td__dev--risk rect { fill: #1a1220; stroke: #7a3546; }
 .cy-td__dev--safe rect { fill: #101d22; stroke: #1f6f66; }
@@ -10027,3 +10297,133 @@ a.cy-mrow:hover { border-color: var(--cy-border-lift); transform: translateX(3px
 .cy-previewbar__tag { background: var(--cy-gold); border-radius: 5px; color: #1a1205; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.04em; padding: 0.12rem 0.45rem; text-transform: uppercase; }
 .cy-previewbar__back { color: var(--cy-violet); font-weight: 600; margin-left: auto; text-decoration: none; }
 .cy-previewbar__back:hover { text-decoration: underline; }
+
+/* ============================================================================
+   ADMIN OVERVIEW REDESIGN (console) — completion-led hierarchy + SVG charts.
+   Uses the console's own indigo/muted tokens; consistent with Learners/Reports.
+   ========================================================================== */
+
+/* Layout: a 2:1 grid used by both the charts row and the actions row. */
+.cy-c-grid--2to1 { grid-template-columns: 1.7fr 1fr; gap: 1.1rem; margin-top: 1.1rem; }
+@media (max-width: 880px) { .cy-c-grid--2to1 { grid-template-columns: 1fr; } }
+
+/* A panel. Distinct name from cy-c-section so the redesign owns its spacing. */
+.cy-c-card { background: var(--cy-surface-2); border: 1px solid var(--cy-border); border-radius: var(--cy-r); box-shadow: var(--cy-shadow-1); padding: 1.15rem 1.25rem; }
+.cy-c-card__h { align-items: baseline; display: flex; gap: 1rem; justify-content: space-between; margin-bottom: 0.4rem; }
+.cy-c-card__t { color: var(--cy-text); font-size: 1rem; font-weight: 600; letter-spacing: -0.01em; margin: 0; }
+.cy-c-card__n { color: var(--cy-text-3); font-size: 0.8rem; }
+.cy-c-card__link { color: var(--cy-accent-strong); font-size: 0.82rem; font-weight: 600; }
+
+/* --- Tier 1: hero --- */
+.cy-c-hero { position: relative; overflow: hidden; margin-top: 1.3rem; display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 2rem;
+  background: linear-gradient(180deg, #14151a, #101116); border: 1px solid var(--cy-border); border-radius: var(--cy-r-lg); box-shadow: var(--cy-shadow-1); padding: 1.6rem 1.8rem; }
+.cy-c-hero::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: linear-gradient(180deg, var(--cy-accent-strong), var(--cy-accent)); }
+@media (max-width: 720px) { .cy-c-hero { grid-template-columns: 1fr; text-align: center; gap: 1.2rem; } .cy-c-hero__stats { border-left: 0 !important; padding-left: 0 !important; flex-direction: row !important; justify-content: center; gap: 2.5rem !important; } }
+
+.cy-c-ring { position: relative; height: 172px; width: 172px; flex: none; }
+.cy-c-ring svg { display: block; }
+.cy-c-ring__c { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.cy-c-ring__pct { color: var(--cy-text); font-size: 2.9rem; font-weight: 700; line-height: 1; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
+.cy-c-ring__pct span { color: var(--cy-text-3); font-size: 1.3rem; font-weight: 600; }
+.cy-c-ring__cap { color: var(--cy-text-3); font-size: 0.72rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; margin-top: 0.3rem; }
+
+.cy-c-hero__mid { min-width: 0; }
+.cy-c-hero__kick { color: var(--cy-accent-strong); font-size: 0.72rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; margin: 0; }
+.cy-c-hero__line { color: var(--cy-text); font-size: 1.7rem; font-weight: 600; letter-spacing: -0.02em; line-height: 1.15; margin: 0.35rem 0 0.5rem; }
+.cy-c-hero__line b { font-weight: 700; }
+.cy-c-hero__sub { color: var(--cy-text-3); font-size: 0.92rem; margin: 0; }
+
+.cy-c-hero__stats { display: flex; flex-direction: column; gap: 1.15rem; border-left: 1px solid var(--cy-border); padding-left: 1.8rem; }
+.cy-c-hstat__v { color: var(--cy-text); font-size: 2rem; font-weight: 700; line-height: 1; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.cy-c-hstat__v span { color: var(--cy-text-3); font-size: 1rem; font-weight: 600; }
+.cy-c-hstat__l { color: var(--cy-text-3); font-size: 0.75rem; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; margin-top: 0.3rem; }
+.cy-c-hstat__d { font-size: 0.78rem; font-weight: 600; margin-top: 0.15rem; }
+.cy-c-hstat__d--up { color: var(--cy-good-fg); }
+.cy-c-hstat__d--down { color: var(--cy-bad-fg); }
+
+/* Momentum pill: is learning speeding up or slowing down? (last N weeks vs the
+   N before). Tone follows direction; the comparison reads as quiet detail. */
+.cy-c-mom { align-items: center; border-radius: 999px; display: inline-flex; font-size: 0.82rem; font-weight: 500; gap: 0.5rem; margin-top: 0.9rem; padding: 0.4rem 0.8rem; }
+.cy-c-mom b { font-weight: 600; }
+.cy-c-mom__m { color: var(--cy-text-3); font-weight: 400; }
+.cy-c-mom--up { background: var(--cy-good-bg); border: 1px solid var(--cy-good-ln); color: var(--cy-good-fg); }
+.cy-c-mom--down { background: var(--cy-warn-bg); border: 1px solid var(--cy-warn-ln); color: var(--cy-warn-fg); }
+.cy-c-mom--steady { background: var(--cy-info-bg); border: 1px solid var(--cy-info-ln); color: var(--cy-info-fg); }
+@media (max-width: 720px) { .cy-c-mom { margin-left: auto; margin-right: auto; } }
+
+/* Engagement bar: the whole cohort split into four states at a glance, a
+   full-width row across the bottom of the hero grid. */
+.cy-c-engage { grid-column: 1 / -1; border-top: 1px solid var(--cy-border); padding-top: 1.2rem; margin-top: 0.2rem; text-align: left; }
+.cy-c-engage__top { align-items: baseline; display: flex; justify-content: space-between; margin-bottom: 0.65rem; }
+.cy-c-engage__t { color: var(--cy-text-3); font-size: 0.72rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; }
+.cy-c-engage__n { color: var(--cy-text-3); font-size: 0.8rem; font-variant-numeric: tabular-nums; }
+.cy-c-ebar { background: var(--cy-surface-3); border-radius: 7px; display: flex; gap: 2px; height: 12px; overflow: hidden; }
+.cy-c-ebar__s { display: block; height: 100%; }
+.cy-c-ebar__s--completed { background: var(--cy-good-fg); }
+.cy-c-ebar__s--progressing { background: var(--cy-accent-strong); }
+.cy-c-ebar__s--stalled { background: var(--cy-warn-fg); }
+.cy-c-ebar__s--not_started { background: var(--cy-border-lift); }
+.cy-c-elegend { display: flex; flex-wrap: wrap; gap: 0.5rem 1.4rem; margin-top: 0.8rem; }
+.cy-c-elegend__i { align-items: center; color: var(--cy-text-2); display: inline-flex; font-size: 0.83rem; gap: 0.5rem; }
+.cy-c-elegend__i b { color: var(--cy-text); font-variant-numeric: tabular-nums; }
+.cy-c-elegend__d { border-radius: 3px; height: 9px; width: 9px; }
+.cy-c-elegend__d--completed { background: var(--cy-good-fg); }
+.cy-c-elegend__d--progressing { background: var(--cy-accent-strong); }
+.cy-c-elegend__d--stalled { background: var(--cy-warn-fg); }
+.cy-c-elegend__d--not_started { background: var(--cy-border-lift); }
+
+/* --- Tier 2: activity chart --- */
+.cy-c-chart { display: block; width: 100%; height: auto; margin-top: 0.3rem; }
+.cy-c-chart__cap { align-items: baseline; display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 0.5rem; }
+.cy-c-chart__cap b { color: var(--cy-text); font-size: 1.35rem; font-weight: 700; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.cy-c-chart__lab { color: var(--cy-text-3); font-size: 0.82rem; }
+.cy-c-chip { border-radius: 999px; font-size: 0.76rem; font-weight: 600; padding: 0.05rem 0.45rem; }
+.cy-c-chip--up { color: var(--cy-good-fg); background: var(--cy-good-bg); border: 1px solid var(--cy-good-ln); }
+.cy-c-chip--down { color: var(--cy-bad-fg); background: var(--cy-bad-bg); border: 1px solid var(--cy-bad-ln); }
+.cy-c-chart__empty { padding: 2.4rem 1rem; text-align: center; }
+.cy-c-chart__empty-t { color: var(--cy-text-2); font-size: 0.95rem; margin: 0 0 0.3rem; }
+
+/* --- Tier 2: grade bars --- */
+.cy-c-grade { display: flex; flex-direction: column; gap: 0.7rem; margin-top: 0.7rem; }
+.cy-c-gbar { align-items: center; display: grid; grid-template-columns: 5.5rem 1fr 2rem; gap: 0.7rem; }
+.cy-c-gbar__l { color: var(--cy-text-2); font-size: 0.85rem; font-weight: 500; }
+.cy-c-gbar__track { background: var(--cy-surface-3); border-radius: 999px; height: 9px; overflow: hidden; }
+.cy-c-gbar__fill { border-radius: 999px; display: block; height: 100%; min-width: 3px; }
+.cy-c-gbar__fill--distinction { background: var(--cy-info-fg); }
+.cy-c-gbar__fill--merit { background: var(--cy-teal-fg); }
+.cy-c-gbar__fill--pass { background: var(--cy-good-fg); }
+.cy-c-gbar__fill--not-yet { background: var(--cy-warn-fg); }
+.cy-c-gbar__fill--not-started { background: #3a3f48; }
+.cy-c-gbar__c { color: var(--cy-text); font-size: 0.95rem; font-weight: 700; text-align: right; font-variant-numeric: tabular-nums; }
+.cy-c-grade__tot { align-items: center; border-top: 1px solid var(--cy-border); color: var(--cy-text-3); display: flex; font-size: 0.82rem; justify-content: space-between; margin-top: 0.9rem; padding-top: 0.7rem; }
+.cy-c-grade__tot b { color: var(--cy-text); font-weight: 700; }
+
+/* --- Tier 3: consolidated needs-attention --- */
+.cy-c-attchips { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 0.3rem 0 1rem; }
+.cy-c-attchip { align-items: center; background: var(--cy-surface-3); border: 1px solid var(--cy-border); border-radius: 999px; color: var(--cy-text-2); display: flex; font-size: 0.8rem; font-weight: 500; gap: 0.4rem; padding: 0.28rem 0.7rem; }
+.cy-c-attchip b { color: var(--cy-text); font-weight: 700; }
+.cy-c-attchip__dot { border-radius: 50%; height: 7px; width: 7px; }
+.cy-c-attchip__dot--ns { background: var(--cy-text-3); }
+.cy-c-attchip__dot--st { background: var(--cy-warn-fg); }
+.cy-c-attchip__dot--fl { background: var(--cy-bad-fg); }
+.cy-c-attchip__dot--uv { background: var(--cy-info-fg); }
+.cy-c-attlist { display: flex; flex-direction: column; }
+.cy-c-attrow { align-items: center; border-top: 1px solid var(--cy-border); display: flex; gap: 0.8rem; padding: 0.6rem 0; text-decoration: none; }
+.cy-c-attrow:first-child { border-top: 0; }
+.cy-c-attrow:hover .cy-c-attrow__nm { color: var(--cy-accent-strong); }
+.cy-c-attrow__who { display: flex; flex-direction: column; gap: 0.1rem; min-width: 0; }
+.cy-c-attrow__nm { color: var(--cy-text); font-size: 0.92rem; font-weight: 600; }
+.cy-c-attrow__em { color: var(--cy-text-3); font-size: 0.78rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cy-c-attrow__tag { border-radius: 6px; font-size: 0.72rem; font-weight: 600; margin-left: auto; padding: 0.15rem 0.5rem; white-space: nowrap; }
+.cy-c-attrow__tag--ns { color: var(--cy-text-3); background: var(--cy-surface-3); border: 1px solid var(--cy-border-lift); }
+.cy-c-attrow__tag--st { color: var(--cy-warn-fg); background: var(--cy-warn-bg); border: 1px solid var(--cy-warn-ln); }
+.cy-c-attrow__tag--fl { color: var(--cy-bad-fg); background: var(--cy-bad-bg); border: 1px solid var(--cy-bad-ln); }
+.cy-c-attrow__tag--uv { color: var(--cy-info-fg); background: var(--cy-info-bg); border: 1px solid var(--cy-info-ln); }
+.cy-c-attall { color: var(--cy-accent-strong); display: block; font-size: 0.82rem; font-weight: 600; margin-top: 0.9rem; }
+
+/* --- Tier 3: recent activity feed --- */
+.cy-c-feed2 { display: flex; flex-direction: column; }
+.cy-c-feed2__row { border-top: 1px solid var(--cy-border); padding: 0.55rem 0; }
+.cy-c-feed2__row:first-child { border-top: 0; }
+.cy-c-feed2__w { color: var(--cy-text); display: block; font-size: 0.87rem; }
+.cy-c-feed2__m { color: var(--cy-text-3); display: block; font-size: 0.75rem; margin-top: 0.1rem; }

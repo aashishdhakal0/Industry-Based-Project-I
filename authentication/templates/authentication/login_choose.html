@@ -16,22 +16,15 @@
     {{ site_name }}
   </a>
 
-  <h1>Sign in to {{ site_name }}</h1>
-  <p class="cy-lede">Choose how you're signing in.</p>
+  <h1>Sign in</h1>
 
   <div class="cy-rolepick">
     {% for key, frame in frames.items %}
       <a class="cy-rolepick__btn cy-rolepick__btn--{{ frame.accent }}"
          href="{% url 'authentication:login' %}?as={{ key }}{% if next %}&next={{ next|urlencode }}{% endif %}">
-        <span class="cy-rolepick__icon" aria-hidden="true">
-          <svg class="cy-i"><use href="#{{ frame.icon }}"/></svg>
-        </span>
-        <span class="cy-rolepick__text">
-          <span class="cy-rolepick__title">Log in as {% if key == 'admin' %}Administrator{% else %}Student{% endif %}</span>
-          <span class="cy-rolepick__sub">{{ frame.lede }}</span>
-        </span>
+        <span class="cy-rolepick__title">Log in as {% if key == 'admin' %}Administrator{% else %}Student{% endif %}</span>
         <span class="cy-rolepick__go" aria-hidden="true">
-          <svg class="cy-i"><use href="#i-arrow-right"/></svg>
+          <svg class="cy-i"><use href="#i-chevron-right"/></svg>
         </span>
       </a>
     {% endfor %}

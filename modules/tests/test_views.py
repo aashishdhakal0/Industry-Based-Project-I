@@ -258,8 +258,8 @@ def test_dashboard_shows_real_points_after_completing_lessons(client_student, st
     complete(client_student, modules[0], 2, HTTP_X_REQUESTED_WITH="fetch")
 
     html = client_student.get(reverse("dashboard")).content.decode()
-    # 2 lessons × 50 = 100 points, shown in the primary points stat.
-    assert 'cy-pstat__v">100<' in html
+    # 2 lessons × 50 = 100 points, shown in the points stat card.
+    assert 'cy-stat__v">100<' in html
 
 
 @pytest.mark.django_db
@@ -405,8 +405,7 @@ def test_a_zero_progress_student_gets_the_full_dashboard(client_student, modules
     assert "cy-tierpanel" in html                # the tier panel, with its emblem
     assert "cy-tier--bronze" in html             # Bronze for a 0-point student
     assert "to Silver" in html                   # progress toward the next tier
-    assert html.count("cy-pstat__v") == 3        # three primary gamified stats
-    assert html.count("cy-mstat__v") == 3        # three secondary counts
+    assert html.count("cy-stat__v") == 6         # six stat cards in a 3 x 2 grid
     assert "cy-cal__grid" in html                # the activity calendar
     assert "cy-welcome" not in html              # NOT the old welcome fork
     assert html.count("cy-btn--primary") == 1    # one clear "Start" action
@@ -451,9 +450,10 @@ def test_the_streak_nudges_when_a_day_is_at_risk(client_student, student, module
     profile.save(update_fields=["streak_count", "last_active"])
 
     html = client_student.get(reverse("dashboard")).content.decode()
-    # Streak is a primary stat; its at-risk state and nudge survive.
-    assert "cy-pstat--at_risk" in html
-    assert "break your 4-day streak" in html   # loss-aversion framing, in the stat
+    # Streak is a stat card; its at-risk state and nudge survive.
+    assert "cy-stat--at_risk" in html
+    assert "Streak at risk" in html            # the concise at-risk nudge, in the card
+    assert 'cy-stat__v">4<' in html            # the 4-day streak count is shown
 
 
 @pytest.mark.django_db
@@ -461,11 +461,10 @@ def test_dashboard_stats_strip_shows_real_totals(client_student, student, module
     complete(client_student, modules[0], 1, HTTP_X_REQUESTED_WITH="fetch")
 
     html = client_student.get(reverse("dashboard")).content.decode()
-    # One cohesive stat composition: three primary + three secondary.
-    assert "cy-stats-primary" in html
-    assert "cy-stats-secondary" in html
-    assert html.count("cy-pstat__v") == 3
-    assert html.count("cy-mstat__v") == 3
+    # Six stat cards in one 3 x 2 grid.
+    assert "cy-db__stats" in html
+    assert html.count("cy-stat__v") == 6
+    assert html.count("cy-stat ") + html.count('cy-stat"') >= 6
 
 
 # --------------------------------------------------------------------------
@@ -480,8 +479,7 @@ def test_returning_dashboard_has_the_profile_and_stats(client_student, modules):
     assert "cy-chip__btn" in html            # the clickable profile chip (a disclosure)
     assert "cy-chip__name" in html           # the student's name
     assert "cy-chip__tier" in html           # tier shown on the chip
-    assert html.count("cy-pstat__v") == 3
-    assert html.count("cy-mstat__v") == 3
+    assert html.count("cy-stat__v") == 6
 
 
 def _set_points(student, points):
@@ -565,7 +563,7 @@ def test_the_composed_dashboard_sections_are_present(client_student, modules):
     html = client_student.get(reverse("dashboard")).content.decode()
     assert "cy-db__hero" in html             # Continue hero + tier panel
     assert "cy-tierpanel" in html            # the tier panel with emblem
-    assert "cy-stats-primary" in html        # the cohesive stat composition
+    assert "cy-db__stats" in html            # the six-card stat grid
     assert "cy-db__lower" in html            # main (up next + goal) + rail (calendar + nudge)
     assert "cy-cal__grid" in html            # the calendar
     assert "cy-upnext" in html               # the new "Up next" roadmap
@@ -592,8 +590,10 @@ def test_weekly_goal_reflects_real_activity(client_student, modules):
     html = client_student.get(reverse("dashboard")).content.decode()
     assert "Weekly goal" in html
     assert "cy-goal__ring" in html
-    assert "cy-goal__dots" in html           # the seven Mon..Sun day markers
-    assert html.count("cy-goal__dots") == 1
+    assert html.count("cy-goal__days") == 1   # one day-marker strip
+    assert html.count("cy-goal__day ") + html.count('cy-goal__day"') == 7   # Mon..Sun
+    # The lesson completed just now makes today an active study day: at least 1/5.
+    assert "1/5" in html
 
 
 @pytest.mark.django_db

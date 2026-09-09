@@ -569,6 +569,23 @@ def dashboard(request):
 
     from .badges import CATALOGUE, nearest_unearned
 
+    # Per-card progress for the six stat cards (all real counts): each secondary
+    # card carries its own completion bar + a concise "N to go" sub-line.
+    lessons_total = sum(mp.total_lessons for mp in progress)
+    modules_done = sum(1 for mp in progress if mp.complete)
+    modules_total = len(progress)
+    badges_earned = len(earned)
+    badges_total = len(CATALOGUE)
+
+    def _pct(done, total):
+        return round(done / total * 100) if total else 0
+
+    counters = {
+        "lessons": {"pct": _pct(lessons_done, lessons_total), "left": max(0, lessons_total - lessons_done)},
+        "modules": {"pct": _pct(modules_done, modules_total), "left": max(0, modules_total - modules_done)},
+        "badges": {"pct": _pct(badges_earned, badges_total), "left": max(0, badges_total - badges_earned)},
+    }
+
     nearest = nearest_unearned(stats, earned)
     # Anticipation: a nearest-badge phrase if there is one, else next-level.
     if nearest:
@@ -619,6 +636,7 @@ def dashboard(request):
             "badges_total": len(CATALOGUE),
             "upnext": upnext,
             "weekly": weekly,
+            "counters": counters,
         },
     )
 
@@ -630,6 +648,29 @@ def progress(request):
     prog = g.module_progress(request.user)
     for mp in prog:
         decorate(mp.module)
+        # A per-lesson dot tracker (done vs to-do) and a quiz state, both derived
+        # from the counts already loaded — no extra query per module.
+        done = mp.done_lessons
+        total = mp.total_lessons
+        mp.lesson_dots = [i < done for i in range(total)]
+        if mp.complete:
+            mp.quiz_state = "passed"
+        elif done >= total and total > 0:
+            mp.quiz_state = "ready"     # lessons done, quiz still to pass
+        else:
+            mp.quiz_state = "todo"
+        if not mp.unlocked:
+            mp.state = "locked"
+        elif mp.complete:
+            mp.state = "complete"
+        elif done > 0:
+            mp.state = "current"
+        else:
+            mp.state = "open"
+
+    lessons_done = sum(mp.done_lessons for mp in prog)
+    lessons_total = sum(mp.total_lessons for mp in prog)
+    modules_done = sum(1 for mp in prog if mp.complete)
 
     return render(
         request,
@@ -639,10 +680,11 @@ def progress(request):
             "profile": profile,
             "level": g.level_for_points(profile.points),
             "progress": prog,
-            "lessons_done": sum(mp.done_lessons for mp in prog),
-            "lessons_total": sum(mp.total_lessons for mp in prog),
-            "modules_done": sum(1 for mp in prog if mp.complete),
+            "lessons_done": lessons_done,
+            "lessons_total": lessons_total,
+            "modules_done": modules_done,
             "modules_total": len(prog),
+            "course_percent": round(lessons_done / lessons_total * 100) if lessons_total else 0,
         },
     )
 

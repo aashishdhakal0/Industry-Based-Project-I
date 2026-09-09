@@ -64,12 +64,17 @@ LESSONS = [
                 "Directorate received <strong>over 84,700 cybercrime reports in "
                 "2024-25, about one every six minutes</strong>, and the average "
                 "self-reported cost to a small business was <strong>$56,600 per "
-                "report</strong>. Attackers are not picking you personally; their "
+                "report</strong><span class=\"cy-cite\">1</span>. Attackers are not "
+                "picking you personally; their "
                 "tools scan everyone, and a small business with real customer data "
                 "and light defences is an easy win.</p>"
                 "<div class=\"cy-callout\">The good news: the same report shows most "
                 "incidents use a handful of predictable weaknesses. A few simple "
-                "habits, covered in this lesson, shut most of those doors.</div>",
+                "habits, covered in this lesson, shut most of those doors.</div>"
+                "<div class=\"cy-sources\"><div class=\"cy-sources__h\">Source</div>"
+                "<ol><li><span class=\"cy-sources__n\">1</span> "
+                "Australian Signals Directorate, ASD Cyber Threat Report 2024-25 "
+                "(cyber.gov.au).</li></ol></div>",
             },
             {
                 "key": "data-travels",
@@ -121,7 +126,8 @@ LESSONS = [
                 "through.</p>"
                 "<p><strong>Confidentiality</strong>: can only the right people see "
                 "it? In 2022 the <strong>Optus</strong> breach exposed information on "
-                "about <strong>9.8 million</strong> current and former customers, "
+                "about <strong>9.8 million</strong><span class=\"cy-cite\">1</span> "
+                "current and former customers, "
                 "including, for some, passport and licence numbers, the raw material "
                 "for identity theft. Nothing was locked or changed; private data "
                 "simply reached people who should never have had it.</p>"
@@ -133,7 +139,8 @@ LESSONS = [
                 "<p><strong>Availability</strong>: is it there when you need it? "
                 "Ransomware that locks every file, or a booking system down all "
                 "morning, fails this. In the 2022 <strong>Medibank</strong> attack, "
-                "sensitive health data on about <strong>9.7 million</strong> people "
+                "sensitive health data on about <strong>9.7 million</strong>"
+                "<span class=\"cy-cite\">2</span> people "
                 "was stolen and later published; the same class of attack routinely "
                 "locks a business out of its own systems for days.</p>"
                 "<p>There is a legal side to this too. Under the "
@@ -142,13 +149,23 @@ LESSONS = [
                 "cause serious harm generally must assess it within "
                 "<strong>30 days</strong> and notify both the OAIC and the people "
                 "affected. In the OAIC's July to December 2024 figures, "
-                "<strong>595 breaches</strong> were reported, most caused by "
+                "<strong>595 breaches</strong><span class=\"cy-cite\">3</span> were "
+                "reported, most caused by "
                 "malicious attacks, with phishing the leading cause and health "
                 "providers the most-breached sector. Getting the three questions "
                 "right is not just good practice; for real data it is the law.</p>"
                 "<div class=\"cy-callout\">Keep information private, keep it correct, "
                 "keep it reachable. Name which one a problem threatens, and you "
-                "already understand half of how to respond.</div>",
+                "already understand half of how to respond.</div>"
+                "<div class=\"cy-sources\"><div class=\"cy-sources__h\">Sources</div>"
+                "<ol>"
+                "<li><span class=\"cy-sources__n\">1</span> Optus 2022 data breach, "
+                "as reported to the OAIC (oaic.gov.au).</li>"
+                "<li><span class=\"cy-sources__n\">2</span> Medibank 2022 data breach, "
+                "OAIC investigation (oaic.gov.au).</li>"
+                "<li><span class=\"cy-sources__n\">3</span> OAIC Notifiable Data "
+                "Breaches Report, July to December 2024 (oaic.gov.au).</li>"
+                "</ol></div>",
             },
             {
                 "key": "weak-points",

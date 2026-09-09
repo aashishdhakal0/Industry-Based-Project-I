@@ -14,12 +14,12 @@
 
 {% block auth_content %}
 <div class="cy-card cy-auth-single cy-rise">
-  <span class="cy-auth-mark" aria-hidden="true">
-    <svg class="cy-i"><use href="#i-bolt"/></svg>
-  </span>
+  <a class="cy-wordmark cy-auth-wordmark" href="{% url 'landing' %}">
+    <span class="cy-mark" aria-hidden="true"></span>
+    {{ site_name }}
+  </a>
 
   <h1>Create your account</h1>
-  <p class="cy-lede">Two minutes, and module one is waiting.</p>
 
   {% if form.errors %}
     {% comment %}
@@ -44,14 +44,16 @@
   <form method="post" novalidate>
     {% csrf_token %}
 
+    {% comment %}
+      First name and last name share one row (they are the first two fields);
+      the rest stack. Hint sits above the input: read the rule, then type.
+      Errors render inline below the field in the danger colour.
+    {% endcomment %}
     {% for field in form %}
+      {% if forloop.counter == 1 %}<div class="cy-frow">{% endif %}
       <div class="cy-field">
         <label for="{{ field.id_for_label }}" class="cy-label">{{ field.label }}</label>
 
-        {% comment %}
-          Hint before the input: read the rule, then type. Underneath, it only
-          gets read after they've already guessed wrong.
-        {% endcomment %}
         {% if field.help_text %}
           <span class="cy-hint">{{ field.help_text }}</span>
         {% endif %}
@@ -73,16 +75,14 @@
           <span class="cy-field-error">{{ error }}</span>
         {% endfor %}
       </div>
+      {% if forloop.counter == 2 %}</div>{% endif %}
     {% endfor %}
 
-    <button type="submit" class="cy-btn cy-btn--primary cy-btn--block">
-      Create my account
-      <svg class="cy-i" aria-hidden="true"><use href="#i-arrow-right"/></svg>
-    </button>
+    <button type="submit" class="cy-btn cy-btn--primary cy-btn--block">Create account</button>
   </form>
 
   <p class="cy-meta">
-    Already with us? <a href="{% url 'authentication:login' %}">Log in</a>
+    Already have an account? <a href="{% url 'authentication:login' %}">Log in</a>
   </p>
 </div>
 {% endblock %}

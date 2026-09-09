@@ -13,54 +13,54 @@
   </div>
 </div>
 
-<div class="cy-tiles cy-rise" style="--cy-delay: 0.05s;">
-  <div class="cy-tile">
-    <div class="cy-tile__icon"><svg class="cy-i" aria-hidden="true"><use href="#i-hex"/></svg></div>
-    <span class="cy-tile__value">{{ profile.points }}</span>
-    <span class="cy-tile__label">points · level {{ level.level }}</span>
+<section class="cy-psum cy-rise" style="--cy-delay: 0.05s;">
+  <div class="cy-psum__ring{% if course_percent >= 100 %} is-done{% endif %}" style="--cy-value: {{ course_percent }}%;" role="img" aria-label="Course {{ course_percent }} percent complete">
+    <b>{{ course_percent }}<small>%</small></b><span>complete</span>
   </div>
-  <div class="cy-tile">
-    <div class="cy-tile__icon cy-tile__icon--flame"><svg class="cy-i" aria-hidden="true"><use href="#i-flame"/></svg></div>
-    <span class="cy-tile__value">{{ profile.streak_count }}</span>
-    <span class="cy-tile__label">day streak</span>
+  <div class="cy-psum__stats">
+    <div class="cy-psum__stat"><span class="cy-psum__v">{{ profile.points }}</span><span class="cy-psum__k">Points · level {{ level.level }}</span></div>
+    <div class="cy-psum__stat"><span class="cy-psum__v">{{ profile.streak_count }}</span><span class="cy-psum__k">Day streak</span></div>
+    <div class="cy-psum__stat"><span class="cy-psum__v">{{ lessons_done }}<small>/{{ lessons_total }}</small></span><span class="cy-psum__k">Lessons</span></div>
+    <div class="cy-psum__stat"><span class="cy-psum__v">{{ modules_done }}<small>/{{ modules_total }}</small></span><span class="cy-psum__k">Modules</span></div>
   </div>
-  <div class="cy-tile">
-    <div class="cy-tile__icon"><svg class="cy-i" aria-hidden="true"><use href="#i-book"/></svg></div>
-    <span class="cy-tile__value">{{ lessons_done }}<span style="color:var(--cy-text-3); font-size:1.1rem;">/{{ lessons_total }}</span></span>
-    <span class="cy-tile__label">lessons complete</span>
-  </div>
-  <div class="cy-tile">
-    <div class="cy-tile__icon"><svg class="cy-i" aria-hidden="true"><use href="#i-layers"/></svg></div>
-    <span class="cy-tile__value">{{ modules_done }}<span style="color:var(--cy-text-3); font-size:1.1rem;">/{{ modules_total }}</span></span>
-    <span class="cy-tile__label">modules complete</span>
-  </div>
+</section>
+
+<div class="cy-section__head" style="margin: 2.4rem 0 1.1rem;">
+  <h2 class="cy-section__title" style="font-size: 1.3rem;">Module by module</h2>
 </div>
 
-<div class="cy-section__head" style="margin: 2.5rem 0 1.25rem;">
-  <h2 class="cy-section__title" style="font-size: 1.35rem;">Module by module</h2>
-</div>
-
-<div class="cy-prog cy-rise" style="--cy-delay: 0.08s;">
+<div class="cy-pmods cy-rise" style="--cy-delay: 0.08s;">
   {% for mp in progress %}
-    <div class="cy-prog__row {% if not mp.unlocked %}cy-prog__row--locked{% endif %}">
-      <span class="cy-prog__glyph" style="--cy-tile-a: {{ mp.module.tile_a }}; --cy-tile-b: {{ mp.module.tile_b }};">
-        {% if not mp.unlocked %}
-          <svg class="cy-i" aria-hidden="true"><use href="#i-lock"/></svg>
-        {% elif mp.complete %}
-          <svg class="cy-i" aria-hidden="true"><use href="#i-check"/></svg>
-        {% else %}
-          <svg class="cy-i" aria-hidden="true"><use href="#{{ mp.module.icon }}"/></svg>
-        {% endif %}
+    <div class="cy-pmod cy-pmod--{{ mp.state }}">
+      <span class="cy-pmod__emblem" style="--cy-tile-a: {{ mp.module.tile_a }}; --cy-tile-b: {{ mp.module.tile_b }};">
+        {% if mp.state == 'locked' %}<svg class="cy-i" aria-hidden="true"><use href="#i-lock"/></svg>
+        {% else %}<svg class="cy-i" aria-hidden="true"><use href="#{{ mp.module.emblem }}"/></svg>{% endif %}
       </span>
-      <div class="cy-prog__body">
-        <div class="cy-prog__top">
-          <span class="cy-prog__name">{{ mp.module.title }}</span>
-          <span class="cy-prog__count">{{ mp.done_lessons }}/{{ mp.total_lessons }}</span>
+      <div class="cy-pmod__body">
+        <div class="cy-pmod__top">
+          <span class="cy-pmod__idx">Module {{ mp.module.order_index|stringformat:"02d" }}</span>
+          {% if mp.state == 'complete' %}<span class="cy-pmod__chip cy-pmod__chip--done"><svg class="cy-i"><use href="#i-check"/></svg> Complete</span>
+          {% elif mp.state == 'current' %}<span class="cy-pmod__chip cy-pmod__chip--current">In progress</span>
+          {% elif mp.state == 'locked' %}<span class="cy-pmod__chip cy-pmod__chip--locked">Locked</span>
+          {% else %}<span class="cy-pmod__chip cy-pmod__chip--open">Not started</span>{% endif %}
         </div>
-        <div class="cy-progress">
-          <div class="cy-progress__fill" style="--cy-value: {{ mp.percent }}%;"></div>
+        {% if mp.unlocked %}
+          <a class="cy-pmod__name" href="{% url 'learn:module' mp.module.order_index %}">{{ mp.module.title }}</a>
+        {% else %}
+          <span class="cy-pmod__name cy-pmod__name--locked">{{ mp.module.title }}</span>
+        {% endif %}
+        <div class="cy-pmod__track">
+          <span class="cy-pmod__dots" aria-hidden="true">
+            {% for done in mp.lesson_dots %}<i class="cy-pmod__dot{% if done %} is-done{% endif %}"></i>{% endfor %}
+          </span>
+          <span class="cy-pmod__count">{{ mp.done_lessons }}/{{ mp.total_lessons }} lessons</span>
+          <span class="cy-pmod__quiz cy-pmod__quiz--{{ mp.quiz_state }}">
+            <svg class="cy-i"><use href="{% if mp.quiz_state == 'passed' %}#i-check-circle{% else %}#i-award{% endif %}"/></svg>
+            {% if mp.quiz_state == 'passed' %}Quiz passed{% elif mp.quiz_state == 'ready' %}Quiz ready{% else %}Quiz{% endif %}
+          </span>
         </div>
       </div>
+      <span class="cy-pmod__pct">{{ mp.percent }}<small>%</small></span>
     </div>
   {% endfor %}
 </div>

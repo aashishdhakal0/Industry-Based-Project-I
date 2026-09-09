@@ -267,11 +267,14 @@ panel shape, payload contracts, voice rules). Copy it to add/extend a module.
   NOT yet built** (a plan exists: `certificates/` app has a `Certificate` model
   with a UUID4 `code` + `pdf_path`; generate lazily with ReportLab on download,
   cache under `MEDIA_ROOT/certificates/`, plus a public `/verify/<code>/`).
-- **Simulation** (`/learn/m/N/simulation/`): **Modules 1 and 2 have a scene-based
-  branching simulation** — a visual, scene-by-scene story, **exactly 2 (rich)
+- **Simulation** (`/learn/m/N/simulation/`): **all six modules now have a
+  scene-based branching simulation** (`MODULE1_SIM`..`MODULE6_SIM` in the seed) —
+  a visual, scene-by-scene story, **exactly 2 (rich)
   decision scenes** each (backdrop illustration + narrative + choices; each choice
   reveals a consequence and advances; a progress stepper and a score-based
-  ending). Data shape `{"kind": "scenes", start, scenes{id:{backdrop,title,
+  ending). Each scene can carry a realistic device-framed `screen` (a browser /
+  window / phone chrome with `rows` / `email` / `items` content), read straight
+  off a real-looking UI. Data shape `{"kind": "scenes", start, scenes{id:{backdrop,title,
   narrative,choices:[{label,outcome,consequence,to}]}}}` in the seed
   (`MODULE1_SIM`/`MODULE2_SIM`); driven by the scene engine in
   `static/js/cybaroo.js`, which posts `{score,total,path}` to the unchanged
@@ -279,10 +282,12 @@ panel shape, payload contracts, voice rules). Copy it to add/extend a module.
   `cy-scene` — `cy-scene` is the landing-page hero animation (grid + child
   stacking); reusing it made the scene art and text overlap in one square (a real
   bug that was fixed).** Each backdrop is a composed CSS "device window"
-  illustration (`cy-scn--email/attach/ransom/win`). Modules 3–6 still use the
-  older judge-the-inbox placeholder (`kind:"inbox"`), which the same JS still
-  handles. Verified end-to-end under `jsc` (walks the good path, posts a perfect
-  score, returns to the module).
+  illustration (`cy-scn--email/attach/ransom/win`); a scene's `screen` renders a
+  realistic device-framed UI (`.cy-scr*` chrome + `.cy-simrows`/`.cy-simmail`/
+  `.cy-simitems`) the learner reads to decide. All six modules use this scene
+  format now (the old `kind:"inbox"` placeholder is retired; the JS still handles
+  it for safety). Verified end-to-end under `jsc` (walks the good path, posts a
+  perfect score, returns to the module).
 - **Real quiz page** (`/learn/m/N/quiz/`, `quiz.html` + `static/js/quiz.js` +
   `.cy-quiz*`): a one-question-at-a-time stepper with a progress bar. It is
   **interactive, Kahoot/Duolingo-style**: options are neutral until the learner
@@ -486,11 +491,9 @@ trade-off, not as equivalent to TOTP.**
 - **Content accuracy review** of all six modules (especially the Optus/Medibank
   facts in M2 and the Privacy Act / NDB material in M6 — kept factual and framed
   as general information, but worth a domain review).
-- **Administrator & Instructor dashboards** — still on Django's raw admin; no
-  in-app staff oversight page yet.
-- **Bespoke simulation pages for Modules 3–6** — Modules 1 and 2 now have real
-  scene-based branching simulations; Modules 3–6 still use the judge-the-inbox
-  placeholder.
+- **Administrator & Instructor dashboards** — the in-app admin console at
+  `/manage/` (the `staff/` app) is built; the Instructor role has no dedicated
+  surface yet.
 - **The current in-progress visual-distinction task** (§3) — not started in code.
 - **Deployment + hosting decision (UNRESOLVED BLOCKER).** PythonAnywhere's free
   tier has **no PostgreSQL** (MySQL is paid; PG is a paid add-on). Options: pay

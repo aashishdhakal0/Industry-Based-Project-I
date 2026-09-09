@@ -126,7 +126,7 @@ def test_active_yesterday_is_at_risk(student):
     status = g.streak_status(profile, today=TODAY)
     assert status.state == "at_risk"
     assert status.display == 7
-    assert "Don't break your 7-day streak" in status.message and "before midnight" in status.message
+    assert "Streak at risk" in status.message      # concise, motivating at-risk copy
 
 
 @pytest.mark.django_db

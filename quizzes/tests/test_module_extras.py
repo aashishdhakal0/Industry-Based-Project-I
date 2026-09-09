@@ -35,7 +35,7 @@ def test_module_one_overview_renders_its_tagline(seeded):
     client = Client()
     client.force_login(student)
     html = client.get(reverse("learn:module", args=[1]), HTTP_HOST="127.0.0.1").content.decode()
-    assert "cy-module__tagline" in html
+    assert "cy-mhead__tagline" in html
     assert Module.objects.get(order_index=1).tagline in html
 
 

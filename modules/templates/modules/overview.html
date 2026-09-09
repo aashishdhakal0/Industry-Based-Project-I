@@ -17,20 +17,17 @@
     {% include "_profile_chip.html" %}
   </header>
 
-  <div class="cy-module__banner cy-rise" style="--cy-tile-a: {{ module.tile_a }}; --cy-tile-b: {{ module.tile_b }}; border-radius: var(--cy-r-lg); height: 96px;">
-    <div class="cy-module__banner-inner">
-      <span class="cy-module__index">MODULE {{ module.order_index|stringformat:"02d" }}</span>
-      <span class="cy-module__glyph"><svg class="cy-i" aria-hidden="true"><use href="#{{ module.icon }}"/></svg></span>
+  <header class="cy-mhead cy-rise" style="--cy-delay:0.05s; --cy-tile-a: {{ module.tile_a }}; --cy-tile-b: {{ module.tile_b }};">
+    <span class="cy-mhead__emblem"><svg class="cy-i" aria-hidden="true"><use href="#{{ module.emblem }}"/></svg></span>
+    <div class="cy-mhead__body">
+      <span class="cy-mhead__idx">Module {{ module.order_index|stringformat:"02d" }}</span>
+      <h1 class="cy-mhead__title">{{ module.title }}</h1>
+      {% if module.tagline %}
+        <p class="cy-mhead__tagline"><svg class="cy-i" aria-hidden="true"><use href="#i-bolt"/></svg> {{ module.tagline }}</p>
+      {% endif %}
+      <p class="cy-mhead__lede">{{ module.description }}</p>
     </div>
-  </div>
-
-  {% if module.tagline %}
-    <p class="cy-module__tagline cy-rise" style="--cy-delay:0.05s;">
-      <svg class="cy-i" aria-hidden="true"><use href="#i-bolt"/></svg> {{ module.tagline }}
-    </p>
-  {% endif %}
-  <h1 class="cy-rise" style="--cy-delay:0.06s; font-size: 1.9rem; margin: 0.5rem 0 0.5rem;">{{ module.title }}</h1>
-  <p class="cy-lede cy-rise" style="--cy-delay:0.06s;">{{ module.description }}</p>
+  </header>
 
   {% if module_complete %}
     <div class="cy-moddone cy-rise" style="--cy-delay:0.07s;">

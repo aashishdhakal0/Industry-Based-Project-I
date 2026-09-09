@@ -37,11 +37,41 @@
 {% endif %}
 
 {% if progress %}
-  <div class="cy-map" style="margin-top: 1.75rem;">
+  <ol class="cy-path cy-rise" style="margin-top: 1.9rem; --cy-delay: 0.1s;">
     {% for mp in progress %}
-      {% include "_module_tile.html" with module=mp.module state=mp.state link=mp.link progress=mp.percent progress_label=mp.progress_label %}
+      <li class="cy-path__row cy-path__row--{{ mp.state }}">
+        <div class="cy-path__spine" aria-hidden="true">
+          <span class="cy-path__node">
+            <svg class="cy-i cy-path__emblem"><use href="#{{ mp.module.emblem }}"/></svg>
+            {% if mp.state == 'complete' %}<span class="cy-path__badge cy-path__badge--done"><svg class="cy-i"><use href="#i-check"/></svg></span>
+            {% elif mp.state == 'locked' %}<span class="cy-path__badge cy-path__badge--lock"><svg class="cy-i"><use href="#i-lock"/></svg></span>{% endif %}
+          </span>
+        </div>
+        {% if mp.link %}<a class="cy-path__card" href="{{ mp.link }}">{% else %}<div class="cy-path__card">{% endif %}
+          <div class="cy-path__head">
+            <span class="cy-path__idx">Module {{ mp.module.order_index|stringformat:"02d" }}</span>
+            {% if mp.state == 'complete' %}<span class="cy-path__chip cy-path__chip--done"><svg class="cy-i"><use href="#i-check"/></svg> Complete</span>
+            {% elif mp.state == 'current' %}<span class="cy-path__chip cy-path__chip--current">In progress</span>
+            {% elif mp.state == 'open' %}<span class="cy-path__chip cy-path__chip--open">Start here</span>
+            {% else %}<span class="cy-path__chip cy-path__chip--locked"><svg class="cy-i"><use href="#i-lock"/></svg> Locked</span>{% endif %}
+          </div>
+          <h3 class="cy-path__title">{{ mp.module.title }}</h3>
+          <p class="cy-path__desc">{{ mp.module.subtitle }}</p>
+          {% if mp.state == 'locked' %}
+            <p class="cy-path__hint">Finish the module before this one to unlock it.</p>
+          {% else %}
+            <div class="cy-path__foot">
+              <span class="cy-progress cy-path__bar"><span class="cy-progress__fill" style="--cy-value: {{ mp.percent }}%;"></span></span>
+              <span class="cy-path__lessons">{{ mp.progress_label }} lessons</span>
+              {% if mp.state == 'current' %}<span class="cy-path__go">Continue <svg class="cy-i"><use href="#i-arrow-right"/></svg></span>
+              {% elif mp.state == 'open' %}<span class="cy-path__go">Start <svg class="cy-i"><use href="#i-arrow-right"/></svg></span>
+              {% elif mp.state == 'complete' %}<span class="cy-path__go">Review <svg class="cy-i"><use href="#i-arrow-right"/></svg></span>{% endif %}
+            </div>
+          {% endif %}
+        {% if mp.link %}</a>{% else %}</div>{% endif %}
+      </li>
     {% endfor %}
-  </div>
+  </ol>
 {% else %}
   <div class="cy-empty cy-rise" style="margin-top: 1.75rem;">
     <div class="cy-empty__icon"><svg class="cy-i" aria-hidden="true"><use href="#i-layers"/></svg></div>

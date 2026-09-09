@@ -121,10 +121,11 @@ def test_overview_stats_are_right(client, world):
 def test_overview_page_renders_headline_numbers(client, world):
     client.force_login(world["admin"])
     body = client.get(reverse("staff:overview")).content.decode()
-    assert "Learners" in body
-    assert "Completion" in body
+    assert "Training completion" in body            # the hero leads with completion
+    assert "completed all six modules" in body
     assert "Average score" in body
-    assert "cy-app--console" in body        # the console theme is scoped on
+    assert "cy-c-ring" in body                       # the completion ring
+    assert "cy-app--console" in body                 # the console theme is scoped on
 
 
 def test_overview_organisation_rollup(world):

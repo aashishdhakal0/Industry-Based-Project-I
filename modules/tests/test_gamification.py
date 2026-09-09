@@ -422,6 +422,52 @@ def test_weekly_goal_is_met_when_the_target_is_reached(student, modules):
     assert wg.active == 5 and wg.met is True and wg.remaining == 0 and wg.percent == 100
 
 
+@pytest.mark.django_db
+def test_weekly_goal_counts_a_task_only_study_day(student, modules):
+    """A completed lesson PANEL (TaskProgress) with no whole-lesson completion
+    still counts as an active study day — the fix for the goal reading 0/5 while
+    the student was genuinely studying."""
+    from modules.models import LessonTask, ProgressRecord, TaskProgress
+
+    anchor = datetime.date(2026, 7, 16)
+    monday = anchor - datetime.timedelta(days=anchor.weekday())
+    wednesday = monday + datetime.timedelta(days=2)
+
+    lesson = modules[0].lessons.order_by("lesson_number").first()
+    # Two tasks, so completing ONE does not bank the whole lesson.
+    tasks = [
+        LessonTask.objects.create(lesson=lesson, order=i, task_key=f"t{i}", kind="CONCEPT", points=5)
+        for i in (1, 2)
+    ]
+    g.complete_task(student, tasks[0])
+    # No whole-lesson completion yet: the only study record is the task.
+    assert not ProgressRecord.objects.filter(user=student, lesson=lesson).exists()
+    aware = timezone.make_aware(datetime.datetime.combine(wednesday, datetime.time(12, 0)))
+    TaskProgress.objects.filter(user=student, task=tasks[0]).update(completed_at=aware)
+
+    wg = g.weekly_goal(student, today=monday + datetime.timedelta(days=3))  # Thursday
+    assert wg.active == 1
+    assert [d["active"] for d in wg.days] == [False, False, True, False, False, False, False]
+
+
+@pytest.mark.django_db
+def test_weekly_goal_state_and_message_adapt(student, modules):
+    anchor = datetime.date(2026, 7, 16)
+    monday = anchor - datetime.timedelta(days=anchor.weekday())
+
+    # Nothing done yet, early week -> "none".
+    none = g.weekly_goal(student, today=monday)
+    assert none.state == "none" and none.active == 0
+
+    # Reached the target -> "met" with a celebratory line.
+    plan = [(modules[0], 1), (modules[0], 2), (modules[0], 3), (modules[0], 4), (modules[1], 1)]
+    for i, (mod, ln) in enumerate(plan):
+        _study_on(student, mod, ln, monday + datetime.timedelta(days=i))
+    met = g.weekly_goal(student, today=monday + datetime.timedelta(days=5))
+    assert met.state == "met" and met.met is True
+    assert "Goal reached" in met.message
+
+
 def test_activity_phrase_reads_by_type_and_pluralises():
     # Fixed order (lessons, quizzes, simulations); zero counts skipped; singular vs plural.
     assert g._activity_phrase({"lessons": 2, "quizzes": 1, "simulations": 0}) == "2 lessons, 1 quiz"

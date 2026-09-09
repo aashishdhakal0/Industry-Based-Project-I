@@ -88,60 +88,54 @@
     </div>
   </div>
 
-  {# Stats — one cohesive composition: three primary, three secondary #}
+  {# Stats: six cards in a 3 x 2 grid, one shared anatomy per card. #}
   <div class="cy-db__stats">
-    <div class="cy-stats-primary cy-elev">
-      <div class="cy-pstat cy-pstat--points">
-        <span class="cy-pstat__ic"><svg class="cy-i" aria-hidden="true"><use href="#i-hex"/></svg></span>
-        <span class="cy-pstat__col">
-          <span class="cy-pstat__v">{{ profile.points }}</span>
-          <span class="cy-pstat__k">Points</span>
-          {% if not tier.is_max %}<span class="cy-pstat__bar"><i style="width: {{ tier.percent }}%;"></i></span>{% endif %}
-          <span class="cy-pstat__sub">{% if tier.is_max %}Top tier reached{% else %}<b>{{ tier.to_next }}</b> to {{ tier.next_tier.name }}{% endif %}</span>
-        </span>
-      </div>
-      <div class="cy-pstat cy-pstat--level">
-        <span class="cy-pstat__ic"><svg class="cy-i" aria-hidden="true"><use href="#i-chart"/></svg></span>
-        <span class="cy-pstat__col">
-          <span class="cy-pstat__v">{{ level.level }}</span>
-          <span class="cy-pstat__k">Level · {{ rank }}</span>
-          {% if level.to_next %}<span class="cy-pstat__bar"><i style="width: {{ level.percent }}%;"></i></span>{% endif %}
-          <span class="cy-pstat__sub">{% if level.to_next %}<b>{{ level.into_level }}</b> / {{ level.level_span }} to Level {{ level.level|add:1 }}{% else %}Max level reached{% endif %}</span>
-        </span>
-      </div>
-      <div class="cy-pstat cy-pstat--streak cy-pstat--{{ streak.state }}" title="{{ streak.message }}">
-        <span class="cy-pstat__ic"><svg class="cy-i" aria-hidden="true"><use href="#i-flame"/></svg></span>
-        <span class="cy-pstat__col">
-          <span class="cy-pstat__v">{{ streak.display }}</span>
-          <span class="cy-pstat__k">Day streak</span>
-          <span class="cy-pstat__sub">{{ streak.message }}</span>
-        </span>
-      </div>
+    <div class="cy-stat cy-stat--points">
+      <span class="cy-stat__ic"><svg class="cy-i" aria-hidden="true"><use href="#i-hex"/></svg></span>
+      <span class="cy-stat__v">{{ profile.points }}</span>
+      <span class="cy-stat__k">Points</span>
+      {% if not tier.is_max %}<span class="cy-stat__bar"><i style="width: {{ tier.percent }}%;"></i></span>{% endif %}
+      <span class="cy-stat__sub">{% if tier.is_max %}Top tier reached{% else %}<b>{{ tier.to_next }}</b> to {{ tier.next_tier.name }}{% endif %}</span>
     </div>
 
-    <div class="cy-stats-secondary cy-elev">
-      <div class="cy-mstat">
-        <span class="cy-mstat__top">
-          <span class="cy-mstat__ic"><svg class="cy-i" aria-hidden="true"><use href="#i-book"/></svg></span>
-          <span class="cy-mstat__v">{{ lessons_done }} <small>/ {{ lessons_total }}</small></span>
-        </span>
-        <span class="cy-mstat__k">Lessons</span>
-      </div>
-      <div class="cy-mstat">
-        <span class="cy-mstat__top">
-          <span class="cy-mstat__ic"><svg class="cy-i" aria-hidden="true"><use href="#i-layers"/></svg></span>
-          <span class="cy-mstat__v">{{ modules_done }} <small>/ {{ modules_total }}</small></span>
-        </span>
-        <span class="cy-mstat__k">Modules</span>
-      </div>
-      <a class="cy-mstat cy-mstat--link" href="{% url 'learn:badges' %}">
-        <span class="cy-mstat__top">
-          <span class="cy-mstat__ic"><svg class="cy-i" aria-hidden="true"><use href="#i-award"/></svg></span>
-          <span class="cy-mstat__v">{{ badges_earned }} <small>/ {{ badges_total }}</small></span>
-        </span>
-        <span class="cy-mstat__k">Badges</span>
-      </a>
+    <div class="cy-stat cy-stat--level">
+      <span class="cy-stat__ic"><svg class="cy-i" aria-hidden="true"><use href="#i-chart"/></svg></span>
+      <span class="cy-stat__v">{{ level.level }}</span>
+      <span class="cy-stat__k">Level</span>
+      {% if level.to_next %}<span class="cy-stat__bar"><i style="width: {{ level.percent }}%;"></i></span>{% endif %}
+      <span class="cy-stat__sub">{{ rank }}</span>
     </div>
+
+    <div class="cy-stat cy-stat--streak cy-stat--{{ streak.state }}" title="{{ streak.message }}">
+      <span class="cy-stat__ic"><svg class="cy-i" aria-hidden="true"><use href="#i-flame"/></svg></span>
+      <span class="cy-stat__v">{{ streak.display }}</span>
+      <span class="cy-stat__k">Day streak</span>
+      <span class="cy-stat__sub">{% if streak.state == 'safe' %}Active today{% elif streak.state == 'at_risk' %}At risk{% else %}Start today{% endif %}</span>
+    </div>
+
+    <div class="cy-stat cy-stat--count">
+      <span class="cy-stat__ic"><svg class="cy-i" aria-hidden="true"><use href="#i-book"/></svg></span>
+      <span class="cy-stat__v">{{ lessons_done }} <small>/ {{ lessons_total }}</small></span>
+      <span class="cy-stat__k">Lessons</span>
+      <span class="cy-stat__bar"><i style="width: {{ counters.lessons.pct }}%;"></i></span>
+      <span class="cy-stat__sub">{% if counters.lessons.left %}<b>{{ counters.lessons.left }}</b> to go{% else %}All lessons done{% endif %}</span>
+    </div>
+
+    <div class="cy-stat cy-stat--count">
+      <span class="cy-stat__ic"><svg class="cy-i" aria-hidden="true"><use href="#i-layers"/></svg></span>
+      <span class="cy-stat__v">{{ modules_done }} <small>/ {{ modules_total }}</small></span>
+      <span class="cy-stat__k">Modules</span>
+      <span class="cy-stat__bar"><i style="width: {{ counters.modules.pct }}%;"></i></span>
+      <span class="cy-stat__sub">{% if counters.modules.left %}<b>{{ counters.modules.left }}</b> to go{% else %}Course complete{% endif %}</span>
+    </div>
+
+    <a class="cy-stat cy-stat--link" href="{% url 'learn:badges' %}">
+      <span class="cy-stat__ic"><svg class="cy-i" aria-hidden="true"><use href="#i-award"/></svg></span>
+      <span class="cy-stat__v">{{ badges_earned }} <small>/ {{ badges_total }}</small></span>
+      <span class="cy-stat__k">Badges</span>
+      <span class="cy-stat__bar"><i style="width: {{ counters.badges.pct }}%;"></i></span>
+      <span class="cy-stat__sub">{% if counters.badges.left %}<b>{{ counters.badges.left }}</b> to unlock{% else %}All earned{% endif %}</span>
+    </a>
   </div>
 
   {# Lower — main (up next + weekly goal) and rail (calendar + next badge) #}
@@ -172,15 +166,19 @@
         </section>
       {% endif %}
 
-      <section class="cy-card cy-goal cy-elev">
+      <section class="cy-card cy-goal cy-goal--{{ weekly.state }} cy-elev">
         <div class="cy-goal__ring{% if weekly.met %} is-met{% endif %}" style="--cy-value: {{ weekly.percent }}%;">
           <b>{{ weekly.active }}/{{ weekly.target }}</b><small>days</small>
         </div>
         <div class="cy-goal__txt">
           <h2>Weekly goal</h2>
-          <p>{% if weekly.met %}Target hit, nice work. Keep the streak going.{% elif weekly.remaining == 1 %}Just one more active day to hit your target this week.{% else %}{{ weekly.remaining }} more active days to hit your target this week.{% endif %}</p>
-          <div class="cy-goal__dots" aria-hidden="true">
-            {% for d in weekly.days %}<i class="{% if d.active %}is-on{% endif %}{% if d.is_today %} is-today{% endif %}" title="{{ d.abbr }}"></i>{% endfor %}
+          <p>{{ weekly.message }}</p>
+          <div class="cy-goal__days">
+            {% for d in weekly.days %}
+              <span class="cy-goal__day{% if d.active %} is-on{% endif %}{% if d.is_today %} is-today{% endif %}{% if d.future %} is-future{% endif %}">
+                <i></i><span>{{ d.abbr }}</span>
+              </span>
+            {% endfor %}
           </div>
         </div>
       </section>

@@ -122,7 +122,8 @@ def test_grouped_page_shows_orgs_roles_and_status(client, world):
     assert "cy-c-org" in body                       # collapsible org section
     assert "Riverside Council" in body and "No organisation" in body
     assert "ada@example.com" in body                # admin appears in the group
-    assert "cy-role--administrator" in body and "cy-role--student" in body
+    # Staff get a role pill; students read as plain quiet "Student" text.
+    assert "cy-c-rolepill--administrator" in body and "cy-c-rolelabel" in body
     assert "cy-status--completed" in body           # Finn
     assert "avg completion" in body
     # Per-org CSV link for a real organisation.

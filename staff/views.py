@@ -72,22 +72,32 @@ def set_theme(request):
 
 @administrator_required
 def overview(request):
-    """Welcome + headline stats + grade-tier distribution + admin activity."""
-    from modules import gamification as g
-
+    """The command centre: completion leads, then activity + grades, then the
+    consolidated 'needs attention' list and recent activity. All from live data."""
     rows = services.collect_learners()
     stats = services.overview(rows)
 
-    def _int(name):
-        try:
-            return int(request.GET.get(name))
-        except (TypeError, ValueError):
-            return None
+    # The activity chart only renders when there is data to plot; otherwise the
+    # template shows a graceful empty state rather than a flat line of zeros.
+    series = services.activity_series()
+    chart = (
+        services.area_chart(series["values"], weeks=series["weeks"])
+        if series["has_data"]
+        else None
+    )
 
-    cal_month = _int("cal_month")
-    if cal_month is not None and not 1 <= cal_month <= 12:
-        cal_month = None
-    calendar = services.admin_calendar(year=_int("cal_year"), month=cal_month)
+    # Hero read: how the cohort splits by course progress (started/finished),
+    # not by grade — this is the completion question an admin leads with.
+    total = stats["total_learners"]
+    started = stats["active_learners"]
+    completed = stats["completed_course"]
+    hero = {
+        "completed": completed,
+        "in_progress": max(0, started - completed),
+        "not_started": max(0, total - started),
+    }
+
+    period = services.period_metrics()
 
     return _render(
         request,
@@ -95,12 +105,16 @@ def overview(request):
         {
             "active": "admin_overview",
             "stats": stats,
-            "period": services.period_metrics(),
-            "cohorts": services.attention_cohorts(rows),
-            "greeting": g.greeting(),
-            "recent_actions": services.recent_actions(),
-            "content_health": services.content_health(),
-            "calendar": calendar,
+            "hero": hero,
+            "ring": services.completion_ring(stats["completion_rate"]),
+            "period_active": period["active"],
+            "series": series,
+            "chart": chart,
+            "grade": services.grade_bars(stats),
+            "engagement": services.cohort_engagement(rows),
+            "momentum": services.activity_momentum(series),
+            "attention": services.attention_feed(rows),
+            "recent_actions": services.recent_actions(6),
         },
     )
 
@@ -119,9 +133,24 @@ def learners(request):
     sort = request.GET.get("sort", services.DEFAULT_SORT)
     if sort not in services.SORTS:
         sort = services.DEFAULT_SORT
-    filter_key = request.GET.get("filter", "")
-    if filter_key not in services.QUICK_FILTERS:
-        filter_key = ""
+
+    # Status and grade are two INDEPENDENT filters (combinable), replacing the
+    # old single `filter`. A legacy `?filter=<key>` link (from the overview or a
+    # learner-detail back-link) is mapped onto whichever axis it belongs to, so
+    # every existing link keeps working.
+    status = request.GET.get("status", "")
+    grade = request.GET.get("grade", "")
+    legacy = request.GET.get("filter", "")
+    if legacy and not status and not grade:
+        if legacy in services.STATUS_FILTER_KEYS:
+            status = legacy
+        elif legacy in services.GRADE_FILTER_KEYS:
+            grade = legacy
+    if status not in services.STATUS_FILTER_KEYS:
+        status = ""
+    if grade not in services.GRADE_FILTER_KEYS:
+        grade = ""
+
     view = request.GET.get("view", "grouped")
     if view not in ("grouped", "list"):
         view = "grouped"
@@ -133,8 +162,18 @@ def learners(request):
         rows = services.collect_learners()   # students only
     total_all = len(rows)
     rows = services.search_learners(rows, q)
-    if filter_key:
-        rows = services.filter_learners(rows, filter_key)
+
+    # Quick-chip counts reflect the current search, before the status/grade
+    # filters narrow the list (bounded: one pass over the in-memory rows).
+    chip_counts = {
+        "attention": sum(1 for r in rows if services.QUICK_FILTERS["attention"][1](r)),
+        "not_started": sum(1 for r in rows if services.QUICK_FILTERS["not_started"][1](r)),
+    }
+
+    if status:
+        rows = services.filter_learners(rows, status)
+    if grade:
+        rows = services.filter_learners(rows, grade)
     match_count = len(rows)
 
     groups = page_obj = None
@@ -162,9 +201,13 @@ def learners(request):
             "total_all": total_all,
             "sort": sort,
             "q": q,
-            "filter": filter_key,
-            "status_chips": [(k, services.QUICK_FILTERS[k][0]) for k in services.STATUS_FILTER_KEYS],
-            "grade_chips": [(k, services.QUICK_FILTERS[k][0]) for k in services.GRADE_FILTER_KEYS],
+            "status": status,
+            "grade": grade,
+            "chip_counts": chip_counts,
+            "status_options": [(k, services.QUICK_FILTERS[k][0]) for k in services.STATUS_FILTER_KEYS],
+            "grade_options": [(k, services.QUICK_FILTERS[k][0]) for k in services.GRADE_FILTER_KEYS],
+            "status_label": services.QUICK_FILTERS[status][0] if status else "Any",
+            "grade_label": services.QUICK_FILTERS[grade][0] if grade else "Any",
             "base_qs": base_qs,
             "organisations": Organisation.objects.all(),
         },

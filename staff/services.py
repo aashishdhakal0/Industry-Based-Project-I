@@ -129,6 +129,7 @@ class LearnerRow:
 SORTS = {
     "name": lambda r: (r.name.lower(),),
     "completion": lambda r: (-r.modules_completed, r.name.lower()),
+    "points": lambda r: (-r.points, r.name.lower()),
     "grade": lambda r: (r.overall_score is None, -(r.overall_score or 0), r.name.lower()),
     "activity": lambda r: (
         r.last_active is None,
@@ -424,6 +425,233 @@ def attention_cohorts(rows, sample=6):
             }
         )
     return out
+
+
+def attention_feed(rows, sample=6):
+    """One consolidated 'needs attention' view: the four category counts (for the
+    chips) plus a SINGLE prioritised list of people to chase, each tagged with the
+    reason they surfaced. Replaces the four separate cohort cards.
+
+    Priority: failing a quiz, then stalled, then unverified, then not-started.
+    `total` is the distinct number of learners flagged (a learner can match more
+    than one cohort but is chased once)."""
+    by_key = {c["key"]: c for c in attention_cohorts(rows)}
+    chips = [
+        {"key": "not_started", "label": "not started", "tone": "ns", "count": by_key["not_started"]["count"]},
+        {"key": "stalled", "label": "stalled", "tone": "st", "count": by_key["stalled"]["count"]},
+        {"key": "repeat_failed", "label": "failing a quiz", "tone": "fl", "count": by_key["repeat_failed"]["count"]},
+        {"key": "unverified", "label": "unverified", "tone": "uv", "count": by_key["unverified"]["count"]},
+    ]
+
+    def _reason(r):
+        if r.repeat_failed:
+            return ("fl", "Failing a quiz", "repeat_failed")
+        if r.stalled:
+            return ("st", f"{r.days_inactive} days quiet", "stalled")
+        if r.awaiting_verification:
+            return ("uv", "Unverified", "unverified")
+        if not r.started:
+            return ("ns", "Not started", "not_started")
+        return None
+
+    order = {"fl": 0, "st": 1, "uv": 2, "ns": 3}
+    items = []
+    for r in rows:
+        if not r.is_student:
+            continue
+        reason = _reason(r)
+        if reason:
+            tone, tag, key = reason
+            items.append({"row": r, "tone": tone, "tag": tag, "key": key})
+    items.sort(key=lambda it: (order[it["tone"]], it["row"].name.lower()))
+
+    return {"chips": chips, "total": len(items), "items": items[:sample]}
+
+
+# --- Overview charts (CSP-safe SVG, computed server-side) --------------------
+
+
+def completion_ring(rate, radius=72):
+    """Dash geometry for the completion donut: an arc `dash` long on a full-circle
+    track `gap`, so `rate` percent of the ring is filled."""
+    import math
+
+    circ = 2 * math.pi * radius
+    return {"pct": rate, "dash": round(circ * (rate or 0) / 100, 1), "gap": round(circ, 1)}
+
+
+def activity_series(weeks=12, now=None):
+    """Weekly learning activity (lessons completed + quizzes submitted) over the
+    last `weeks` seven-day windows, the most recent ending today. A couple of
+    bounded queries, then bucketed in Python (the count never grows with the
+    cohort). Carries this-week vs last-week movement and a has_data flag so the
+    overview can show a graceful empty state instead of a flat line of zeros."""
+    from collections import Counter
+
+    now = now or timezone.now()
+    today = timezone.localdate(now)
+    start_date = today - timedelta(days=weeks * 7 - 1)
+    start_dt = timezone.make_aware(datetime.combine(start_date, datetime.min.time()))
+
+    per_day = Counter()
+    for model, field in ((ProgressRecord, "completed_at"), (QuizResult, "submitted_at")):
+        for stamp in model.objects.filter(
+            **{f"{field}__gte": start_dt}
+        ).values_list(field, flat=True):
+            d = timezone.localdate(stamp)
+            if d >= start_date:
+                per_day[d] += 1
+
+    values = []
+    for k in range(weeks):
+        wk = start_date + timedelta(days=k * 7)
+        values.append(sum(per_day.get(wk + timedelta(days=j), 0) for j in range(7)))
+
+    this_week = values[-1] if values else 0
+    last_week = values[-2] if len(values) >= 2 else 0
+    return {
+        "weeks": weeks,
+        "values": values,
+        "this_week": this_week,
+        "last_week": last_week,
+        "delta": this_week - last_week,
+        "total": sum(values),
+        "has_data": any(values),
+    }
+
+
+def area_chart(values, *, weeks=None, width=680, height=232,
+               pad_l=40, pad_r=12, pad_t=16, pad_b=32):
+    """Turn a series of values into ready-to-render SVG geometry. Every coordinate
+    is a string, so nothing is number-localised into the markup. Returns the area
+    path, the line points, three gridlines with y-axis labels, x-axis labels, the
+    baseline, and the endpoint marker."""
+    weeks = weeks or len(values)
+    n = len(values)
+    top, bottom = pad_t, height - pad_b
+    plot_h = bottom - top
+    x0, x1 = pad_l, width - pad_r
+    plot_w = x1 - x0
+    vmax = max(values) if values and max(values) > 0 else 1
+
+    def fx(i):
+        return x0 if n <= 1 else x0 + i * (plot_w / (n - 1))
+
+    def fy(v):
+        return bottom - (v / vmax) * plot_h
+
+    def s(x):
+        return f"{round(x, 1)}"
+
+    pts = [(fx(i), fy(v)) for i, v in enumerate(values)]
+    line_points = " ".join(f"{s(px)},{s(py)}" for px, py in pts)
+    area_path = (
+        f"M{s(pts[0][0])},{s(bottom)} "
+        + " ".join(f"L{s(px)},{s(py)}" for px, py in pts)
+        + f" L{s(pts[-1][0])},{s(bottom)} Z"
+    )
+    mid_y = top + plot_h / 2
+    return {
+        "width": width,
+        "height": height,
+        "area_path": area_path,
+        "line_points": line_points,
+        "baseline": s(bottom),
+        "x_left": s(x0),
+        "x_right": s(x1),
+        "y_label_x": s(x0 - 10),
+        "gridlines": [s(top), s(mid_y), s(bottom)],
+        "y_labels": [
+            {"y": s(top + 4), "text": str(vmax)},
+            {"y": s(mid_y + 4), "text": str(round(vmax / 2))},
+            {"y": s(bottom + 4), "text": "0"},
+        ],
+        "x_labels": [
+            {"x": s(x0), "text": f"{weeks}w ago", "anchor": "start"},
+            {"x": s((x0 + x1) / 2), "text": f"{weeks // 2}w", "anchor": "middle"},
+            {"x": s(x1), "text": "now", "anchor": "end"},
+        ],
+        "endpoint": {"x": s(pts[-1][0]), "y": s(pts[-1][1])},
+        "label_y": s(height - 10),
+    }
+
+
+def grade_bars(stats):
+    """The grade distribution as bar-chart rows: each tier plus Not started, with
+    the bar width as a percentage of the largest count. Colours come from the tier
+    slug in CSS."""
+    rows = [
+        {"label": band["tier"].name, "slug": band["tier"].slug, "count": band["count"]}
+        for band in stats["distribution"]
+    ]
+    rows.append({"label": "Not started", "slug": "not-started", "count": stats["not_started"]})
+    biggest = max((r["count"] for r in rows), default=0) or 1
+    for r in rows:
+        r["percent"] = round(r["count"] / biggest * 100)
+    graded = sum(band["count"] for band in stats["distribution"])
+    return {"rows": rows, "graded": graded, "total": stats["total_learners"]}
+
+
+def cohort_engagement(rows):
+    """Where every learner stands right now, as four mutually exclusive buckets
+    for the hero's engagement bar: completed the course, progressing, stalled
+    (started then gone quiet), or not started. Students only, composed from the
+    rows already in memory (no extra query). Each segment carries a width percent
+    of the cohort so the stacked bar renders straight from these figures."""
+    segments = [
+        {"key": "completed", "label": "Completed", "count": 0},
+        {"key": "progressing", "label": "Progressing", "count": 0},
+        {"key": "stalled", "label": "Stalled", "count": 0},
+        {"key": "not_started", "label": "Not started", "count": 0},
+    ]
+    by_key = {s["key"]: s for s in segments}
+    total = 0
+    for r in rows:
+        if not r.is_student:
+            continue
+        total += 1
+        if r.completed_course:
+            by_key["completed"]["count"] += 1
+        elif r.stalled:
+            by_key["stalled"]["count"] += 1
+        elif r.started:
+            by_key["progressing"]["count"] += 1
+        else:
+            by_key["not_started"]["count"] += 1
+    for s in segments:
+        s["percent"] = round(s["count"] / total * 100, 1) if total else 0
+    return {"segments": segments, "total": total,
+            "has_data": total > 0 and any(s["count"] for s in segments)}
+
+
+def activity_momentum(series, span=4):
+    """Is learning speeding up or slowing down? Compares the average weekly
+    activity across the most recent `span` weeks against the `span` weeks before
+    that, off the same series the activity chart uses. Returns the two averages
+    and a plain-language read (picking up / holding steady / easing off) so the
+    hero can show a single momentum pill. Degrades to no-data when the window is
+    too short or empty."""
+    values = series.get("values") or []
+    if len(values) < span * 2 or not any(values):
+        return {"has_data": False}
+    recent = values[-span:]
+    prior = values[-span * 2:-span]
+    recent_avg = sum(recent) / span
+    prior_avg = sum(prior) / span
+    if recent_avg > prior_avg * 1.1:
+        label, direction = "Momentum picking up", "up"
+    elif recent_avg < prior_avg * 0.9:
+        label, direction = "Activity easing off", "down"
+    else:
+        label, direction = "Holding steady", "steady"
+    return {
+        "has_data": True,
+        "label": label,
+        "direction": direction,
+        "recent_avg": round(recent_avg),
+        "prior_avg": round(prior_avg),
+        "span": span,
+    }
 
 
 def organisations(rows, limit=6):
