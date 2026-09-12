@@ -92,10 +92,6 @@
     }
   );
 
-  function firstOpen() {
-    for (var i = 0; i < panels.length; i++) if (!isDone(panels[i])) return i;
-    return -1;
-  }
   function doneCount() {
     var n = 0;
     panels.forEach(function (p) { if (isDone(p)) n += 1; });
@@ -257,9 +253,18 @@
     if (panel && panel !== room) satisfySlot(panel);
   });
 
-  // Collapse all, open the first incomplete panel; hide the no-JS fallback while
-  // there is still something to do (the celebration handles navigation).
-  var open = firstOpen();
+  // Opening a lesson always lands on Task 1 at the top, with Task 1 active in the
+  // rail: a fresh learner, a returning learner, and someone who has finished the
+  // lesson all start from the first task. A #task-<id> deep link (the rail's own
+  // jump links, or a shared anchor) still wins so those keep working. This
+  // deliberately replaces the older "resume at the first incomplete task" open.
+  var deep = -1;
+  if (location.hash && location.hash.indexOf("#task-") === 0) {
+    for (var d = 0; d < panels.length; d++) {
+      if (panels[d].id === location.hash.slice(1)) { deep = d; break; }
+    }
+  }
+  var open = deep !== -1 ? deep : (panels.length ? 0 : -1);
   panels.forEach(function (p, i) { p.open = (i === open); });
   if (nojs && open !== -1) nojs.hidden = true;
   updateProgress(null);
@@ -277,6 +282,9 @@
     }, { rootMargin: "-130px 0px -55% 0px", threshold: 0 });
     panels.forEach(function (p) { spy.observe(p); });
   }
-  // Start with the first open (current) task marked active.
+  // Start with the opened task (Task 1 by default) marked active, and land the
+  // viewport at the top so Task 1 is the first thing the learner sees. A deep
+  // link keeps its own scroll target.
   if (open !== -1) setActive(panels[open]);
+  if (deep === -1) window.scrollTo(0, 0);
 })();

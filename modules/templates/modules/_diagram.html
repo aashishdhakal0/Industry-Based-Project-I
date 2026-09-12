@@ -5,26 +5,53 @@
 
 {% if key == "cia-triad" %}
   <figure class="cy-diagram" role="img"
-          aria-label="The three pillars of security as a status board. Confidentiality: can only the right people see it. Integrity: is it accurate and unaltered. Availability: is it there when you need it. Below, an incident: a supplier invoice arrives with its bank account quietly changed, but the file still opens and nobody is locked out.">
-    <div class="cy-scr cy-scr--win">
-      <div class="cy-scr__chrome">
-        <span class="cy-scr__title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 3l7 3v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/><path d="M9 12l2 2 4-4"/></svg>Security status board</span>
-        <span class="cy-scr__winctl">&#8722; &#9633; &#10005;</span>
+          aria-label="The three pillars of security, each shown as a real screen where it has failed. Confidentiality: a Google Drive share dialog for Patient_records_2024.xlsx set to Anyone with the link can view. Integrity: a supplier tax invoice where the bank account for payment has been quietly changed, highlighted. Availability: a ransomware lock screen saying the practice's files are encrypted.">
+    <div class="cy-cia3">
+      <div class="cy-cia3__cell">
+        <div class="cy-cia3__frame">
+          <div class="cy-drv">
+            <div class="cy-drv__h">Share <span>&ldquo;Patient_records_2024.xlsx&rdquo;</span></div>
+            <div class="cy-drv__gen">
+              <span class="cy-drv__globe"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 010 18M12 3a15 15 0 000 18"/></svg></span>
+              <span><span class="cy-drv__lab">Anyone with the link</span><span class="cy-drv__sub">Anyone on the internet with the link can view</span></span>
+              <span class="cy-drv__role">Viewer &#9662;</span>
+            </div>
+            <div class="cy-drv__foot"><span class="cy-drv__copy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" style="width:12px;height:12px;vertical-align:-1px"><path d="M10 14a4 4 0 006 0l3-3a4 4 0 00-6-6l-1 1M14 10a4 4 0 00-6 0l-3 3a4 4 0 006 6l1-1"/></svg> Copy link</span><span class="cy-drv__done">Done</span></div>
+          </div>
+        </div>
+        <p class="cy-cia3__cap"><span class="cy-cia3__tag cy-cia3__tag--c">Confidentiality</span><span class="cy-cia3__what">The wrong people can see it.</span></p>
       </div>
-      <div class="cy-scr__body">
-        <div class="cy-ciab">
-          <div class="cy-ciab__c cy-ciab__c--c"><div class="cy-ciab__t"><span class="cy-ciab__b">C</span> Confidentiality</div><p class="cy-ciab__q">Can only the right people see it?</p></div>
-          <div class="cy-ciab__c cy-ciab__c--i"><div class="cy-ciab__t"><span class="cy-ciab__b">I</span> Integrity</div><p class="cy-ciab__q">Is it accurate and unaltered?</p></div>
-          <div class="cy-ciab__c cy-ciab__c--a"><div class="cy-ciab__t"><span class="cy-ciab__b">A</span> Availability</div><p class="cy-ciab__q">Is it there when you need it?</p></div>
+      <div class="cy-cia3__cell">
+        <div class="cy-cia3__frame">
+          <div class="cy-inv">
+            <div class="cy-inv__top"><span class="cy-inv__co">Bright Dental Supplies<small>ABN 44 128 907 331</small></span><span class="cy-inv__t">TAX INVOICE</span></div>
+            <p class="cy-inv__meta">Bill to: Yarra Ridge Dental &middot; Inv #BDS-4471 &middot; 14 Oct 2025</p>
+            <div class="cy-inv__li"><span>Composite restorative kit</span><span>$1,240.00</span></div>
+            <div class="cy-inv__li"><span>Sterilisation pouches x500</span><span>$186.00</span></div>
+            <div class="cy-inv__li"><b>Total due</b><b>$1,426.00</b></div>
+            <div class="cy-inv__pay">
+              <span class="cy-inv__payh">Please pay to</span>
+              <div class="cy-inv__bsb">BSB <mark>083-170</mark> &nbsp; Acct <mark>55 981 402</mark></div>
+              <div class="cy-inv__bsb">Bright Dental Supplies Pty Ltd</div>
+            </div>
+          </div>
         </div>
-        <div class="cy-ticket">
-          <span class="cy-ticket__h">Incident &middot; 09:22</span>
-          <p class="cy-ticket__b">A supplier's invoice arrives with its bank account quietly changed. The file still opens fine and nobody is locked out.</p>
+        <p class="cy-cia3__cap"><span class="cy-cia3__tag cy-cia3__tag--i">Integrity</span><span class="cy-cia3__what">The bank details were quietly changed.</span></p>
+      </div>
+      <div class="cy-cia3__cell">
+        <div class="cy-cia3__frame">
+          <div class="cy-lock">
+            <span class="cy-lock__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 018 0v3"/></svg></span>
+            <p class="cy-lock__h">Your files are encrypted</p>
+            <p class="cy-lock__p">Patient records, x-rays and accounts on this practice&rsquo;s systems are locked.</p>
+            <p class="cy-lock__timer">Time left: 71:58:04</p>
+          </div>
         </div>
+        <p class="cy-cia3__cap"><span class="cy-cia3__tag cy-cia3__tag--a">Availability</span><span class="cy-cia3__what">You can&rsquo;t reach it when you need it.</span></p>
       </div>
     </div>
     <figcaption class="cy-diagram__cap cy-diagram__cap--single">
-      Read the three pillars, then the incident. Which pillar has failed?
+      Security rests on three pillars. Each screen shows one of them broken: kept private (Confidentiality), kept accurate (Integrity), kept available (Availability).
     </figcaption>
   </figure>
 
@@ -411,98 +438,148 @@
 
 {% elif key == "router-admin" %}
   <figure class="cy-diagram" role="img"
-          aria-label="A router admin settings page open in a browser at http 192.168.0.1, marked not secure. Admin password is still set to admin. Wi-Fi encryption is WPA2 On. The guest network is On and Open with no password. Firmware is up to date.">
-    <div class="cy-scr cy-scr--browser">
-      <div class="cy-scr__chrome">
-        <span class="cy-scr__dots"><i></i><i></i><i></i></span>
-        <span class="cy-scr__tab"><b style="background:#0899b8"></b><span>HG-2400 Router admin</span></span>
+          aria-label="The router's Security settings page open in a browser at 192.168.1.1, marked not secure. The admin password is still the factory default, admin, flagged in red as a default. Wi-Fi encryption is WPA2. The guest network is On and Open with no password, flagged red. Automatic firmware updates are off and an update is available. Remote management is off.">
+    <div class="cy-br">
+      <div class="cy-br__tabs">
+        <span class="cy-br__lights"><i></i><i></i><i></i></span>
+        <span class="cy-br__tab is-on"><b class="cy-br__fav" style="background:#0f6f78">R</b><span>NetGuard R6300 &middot; Security</span><i class="cy-br__x">&times;</i></span>
+        <span class="cy-br__tab"><b class="cy-br__fav" style="background:#ea4335">M</b><span>Gmail</span></span>
+        <span class="cy-br__plus">+</span>
       </div>
-      <div class="cy-scr__addr">
-        <span class="cy-scr__nav">&#8592; &#8594;</span>
-        <span class="cy-scr__url cy-scr__url--insecure"><span class="cy-scr__lock"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 10V7a6 6 0 0111 0"/><rect x="4" y="10" width="16" height="10" rx="2"/></svg></span><span class="cy-scr__insecure">Not secure</span>&nbsp;192.168.0.1/settings</span>
+      <div class="cy-br__bar">
+        <span class="cy-br__nav">&#8592; &#8594;</span><span class="cy-br__reload">&#8635;</span>
+        <span class="cy-br__omni">
+          <span class="cy-br__lk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M12 12v4"/></svg></span><span class="cy-br__ns">Not secure</span>
+          <span class="cy-br__url"><span class="g">http://</span>192.168.1.1<b>/security</b></span>
+          <span class="cy-br__star">&#9734;</span>
+        </span>
       </div>
-      <div class="cy-scr__body">
-        <div class="cy-radmin__wrap">
-          <div class="cy-radmin__menu">
-            <span class="cy-radmin__mi">Status</span>
-            <span class="cy-radmin__mi is-on">Security</span>
-            <span class="cy-radmin__mi">Wireless</span>
-            <span class="cy-radmin__mi">Devices</span>
+      <div class="cy-br__marks">
+        <span class="cy-br__mark"><b style="background:#0f6f78"></b>Router</span>
+        <span class="cy-br__mark"><b style="background:#13b5ea"></b>Xero</span>
+        <span class="cy-br__mark"><b style="background:#ea4335"></b>Gmail</span>
+        <span class="cy-br__mark"><b style="background:#6b3fa0"></b>MYOB</span>
+        <span class="cy-br__mark"><b style="background:#1a73e8"></b>OAIC</span>
+      </div>
+      <div class="cy-br__view">
+        <div class="cy-rtr">
+          <div class="cy-rtr__brand">NetGuard R6300 <span>Firmware 1.2.8</span></div>
+          <div class="cy-rtr__nav">
+            <span class="cy-rtr__ni">Status</span>
+            <span class="cy-rtr__ni">Wireless</span>
+            <span class="cy-rtr__ni is-on">Security</span>
+            <span class="cy-rtr__ni">Devices</span>
           </div>
-          <div class="cy-radmin__form">
-            <div class="cy-radmin__row"><span class="cy-radmin__k">Admin password</span><span class="cy-radmin__v">admin</span></div>
-            <div class="cy-radmin__row"><span class="cy-radmin__k">Wi-Fi encryption</span><span class="cy-radmin__pill cy-radmin__pill--on">WPA2 On</span></div>
-            <div class="cy-radmin__row"><span class="cy-radmin__k">Guest network</span><span class="cy-radmin__pill cy-radmin__pill--open">On &middot; Open (no password)</span></div>
-            <div class="cy-radmin__row"><span class="cy-radmin__k">Firmware</span><span class="cy-radmin__v">up to date</span></div>
+          <div class="cy-rtr__main">
+            <p class="cy-rtr__h">Security</p>
+            <p class="cy-rtr__lede">Settings that control who can reach this router and network.</p>
+            <div class="cy-rtr__row"><span class="cy-rtr__k">Admin password <small>Sign-in for this page</small></span><span class="cy-rtr__pill cy-rtr__pill--bad">Default &middot; admin</span></div>
+            <div class="cy-rtr__row"><span class="cy-rtr__k">Wi-Fi encryption</span><span class="cy-rtr__v">WPA2-PSK</span></div>
+            <div class="cy-rtr__row"><span class="cy-rtr__k">Guest network <small>YarraRidge-Guest</small></span><span class="cy-rtr__pill cy-rtr__pill--bad">On &middot; Open (no password)</span></div>
+            <div class="cy-rtr__row"><span class="cy-rtr__k">Automatic firmware updates</span><span class="cy-rtr__pill cy-rtr__pill--warn">Off &middot; update available</span></div>
+            <div class="cy-rtr__row"><span class="cy-rtr__k">Remote management <small>Admin from the internet</small></span><span class="cy-rtr__pill cy-rtr__pill--ok">Off</span></div>
           </div>
         </div>
       </div>
     </div>
     <figcaption class="cy-diagram__cap cy-diagram__cap--single">
-      The router's own settings page, open in a browser. Read the four rows: three are fine, one is a wide-open door.
+      The router's own Security page, open in a browser. Read the rows: two are wide-open doors, the factory <b>admin</b> password and an open guest network.
     </figcaption>
   </figure>
 
 {% elif key == "router-wifi" %}
   <figure class="cy-diagram" role="img"
-          aria-label="The office router's wireless settings page in a browser at 192.168.1.1. Network name is YarravilleRE-Office. Security is set to Open with no password. Guest network is off. The admin password has been changed to a strong one. Firmware is up to date.">
-    <div class="cy-scr cy-scr--browser">
-      <div class="cy-scr__chrome">
-        <span class="cy-scr__dots"><i></i><i></i><i></i></span>
-        <span class="cy-scr__tab"><b style="background:#0899b8"></b><span>Office router &middot; Wireless</span></span>
+          aria-label="The office router's Wireless settings page in a browser at 192.168.1.1. The network name is YarraRidge-Office on the 5 gigahertz band, channel 44. Security is WPA3-Personal. The password is hidden. The main network is set up well, but a second row shows a hidden network, YarraRidge, still running Open with no password.">
+    <div class="cy-br">
+      <div class="cy-br__tabs">
+        <span class="cy-br__lights"><i></i><i></i><i></i></span>
+        <span class="cy-br__tab is-on"><b class="cy-br__fav" style="background:#0f6f78">R</b><span>NetGuard R6300 &middot; Wireless</span><i class="cy-br__x">&times;</i></span>
+        <span class="cy-br__tab"><b class="cy-br__fav" style="background:#13b5ea">X</b><span>Xero</span></span>
+        <span class="cy-br__plus">+</span>
       </div>
-      <div class="cy-scr__addr">
-        <span class="cy-scr__nav">&#8592; &#8594;</span>
-        <span class="cy-scr__url cy-scr__url--insecure"><span class="cy-scr__lock"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 10V7a6 6 0 0111 0"/><rect x="4" y="10" width="16" height="10" rx="2"/></svg></span><span class="cy-scr__insecure">Not secure</span>&nbsp;192.168.1.1/wireless</span>
+      <div class="cy-br__bar">
+        <span class="cy-br__nav">&#8592; &#8594;</span><span class="cy-br__reload">&#8635;</span>
+        <span class="cy-br__omni">
+          <span class="cy-br__lk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M12 12v4"/></svg></span><span class="cy-br__ns">Not secure</span>
+          <span class="cy-br__url"><span class="g">http://</span>192.168.1.1<b>/wireless</b></span>
+          <span class="cy-br__star">&#9734;</span>
+        </span>
       </div>
-      <div class="cy-scr__body">
-        <div class="cy-radmin__wrap">
-          <div class="cy-radmin__menu">
-            <span class="cy-radmin__mi">Status</span>
-            <span class="cy-radmin__mi">Security</span>
-            <span class="cy-radmin__mi is-on">Wireless</span>
-            <span class="cy-radmin__mi">Devices</span>
+      <div class="cy-br__marks">
+        <span class="cy-br__mark"><b style="background:#0f6f78"></b>Router</span>
+        <span class="cy-br__mark"><b style="background:#13b5ea"></b>Xero</span>
+        <span class="cy-br__mark"><b style="background:#ea4335"></b>Gmail</span>
+        <span class="cy-br__mark"><b style="background:#6b3fa0"></b>MYOB</span>
+        <span class="cy-br__mark"><b style="background:#1a73e8"></b>OAIC</span>
+      </div>
+      <div class="cy-br__view">
+        <div class="cy-rtr">
+          <div class="cy-rtr__brand">NetGuard R6300 <span>Firmware 1.2.8</span></div>
+          <div class="cy-rtr__nav">
+            <span class="cy-rtr__ni">Status</span>
+            <span class="cy-rtr__ni is-on">Wireless</span>
+            <span class="cy-rtr__ni">Security</span>
+            <span class="cy-rtr__ni">Devices</span>
           </div>
-          <div class="cy-radmin__form">
-            <div class="cy-radmin__row"><span class="cy-radmin__k">Network name (SSID)</span><span class="cy-radmin__v">YarravilleRE-Office</span></div>
-            <div class="cy-radmin__row"><span class="cy-radmin__k">Security</span><span class="cy-radmin__pill cy-radmin__pill--open">Open (no password)</span></div>
-            <div class="cy-radmin__row"><span class="cy-radmin__k">Guest network</span><span class="cy-radmin__v">Off</span></div>
-            <div class="cy-radmin__row"><span class="cy-radmin__k">Admin password</span><span class="cy-radmin__pill cy-radmin__pill--on">Changed (strong)</span></div>
-            <div class="cy-radmin__row"><span class="cy-radmin__k">Firmware</span><span class="cy-radmin__v">up to date</span></div>
+          <div class="cy-rtr__main">
+            <p class="cy-rtr__h">Wireless &middot; 5 GHz</p>
+            <p class="cy-rtr__lede">The Wi-Fi network your staff and devices join.</p>
+            <div class="cy-rtr__row"><span class="cy-rtr__k">Network name (SSID)</span><span class="cy-rtr__v">YarraRidge-Office</span></div>
+            <div class="cy-rtr__row"><span class="cy-rtr__k">Security</span><span class="cy-rtr__pill cy-rtr__pill--ok">WPA3-Personal</span></div>
+            <div class="cy-rtr__row"><span class="cy-rtr__k">Password</span><span class="cy-rtr__v">&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;</span></div>
+            <div class="cy-rtr__row"><span class="cy-rtr__k">Band &middot; Channel</span><span class="cy-rtr__v">5 GHz &middot; 44</span></div>
+            <div class="cy-rtr__row"><span class="cy-rtr__k">Hidden network <small>YarraRidge (legacy)</small></span><span class="cy-rtr__pill cy-rtr__pill--bad">Open (no password)</span></div>
           </div>
         </div>
       </div>
     </div>
     <figcaption class="cy-diagram__cap cy-diagram__cap--single">
-      The office router's wireless settings. Four rows are set up well. One leaves the Wi-Fi wide open.
+      The office Wi-Fi looks well set up, WPA3 and a hidden password. But scroll down: an old second network is still broadcasting <b>Open, no password</b>.
     </figcaption>
   </figure>
 
 {% elif key == "lookalike-login" %}
   <figure class="cy-diagram" role="img"
-          aria-label="A browser sign-in page. The address bar shows a padlock and https, but the web address is yarravi11ere-payments.com, a lookalike of yarravillere.com.au with two number ones in place of the two letter l's. A sign-in form is filled in with an email and a hidden password.">
-    <div class="cy-scr cy-scr--browser">
-      <div class="cy-scr__chrome">
-        <span class="cy-scr__dots"><i></i><i></i><i></i></span>
-        <span class="cy-scr__tab"><b style="background:#12203a"></b><span>Rent portal &middot; sign in</span></span>
+          aria-label="A browser sign-in page. The address bar shows a padlock and https, but the web address is yarravi11ere-payments.com, a lookalike of the real yarravillere.com.au, with two number ones standing in for the two letter L's and a dot com instead of dot com dot au. A sign-in form is filled in with an email and a hidden password, and the browser shows a warning that saved passwords for yarravillere.com.au will not fill on this site.">
+    <div class="cy-br">
+      <div class="cy-br__tabs">
+        <span class="cy-br__lights"><i></i><i></i><i></i></span>
+        <span class="cy-br__tab is-on"><b class="cy-br__fav" style="background:#1b4b82">Y</b><span>Yarra Ridge Estate Agents &middot; Sign in</span><i class="cy-br__x">&times;</i></span>
+        <span class="cy-br__tab"><b class="cy-br__fav" style="background:#ea4335">M</b><span>Gmail</span></span>
+        <span class="cy-br__plus">+</span>
       </div>
-      <div class="cy-scr__addr">
-        <span class="cy-scr__nav">&#8592; &#8594;</span>
-        <span class="cy-scr__url"><span class="cy-scr__lock cy-scr__lock--ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 018 0v3"/></svg></span>https://<b>yarravi11ere-payments.com</b>/login</span>
+      <div class="cy-br__bar">
+        <span class="cy-br__nav">&#8592; &#8594;</span><span class="cy-br__reload">&#8635;</span>
+        <span class="cy-br__omni">
+          <span class="cy-br__lk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 018 0v3"/></svg></span>
+          <span class="cy-br__url"><span class="g">https://</span><b>yarravi11ere-payments.com</b><span class="g">/tenant/login</span></span>
+          <span class="cy-br__star">&#9734;</span>
+        </span>
       </div>
-      <div class="cy-scr__body">
-        <div class="cy-signin">
-          <div class="cy-signin__brand"><span class="cy-signin__mark">YRE</span> Rent Portal</div>
-          <div class="cy-signin__lbl">Email address</div>
-          <div class="cy-signin__field">cody@yarravillere.com.au</div>
-          <div class="cy-signin__lbl">Password</div>
-          <div class="cy-signin__field">&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;</div>
-          <div class="cy-signin__btn">Sign in</div>
+      <div class="cy-br__marks">
+        <span class="cy-br__mark"><b style="background:#0f6f78"></b>Router</span>
+        <span class="cy-br__mark"><b style="background:#13b5ea"></b>Xero</span>
+        <span class="cy-br__mark"><b style="background:#ea4335"></b>Gmail</span>
+        <span class="cy-br__mark"><b style="background:#1b4b82"></b>Rent portal</span>
+      </div>
+      <div class="cy-br__view">
+        <div class="cy-lgn">
+          <div class="cy-lgn__card">
+            <div class="cy-lgn__brand"><span class="cy-lgn__mark">YRE</span> Rent Portal</div>
+            <p class="cy-lgn__sub">Sign in to view your statement and pay rent.</p>
+            <div class="cy-lgn__lbl">Email address</div>
+            <div class="cy-lgn__inp">cody.matthews@bigpond.com</div>
+            <div class="cy-lgn__lbl">Password</div>
+            <div class="cy-lgn__inp"><span class="dots">&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;</span></div>
+            <div class="cy-lgn__warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3l9 16H3z"/><path d="M12 10v4M12 17h.01"/></svg>Your saved password for <b>yarravillere.com.au</b> won&rsquo;t fill on this site.</div>
+            <div class="cy-lgn__btn">Sign in</div>
+            <p class="cy-lgn__foot">&copy; Yarra Ridge Estate Agents</p>
+          </div>
         </div>
       </div>
     </div>
     <figcaption class="cy-diagram__cap cy-diagram__cap--single">
-      A padlock and https, yes. Now read the address: two number ones stand in for the "ll", and it is a .com, not the agency's real .com.au.
+      A padlock and https, yes, both easy to fake. Now read the address: two number <b>1</b>s stand in for the &ldquo;ll&rdquo;, and it ends <b>.com</b>, not the agency&rsquo;s real <b>.com.au</b>. The browser even warns your saved password won&rsquo;t fill.
     </figcaption>
   </figure>
 
@@ -1272,32 +1349,39 @@
 
 {% elif key == "data-journey" %}
   <figure class="cy-diagram" role="img"
-          aria-label="An animation of data crossing the internet on two lanes. On the top lane, without the padlock, a login travels as readable text (user joe, password hunter2) and a listener on the internet reads it in the clear. On the bottom lane, with the padlock, the same login travels as scrambled characters and the listener cannot read it.">
-    <div class="cy-dj">
-      <div class="cy-dj__group">
-        <span class="cy-dj__tag cy-dj__tag--open">Without the padlock &middot; http</span>
-        <div class="cy-dj__lane cy-dj__lane--open">
-          <div class="cy-dj__node"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="1.5"/><line x1="8" y1="20" x2="16" y2="20"/></svg>Your device</div>
-          <div class="cy-dj__wire"></div>
-          <div class="cy-dj__node"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M6 16a4 4 0 010-8 5 5 0 019.6-1.5A3.5 3.5 0 0118 16z"/></svg>Internet<span class="cy-dj__listen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6z"/><circle cx="12" cy="12" r="2.5"/></svg>reads it</span></div>
-          <div class="cy-dj__wire"></div>
-          <div class="cy-dj__node"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="4" y="3" width="16" height="7" rx="1.5"/><rect x="4" y="14" width="16" height="7" rx="1.5"/><line x1="8" y1="6.5" x2="8" y2="6.5"/><line x1="8" y1="17.5" x2="8" y2="17.5"/></svg>Server</div>
-          <div class="cy-dj__pkt">user: joe &middot; pw: hunter2</div>
+          aria-label="A browser loading the rent portal over https. A loading bar runs, the padlock closes, and Chrome's Connection is secure panel opens: Your information, for example passwords or credit card numbers, is private when it is sent to this site. Certificate is valid, issued by DigiCert. The address bar reads https colon slash slash portal dot yarravillere dot com dot au.">
+    <div class="cy-br cy-sec">
+      <div class="cy-br__tabs">
+        <span class="cy-br__lights"><i></i><i></i><i></i></span>
+        <span class="cy-br__tab is-on"><b class="cy-br__fav" style="background:#1b4b82">Y</b><span>Yarra Ridge Estate Agents</span><i class="cy-br__x">&times;</i></span>
+        <span class="cy-br__plus">+</span>
+      </div>
+      <div class="cy-br__bar">
+        <span class="cy-br__nav">&#8592; &#8594;</span><span class="cy-br__reload">&#8635;</span>
+        <span class="cy-br__omni">
+          <span class="cy-br__lk cy-br__lk--load"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 018 0v3"/></svg></span>
+          <span class="cy-br__url"><span class="g">https://</span>portal.yarravillere.com.au<span class="g">/tenant</span></span>
+          <span class="cy-br__star">&#9734;</span>
+        </span>
+      </div>
+      <div class="cy-br__load"></div>
+      <div class="cy-br__view">
+        <div class="cy-sec__body">
+          <div class="cy-sec__page" aria-hidden="true">
+            <span class="cy-sec__logo">Rent Portal</span>
+            <span class="cy-sec__ln" style="width:70%"></span>
+            <span class="cy-sec__ln" style="width:52%"></span>
+            <span class="cy-sec__box"></span>
+          </div>
+          <div class="cy-sec__pop">
+            <div class="cy-sec__poph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 018 0v3"/></svg> Connection is secure</div>
+            <p class="cy-sec__popp">Your information (for example, passwords or card numbers) is private when it&rsquo;s sent to this site.</p>
+            <div class="cy-sec__cert"><svg viewBox="0 0 24 24" fill="none" stroke="#137333" stroke-width="2" aria-hidden="true" style="width:14px;height:14px;flex:none"><path d="M20 6L9 17l-5-5"/></svg> Certificate is <b>valid</b> &middot; issued by DigiCert</div>
+          </div>
         </div>
       </div>
-      <div class="cy-dj__group">
-        <span class="cy-dj__tag cy-dj__tag--enc">With the padlock &middot; https</span>
-        <div class="cy-dj__lane cy-dj__lane--enc">
-          <div class="cy-dj__node"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="1.5"/><line x1="8" y1="20" x2="16" y2="20"/></svg>Your device</div>
-          <div class="cy-dj__wire"></div>
-          <div class="cy-dj__node"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M6 16a4 4 0 010-8 5 5 0 019.6-1.5A3.5 3.5 0 0118 16z"/></svg>Internet<span class="cy-dj__listen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6z"/><circle cx="12" cy="12" r="2.5"/></svg>can&rsquo;t read</span></div>
-          <div class="cy-dj__wire"></div>
-          <div class="cy-dj__node"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="4" y="3" width="16" height="7" rx="1.5"/><rect x="4" y="14" width="16" height="7" rx="1.5"/><line x1="8" y1="6.5" x2="8" y2="6.5"/><line x1="8" y1="17.5" x2="8" y2="17.5"/></svg>Server</div>
-          <div class="cy-dj__pkt">&bull;8f3a&bull;c1&bull;9e7d&bull;a204&bull;</div>
-        </div>
-      </div>
-      <p class="cy-dj__cap">The same login, two ways across the internet. Without the padlock, anyone in the middle can read it.</p>
     </div>
+    <figcaption class="cy-diagram__cap cy-diagram__cap--single">Watch it connect: the page loads, the <b>padlock</b> closes, and Chrome confirms the connection is encrypted with a valid certificate. That padlock is what scrambles your login on the way across the internet.</figcaption>
   </figure>
 
 {% elif key == "infection-spread" %}
@@ -1398,89 +1482,94 @@
     </div>
   </figure>
 {% elif key == "net-topology" %}
-  <figure class="cy-diagram cy-td" role="img"
-          aria-label="A small-business network. The front-desk computer, the eftpos terminal, the printer and staff phones all connect to one router, which is the single gateway out to the internet.">
-    <svg viewBox="0 0 640 336" xmlns="http://www.w3.org/2000/svg" class="cy-td__svg">
-      <rect x="12" y="30" width="392" height="292" rx="14" fill="rgba(0,217,255,0.03)" stroke="#33465f" stroke-dasharray="5 6"/>
-      <text x="24" y="22" class="cy-td__eyebrow">YOUR OFFICE NETWORK</text>
-      <!-- connectors -->
-      <g stroke="#3a5075" stroke-width="2" fill="none">
-        <path d="M104 96 L196 150"/><path d="M312 96 L232 150"/>
-        <path d="M104 258 L196 178"/><path d="M312 258 L232 178"/>
-        <path d="M266 164 H470" stroke="#0e6f78" stroke-width="2.4" stroke-dasharray="2 5"/>
-      </g>
-      <!-- devices -->
-      <g class="cy-td__dev"><rect x="40" y="70" width="118" height="52" rx="8"/><text x="99" y="93">Front-desk PC</text><text x="99" y="110" class="cy-td__sub">reception</text></g>
-      <g class="cy-td__dev"><rect x="254" y="70" width="118" height="52" rx="8"/><text x="313" y="93">Eftpos terminal</text><text x="313" y="110" class="cy-td__sub">payments</text></g>
-      <g class="cy-td__dev"><rect x="40" y="232" width="118" height="52" rx="8"/><text x="99" y="255">Clinic printer</text><text x="99" y="272" class="cy-td__sub">shared</text></g>
-      <g class="cy-td__dev"><rect x="254" y="232" width="118" height="52" rx="8"/><text x="313" y="255">Staff phones</text><text x="313" y="272" class="cy-td__sub">on the Wi-Fi</text></g>
-      <!-- router -->
-      <g><line x1="196" y1="150" x2="196" y2="132" stroke="#00d9ff" stroke-width="2"/><line x1="232" y1="150" x2="232" y2="132" stroke="#00d9ff" stroke-width="2"/>
-        <rect x="176" y="150" width="76" height="42" rx="9" fill="#12202b" stroke="#00d9ff" stroke-width="2"/>
-        <text x="214" y="170" class="cy-td__router">ROUTER</text><text x="214" y="184" class="cy-td__sub2">the gateway</text></g>
-      <!-- internet -->
-      <g><path d="M486 138 q-26 0 -26 24 q-24 2 -20 26 q2 20 26 18 h84 q26 2 26 -22 q22 -4 14 -26 q-6 -18 -28 -14 q-8 -18 -30 -14 q-20 -4 -46 8 z" fill="#141d29" stroke="#5be7ff" stroke-width="1.8"/>
-        <text x="524" y="176" class="cy-td__router">INTERNET</text></g>
-    </svg>
-    <figcaption class="cy-diagram__cap cy-diagram__cap--single">A network is just devices sharing information. In a small business they all talk through one router, the single door in and out.</figcaption>
+  <figure class="cy-diagram" role="img"
+          aria-label="The router's Attached Devices page open in a browser at 192.168.1.1, marked not secure. A table lists six devices connected to the Yarra Ridge Dental network: Front-desk-PC, an EFTPOS terminal, an HP LaserJet printer, Priya's iPhone, Dr Tom's Pixel and the reception iPad, each with an IP address, a MAC address, a connection type and an online status.">
+    <div class="cy-br">
+      <div class="cy-br__tabs">
+        <span class="cy-br__lights"><i></i><i></i><i></i></span>
+        <span class="cy-br__tab is-on"><b class="cy-br__fav" style="background:#0f6f78">R</b><span>NetGuard R6300 &middot; Devices</span><i class="cy-br__x">&times;</i></span>
+        <span class="cy-br__tab"><b class="cy-br__fav" style="background:#13b5ea">X</b><span>Xero</span></span>
+        <span class="cy-br__plus">+</span>
+      </div>
+      <div class="cy-br__bar">
+        <span class="cy-br__nav">&#8592; &#8594;</span><span class="cy-br__reload">&#8635;</span>
+        <span class="cy-br__omni">
+          <span class="cy-br__lk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M12 12v4"/></svg></span><span class="cy-br__ns">Not secure</span>
+          <span class="cy-br__url"><span class="g">http://</span>192.168.1.1<b>/devices</b></span>
+          <span class="cy-br__star">&#9734;</span>
+        </span>
+      </div>
+      <div class="cy-br__marks">
+        <span class="cy-br__mark"><b style="background:#0f6f78"></b>Router</span>
+        <span class="cy-br__mark"><b style="background:#13b5ea"></b>Xero</span>
+        <span class="cy-br__mark"><b style="background:#ea4335"></b>Gmail</span>
+        <span class="cy-br__mark"><b style="background:#6b3fa0"></b>MYOB</span>
+        <span class="cy-br__mark"><b style="background:#1a73e8"></b>OAIC</span>
+      </div>
+      <div class="cy-br__view">
+        <div class="cy-rtr">
+          <div class="cy-rtr__brand">NetGuard R6300 <span>Firmware 1.2.8</span></div>
+          <div class="cy-rtr__nav">
+            <span class="cy-rtr__ni">Status</span>
+            <span class="cy-rtr__ni">Wireless</span>
+            <span class="cy-rtr__ni">Security</span>
+            <span class="cy-rtr__ni is-on">Devices</span>
+          </div>
+          <div class="cy-rtr__main">
+            <p class="cy-rtr__h">Attached devices</p>
+            <p class="cy-rtr__lede">6 devices connected through this router.</p>
+            <div class="cy-rtr__tblwrap">
+              <table class="cy-rtr__tbl">
+                <thead><tr><th>Device</th><th>IP address</th><th>MAC address</th><th>Connection</th><th>Status</th></tr></thead>
+                <tbody>
+                  <tr><td class="cy-rtr__dev">Front-desk-PC</td><td class="cy-rtr__ip">192.168.1.24</td><td class="cy-rtr__mac">e4:5f:01:9c:2a:7b</td><td>Ethernet</td><td class="cy-rtr__on">Online</td></tr>
+                  <tr><td class="cy-rtr__dev">EFTPOS-VX520</td><td class="cy-rtr__ip">192.168.1.31</td><td class="cy-rtr__mac">00:1b:44:11:3a:b7</td><td>Wi-Fi 2.4GHz</td><td class="cy-rtr__on">Online</td></tr>
+                  <tr><td class="cy-rtr__dev">HP-LaserJet-M182</td><td class="cy-rtr__ip">192.168.1.40</td><td class="cy-rtr__mac">3c:52:82:0e:11:9d</td><td>Wi-Fi 2.4GHz</td><td class="cy-rtr__on">Online</td></tr>
+                  <tr><td class="cy-rtr__dev">Priya-iPhone</td><td class="cy-rtr__ip">192.168.1.52</td><td class="cy-rtr__mac">a4:83:e7:2c:88:10</td><td>Wi-Fi 5GHz</td><td class="cy-rtr__on">Online</td></tr>
+                  <tr><td class="cy-rtr__dev">Dr-Tom-Pixel</td><td class="cy-rtr__ip">192.168.1.58</td><td class="cy-rtr__mac">d8:5d:e2:4f:6a:c1</td><td>Wi-Fi 5GHz</td><td class="cy-rtr__on">Online</td></tr>
+                  <tr><td class="cy-rtr__dev">Reception-iPad</td><td class="cy-rtr__ip">192.168.1.61</td><td class="cy-rtr__mac">f0:18:98:73:52:2e</td><td>Wi-Fi 5GHz</td><td class="cy-rtr__on">Online</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <figcaption class="cy-diagram__cap cy-diagram__cap--single">A network is just devices sharing one connection. This is the router's own <b>Attached devices</b> list at Yarra Ridge Dental: every computer, the EFTPOS terminal, the printer and the phones, all talking through the one gateway out to the internet.</figcaption>
   </figure>
 
 {% elif key == "data-hops" %}
-  <figure class="cy-diagram cy-nf" role="img"
-          aria-label="How data travels in hops from your device to your router, your internet provider, across the public internet, to a server. On the public internet an eavesdropper can tap the line and read plain http text, while https encrypts it end to end so the tap sees only scrambled characters.">
-    <svg viewBox="0 0 700 300" xmlns="http://www.w3.org/2000/svg" class="cy-nf__svg">
-      <defs>
-        <marker id="nf-ar" markerWidth="9" markerHeight="9" refX="5.5" refY="4" orient="auto">
-          <path d="M0 0 L7 4 L0 8 z" fill="#5be7ff"/>
-        </marker>
-      </defs>
-      <!-- the wire, node to node -->
-      <g stroke="#3a5075" stroke-width="2.2" fill="none">
-        <path d="M118 132 H154" marker-end="url(#nf-ar)"/>
-        <path d="M256 132 H292" marker-end="url(#nf-ar)"/>
-        <path d="M394 132 H430" marker-end="url(#nf-ar)"/>
-        <path d="M532 132 H568" marker-end="url(#nf-ar)"/>
-      </g>
-
-      <!-- 1 · your device (laptop) -->
-      <g class="cy-nf__node"><rect x="18" y="96" width="100" height="72" rx="9"/>
-        <g class="cy-nf__ic" transform="translate(54 106)"><rect x="0" y="0" width="24" height="15" rx="1.6"/><path d="M-3 20 H27 M7 15 H17"/></g>
-        <text x="68" y="145" class="cy-nf__name">Your device</text><text x="68" y="160" class="cy-nf__sub">where you type</text></g>
-      <!-- 2 · your router -->
-      <g class="cy-nf__node"><rect x="156" y="96" width="100" height="72" rx="9"/>
-        <g class="cy-nf__ic" transform="translate(192 108)"><rect x="0" y="10" width="24" height="11" rx="2"/><path d="M6 10V4 M18 10V4 M6 4l-3-3 M18 4l3-3"/><circle cx="7" cy="15.5" r="1" fill="currentColor" stroke="none"/><circle cx="12" cy="15.5" r="1" fill="currentColor" stroke="none"/></g>
-        <text x="206" y="145" class="cy-nf__name">Your router</text><text x="206" y="160" class="cy-nf__sub">the gateway</text></g>
-      <!-- 3 · your ISP (tower) -->
-      <g class="cy-nf__node"><rect x="294" y="96" width="100" height="72" rx="9"/>
-        <g class="cy-nf__ic" transform="translate(332 106)"><path d="M12 5V22 M6 22h12"/><path d="M7.5 9a6.4 6.4 0 0 1 9 0 M4.8 6.2a10.2 10.2 0 0 1 14.4 0"/></g>
-        <text x="344" y="145" class="cy-nf__name">Your ISP</text><text x="344" y="160" class="cy-nf__sub">Telstra, etc.</text></g>
-      <!-- 4 · the internet (cloud), the open ground -->
-      <g class="cy-nf__node cy-nf__node--open"><rect x="432" y="96" width="100" height="72" rx="9"/>
-        <g class="cy-nf__ic cy-nf__ic--open" transform="translate(466 110)"><path d="M7 17a5 5 0 0 1 0-10 a6.2 6.2 0 0 1 11.4-1.8 a4.2 4.2 0 0 1 2.6 11.8 z"/></g>
-        <text x="482" y="145" class="cy-nf__name">The internet</text><text x="482" y="160" class="cy-nf__sub cy-nf__sub--open">shared ground</text></g>
-      <!-- 5 · the server (rack) -->
-      <g class="cy-nf__node"><rect x="570" y="96" width="112" height="72" rx="9"/>
-        <g class="cy-nf__ic" transform="translate(614 106)"><rect x="0" y="0" width="24" height="10" rx="1.6"/><rect x="0" y="12" width="24" height="10" rx="1.6"/><circle cx="5" cy="5" r="1.1" fill="currentColor" stroke="none"/><circle cx="5" cy="17" r="1.1" fill="currentColor" stroke="none"/><path d="M10 5h10 M10 17h10"/></g>
-        <text x="626" y="145" class="cy-nf__name">The server</text><text x="626" y="160" class="cy-nf__sub">the website</text></g>
-
-      <!-- interception: a tap clamped onto the open internet hop (not a floating icon) -->
-      <g class="cy-nf__tap">
-        <line x1="482" y1="96" x2="482" y2="66" stroke="#ff5a5a" stroke-width="2"/>
-        <path d="M476 92 l12 0" stroke="#ff5a5a" stroke-width="3" stroke-linecap="round"/>
-        <rect x="440" y="40" width="84" height="26" rx="6" fill="rgba(255,77,77,0.12)" stroke="#ff5a5a" stroke-width="1.6"/>
-        <g transform="translate(450 47)" stroke="#ff5a5a" stroke-width="1.7" fill="none" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M0 6 a7 4.5 0 0 0 12 0 a7 4.5 0 0 0 -12 0z"/><circle cx="6" cy="6" r="1.9" fill="#ff5a5a" stroke="none"/>
-        </g>
-        <text x="490" y="57" class="cy-nf__tap-t">tap</text>
-      </g>
-
-      <!-- two lanes: what the tap sees, with vs without the padlock -->
-      <g><rect x="150" y="210" width="400" height="30" rx="7" fill="rgba(255,77,77,0.08)" stroke="#ff5a5a" stroke-width="1.2"/>
-        <text x="166" y="229" class="cy-nf__lane cy-nf__lane--red">http, no padlock:  PASSWORD: hunter2  is read in the clear</text></g>
-      <g><rect x="150" y="248" width="400" height="30" rx="7" fill="rgba(0,217,255,0.08)" stroke="#00d9ff" stroke-width="1.2"/>
-        <text x="166" y="267" class="cy-nf__lane cy-nf__lane--cyan">https, padlock:  8f3a&#183;c1&#183;9e7d&#183;a2  is scrambled</text></g>
-    </svg>
-    <figcaption class="cy-diagram__cap cy-diagram__cap--single">Your data is handed along a chain of equipment you do not own. On the open internet a tap can read plain <b>http</b>. The padlock (<b>https</b>) scrambles it end to end, so the tap sees nothing useful.</figcaption>
+  <figure class="cy-diagram" role="img"
+          aria-label="A Wireshark network capture. The filter is set to http.request.method equals POST. A selected packet, number 148, is an HTTP POST to the rent portal login over plain http. In the packet detail pane, the HTML form is fully readable: the email field reads cody.matthews at bigpond.com and the password field reads Spring2024. The hex pane shows the same password in the raw bytes. A separate packet to the bank shows TLS Application Data, which is encrypted and unreadable.">
+    <div class="cy-wsk">
+      <div class="cy-wsk__bar"><span class="d"><i></i><i></i><i></i></span><span class="cy-wsk__ttl">Capturing from Wi-Fi: en0 &mdash; Wireshark</span></div>
+      <div class="cy-wsk__menu"><span>File</span><span>Edit</span><span>View</span><span>Go</span><span>Capture</span><span>Analyze</span><span>Statistics</span><span>Telephony</span><span>Wireless</span><span>Help</span></div>
+      <div class="cy-wsk__filt"><span class="lab">Apply a display filter</span><span class="cy-wsk__fbox">http.request.method == "POST"</span></div>
+      <div class="cy-wsk__listwrap">
+        <div class="cy-wsk__list">
+          <div class="cy-wsk__hrow"><span class="cy-wsk__c">No.</span><span class="cy-wsk__c">Time</span><span class="cy-wsk__c">Source</span><span class="cy-wsk__c">Destination</span><span class="cy-wsk__c">Protocol</span><span class="cy-wsk__c">Info</span></div>
+          <div class="cy-wsk__row is-tls"><span class="cy-wsk__c cy-wsk__c--n">142</span><span class="cy-wsk__c">8.301970</span><span class="cy-wsk__c cy-wsk__ipsrc">192.168.1.24</span><span class="cy-wsk__c cy-wsk__ipdst">104.21.5.9</span><span class="cy-wsk__c">TLSv1.3</span><span class="cy-wsk__c">Application Data</span></div>
+          <div class="cy-wsk__row is-sel"><span class="cy-wsk__c cy-wsk__c--n">148</span><span class="cy-wsk__c">9.774612</span><span class="cy-wsk__c cy-wsk__ipsrc">192.168.1.24</span><span class="cy-wsk__c cy-wsk__ipdst">203.0.113.24</span><span class="cy-wsk__c">HTTP</span><span class="cy-wsk__c">POST /tenant/login HTTP/1.1&nbsp; (application/x-www-form-urlencoded)</span></div>
+          <div class="cy-wsk__row is-http"><span class="cy-wsk__c cy-wsk__c--n">151</span><span class="cy-wsk__c">9.781030</span><span class="cy-wsk__c cy-wsk__ipsrc">203.0.113.24</span><span class="cy-wsk__c cy-wsk__ipdst">192.168.1.24</span><span class="cy-wsk__c">HTTP</span><span class="cy-wsk__c">HTTP/1.1 302 Found&nbsp; (text/html)</span></div>
+          <div class="cy-wsk__row is-dns"><span class="cy-wsk__c cy-wsk__c--n">153</span><span class="cy-wsk__c">9.902441</span><span class="cy-wsk__c cy-wsk__ipsrc">192.168.1.24</span><span class="cy-wsk__c cy-wsk__ipdst">192.168.1.1</span><span class="cy-wsk__c">DNS</span><span class="cy-wsk__c">Standard query A cdn.rentportal.com</span></div>
+        </div>
+      </div>
+      <div class="cy-wsk__detail">
+        <span class="cy-wsk__tl"><span class="tw">&#9656;</span> Frame 148: 512 bytes on wire (4096 bits), 512 bytes captured</span>
+        <span class="cy-wsk__tl"><span class="tw">&#9656;</span> Internet Protocol Version 4, Src: 192.168.1.24, Dst: 203.0.113.24</span>
+        <span class="cy-wsk__tl"><span class="tw">&#9656;</span> Transmission Control Protocol, Src Port: 51544, Dst Port: 80, Seq: 1</span>
+        <span class="cy-wsk__tl"><span class="tw">&#9656;</span> Hypertext Transfer Protocol</span>
+        <span class="cy-wsk__tl"><span class="tw">&#9662;</span> HTML Form URL Encoded: application/x-www-form-urlencoded</span>
+        <span class="cy-wsk__tl" style="padding-left:16px"><span class="tw">&#9656;</span> Form item: <span class="k">"email"</span> = "cody.matthews@bigpond.com"</span>
+        <span class="cy-wsk__tl" style="padding-left:16px"><span class="tw">&#9656;</span> Form item: <span class="k">"password"</span> = <span class="hl">"Spring2024!"</span></span>
+      </div>
+      <div class="cy-wsk__hex">0040  50 4f 53 54 20 2f 74 65 6e 61 6e 74 2f 6c 6f 67   POST /tenant/log
+0050  69 6e 20 65 6d 61 69 6c 3d 63 6f 64 79 2e 6d 61   in email=cody.ma
+0060  74 74 68 65 77 73 26 <span class="a">70 61 73 73 77 6f 72 64 3d</span>   tthews&amp;<span class="a">password=</span>
+0070  <span class="a">53 70 72 69 6e 67 32 30 32 34 21</span>                  <span class="a">Spring2024!</span></div>
+      <div class="cy-wsk__status">Packets: 1,204 &middot; Displayed: 3 &middot; Profile: Default</div>
+    </div>
+    <figcaption class="cy-diagram__cap cy-diagram__cap--single">Your data crosses equipment you don&rsquo;t own. This is a real capture of a login sent over plain <b>http</b>: the password <b>Spring2024!</b> sits in the clear, in the form fields and the raw bytes. The bank packet above it (<b>TLS</b>) is encrypted, so a tap sees only scrambled data.</figcaption>
   </figure>
 
 {% elif key == "router-labelled" %}

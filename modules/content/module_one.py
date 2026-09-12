@@ -7,11 +7,13 @@
             real Australian incidents plus the Privacy Act NDB duty (cia-triad);
             and the weak points framed against the ASD Essential Eight
             (router-admin). One comprehension check on a lookalike sign-in page.
-  Lesson 2  APPLY IT (a practical lesson). Five hands-on, scenario tasks set at
-            Yarraville Real Estate, a small inner-west Melbourne agency: sort
-            situations to the CIA pillar, a public-Wi-Fi decision drill, an
-            Essential-Eight hardening pass, read an Open Wi-Fi settings screen, and
-            three first-move incidents.
+  Lesson 2  APPLY IT (a hands-on lesson, distinct in character from Lesson 1).
+            Where Lesson 1 explains and the learner reads, Lesson 2 hands the
+            learner a real artefact to work: the router's live device list
+            (netmap), two sign-in pages to tell apart (spot), a trust-account
+            inbox to triage (mailsort), an account's security settings to fix
+            (harden), and a live incident board when the rent money goes missing
+            (tabletop). Same agency, same cast, one day under pressure.
 
 Cast (Yarraville Real Estate, yarravillere.com.au): Dean Whitlock (principal),
 Priya Anand (senior property manager), Marion Fisk (trust accountant), Cody
@@ -257,263 +259,248 @@ LESSONS = [
         ],
     },
     {
-        "title": "Put it to work: protect a real network",
+        "title": "Put it to work: a day under pressure",
         "reading_time_minutes": 10,
-        "intro": "Now use it. You are helping out at Yarraville Real Estate, a small "
-        "independent agency in Melbourne's inner west. Principal Dean Whitlock runs "
-        "the office with senior property manager Priya Anand, trust accountant "
-        "Marion Fisk and administrator Cody Nguyen. Every task here is a real day at "
-        "that agency: name what is at risk, make the right call on a cafe Wi-Fi, "
-        "harden the office before it opens, read a router screen, and make the sound "
-        "first move when something goes wrong.",
+        "intro": "Now you handle the real thing. Same agency, Yarraville Real "
+        "Estate in Melbourne's inner west, run by principal Dean Whitlock with "
+        "senior property manager Priya Anand, trust accountant Marion Fisk and "
+        "administrator Cody Nguyen. But today is not a quiet day. You will name the "
+        "strangers on the office network, tell the real rent portal from a trap, "
+        "triage the trust-account inbox, harden an account after a scare, and run "
+        "the incident when the rent money goes missing. Less reading, more doing.",
         "tasks": [
             {
-                "key": "pillar-triage",
-                "kind": "classify",
+                "key": "network-strangers",
+                "kind": "netmap",
                 "points": 2,
-                "title": "Which pillar is at risk?",
-                "body": "<p>Lesson 1 gave you the three questions security asks: is "
-                "it private (Confidentiality), is it correct (Integrity), is it "
-                "reachable (Availability). Here are six things that actually happen "
-                "across a fortnight at Yarraville Real Estate. For each, decide which "
-                "pillar it puts at risk. This is how a security-minded person sizes "
-                "up any problem in seconds.</p>"
-                "<div class=\"cy-callout\">Ask: was private information exposed, was "
-                "something changed, or can you no longer reach what you need?</div>",
+                "title": "Who is on the network?",
+                "body": "<p>Lesson 1 showed that a network is just the devices "
+                "sharing one connection, so knowing your network means knowing every "
+                "device on it. It is 8:05am Monday. Cody opens the router's Attached "
+                "Devices page before Yarraville Real Estate opens for the day. The "
+                "list is longer than it should be. Tap every device that does not "
+                "belong or is a risk.</p>"
+                "<div class=\"cy-callout\">Ask of each row: do we own this, and does "
+                "the way it joined make sense?</div>",
                 "payload": {
-                    "prompt": "Read each situation and tap the pillar it puts at risk. Sort all six to finish.",
-                    "categories": [
-                        {"id": "conf", "label": "Confidentiality"},
-                        {"id": "integ", "label": "Integrity"},
-                        {"id": "avail", "label": "Availability"},
-                    ],
-                    "events": [
-                        {"text": "4:50pm Thursday. Marion sends the quarterly rent-increase notice to 214 tenants but puts every address in the To field instead of Bcc, so all 214 can see each other's email addresses.",
-                         "category": "conf",
-                         "why": "Confidentiality. Nothing was changed or lost, but personal contact details were exposed to people who should never have seen them. Like Optus, the failure is exposure, and it can be reportable."},
-                        {"text": "A landlord's payout account in the rent ledger is quietly changed after Priya's login is phished, so next month's $2,180 rent is set to pay an unknown account.",
-                         "category": "integ",
-                         "why": "Integrity. The record still opens and the system still works, but the payment details were altered without permission, which is exactly how payment-redirection fraud drains money."},
-                        {"text": "8:30am Saturday, mid open-inspection season. The property-management system is down for four hours, so no one can open lease documents, entry codes or the inspection schedule.",
-                         "category": "avail",
-                         "why": "Availability. Nothing was stolen or changed, but a system the office depends on is not reachable when it is needed most."},
-                        {"text": "A tenant application PDF with a driver licence and two payslips, 'Application_Reddy_Nikhil.pdf', is left face-up in the reception printer tray where walk-in clients can read it.",
-                         "category": "conf",
-                         "why": "Confidentiality. Sensitive identity documents were exposed to strangers. Exposure is the failure, even when nothing is taken."},
-                        {"text": "Someone edits a signed lease in the shared drive, changing the rent from $520 to $560 a week, and no one notices for a fortnight.",
-                         "category": "integ",
-                         "why": "Integrity. A trusted record was altered without approval, so it can no longer be relied on, which in a contract is a real problem, not just a data one."},
-                        {"text": "Monday morning, a ransom note appears on the front-desk PC and every file in the Inspections folder is renamed to end .locked.",
-                         "category": "avail",
-                         "why": "Availability. The files are not read or changed, but the office cannot reach them, which stops the day's work."},
-                    ],
-                },
-            },
-            {
-                "key": "cafe-wifi",
-                "kind": "branch",
-                "points": 2,
-                "title": "Decision drill: sending a lease from a cafe",
-                "body": "<p>It is 1:10pm. Priya is at the Cornershop Cafe in Seddon "
-                "between inspections, and she needs to email a signed lease, "
-                "<strong>Lease_14Bishop_St.pdf</strong> (it has the tenant's licence "
-                "and bank details in it), back to the office before a 2pm deadline. "
-                "She has just joined the cafe's open <strong>Cornershop Free "
-                "WiFi</strong>, which needs no password. Your call decides how safe "
-                "this is. Work it through.</p>"
-                "<div class=\"cy-callout\"><strong>The habit:</strong> an open "
-                "network is shared ground. Use a connection you control, and let "
-                "https protect the data the rest of the way.</div>",
-                "payload": {
-                    "prompt": "Priya is on an open cafe Wi-Fi with a sensitive file to send. Make each call and see the consequence.",
-                    "start": "join",
-                    "nodes": {
-                        "join": {
-                            "text": "She is connected to the open Cornershop Free WiFi and the lease is ready to send. What is her first move?",
-                            "choices": [
-                                {"label": "Switch to her phone's own 4G hotspot instead of the open cafe Wi-Fi, then send", "outcome": "good",
-                                 "feedback": "Right. The cafe Wi-Fi is open, so anyone else on it could try to watch unencrypted traffic. Her phone's mobile data is her own connection, not shared ground.", "to": "sent"},
-                                {"label": "Send it now on the cafe Wi-Fi, it is faster than mobile data", "outcome": "bad",
-                                 "feedback": "Open Wi-Fi is shared ground: anyone on it can attempt to read traffic that is not encrypted. Do not send sensitive files over a network you do not control.", "to": "open_bad"},
-                                {"label": "Ask the cafe staff for a Wi-Fi password so the connection is 'secure'", "outcome": "bad",
-                                 "feedback": "A cafe password does not make it your network. Everyone in the cafe has the same password and shares the same Wi-Fi, so it is still not a connection you control.", "to": "open_bad"},
-                            ],
-                        },
-                        "open_bad": {
-                            "text": "On a network full of strangers, anything not encrypted end to end can be read in transit. A lease full of identity and bank details is exactly what you never send that way. Use your own connection instead.",
-                            "choices": [],
-                        },
-                        "sent": {
-                            "text": "She is on her own 4G hotspot now, away from the cafe crowd. Before she hits send on the webmail, what does she check?",
-                            "choices": [
-                                {"label": "That the webmail address bar shows https and the padlock, so the message is encrypted the whole way to the server", "outcome": "good",
-                                 "feedback": "Exactly. Even on a trusted connection, https is what scrambles the data across the public internet all the way to the server. Own connection plus https is the safe combination.", "to": "win"},
-                                {"label": "Nothing, being on her own hotspot is enough on its own", "outcome": "bad",
-                                 "feedback": "The hotspot stops the cafe crowd watching, but the data still crosses the public internet to reach the server. https is what protects it the rest of the way. Check for the padlock.", "to": "hotspot_bad"},
-                            ],
-                        },
-                        "hotspot_bad": {
-                            "text": "The hotspot was the right move, but it only covers the first hop. Across the public internet, https is what keeps the lease unreadable. Always check for the padlock before sending anything sensitive.",
-                            "choices": [],
-                        },
-                        "win": {
-                            "text": "Own connection, https confirmed, lease sent and safe with minutes to spare. That is the whole habit: on shared or open Wi-Fi, get onto a connection you control, and let the padlock protect the data the rest of the way.",
-                            "choices": [],
-                        },
+                    "prompt": "Tap each device that should not be there. Find both to finish.",
+                    "frame": {
+                        "tab": "NetGuard R6300 · Devices", "fav": "R", "favbg": "#0f6f78",
+                        "url_prefix": "http://", "url": "192.168.1.1", "url_bold": "/devices",
+                        "insecure": True,
+                        "marks": [{"label": "Router", "bg": "#0f6f78"}, {"label": "Xero", "bg": "#13b5ea"}, {"label": "Gmail", "bg": "#ea4335"}],
                     },
+                    "nodes": [
+                        {"label": "Front-desk-PC", "detail": "192.168.1.24 · e4:5f:01:9c:2a:7b · Ethernet", "weak": False,
+                         "why": "Fine. This is the reception PC, wired in, exactly where it should be."},
+                        {"label": "EFTPOS-VX520", "detail": "192.168.1.31 · 00:1b:44:11:3a:b7 · Wi-Fi 2.4GHz", "weak": False,
+                         "why": "Fine. The card terminal at the front desk. Known and expected."},
+                        {"label": "UNKNOWN-2.4G", "detail": "192.168.1.88 · Guest Wi-Fi · joined 02:14 Sunday", "weak": True,
+                         "why": "A stranger. Nobody at the agency was here at 2:14am Sunday, and this device joined the open guest Wi-Fi. Lock down or password the guest network and investigate before opening."},
+                        {"label": "HP-LaserJet-M182", "detail": "192.168.1.40 · 3c:52:82:0e:11:9d · Wi-Fi 2.4GHz", "weak": False,
+                         "why": "Fine. The office printer."},
+                        {"label": "Priya-iPhone", "detail": "192.168.1.52 · a4:83:e7:2c:88:10 · Wi-Fi 5GHz", "weak": False,
+                         "why": "Fine. Priya's work phone, a known device."},
+                        {"label": "TL-WR841N", "detail": "192.168.1.77 · Wi-Fi repeater · unmanaged", "weak": True,
+                         "why": "Nobody at the agency installed a Wi-Fi repeater. An unknown access point on your network can quietly relay or watch traffic. Unplug it and find out how it got there."},
+                    ],
                 },
             },
             {
-                "key": "harden-the-office",
+                "key": "portal-or-trap",
+                "kind": "spot",
+                "points": 2,
+                "title": "Two portals, one is a trap",
+                "body": "<p>Lesson 1 showed how to read a web address and why the "
+                "padlock (https) matters. It is 11:40am. Priya gets a text: "
+                "\"Yarraville RE: your rent portal login needs re-verification, sign "
+                "in here.\" She also has the real portal bookmarked. Two sign-in "
+                "pages are open side by side. Tap the one she must not sign in to.</p>"
+                "<div class=\"cy-callout\">Two things to read before you type on any "
+                "login: the padlock, and the exact domain.</div>",
+                "payload": {
+                    "prompt": "One of these is safe and one is a trap. Tap the page Priya must not sign in to.",
+                    "variant": "login",
+                    "fake": "left",
+                    "left": {"tab": "Rent Portal: Verify", "url": "yarravillere-tenant.com/verify", "brand": "Rent Portal", "insecure": True},
+                    "right": {"tab": "Yarraville Real Estate", "url": "portal.yarravillere.com.au", "brand": "Rent Portal", "insecure": False},
+                    "why": "The left page is the trap: it is plain http with no padlock, so anything typed is sent in the clear, and the domain is yarravillere-tenant.com, not the agency's real portal.yarravillere.com.au. The right page has the padlock and the exact real domain. When a login link arrives out of the blue, check the padlock and the domain before you type.",
+                },
+            },
+            {
+                "key": "triage-inbox",
+                "kind": "mailsort",
+                "points": 2,
+                "title": "Triage the trust-account inbox",
+                "body": "<p>Lesson 1 covered how records get quietly altered "
+                "(integrity), and how fake messages try to hook you. It is 9:12am "
+                "Tuesday. Marion Fisk, the trust accountant, opens the inbox that "
+                "handles rent and landlord payouts. Five emails came in overnight. "
+                "Mark each one Genuine or Phishing.</p>"
+                "<div class=\"cy-callout\">The dangerous ones ask you to move money or "
+                "type a password. Slow down on those.</div>",
+                "payload": {
+                    "prompt": "Sort every message. Mark each Genuine or Phishing to finish.",
+                    "gmail": True,
+                    "frame": {
+                        "tab": "Inbox · Yarraville RE Mail", "fav": "M", "favbg": "#ea4335",
+                        "url_prefix": "https://", "url": "mail.google.com", "url_bold": "/mail/u/0",
+                        "marks": [{"label": "Router", "bg": "#0f6f78"}, {"label": "Xero", "bg": "#13b5ea"}, {"label": "Gmail", "bg": "#ea4335"}],
+                    },
+                    "emails": [
+                        {"from": "Barbara Nguyen", "addr": "barb.nguyen@outlook.com", "time": "6:48 AM", "unread": True,
+                         "subject": "Change my payout account",
+                         "preview": "Hi Marion, please update my rent payout to a new account, BSB 083-170 Acct 55 981 402, effective this month.",
+                         "phish": True,
+                         "why": "A request to change bank details by email is the classic payment-redirection scam. Even when the name looks right, verify by phoning the landlord on the number you already hold, never a number in the email. Changing a payout on an email alone is how agencies lose rent."},
+                        {"from": "DocuSign", "addr": "dse@docu-sign-secure.net", "time": "7:15 AM", "unread": True,
+                         "subject": "Priya Anand shared a lease for signature",
+                         "preview": "Review and sign: Lease_14Bishop_St. This link expires in 24 hours.",
+                         "phish": True,
+                         "why": "The sender domain is docu-sign-secure.net, not docusign.net. A 24-hour countdown is pressure. Open DocuSign from your own bookmark, not the link in the email."},
+                        {"from": "Consumer Affairs Victoria", "addr": "noreply@consumer.vic.gov.au", "time": "8:02 AM", "unread": False,
+                         "subject": "Rental bond lodgement confirmation, 14 Bishop St",
+                         "preview": "Your bond lodgement has been received by the RTBA. No action is required.",
+                         "phish": False,
+                         "why": "A real government domain (consumer.vic.gov.au), confirming an action the office already took, and it asks for nothing. Genuine."},
+                        {"from": "Microsoft account team", "addr": "account-security@microsoft-verify.co", "time": "8:29 AM", "unread": True,
+                         "subject": "Your password will expire today",
+                         "preview": "Sign in within 2 hours to keep your account active.",
+                         "phish": True,
+                         "why": "Microsoft does not send from microsoft-verify.co, and 'expire today, 2 hours' is manufactured urgency. Change a password only from the real Microsoft site, never a link like this."},
+                        {"from": "Bright Office Supplies", "addr": "accounts@brightofficesupplies.com.au", "time": "8:51 AM", "unread": False,
+                         "subject": "Invoice #4471, October stationery",
+                         "preview": "Attached is your invoice for the October order, $186.00, payable to our usual account.",
+                         "phish": False,
+                         "why": "A known supplier, an order the office placed, the usual payment details, and no request to change anything. Genuine, though it never hurts to sanity-check the amount."},
+                    ],
+                },
+            },
+            {
+                "key": "harden-account",
                 "kind": "harden",
                 "points": 2,
-                "title": "Harden the office before it opens",
-                "hero": "data-journey",
-                "body": "<p>First, the why. The animation above is the exact risk "
-                "Lesson 1 described: on an open connection your data travels in the "
-                "clear and a listener reads it, while encryption turns it into "
-                "gibberish. Now the how.</p>"
-                "<p>It is Monday, 8am, and Yarraville Real Estate opens in fifteen "
-                "minutes. Dean has asked you to walk the office setup before the day "
-                "starts. Four things are not set up safely yet. For each one, choose "
-                "the fix that genuinely closes the gap, using the Essential Eight "
-                "habits from Lesson 1, and watch it flip to Secured.</p>"
-                "<div class=\"cy-callout\">For each item, pick the option that truly "
-                "closes the door. Lock down all four to finish.</div>",
+                "title": "Fix Priya's account after the scare",
+                "body": "<p>Lesson 1 named the Essential Eight, the handful of habits "
+                "that stop most attacks. After the fake-portal text, Dean asks you to "
+                "review Priya's Microsoft 365 account security at 2:30pm. Four "
+                "settings on this page are wrong. For each, choose the fix that "
+                "genuinely closes the gap and watch it flip to Secured.</p>"
+                "<div class=\"cy-callout\">Pick the option that truly closes the door, "
+                "not the one that just looks busy.</div>",
                 "payload": {
-                    "prompt": "Secure each part of the office setup. Lock down all four to finish.",
+                    "prompt": "Secure each setting on Priya's account. Lock down all four to finish.",
+                    "settings": True,
+                    "frame": {
+                        "tab": "Security · Microsoft 365", "fav": "365", "favbg": "#0a5ca8",
+                        "url_prefix": "https://", "url": "account.microsoft.com", "url_bold": "/security",
+                        "marks": [{"label": "Router", "bg": "#0f6f78"}, {"label": "Xero", "bg": "#13b5ea"}, {"label": "Gmail", "bg": "#ea4335"}],
+                    },
                     "steps": [
-                        {
-                            "label": "The whole office shares one login, office@yarravillere.com.au, for the property-management system",
-                            "risk": "A shared login hides who did what, and one leaked password hands over everything.",
-                            "options": [
-                                {"text": "Give each person their own named account and remove the shared one", "correct": True,
-                                 "why": "Right. Individual accounts make every action traceable to a person, and one leaked password no longer unlocks the whole system. Shared logins are a known Essential Eight weak point."},
-                                {"text": "Write the shared password on a card by the front desk so nobody forgets it", "correct": False,
-                                 "why": "That makes the shared login even more exposed. The fix is individual accounts, not an easier-to-find shared password."},
-                                {"text": "Keep the shared login but change its password every month", "correct": False,
-                                 "why": "It is still one shared login that hides who did what, and monthly changes just get written on notes. Give each person their own account."},
-                            ],
-                        },
-                        {
-                            "label": "The mailbox that receives landlord bank-detail changes has a password only, no second step",
-                            "risk": "If that password is phished or guessed, an attacker walks straight into the inbox that authorises money movements.",
-                            "options": [
-                                {"text": "Turn on multi-factor authentication (MFA) for that mailbox", "correct": True,
-                                 "why": "Right. MFA adds a second factor, like a code on your phone, so a stolen password alone cannot open the mailbox. The Medibank attackers got in through remote access that lacked MFA."},
-                                {"text": "Make the password twenty characters long instead", "correct": False,
-                                 "why": "A long password still travels and can still be phished. A second factor is what stops a stolen password being reused. Turn on MFA."},
-                                {"text": "Only open that mailbox on the office computer", "correct": False,
-                                 "why": "That does not stop a stolen password being used from anywhere else. Add MFA so the password alone is not enough."},
-                            ],
-                        },
-                        {
-                            "label": "The only backup of the trust-account ledger sits in a folder on the same front-desk PC as the live file",
-                            "risk": "If ransomware or theft hits that PC, the backup goes with it, and there is no path back.",
-                            "options": [
-                                {"text": "Add a second backup kept offline or off-site, separate from that PC", "correct": True,
-                                 "why": "Right. A copy on the same machine is lost with it. Keeping at least one backup offline or off-site means ransomware or a stolen PC cannot take your only path back."},
-                                {"text": "Copy the backup into a second folder on the same PC", "correct": False,
-                                 "why": "Both copies are lost together if that PC is locked or stolen. Keep one copy off the machine entirely."},
-                                {"text": "Trust the system's own cloud and keep no separate backup", "correct": False,
-                                 "why": "One copy anywhere is a single point of failure. Keep an independent, separate backup as well."},
-                            ],
-                        },
-                        {
-                            "label": "The office router still uses the internet provider's default admin password, printed on a sticker",
-                            "risk": "Default passwords are published online, so anyone who reaches the settings page can look yours up and take over.",
-                            "options": [
-                                {"text": "Change the router admin password to a long, unique one only staff know", "correct": True,
-                                 "why": "Right. Default router passwords are printed and published, so the factory value is public knowledge. Changing it is the single most important router fix."},
-                                {"text": "Hide the sticker so nobody can read the default password", "correct": False,
-                                 "why": "Attackers reach the router over the network and look defaults up online, not by reading the sticker. Hiding it changes nothing. Change the password."},
-                                {"text": "Make the Wi-Fi network name (SSID) hidden so nobody finds the router", "correct": False,
-                                 "why": "Hiding the network name does not stop anyone determined and does not fix the default admin password. Change the password."},
-                            ],
-                        },
+                        {"label": "Multi-factor authentication", "value": "Off",
+                         "risk": "A password on its own is one phished text away from letting an attacker in.",
+                         "options": [
+                            {"text": "Turn on MFA with an authenticator app or a code", "correct": True,
+                             "why": "Right. MFA adds a second factor, so a stolen password alone cannot sign in. The Medibank breach began with remote access that had no MFA."},
+                            {"text": "Make the password longer instead", "correct": False,
+                             "why": "A long password still travels and can still be phished. A second factor is what stops a stolen password being reused. Turn on MFA."},
+                            {"text": "Only sign in from the office", "correct": False,
+                             "why": "That does not stop a stolen password being used elsewhere. Add MFA so the password alone is not enough."},
+                         ]},
+                        {"label": "Legacy authentication (IMAP / POP)", "value": "Allowed",
+                         "risk": "Old mail protocols can sign in with just a password and skip MFA entirely.",
+                         "options": [
+                            {"text": "Block legacy authentication", "correct": True,
+                             "why": "Right. Legacy protocols bypass MFA, so leaving them on undoes the second factor. Blocking them closes a common backdoor, and staff on modern Outlook are unaffected."},
+                            {"text": "Leave it on, staff use Outlook anyway", "correct": False,
+                             "why": "An attacker will use the old protocol precisely because it skips MFA. Block it."},
+                            {"text": "Change the password monthly", "correct": False,
+                             "why": "That does nothing about a protocol that skips the second factor. Block legacy authentication."},
+                         ]},
+                        {"label": "Automatic Office updates", "value": "Off · 3 versions behind",
+                         "risk": "Known security holes stay open until the update that patches them is installed.",
+                         "options": [
+                            {"text": "Turn on automatic updates", "correct": True,
+                             "why": "Right. Patching is Essential Eight core: automatic updates close known holes quickly, without relying on anyone remembering."},
+                            {"text": "Update manually when there is time", "correct": False,
+                             "why": "Manual updates slip, and the gap between a fix being released and installed is exactly when attacks land. Turn on automatic updates."},
+                            {"text": "Skip updates, they cause problems", "correct": False,
+                             "why": "Unpatched software is one of the most common ways in. Turn automatic updates on."},
+                         ]},
+                        {"label": "Account recovery email", "value": "cody.old@hotmail.com",
+                         "risk": "A stale recovery address can be used to reset the account into someone else's hands.",
+                         "options": [
+                            {"text": "Set recovery to Priya's own verified phone and email", "correct": True,
+                             "why": "Right. Recovery details are a master key. They must point to the account owner's current, verified contacts, not an old address nobody controls."},
+                            {"text": "Leave the old address, it still works", "correct": False,
+                             "why": "An old address you do not control is exactly how accounts get hijacked through the reset flow. Update it to Priya's own."},
+                            {"text": "Remove recovery details entirely", "correct": False,
+                             "why": "With no recovery, a locked-out Priya cannot get back in. The fix is current, verified recovery details, not none."},
+                         ]},
                     ],
                 },
             },
             {
-                "key": "read-the-wifi",
-                "kind": "check",
+                "key": "missing-rent",
+                "kind": "tabletop",
                 "points": 2,
-                "title": "Read the Wi-Fi settings screen",
-                "diagram": "router-wifi",
-                "body": "<p>This is Yarraville Real Estate's router wireless settings "
-                "page, open in a browser on the office network. The admin password "
-                "has already been changed and the firmware is up to date. But one "
-                "row on this page leaves the office wide open. Read it the way you "
-                "now know how, then answer.</p>"
-                "<div class=\"cy-callout\">Remember the Essential Eight habit for "
-                "Wi-Fi: it should be encrypted, with a long passphrase, not open for "
-                "anyone in range to join.</div>",
-                "question": "What is the security problem on this Wi-Fi page, and the fix?",
-                "hint": "Look at the Security row. One value means there is no encryption at all.",
-                "options": [
-                    ("Wi-Fi security is set to Open, so anyone nearby can join and read the traffic. Set it to WPA2 or WPA3 with a long passphrase", True,
-                     "Right. An open network has no encryption, so anyone in range can join and read wireless traffic, and no password is needed to get on. WPA2 or WPA3 with a strong passphrase is the Essential Eight habit that closes it. The admin password and firmware here are already fine."),
-                    ("The firmware being up to date is the risk on this page", False,
-                     "No. Up-to-date firmware is a good thing; it means known security holes are already patched. The real problem is that the Wi-Fi is open, with no encryption."),
-                    ("The network name, YarravilleRE-Office, gives away that it is a real-estate office", False,
-                     "A recognisable network name is not the security problem here. The open, unencrypted Wi-Fi is what anyone in range can join and read."),
-                    ("The page offers a guest network, which should not exist", False,
-                     "A guest network is a good thing to add, not a risk. The problem on this page is that the main Wi-Fi is Open, with no encryption."),
-                ],
-            },
-            {
-                "key": "first-move",
-                "kind": "respond",
-                "points": 2,
-                "title": "Three things go wrong",
-                "body": "<p>One last drill, and the most important, because this is "
-                "where it counts. Three moments at Yarraville Real Estate when "
-                "something goes wrong. Knowing what a network is was the start. The "
-                "real skill is your first move, because it decides how far a problem "
-                "spreads. For each one, choose the soundest first move and see how it "
-                "plays out.</p>"
-                "<div class=\"cy-callout\"><strong>The habit to build:</strong> fast "
-                "and calm beats clever. Deny, disconnect or hand it in first, then "
-                "report it.</div>",
+                "title": "4:35pm Friday: the rent that vanished",
+                "body": "<p>The last drill, and the real test: when it counts, your "
+                "first moves decide how bad it gets. Lesson 1 covered the three "
+                "questions security asks and the first move that keeps a problem "
+                "small. Work this one live. The board tracks the state of the "
+                "business as you act.</p>"
+                "<div class=\"cy-callout\">Fast and calm beats clever. Contain the "
+                "money, secure the account, preserve the evidence.</div>",
                 "payload": {
-                    "prompt": "Choose the soundest first move for each. Handle all three to finish.",
-                    "situations": [
-                        {
-                            "id": "mfa-bomb",
-                            "text": "Tuesday, 9:10pm. Dean's phone keeps buzzing with Microsoft 365 approval requests to sign in to his work account, one after another, that he did not start himself. What should he do?",
-                            "options": [
-                                {"text": "Deny every prompt, change his 365 password now, and report it to the office IT support", "outcome": "good",
-                                 "feedback": "Right. Repeated prompts you did not start mean someone already has your password and is hoping you will tap Approve by mistake. Deny them all, change the password so the stolen one stops working, and report it. The MFA prompt is doing its job."},
-                                {"text": "Approve one so the buzzing stops for the night", "outcome": "bad",
-                                 "feedback": "That is exactly what the attacker wants. One approval lets them straight in. Never approve a prompt you did not start. Deny them all and change the password."},
-                                {"text": "Put the phone on silent and deal with it in the morning", "outcome": "risky",
-                                 "feedback": "The attacker keeps trying overnight, and one accidental tap lets them in. Do not just mute it. Change the password now so the stolen one is useless."},
-                            ],
-                        },
-                        {
-                            "id": "stolen-laptop",
-                            "text": "Friday, 5:40pm. Cody's work laptop, with saved logins and tenant files on it, is taken from his car outside Highpoint shopping centre. What is the first move?",
-                            "options": [
-                                {"text": "Tell Dean and IT straight away so they can change his passwords, sign the laptop out of its accounts remotely, and assess whether it is a notifiable breach", "outcome": "good",
-                                 "feedback": "Right. Fast reporting lets IT lock the accounts and remote-wipe the device before anything is opened, and because tenant personal data is on it, Dean has to assess it under the Privacy Act, not sit on it."},
-                                {"text": "Wait a day or two to see if it turns up before telling anyone", "outcome": "bad",
-                                 "feedback": "Every hour the saved logins and tenant files sit unprotected. Report it now so passwords are changed and the device is wiped remotely."},
-                                {"text": "Just buy a replacement laptop and carry on", "outcome": "bad",
-                                 "feedback": "A new laptop does nothing about the data on the stolen one. Change the passwords, remote-wipe it, and assess the breach."},
-                            ],
-                        },
-                        {
-                            "id": "rogue-usb",
-                            "text": "Monday, 8:20am. A USB stick labelled 'Rentals Q2 backup' is found on the front step. Cody is about to plug it into the reception PC to see whose it is. What should he do?",
-                            "options": [
-                                {"text": "Not plug it in, and hand it to Dean or IT, who can check it safely", "outcome": "good",
-                                 "feedback": "Right. A 'lost' USB left where staff will find it is a known trick to get malware onto a machine. Plugging it in can run code the moment it is opened. Never plug unknown media into a work PC."},
-                                {"text": "Plug it in quickly, just to read the folder names and find the owner", "outcome": "bad",
-                                 "feedback": "Opening it is the risk. Some drives run code automatically as soon as they connect. Do not plug an unknown stick into a work PC. Hand it in."},
-                                {"text": "Plug it into the spare laptop instead, to be safe", "outcome": "risky",
-                                 "feedback": "Any work machine is at risk, and it may be on the same network as everything else. Do not plug an unknown USB into any office device. Give it to IT."},
-                            ],
-                        },
+                    "prompt": "Work the incident phase by phase. The board updates with each call.",
+                    "scenario": "Friday 4:35pm. Marion notices the trust ledger is $2,180 short, and landlord Barbara Nguyen emails: \"I still haven't received last month's rent.\" It looks like Tuesday's emailed request to change a payout account was acted on. The money has gone to an account nobody recognises.",
+                    "board": [
+                        {"id": "money", "label": "Trust funds", "state": "bad", "value": "$2,180 gone"},
+                        {"id": "systems", "label": "Portal & mailbox", "state": "warn", "value": "Priya's login suspect"},
+                        {"id": "clients", "label": "Landlord (Barbara)", "state": "warn", "value": "Unpaid, asking"},
+                        {"id": "clock", "label": "Privacy duty", "state": "warn", "value": "Not yet assessed"},
+                    ],
+                    "stages": [
+                        {"phase": "Contain", "title": "The money is moving",
+                         "prompt": "It is 4:36pm on a Friday. What is your first move?",
+                         "options": [
+                            {"label": "Call the bank's fraud line now to try to recall the $2,180 and freeze the account", "outcome": "good",
+                             "consequence": "Right first move. Speed is everything with a redirected payment: banks can sometimes recall or hold funds if you call within the hour. The recall is lodged before the weekend.",
+                             "board": {"money": {"state": "warn", "value": "Recall lodged"}}},
+                            {"label": "Email Barbara back to ask what account she meant", "outcome": "bad",
+                             "consequence": "That burns the crucial first hour and tells you nothing useful. The change did not come from Barbara, it came from an attacker. Phone the bank first.",
+                             "board": {"money": {"state": "bad", "value": "Still gone · hour lost"}}},
+                            {"label": "Wait until Monday when the office is properly staffed", "outcome": "bad",
+                             "consequence": "By Monday the money is cleared and unrecoverable. A redirected payment is an emergency, not a Monday task.",
+                             "board": {"money": {"state": "bad", "value": "Cleared · gone"}}},
+                         ]},
+                        {"phase": "Secure", "title": "Close the way in",
+                         "prompt": "The bank is working the recall. The change was authorised from Priya's mailbox. What now?",
+                         "options": [
+                            {"label": "Reset Priya's password, sign out all her sessions, and confirm MFA is on", "outcome": "good",
+                             "consequence": "Right. The attacker had her login. Resetting the password and ending every active session locks them out, and MFA stops the stolen password being reused.",
+                             "board": {"systems": {"state": "ok", "value": "Locked down"}}},
+                            {"label": "Change Priya's password and leave it there", "outcome": "bad",
+                             "consequence": "A password change alone does not end sessions the attacker already has open. Sign out all sessions and confirm MFA too.",
+                             "board": {"systems": {"state": "warn", "value": "Sessions still open"}}},
+                            {"label": "Nothing yet, IT can look on Monday", "outcome": "bad",
+                             "consequence": "Every hour the attacker keeps access they can send more requests. Secure the account now.",
+                             "board": {"systems": {"state": "bad", "value": "Still open"}}},
+                         ]},
+                        {"phase": "Assess", "title": "Obligations and evidence",
+                         "prompt": "Tenant and landlord personal details passed through the compromised mailbox. What is the responsible step?",
+                         "options": [
+                            {"label": "Preserve the emails and logs, and assess it under the Privacy Act breach scheme with Dean", "outcome": "good",
+                             "consequence": "Right. Personal information was exposed, so this may be a notifiable breach. Keeping the evidence and assessing it properly is the law, and it is how you learn what to fix.",
+                             "board": {"clock": {"state": "ok", "value": "Assessment started"}, "clients": {"state": "ok", "value": "Barbara informed"}}},
+                            {"label": "Delete the phishing email so no one clicks it by mistake", "outcome": "bad",
+                             "consequence": "That destroys the evidence you need to understand and report the incident. Keep it, and warn people separately.",
+                             "board": {"clock": {"state": "bad", "value": "Evidence lost"}}},
+                            {"label": "Keep it quiet to avoid embarrassing the agency", "outcome": "bad",
+                             "consequence": "Hiding a breach of personal information can itself break the law and destroys trust. Assess and report it properly.",
+                             "board": {"clock": {"state": "bad", "value": "Unreported"}}},
+                         ]},
                     ],
                 },
             },

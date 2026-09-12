@@ -922,6 +922,9 @@ from django.template.loader import render_to_string
 
 def test_each_diagram_renders_its_content():
     cases = {
+        "net-topology": "Attached devices",
+        "data-hops": "Spring2024!",
+        "data-journey": "Connection is secure",
         "cia-triad": "Confidentiality",
         "network-path": "Your router",
         "router-admin": "Admin password",
@@ -932,7 +935,7 @@ def test_each_diagram_renders_its_content():
         "fake-update": "free-hd-movies-stream.info",
         "enable-macros": "Enable Content",
         "scareware-popup": "1800 631 442",
-        "router-wifi": "YarravilleRE-Office",
+        "router-wifi": "YarraRidge-Office",
         "lookalike-login": "yarravi11ere",
         "phish-headers": "m365-account-verify.co",
         "smishing-linkt": "linkt-au-pay.info",

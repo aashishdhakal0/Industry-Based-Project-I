@@ -82,15 +82,21 @@ def test_lesson_one_is_a_teaching_lesson(seeded):
 
 @pytest.mark.django_db
 def test_lesson_two_is_an_apply_lesson(seeded):
-    """Lesson 2 APPLY IT: hands-on, scenario-based. Mostly interactive activities,
-    with at least one read-the-image picture question."""
+    """Lesson 2 APPLY IT: hands-on, built entirely from interactive activities
+    that hand the learner a real artefact to work, never a reading panel and
+    never a CHECK bolted onto a static diagram (that is Lesson 1's shape)."""
     tasks = list(seeded.lessons.get(lesson_number=2).tasks.order_by("order"))
     activities = [t for t in tasks if t.kind in ACTIVITY_KINDS]
     assert len(activities) >= 3, "Lesson 2 should be built from hands-on activities"
     assert not [t for t in tasks if t.kind == "CONCEPT"], "Lesson 2 applies; it should not be reading panels"
-    # At least one picture-question (a CHECK carrying a visual).
-    picture_checks = [t for t in tasks if t.kind == "CHECK" and t.diagram_key]
-    assert picture_checks, "Lesson 2 needs at least one read-the-image picture question"
+    assert not [t for t in tasks if t.kind == "CHECK"], "Lesson 2 tests; a bare CHECK-on-a-diagram is Lesson 1's shape"
+    # At least one activity hands the learner a real device-framed artefact
+    # (a browser/router/inbox recreation) to work, not a bare card.
+    framed = [
+        t for t in activities
+        if (t.payload or {}).get("frame") or (t.payload or {}).get("variant") == "login"
+    ]
+    assert framed, "Lesson 2 needs at least one device-framed interactive artefact"
 
 
 # --------------------------------------------------------------------------
@@ -163,19 +169,16 @@ ANIMATIONS = {
 
 @pytest.mark.django_db
 def test_lesson_one_is_theory_only_no_animations(seeded):
-    """Lesson 1 teaches; every animation and drill lives in Lesson 2. No animated
-    hero may sit on a Lesson 1 panel."""
+    """Lesson 1 teaches; it explains concepts, it does not animate them. No
+    animated hero may sit on a Lesson 1 panel. Lesson 2's own "alive" quality
+    comes from its activities responding live to the learner's choices (a
+    tabletop board that updates, a device that flips state) rather than from a
+    passive hero animation, so no equivalent requirement is placed on Lesson 2."""
     l1_heroes = {
         (t.payload or {}).get("hero")
         for t in seeded.lessons.get(lesson_number=1).tasks.all()
     }
     assert not (l1_heroes & ANIMATIONS), f"Lesson 1 must have no animations: {l1_heroes & ANIMATIONS}"
-    # The 'watch your data travel' animation was relocated to Lesson 2.
-    l2_heroes = {
-        (t.payload or {}).get("hero")
-        for t in seeded.lessons.get(lesson_number=2).tasks.all()
-    }
-    assert "data-journey" in l2_heroes
 
 
 @pytest.mark.django_db
@@ -283,12 +286,13 @@ def test_module_one_lesson_one_visuals_are_own_origin(seeded, client):
     )
     client.force_login(user)
     html = client.get(reverse("learn:lesson", args=[1, 1])).content.decode()
-    # The teaching diagrams render as inline SVG figures (own-origin, CSP-safe).
-    assert "cy-td__svg" in html and "<svg" in html
+    # The teaching visuals render as photograph-grade device recreations inside
+    # full browser chrome (own-origin, CSP-safe), not stock photos or schematic SVG.
+    assert "cy-br" in html and "cy-rtr__tbl" in html
     # The weak-points and check panels render device-framed recreations
-    # (a router settings screen and a browser sign-in), not stock photos.
-    assert "cy-radmin__form" in html      # router settings device frame
-    assert "cy-signin" in html            # lookalike browser sign-in device frame
+    # (a router settings screen and a lookalike browser sign-in).
+    assert "cy-rtr__row" in html          # router settings device frame
+    assert "cy-lgn__card" in html         # lookalike browser sign-in device frame
     # No stock photos anywhere in Lesson 1.
     for src in ("m1-router.webp", "m1-network.webp", "m1-encryption.webp", "m1-records.webp"):
         assert src not in html, f"{src} should be gone from Lesson 1"

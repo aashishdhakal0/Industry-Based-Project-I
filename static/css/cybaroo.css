@@ -4736,6 +4736,11 @@ a.cy-path__link:hover { background: var(--cy-surface-2); }
   position: fixed;
   z-index: 60;
 }
+/* The overlay is hidden until JS fires the celebration on lesson completion.
+   Without this guard, `display: flex` above overrides the `hidden` attribute
+   (author rule beats the UA [hidden] rule), so the "+10 points earned" card
+   rendered over every lesson on load, covering Task 1. */
+.cy-reward[hidden] { display: none; }
 
 .cy-reward__card {
   background: linear-gradient(165deg, var(--cy-surface-2), var(--cy-surface));
@@ -10536,3 +10541,291 @@ a.cy-mrow:hover { border-color: var(--cy-border-lift); transform: translateX(3px
 .cy-c-feed2__row:first-child { border-top: 0; }
 .cy-c-feed2__w { color: var(--cy-text); display: block; font-size: 0.87rem; }
 .cy-c-feed2__m { color: var(--cy-text-3); display: block; font-size: 0.75rem; margin-top: 0.1rem; }
+
+/* ============================================================================
+   MODULE 1 REBUILD (v49+) — photograph-grade device recreations.
+   Self-contained, hard-coded real product colours (NOT theme tokens) so each
+   screenshot reads identically for every viewer, light or dark. CSP-safe,
+   own-origin, no external images. Reusable: .cy-br is the shared browser frame.
+   ========================================================================== */
+
+/* ---- .cy-br : a realistic Chrome-style browser window (light) ------------- */
+.cy-br { background:#fff; border:1px solid #b9bec7; border-radius:11px; box-shadow:0 20px 50px rgba(0,0,0,.5); margin:0 auto; max-width:600px; overflow:hidden; width:100%;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; color:#202124; }
+.cy-br__tabs { align-items:flex-end; background:#dee1e6; display:flex; gap:0; padding:7px 8px 0; }
+.cy-br__lights { align-items:center; display:flex; gap:6px; flex:none; padding:0 12px 7px 2px; }
+.cy-br__lights i { border-radius:50%; display:block; height:11px; width:11px; }
+.cy-br__lights i:nth-child(1){ background:#ff5f57; } .cy-br__lights i:nth-child(2){ background:#febc2e; } .cy-br__lights i:nth-child(3){ background:#28c840; }
+.cy-br__tab { align-items:center; background:#c6cbd2; border-radius:9px 9px 0 0; color:#5f6368; display:flex; font-size:12px; gap:7px; margin-right:3px; max-width:190px; padding:8px 11px; white-space:nowrap; }
+.cy-br__tab.is-on { background:#fff; color:#202124; }
+.cy-br__tab span { overflow:hidden; text-overflow:ellipsis; }
+.cy-br__fav { align-items:center; border-radius:3px; color:#fff; display:grid; flex:none; font-size:8px; font-weight:800; height:15px; justify-content:center; line-height:1; place-items:center; width:15px; }
+.cy-br__x { color:#80868b; font-size:13px; }
+.cy-br__plus { align-self:center; color:#5f6368; font-size:16px; padding:5px 9px; }
+.cy-br__bar { align-items:center; background:#f1f3f4; display:flex; gap:11px; padding:7px 12px; }
+.cy-br__nav { color:#5f6368; display:flex; flex:none; font-size:15px; gap:13px; }
+.cy-br__nav .off { color:#bdc1c6; }
+.cy-br__reload { color:#5f6368; flex:none; font-size:14px; }
+.cy-br__omni { align-items:center; background:#fff; border:1px solid #dfe1e5; border-radius:999px; color:#202124; display:flex; flex:1; font-size:12.5px; gap:8px; min-width:0; padding:5px 12px; }
+.cy-br__omni svg { flex:none; height:13px; width:13px; }
+.cy-br__lk { color:#5f6368; flex:none; }
+.cy-br__ns { color:#c5221f; flex:none; font-size:11px; font-weight:600; }
+.cy-br__url { color:#202124; font-family:var(--cy-font-mono); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.cy-br__url .g { color:#5f6368; } .cy-br__url b { color:#202124; font-weight:700; }
+.cy-br__star { color:#5f6368; flex:none; font-size:14px; margin-left:auto; }
+.cy-br__marks { align-items:center; background:#fff; border-bottom:1px solid #e6e8eb; color:#3c4043; display:flex; gap:16px; overflow:hidden; padding:6px 12px; }
+.cy-br__mark { align-items:center; display:flex; flex:none; font-size:11.5px; gap:6px; white-space:nowrap; }
+.cy-br__mark b { border-radius:3px; display:block; flex:none; height:13px; width:13px; }
+.cy-br__view { background:#fff; color:#202124; }
+
+/* ---- Router admin UI (inside .cy-br__view) -------------------------------- */
+.cy-rtr { display:grid; grid-template-columns:116px 1fr; }
+.cy-rtr__brand { align-items:center; background:linear-gradient(90deg,#0f6f78,#0a4f57); color:#e4f7f8; display:flex; font-size:12px; font-weight:700; grid-column:1/-1; justify-content:space-between; padding:9px 14px; }
+.cy-rtr__brand span { color:#a9dfe3; font-weight:500; }
+.cy-rtr__nav { background:#f6f8f9; border-right:1px solid #e6e8eb; display:flex; flex-direction:column; gap:2px; padding:9px 8px; }
+.cy-rtr__ni { border-radius:7px; color:#3c4043; font-size:12.5px; padding:7px 10px; }
+.cy-rtr__ni.is-on { background:#e3f3f4; color:#0b565f; font-weight:600; }
+.cy-rtr__main { padding:12px 15px 14px; }
+.cy-rtr__h { color:#202124; font-size:13.5px; font-weight:700; margin:0 0 3px; }
+.cy-rtr__lede { color:#5f6368; font-size:11.5px; margin:0 0 11px; }
+.cy-rtr__tblwrap { overflow-x:auto; }
+.cy-rtr__tbl { border-collapse:collapse; font-size:11px; width:100%; min-width:26rem; }
+.cy-rtr__tbl th { border-bottom:1px solid #dadce0; color:#5f6368; font-size:9.5px; font-weight:600; letter-spacing:.01em; padding:6px 6px; text-align:left; text-transform:uppercase; }
+.cy-rtr__tbl td { border-bottom:1px solid #f1f3f4; color:#202124; padding:6px 6px; vertical-align:middle; }
+.cy-rtr__dev { font-weight:600; }
+.cy-rtr__mac,.cy-rtr__ip { color:#5f6368; font-family:var(--cy-font-mono); font-size:10px; }
+.cy-rtr__on { color:#137333; font-weight:600; } .cy-rtr__on::before { background:#1e8e3e; border-radius:50%; content:""; display:inline-block; height:6px; margin-right:5px; width:6px; }
+.cy-rtr__row { align-items:center; border-bottom:1px solid #f1f3f4; display:flex; gap:1rem; justify-content:space-between; padding:11px 4px; }
+.cy-rtr__k { color:#3c4043; font-size:12.5px; } .cy-rtr__k small { color:#80868b; display:block; font-size:10.5px; margin-top:1px; }
+.cy-rtr__v { color:#202124; font-family:var(--cy-font-mono); font-size:12px; }
+.cy-rtr__pill { border-radius:5px; font-size:10.5px; font-weight:700; padding:2px 8px; }
+.cy-rtr__pill--bad { background:#fce8e6; color:#c5221f; } .cy-rtr__pill--ok { background:#e6f4ea; color:#137333; } .cy-rtr__pill--warn { background:#fef7e0; color:#b06000; }
+.cy-rtr__btn { background:#1a73e8; border-radius:5px; color:#fff; font-size:11px; font-weight:600; padding:4px 11px; }
+@media(max-width:520px){ .cy-rtr{ grid-template-columns:1fr; } .cy-rtr__nav{ flex-direction:row; flex-wrap:wrap; border-right:0; border-bottom:1px solid #e6e8eb; } }
+
+/* ---- Rent-portal sign-in (inside .cy-br__view) ---------------------------- */
+.cy-lgn { background:#eef2f7; display:flex; justify-content:center; padding:22px 16px; }
+.cy-lgn__card { background:#fff; border:1px solid #e2e6ec; border-radius:10px; box-shadow:0 1px 3px rgba(0,0,0,.08); padding:20px 20px 22px; width:258px; }
+.cy-lgn__brand { align-items:center; color:#12325a; display:flex; font-size:15px; font-weight:700; gap:9px; }
+.cy-lgn__mark { align-items:center; background:linear-gradient(135deg,#1b4b82,#12325a); border-radius:7px; color:#eaf3fb; display:grid; font-size:10px; font-weight:800; height:28px; place-items:center; width:28px; }
+.cy-lgn__sub { color:#5f6368; font-size:11.5px; margin:4px 0 15px; }
+.cy-lgn__lbl { color:#3c4043; font-size:11px; font-weight:600; margin:11px 0 4px; }
+.cy-lgn__inp { align-items:center; border:1px solid #dadce0; border-radius:6px; color:#202124; display:flex; font-size:12.5px; justify-content:space-between; padding:9px 11px; }
+.cy-lgn__inp .dots { letter-spacing:2px; color:#5f6368; }
+.cy-lgn__warn { align-items:flex-start; color:#b06000; display:flex; font-size:10.5px; gap:5px; margin-top:6px; }
+.cy-lgn__warn svg { flex:none; height:12px; margin-top:1px; width:12px; }
+.cy-lgn__btn { background:linear-gradient(135deg,#1b4b82,#12325a); border-radius:6px; color:#fff; font-size:12.5px; font-weight:700; margin-top:15px; padding:10px; text-align:center; }
+.cy-lgn__foot { color:#9aa0a6; font-size:10px; margin-top:12px; text-align:center; }
+
+/* ---- Wireshark capture ---------------------------------------------------- */
+.cy-wsk { background:#f2f2f2; border:1px solid #b3b6bc; border-radius:8px; box-shadow:0 20px 50px rgba(0,0,0,.5); color:#1b1b1b; font-family:-apple-system,"Segoe UI",Roboto,Arial,sans-serif; margin:0 auto; max-width:600px; overflow:hidden; width:100%; }
+.cy-wsk__bar { align-items:center; background:linear-gradient(180deg,#f7f7f7,#e9e9e9); border-bottom:1px solid #ccc; display:flex; gap:8px; padding:6px 10px; }
+.cy-wsk__bar .d { display:flex; gap:6px; } .cy-wsk__bar .d i { border-radius:50%; height:10px; width:10px; display:block; } .cy-wsk__bar .d i:nth-child(1){background:#ff5f57} .cy-wsk__bar .d i:nth-child(2){background:#febc2e} .cy-wsk__bar .d i:nth-child(3){background:#28c840}
+.cy-wsk__ttl { color:#3c3c3c; font-size:11.5px; font-weight:600; }
+.cy-wsk__menu { background:#efefef; border-bottom:1px solid #d8d8d8; color:#3c3c3c; display:flex; flex-wrap:wrap; font-size:11px; gap:14px; padding:4px 11px; }
+.cy-wsk__filt { align-items:center; background:#e8f6e8; border-bottom:1px solid #cfe3cf; display:flex; gap:8px; padding:5px 10px; }
+.cy-wsk__filt .lab { color:#5a7a5a; font-size:10.5px; }
+.cy-wsk__fbox { background:#eaffea; border:1px solid #a6d8a6; border-radius:4px; color:#186a18; flex:1; font-family:var(--cy-font-mono); font-size:11px; padding:3px 8px; }
+.cy-wsk__listwrap { overflow-x:auto; }
+.cy-wsk__list { font-size:11px; min-width:34rem; }
+.cy-wsk__hrow,.cy-wsk__row { display:grid; grid-template-columns:30px 58px 108px 108px 52px 1fr; }
+.cy-wsk__hrow { background:#e2e2e2; border-bottom:1px solid #ccc; color:#333; font-weight:600; }
+.cy-wsk__row { border-bottom:1px solid #ededed; }
+.cy-wsk__row.is-http { background:#e7ffdb; } .cy-wsk__row.is-tls { background:#eee7ff; } .cy-wsk__row.is-dns { background:#dcecff; }
+.cy-wsk__row.is-sel { background:#3b6ea5; color:#fff; }
+.cy-wsk__c { overflow:hidden; padding:2px 6px; text-overflow:ellipsis; white-space:nowrap; }
+.cy-wsk__c--n { color:#666; } .cy-wsk__row.is-sel .cy-wsk__c--n { color:#dbe6f3; }
+.cy-wsk__ipsrc,.cy-wsk__ipdst { font-family:var(--cy-font-mono); }
+.cy-wsk__detail { background:#fff; border-bottom:1px solid #d3d3d3; border-top:1px solid #d3d3d3; font-family:var(--cy-font-mono); font-size:11px; padding:6px 8px; }
+.cy-wsk__tl { color:#1b1b1b; display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.cy-wsk__tl .tw { color:#888; } .cy-wsk__tl .k { color:#3a3a3a; } .cy-wsk__tl .hl { background:#fff2a8; color:#8a1500; font-weight:700; padding:0 2px; }
+.cy-wsk__hex { background:#fff; color:#333; font-family:var(--cy-font-mono); font-size:10.5px; line-height:1.55; overflow-x:auto; padding:6px 9px; white-space:pre; }
+.cy-wsk__hex .a { background:#fff2a8; color:#8a1500; }
+.cy-wsk__status { background:#ececec; border-top:1px solid #d3d3d3; color:#555; font-size:10px; padding:3px 10px; }
+
+/* ---- CIA triptych: three real broken screens ------------------------------ */
+.cy-cia3 { display:grid; gap:14px; grid-template-columns:repeat(3,1fr); }
+@media(max-width:620px){ .cy-cia3{ grid-template-columns:1fr; max-width:22rem; margin:0 auto; } }
+.cy-cia3__cell { display:flex; flex-direction:column; }
+.cy-cia3__frame { border-radius:9px; box-shadow:0 10px 26px rgba(0,0,0,.4); flex:1; overflow:hidden; }
+.cy-cia3__cap { font-size:11px; margin-top:8px; text-align:center; }
+.cy-cia3__tag { display:block; font-family:var(--cy-font-mono); font-size:10px; font-weight:700; letter-spacing:.06em; margin-bottom:2px; text-transform:uppercase; }
+.cy-cia3__tag--c { color:#5be7ff; } .cy-cia3__tag--i { color:#e6b455; } .cy-cia3__tag--a { color:#ff6b6b; }
+.cy-cia3__what { color:var(--cy-text-2); }
+/* C: Google Drive share dialog */
+.cy-drv { background:#fff; color:#202124; font-family:-apple-system,"Segoe UI",Roboto,Arial,sans-serif; height:100%; }
+.cy-drv__h { font-size:12px; font-weight:600; padding:11px 12px 3px; }
+.cy-drv__h span { color:#5f6368; font-weight:400; }
+.cy-drv__gen { align-items:flex-start; display:flex; gap:8px; padding:9px 12px 4px; }
+.cy-drv__globe { align-items:center; background:#e6f4ea; border-radius:50%; color:#1e8e3e; display:grid; flex:none; height:26px; place-items:center; width:26px; }
+.cy-drv__globe svg { height:15px; width:15px; }
+.cy-drv__gen > span:nth-child(2) { flex:1; min-width:0; }
+.cy-drv__lab { color:#202124; display:block; font-size:11.5px; font-weight:600; }
+.cy-drv__sub { color:#5f6368; display:block; font-size:10px; line-height:1.35; margin-top:2px; }
+.cy-drv__role { color:#1a73e8; flex:none; font-size:10.5px; font-weight:600; margin-left:auto; white-space:nowrap; }
+.cy-drv__foot { align-items:center; display:flex; justify-content:space-between; padding:10px 12px 12px; }
+.cy-drv__copy { color:#1a73e8; font-size:11px; font-weight:600; }
+.cy-drv__done { background:#1a73e8; border-radius:16px; color:#fff; font-size:11.5px; font-weight:600; padding:6px 15px; }
+/* I: tampered invoice */
+.cy-inv { background:#fff; color:#23262b; font-size:10px; height:100%; padding:12px 12px 14px; }
+.cy-inv__top { border-bottom:2px solid #23262b; display:flex; justify-content:space-between; padding-bottom:6px; }
+.cy-inv__co { font-size:11px; font-weight:800; } .cy-inv__co small { color:#6b7280; display:block; font-size:8.5px; font-weight:400; }
+.cy-inv__t { color:#8a9099; font-size:11px; font-weight:800; letter-spacing:.1em; }
+.cy-inv__meta { color:#6b7280; font-size:8.5px; margin:6px 0; }
+.cy-inv__li { border-bottom:1px solid #eef0f2; display:flex; justify-content:space-between; padding:3px 0; }
+.cy-inv__pay { background:#f7f9fb; border:1px solid #e6e8eb; border-radius:5px; margin-top:8px; padding:7px 8px; }
+.cy-inv__payh { color:#6b7280; font-size:8.5px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; }
+.cy-inv__bsb { font-family:var(--cy-font-mono); font-size:10px; margin-top:2px; }
+.cy-inv__bsb mark { background:#fff2a8; color:#8a1500; padding:0 2px; }
+/* A: ransomware lock */
+.cy-lock { align-items:center; background:radial-gradient(120% 100% at 50% 0%,#241016,#0a0c10 70%); color:#e9edf2; display:flex; flex-direction:column; height:100%; justify-content:center; padding:16px 12px; text-align:center; }
+.cy-lock__ic { color:#ff5a5a; } .cy-lock__ic svg { height:26px; width:26px; }
+.cy-lock__h { color:#ff6060; font-size:11.5px; font-weight:800; margin:8px 0 4px; }
+.cy-lock__p { color:#b9c2cf; font-size:9.5px; line-height:1.4; }
+.cy-lock__timer { color:#ffd166; font-family:var(--cy-font-mono); font-size:12px; margin-top:8px; }
+
+/* ---- #6 Animated "connection is secure" ----------------------------------- */
+.cy-br__load { background:transparent; height:3px; overflow:hidden; position:relative; }
+.cy-br__load::after { animation:cy-secload 1.5s ease-out 1 forwards; background:#1a73e8; content:""; display:block; height:100%; width:0; }
+.cy-sec { position:relative; }
+.cy-sec__pop { animation:cy-secpop .5s ease-out 1.5s 1 both; background:#fff; border:1px solid #dadce0; border-radius:10px; box-shadow:0 12px 30px rgba(0,0,0,.28); left:12px; padding:12px 13px; position:absolute; top:6px; width:250px; z-index:5; }
+.cy-sec__poph { align-items:center; color:#202124; display:flex; font-size:12.5px; font-weight:600; gap:8px; }
+.cy-sec__poph svg { color:#1e8e3e; height:15px; width:15px; }
+.cy-sec__popp { color:#5f6368; font-size:11px; margin:6px 0 8px 23px; }
+.cy-sec__cert { align-items:center; border-top:1px solid #eee; color:#3c4043; display:flex; font-size:11px; gap:8px; padding-top:8px; }
+.cy-sec__cert b { color:#137333; }
+.cy-sec__body { min-height:172px; padding:16px 18px; position:relative; }
+.cy-sec__page { display:flex; flex-direction:column; gap:10px; opacity:.9; }
+.cy-sec__logo { color:#12325a; font-family:-apple-system,"Segoe UI",sans-serif; font-size:15px; font-weight:800; }
+.cy-sec__ln { background:#e9edf2; border-radius:4px; display:block; height:9px; }
+.cy-sec__box { background:#f2f5f9; border:1px solid #e4e8ee; border-radius:8px; display:block; height:56px; margin-top:6px; width:100%; max-width:230px; }
+.cy-br__lk--load { animation:cy-secspin 1.4s linear 1; display:inline-block; }
+@keyframes cy-secload { 0%{width:0} 70%{width:82%} 100%{width:100%} }
+@keyframes cy-secpop { from{ opacity:0; transform:translateY(-8px);} to{ opacity:1; transform:translateY(0);} }
+@keyframes cy-secspin { from{ transform:rotate(0);} to{ transform:rotate(360deg);} }
+@media (prefers-reduced-motion: reduce) {
+  .cy-br__load::after { animation:none; width:100%; }
+  .cy-sec__pop { animation:none; }
+  .cy-br__lk--load { animation:none; }
+}
+
+/* ============================================================================
+   MODULE 1 LESSON 2 (v50+) — photograph-grade INTERACTIVE artefacts.
+   Lesson 1 explains; Lesson 2 hands the learner a real thing to work: a router
+   table to tap through, two sign-in pages to tell apart, a Gmail inbox to
+   triage, a settings page to fix. Builds on .cy-br (self-contained, hard-coded
+   real product colours) from the Lesson 1 rebuild. CSP-safe, own-origin.
+   ========================================================================== */
+
+/* ---- NETMAP inside .cy-br: a tappable "Attached devices" table ------------ */
+.cy-rtr--tap { display:block; }
+.cy-rtr__main--full { padding:12px 15px 14px; }
+.cy-rtr__tbl--tap { min-width:0; width:100%; }
+.cy-rtr__tbl--tap thead { display:none; }
+.cy-rtr__row2 td { border-bottom:0; padding:9px 4px 3px; vertical-align:top; }
+.cy-rtr__row2 + .cy-rtr__whyrow td { border-bottom:1px solid #f1f3f4; padding:0 4px 9px; }
+.cy-rtr__row2:last-of-type td, .cy-rtr__row2:last-of-type + .cy-rtr__whyrow td { border-bottom:0; }
+.cy-rtr__tapbtn { background:transparent; border:0; color:#1a73e8; cursor:pointer; font:inherit; font-size:12.5px; font-weight:700; padding:0; text-align:left; text-decoration:underline; text-decoration-color:transparent; text-underline-offset:2px; }
+.cy-rtr__tapbtn:hover:not(:disabled) { text-decoration-color:#1a73e8; }
+.cy-rtr__tapbtn:disabled { color:#202124; cursor:default; text-decoration:none; }
+.cy-rtr__row2 .cy-rtr__mac { display:block; margin-top:2px; }
+.cy-rtr__row2 td:last-child { text-align:right; }
+.cy-rtr__pill--tap { background:#f1f3f4; color:#5f6368; }
+.cy-rtr__row2.is-settled .cy-rtr__pill--tap.cy-rtr__pill--bad { animation:cy-shake 0.4s; }
+.cy-netmap__why:empty { display:none; }
+.cy-rtr .cy-netmap__why { color:#5f6368; font-size:11.5px; margin:0; padding:2px 0 0; }
+.cy-rtr .cy-netmap__why.is-weak { color:#c5221f; font-weight:600; }
+.cy-rtr .cy-netmap__why.is-ok { color:#137333; font-weight:600; }
+
+/* ---- SPOT inside two .cy-br mini frames ------------------------------------ */
+.cy-spot__card--frame { background:transparent; border:2px solid transparent; border-radius:13px; padding:0; transition:border-color .15s, transform .15s; }
+.cy-spot__card--frame:hover { border-color:var(--cy-violet); transform:translateY(-2px); }
+.cy-spot__card--frame .cy-br { box-shadow:0 10px 26px rgba(0,0,0,.35); pointer-events:none; }
+.cy-spot__card--frame.is-fake { border-color:var(--cy-danger); }
+.cy-spot__card--frame.is-real { border-color:var(--cy-cyan); }
+.cy-spot__card--frame:disabled:hover { transform:none; }
+
+/* ---- MAILSORT as a real Gmail layout --------------------------------------- */
+.cy-gm { background:#fff; color:#202124; display:grid; font-family:-apple-system,"Segoe UI",Roboto,Arial,sans-serif; grid-template-columns:112px 1fr; }
+.cy-gm__side { background:#f6f8fc; display:flex; flex-direction:column; gap:3px; padding:10px 8px; }
+.cy-gm__compose { background:#c2e7ff; border-radius:14px; color:#001d35; font-size:11px; font-weight:600; margin-bottom:8px; padding:8px 10px; text-align:center; }
+.cy-gm__sideitem { align-items:center; border-radius:0 14px 14px 0; color:#3c4043; display:flex; font-size:11px; justify-content:space-between; padding:6px 10px; }
+.cy-gm__sideitem.is-on { background:#d3e3fd; color:#001d35; font-weight:700; }
+.cy-gm__sideitem b { color:#5f6368; font-weight:400; }
+.cy-gm__mainpane { border-left:1px solid #e6e8eb; display:flex; flex-direction:column; min-width:0; }
+.cy-gm__toolbar { border-bottom:1px solid #e6e8eb; color:#5f6368; font-size:11px; font-weight:600; padding:9px 14px; }
+.cy-gm__list { display:flex; flex-direction:column; }
+.cy-gm__row { border-bottom:1px solid #f1f3f4; padding:10px 14px; }
+.cy-gm__row.is-unread { background:#fafcff; }
+.cy-gm__row.is-settled.is-genuine { background:#f2fbf5; }
+.cy-gm__row.is-settled.is-phish { background:#fdf3f2; }
+.cy-gm__row.is-shake { animation:cy-shake 0.4s; }
+.cy-gm__main { align-items:flex-start; display:flex; gap:10px; }
+.cy-gm__avatar { align-items:center; border-radius:50%; color:#fff; display:flex; flex:none; font-size:12px; font-weight:700; height:28px; justify-content:center; width:28px; }
+.cy-gm__body { flex:1; min-width:0; }
+.cy-gm__head { align-items:baseline; display:flex; gap:8px; justify-content:space-between; }
+.cy-gm__fromwrap { align-items:center; display:flex; flex:1; gap:6px; min-width:0; overflow:hidden; }
+.cy-gm__dot { background:#1a73e8; border-radius:50%; flex:none; height:7px; width:7px; }
+.cy-gm__from { color:#202124; font-size:12.5px; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.cy-gm__row.is-unread .cy-gm__from { font-weight:700; }
+.cy-gm__addr { color:#80868b; font-family:var(--cy-font-mono); font-size:10.5px; margin-top:1px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.cy-gm__time { color:#5f6368; flex:none; font-size:11px; }
+.cy-gm__subjline { color:#3c4043; font-size:12.5px; margin-top:2px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.cy-gm__subject { color:#202124; }
+.cy-gm__row.is-unread .cy-gm__subject { font-weight:700; }
+.cy-gm__preview { color:#5f6368; }
+.cy-gm__why { color:#5f6368; font-size:11.5px; margin:7px 0 0 38px; }
+.cy-gm__why.is-good { color:#137333; font-weight:600; }
+.cy-gm__why.is-bad { color:#c5221f; font-weight:600; }
+.cy-gm__why:empty { display:none; }
+.cy-gm__verdicts { display:flex; gap:7px; margin:8px 0 0 38px; }
+.cy-gm__verdict { border-radius:6px; border:1px solid #dadce0; background:#fff; color:#3c4043; cursor:pointer; font-size:11px; font-weight:600; padding:4px 11px; }
+.cy-gm__verdict:hover:not(:disabled) { border-color:#8ab4f8; }
+.cy-gm__verdict:disabled { cursor:default; opacity:.55; }
+.cy-gm__verdict.is-right { background:#e6f4ea; border-color:#137333; color:#137333; }
+.cy-gm__verdict.is-wrong { background:#fce8e6; border-color:#c5221f; color:#c5221f; }
+@media(max-width:480px){ .cy-gm{ grid-template-columns:1fr; } .cy-gm__side{ display:none; } }
+
+/* ---- HARDEN as a real settings page (rows that flip to Secured) ----------- */
+.cy-rtr__row--fix { border-bottom:1px solid #f1f3f4; padding:11px 4px; }
+.cy-rtr__row--fix:last-child { border-bottom:0; }
+.cy-rtr__fixtop { align-items:flex-start; display:flex; flex-wrap:wrap; gap:0.4rem 0.85rem; }
+.cy-rtr__fixtop .cy-rtr__k { flex:1 1 12rem; min-width:0; }
+.cy-rtr__fixtop .cy-rtr__pill { flex:none; }
+.cy-rtr__fixopts { display:flex; flex-wrap:wrap; gap:7px; margin-top:9px; }
+.cy-rtr__btn--opt { background:#fff; border:1px solid #dadce0; border-radius:6px; color:#3c4043; cursor:pointer; font-size:11.5px; font-weight:600; padding:6px 11px; }
+.cy-rtr__btn--opt:hover:not(:disabled) { border-color:#1a73e8; color:#1a73e8; }
+.cy-rtr__btn--opt:disabled { cursor:default; opacity:.55; }
+.cy-rtr__btn--opt.is-right { background:#e6f4ea; border-color:#137333; color:#137333; }
+.cy-rtr__btn--opt.is-wrong { background:#fce8e6; border-color:#c5221f; color:#c5221f; }
+.cy-rtr__row--fix.is-shake { animation:cy-shake 0.4s; }
+.cy-rtr__row--fix.is-fixed { background:#f2fbf5; }
+
+/* ---- TABLETOP: a live operations board (own character, not device chrome) - */
+.cy-tt__scenario { background:var(--cy-surface-2); border-left:3px solid var(--cy-danger); border-radius:8px; color:var(--cy-text-2); font-size:0.92rem; line-height:1.55; margin:0 0 1rem; padding:0.8rem 1rem; }
+.cy-board { display:grid; gap:0.6rem; grid-template-columns:repeat(auto-fit, minmax(9.5rem, 1fr)); margin-bottom:1.1rem; }
+.cy-board__cell { background:var(--cy-surface-2); border:1px solid var(--cy-border); border-left:3px solid var(--cy-border-lift); border-radius:9px; padding:0.7rem 0.85rem; transition:border-color .25s, background .25s; }
+.cy-board__cell.is-changed { animation:cy-board-pulse 0.9s ease; }
+.cy-board__cell.is-ok { border-left-color:var(--cy-cyan); }
+.cy-board__cell.is-warn { border-left-color:#e6b455; }
+.cy-board__cell.is-bad { border-left-color:var(--cy-danger); }
+.cy-board__label { color:var(--cy-text-3); display:block; font-family:var(--cy-font-mono); font-size:0.68rem; letter-spacing:0.04em; text-transform:uppercase; }
+.cy-board__value { color:var(--cy-text); display:block; font-weight:700; font-size:0.92rem; margin-top:0.25rem; }
+.cy-board__cell.is-ok .cy-board__value { color:var(--cy-cyan); }
+.cy-board__cell.is-warn .cy-board__value { color:#e6b455; }
+.cy-board__cell.is-bad .cy-board__value { color:var(--cy-danger); }
+@keyframes cy-board-pulse { 0%{ box-shadow:0 0 0 0 rgba(0,217,255,.35);} 100%{ box-shadow:0 0 0 8px rgba(0,217,255,0);} }
+.cy-tt__phase { color:var(--cy-cyan); font-family:var(--cy-font-mono); font-size:0.72rem; font-weight:700; letter-spacing:0.08em; margin:0; text-transform:uppercase; }
+.cy-tt__title { color:var(--cy-text); font-size:1.05rem; font-weight:700; margin:0.2rem 0 0.5rem; }
+.cy-tt__prompt { color:var(--cy-text-2); line-height:1.55; margin:0 0 0.9rem; }
+.cy-tt__choices { display:flex; flex-direction:column; gap:0.55rem; }
+.cy-tt__choice { background:var(--cy-surface-2); border:1px solid var(--cy-border); border-radius:9px; color:var(--cy-text); cursor:pointer; font-size:0.92rem; padding:0.7rem 0.9rem; text-align:left; transition:border-color .15s; }
+.cy-tt__choice:hover:not(:disabled) { border-color:var(--cy-violet); }
+.cy-tt__choice:disabled { cursor:default; opacity:0.6; }
+.cy-tt__feedback { border-radius:9px; margin-top:0.9rem; padding:0.75rem 0.9rem; }
+.cy-tt__feedback.is-good { background:rgba(0,229,204,0.1); color:var(--cy-text); }
+.cy-tt__feedback.is-bad { background:rgba(255,77,77,0.1); color:var(--cy-text); }
+.cy-tt__feedback:empty { display:none; padding:0; margin:0; }
+.cy-tt__next { margin-top:0.9rem; }
+.cy-tt.is-complete .cy-tt__title { color:var(--cy-cyan); }
+@media (prefers-reduced-motion: reduce) { .cy-board__cell.is-changed { animation:none; } }

@@ -62,11 +62,11 @@ def test_module_one_lesson_page_renders_diagrams_and_no_animation(seeded):
     client = Client()
     client.force_login(student)
     html = client.get(reverse("learn:lesson", args=[1, 1]), HTTP_HOST="127.0.0.1").content.decode()
-    # Teaching diagrams render as own-origin inline SVG; the weak-points and check
-    # panels render device-framed recreations (router screen, browser sign-in);
-    # no stock photos; no animation on this teaching lesson.
-    assert "cy-td__svg" in html and "<svg" in html
-    assert "cy-radmin__form" in html   # device-framed router settings screen
-    assert "cy-signin" in html         # device-framed lookalike browser sign-in
+    # Teaching visuals render as photograph-grade device recreations (own-origin,
+    # full browser chrome); the weak-points and check panels render device-framed
+    # recreations (router screen, browser sign-in); no stock photos.
+    assert "cy-br" in html and "<svg" in html
+    assert "cy-rtr__row" in html       # device-framed router settings screen
+    assert "cy-lgn__card" in html      # device-framed lookalike browser sign-in
     assert "m1-router.webp" not in html and "m1-network.webp" not in html   # no stock photos
     assert "cy-scene2" not in html

@@ -43,6 +43,64 @@
     try { return JSON.parse(node.textContent); } catch (e) { return null; }
   }
 
+  // ---------------------------------------------------------- .cy-br chrome ----
+  // A realistic Chrome-style browser frame (tabs with favicon, omnibox with
+  // security state, a bookmarks bar), built from a small `frame` spec so an
+  // activity's own content sits inside real device chrome instead of a bare
+  // card. Shared by NETMAP, SPOT, MAILSORT and HARDEN. frame:
+  // {tab, fav, favbg, url_prefix, url, url_bold, insecure, marks:[{label,bg}]}
+  // Returns the outer .cy-br node; call .appendChild on the returned __view.
+  function buildBrowserFrame(frame) {
+    var br = el("div", "cy-br");
+
+    var tabs = el("div", "cy-br__tabs");
+    var lights = el("span", "cy-br__lights");
+    lights.appendChild(el("i")); lights.appendChild(el("i")); lights.appendChild(el("i"));
+    tabs.appendChild(lights);
+    var tab = el("span", "cy-br__tab is-on");
+    var fav = el("b", "cy-br__fav", frame.fav || "");
+    if (frame.favbg) fav.style.background = frame.favbg;
+    tab.appendChild(fav);
+    tab.appendChild(el("span", null, frame.tab || ""));
+    tab.appendChild(el("i", "cy-br__x", "×"));
+    tabs.appendChild(tab);
+    tabs.appendChild(el("span", "cy-br__plus", "+"));
+    br.appendChild(tabs);
+
+    var bar = el("div", "cy-br__bar");
+    bar.appendChild(el("span", "cy-br__nav", "← →"));
+    bar.appendChild(el("span", "cy-br__reload", "↻"));
+    var omni = el("span", "cy-br__omni");
+    var lk = el("span", "cy-br__lk");
+    lk.appendChild(icon(frame.insecure ? "i-eye" : "i-lock"));
+    omni.appendChild(lk);
+    if (frame.insecure) omni.appendChild(el("span", "cy-br__ns", "Not secure"));
+    var urlSpan = el("span", "cy-br__url");
+    urlSpan.appendChild(el("span", "g", frame.url_prefix || ""));
+    urlSpan.appendChild(document.createTextNode(frame.url || ""));
+    if (frame.url_bold) urlSpan.appendChild(el("b", null, frame.url_bold));
+    omni.appendChild(urlSpan);
+    bar.appendChild(omni);
+    br.appendChild(bar);
+
+    if (frame.marks && frame.marks.length) {
+      var marks = el("div", "cy-br__marks");
+      frame.marks.forEach(function (m) {
+        var mk = el("span", "cy-br__mark");
+        var b = el("b"); b.style.background = m.bg || "#888";
+        mk.appendChild(b);
+        mk.appendChild(document.createTextNode(m.label));
+        marks.appendChild(mk);
+      });
+      br.appendChild(marks);
+    }
+
+    var view = el("div", "cy-br__view");
+    br.appendChild(view);
+    br.__view = view;
+    return br;
+  }
+
   // ---------------------------------------------------------------- SORT ----
   CONTROLLERS.SORT = function (root, cfg) {
     var total = cfg.items.length;
@@ -132,6 +190,37 @@
     feedback.setAttribute("aria-live", "polite");
 
     function card(side, data) {
+      if (cfg.variant === "login" && data.tab) {
+        // Photograph-grade: a full mini browser window per side, the address bar
+        // (and its padlock / Not secure state) carrying the actual tell.
+        var frame = {
+          tab: data.tab, fav: (data.brand || "S").slice(0, 1).toUpperCase(),
+          favbg: data.insecure ? "#c5221f" : "#1b4b82",
+          url_prefix: data.insecure ? "http://" : "https://",
+          url: data.url || "", insecure: !!data.insecure,
+        };
+        var br = buildBrowserFrame(frame);
+        br.classList.add("cy-spot__br");
+        var page = el("div", "cy-lgn");
+        var card2 = el("div", "cy-lgn__card");
+        card2.appendChild(el("div", "cy-lgn__brand", data.brand || "Sign in"));
+        card2.appendChild(el("div", "cy-lgn__lbl", "Email address"));
+        card2.appendChild(el("div", "cy-lgn__inp", "you@example.com"));
+        card2.appendChild(el("div", "cy-lgn__lbl", "Password"));
+        var pwd = el("div", "cy-lgn__inp");
+        pwd.appendChild(el("span", "dots", "••••••••••"));
+        card2.appendChild(pwd);
+        card2.appendChild(el("div", "cy-lgn__btn", "Sign in"));
+        page.appendChild(card2);
+        br.__view.appendChild(page);
+
+        var btn = el("button", "cy-spot__card cy-spot__card--frame");
+        btn.type = "button";
+        btn.setAttribute("data-side", side);
+        btn.appendChild(br);
+        btn.addEventListener("click", function () { pick(side, btn); });
+        return btn;
+      }
       var c = el("button", "cy-spot__card");
       c.type = "button";
       c.setAttribute("data-side", side);
@@ -144,12 +233,12 @@
         bar.appendChild(lock);
         bar.appendChild(el("span", "cy-spot__url", data.url || ""));
         c.appendChild(bar);
-        var page = el("div", "cy-spot__page");
-        page.appendChild(el("div", "cy-spot__brand", data.brand || "Sign in"));
-        page.appendChild(el("div", "cy-spot__field"));
-        page.appendChild(el("div", "cy-spot__field"));
-        page.appendChild(el("div", "cy-spot__signin", "Sign in"));
-        c.appendChild(page);
+        var page2 = el("div", "cy-spot__page");
+        page2.appendChild(el("div", "cy-spot__brand", data.brand || "Sign in"));
+        page2.appendChild(el("div", "cy-spot__field"));
+        page2.appendChild(el("div", "cy-spot__field"));
+        page2.appendChild(el("div", "cy-spot__signin", "Sign in"));
+        c.appendChild(page2);
       } else {
         c.appendChild(el("div", "cy-spot__sender", data.sender || ""));
         c.appendChild(el("div", "cy-spot__text", data.text || ""));
@@ -443,6 +532,13 @@
   // A realistic mixed inbox: mark each whole email Genuine or Phishing, with the
   // verdict and its tells revealed as you go. Distinct from INBOX (which inspects
   // the parts within a single message). Solved when every email is sorted right.
+  var AVATAR_BG = ["#1a73e8", "#137333", "#c5221f", "#8430ce", "#d56e0c", "#12805c"];
+  function avatarColor(name) {
+    var h = 0;
+    for (var i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) >>> 0;
+    return AVATAR_BG[h % AVATAR_BG.length];
+  }
+
   CONTROLLERS.MAILSORT = function (root, cfg) {
     if (cfg.prompt) root.appendChild(el("p", "cy-act__prompt", cfg.prompt));
     var total = cfg.emails.length;
@@ -453,28 +549,51 @@
     var feedback = el("p", "cy-act__feedback");
     feedback.setAttribute("aria-live", "polite");
 
-    var listEl = el("div", "cy-mail");
-    cfg.emails.forEach(function (email) {
-      var row = el("div", "cy-mail__row");
-      row.appendChild(el("span", "cy-mail__from", email.from));
-      row.appendChild(el("p", "cy-mail__subject", email.subject));
-      row.appendChild(el("p", "cy-mail__preview", email.preview));
-
-      var verdicts = el("div", "cy-mail__verdicts");
-      var why = el("p", "cy-mail__why");
+    function buildRow(email, listEl, gmail) {
+      var row = el("div", gmail ? "cy-gm__row" : "cy-mail__row");
       var settled = false;
       var correct = email.phish ? "phishing" : "genuine";
+      var why = el("p", gmail ? "cy-gm__why" : "cy-mail__why");
 
+      if (gmail) {
+        var main = el("div", "cy-gm__main");
+        var av = el("span", "cy-gm__avatar", (email.from || "?").slice(0, 1).toUpperCase());
+        av.style.background = avatarColor(email.from || "?");
+        main.appendChild(av);
+        var body = el("div", "cy-gm__body");
+        var head = el("div", "cy-gm__head");
+        var fromWrap = el("span", "cy-gm__fromwrap");
+        if (email.unread) fromWrap.appendChild(el("span", "cy-gm__dot"));
+        fromWrap.appendChild(el("span", "cy-gm__from", email.from || ""));
+        head.appendChild(fromWrap);
+        head.appendChild(el("span", "cy-gm__time", email.time || ""));
+        body.appendChild(head);
+        if (email.addr) body.appendChild(el("div", "cy-gm__addr", email.addr));
+        var subj = el("div", "cy-gm__subjline");
+        subj.appendChild(el("span", "cy-gm__subject", email.subject || ""));
+        subj.appendChild(el("span", "cy-gm__preview", ": " + (email.preview || "")));
+        body.appendChild(subj);
+        main.appendChild(body);
+        row.appendChild(main);
+        if (email.unread) row.classList.add("is-unread");
+      } else {
+        row.appendChild(el("span", "cy-mail__from", email.from));
+        row.appendChild(el("p", "cy-mail__subject", email.subject));
+        row.appendChild(el("p", "cy-mail__preview", email.preview));
+      }
+
+      var verdicts = el("div", gmail ? "cy-gm__verdicts" : "cy-mail__verdicts");
       [["genuine", "Genuine"], ["phishing", "Phishing"]].forEach(function (pair) {
-        var b = el("button", "cy-mail__verdict cy-mail__verdict--" + pair[0], pair[1]);
+        var b = el("button", (gmail ? "cy-gm__verdict cy-gm__verdict--" : "cy-mail__verdict cy-mail__verdict--") + pair[0], pair[1]);
         b.type = "button";
         b.addEventListener("click", function () {
           if (settled) return;
           if (pair[0] === correct) {
             settled = true;
             row.classList.add("is-settled", email.phish ? "is-phish" : "is-genuine");
+            row.classList.remove("is-unread");
             b.classList.add("is-right");
-            why.className = "cy-mail__why is-good";
+            why.className = (gmail ? "cy-gm__why" : "cy-mail__why") + " is-good";
             why.textContent = (email.phish ? "Phishing. " : "Genuine. ") + email.why;
             Array.prototype.forEach.call(verdicts.children, function (o) { o.disabled = true; });
             done += 1;
@@ -489,7 +608,7 @@
             b.disabled = true;
             row.classList.add("is-shake");
             window.setTimeout(function () { row.classList.remove("is-shake"); }, 400);
-            why.className = "cy-mail__why is-bad";
+            why.className = (gmail ? "cy-gm__why" : "cy-mail__why") + " is-bad";
             why.textContent = "Look again at the sender and what it is asking, then try the other verdict.";
           }
         });
@@ -499,10 +618,43 @@
       row.appendChild(verdicts);
       row.appendChild(why);
       listEl.appendChild(row);
-    });
+    }
 
+    if (cfg.gmail && cfg.frame) {
+      // Photograph-grade: a real Gmail layout (sidebar, toolbar, avatar rows)
+      // inside full browser chrome, instead of plain cards.
+      var br = buildBrowserFrame(cfg.frame);
+      var gm = el("div", "cy-gm");
+      var side = el("div", "cy-gm__side");
+      side.appendChild(el("span", "cy-gm__compose", "Compose"));
+      [["Inbox", String(total), true], ["Starred", "", false], ["Sent", "", false], ["Trash", "", false]].forEach(function (s) {
+        var item = el("span", "cy-gm__sideitem" + (s[2] ? " is-on" : ""));
+        item.appendChild(el("span", null, s[0]));
+        if (s[1]) item.appendChild(el("b", null, s[1]));
+        side.appendChild(item);
+      });
+      gm.appendChild(side);
+      var main2 = el("div", "cy-gm__mainpane");
+      var toolbar = el("div", "cy-gm__toolbar");
+      toolbar.appendChild(el("span", null, "Trust account · Inbox"));
+      main2.appendChild(toolbar);
+      var listEl = el("div", "cy-gm__list");
+      cfg.emails.forEach(function (email) { buildRow(email, listEl, true); });
+      main2.appendChild(listEl);
+      gm.appendChild(main2);
+      br.__view.appendChild(gm);
+
+      root.appendChild(counter);
+      root.appendChild(br);
+      root.appendChild(feedback);
+      update();
+      return;
+    }
+
+    var listEl2 = el("div", "cy-mail");
+    cfg.emails.forEach(function (email) { buildRow(email, listEl2, false); });
     root.appendChild(counter);
-    root.appendChild(listEl);
+    root.appendChild(listEl2);
     root.appendChild(feedback);
 
     function update() { counter.textContent = done + " of " + total + " sorted"; }
@@ -523,61 +675,102 @@
     var feedback = el("p", "cy-act__feedback");
     feedback.setAttribute("aria-live", "polite");
 
-    var listEl = el("div", "cy-harden");
-    cfg.steps.forEach(function (step) {
-      var card = el("div", "cy-harden__step");
-
-      var head = el("div", "cy-harden__head");
-      head.appendChild(el("span", "cy-harden__label", step.label));
-      var status = el("span", "cy-harden__status", "At risk");
-      head.appendChild(status);
-      card.appendChild(head);
-
-      if (step.risk) card.appendChild(el("p", "cy-harden__risk", step.risk));
-
-      var opts = el("div", "cy-harden__opts");
-      var why = el("p", "cy-harden__why");
+    function buildStep(step, listEl, settingsUI) {
+      var card = el("div", settingsUI ? "cy-rtr__row cy-rtr__row--fix" : "cy-harden__step");
       var settled = false;
 
-      step.options.forEach(function (opt) {
-        var b = el("button", "cy-harden__opt", opt.text);
-        b.type = "button";
-        b.addEventListener("click", function () {
-          if (settled) return;
-          if (opt.correct) {
-            settled = true;
-            card.classList.add("is-secured");
-            status.textContent = "Secured";
-            b.classList.add("is-right");
-            why.className = "cy-harden__why is-good";
-            why.textContent = opt.why;
-            Array.prototype.forEach.call(opts.children, function (o) { o.disabled = true; });
-            done += 1;
-            update();
-            if (done === total) {
-              feedback.className = "cy-act__feedback is-good";
-              feedback.textContent = "Workspace secured. Every part locked down.";
-              solved(root);
-            }
-          } else {
-            b.classList.add("is-wrong");
-            b.disabled = true;
-            card.classList.add("is-shake");
-            window.setTimeout(function () { card.classList.remove("is-shake"); }, 400);
-            why.className = "cy-harden__why is-bad";
-            why.textContent = opt.why || "That leaves a gap. Try the more secure option.";
-          }
+      if (settingsUI) {
+        var top = el("div", "cy-rtr__fixtop");
+        var kwrap = el("span", "cy-rtr__k", step.label);
+        if (step.value) kwrap.appendChild(el("small", null, step.risk || ""));
+        top.appendChild(kwrap);
+        var status = el("span", "cy-rtr__pill cy-rtr__pill--bad", step.value || "At risk");
+        top.appendChild(status);
+        card.appendChild(top);
+        var opts = el("div", "cy-rtr__fixopts");
+        var why = el("p", "cy-netmap__why");
+        step.options.forEach(function (opt) {
+          var b = el("button", "cy-rtr__btn cy-rtr__btn--opt", opt.text);
+          b.type = "button";
+          b.addEventListener("click", function () { settle(opt, b); });
+          opts.appendChild(b);
         });
-        opts.appendChild(b);
-      });
+        card.appendChild(opts);
+        card.appendChild(why);
+      } else {
+        var head = el("div", "cy-harden__head");
+        head.appendChild(el("span", "cy-harden__label", step.label));
+        var status2 = el("span", "cy-harden__status", "At risk");
+        head.appendChild(status2);
+        card.appendChild(head);
+        if (step.risk) card.appendChild(el("p", "cy-harden__risk", step.risk));
+        var opts2 = el("div", "cy-harden__opts");
+        var why2 = el("p", "cy-harden__why");
+        step.options.forEach(function (opt) {
+          var b2 = el("button", "cy-harden__opt", opt.text);
+          b2.type = "button";
+          b2.addEventListener("click", function () { settle(opt, b2); });
+          opts2.appendChild(b2);
+        });
+        card.appendChild(opts2);
+        card.appendChild(why2);
+        var status = status2, opts = opts2, why = why2;
+      }
 
-      card.appendChild(opts);
-      card.appendChild(why);
+      function settle(opt, btn) {
+        if (settled) return;
+        if (opt.correct) {
+          settled = true;
+          card.classList.add(settingsUI ? "is-fixed" : "is-secured");
+          status.textContent = "Secured";
+          status.className = settingsUI ? "cy-rtr__pill cy-rtr__pill--ok" : "cy-harden__status";
+          btn.classList.add("is-right");
+          why.className = (settingsUI ? "cy-netmap__why" : "cy-harden__why") + " is-good";
+          why.textContent = opt.why;
+          Array.prototype.forEach.call(opts.children, function (o) { o.disabled = true; });
+          done += 1;
+          update();
+          if (done === total) {
+            feedback.className = "cy-act__feedback is-good";
+            feedback.textContent = "Workspace secured. Every part locked down.";
+            solved(root);
+          }
+        } else {
+          btn.classList.add("is-wrong");
+          btn.disabled = true;
+          card.classList.add("is-shake");
+          window.setTimeout(function () { card.classList.remove("is-shake"); }, 400);
+          why.className = (settingsUI ? "cy-netmap__why" : "cy-harden__why") + " is-bad";
+          why.textContent = opt.why || "That leaves a gap. Try the more secure option.";
+        }
+      }
+
       listEl.appendChild(card);
-    });
+    }
 
+    if (cfg.settings && cfg.frame) {
+      // Photograph-grade: a real settings page (rows with a status pill that
+      // flips to Secured) inside full browser chrome, instead of plain cards.
+      var br = buildBrowserFrame(cfg.frame);
+      var rtr = el("div", "cy-rtr cy-rtr--tap");
+      var main = el("div", "cy-rtr__main cy-rtr__main--full");
+      main.appendChild(el("p", "cy-rtr__h", "Security"));
+      main.appendChild(el("p", "cy-rtr__lede", "Settings that need fixing before this account is safe."));
+      cfg.steps.forEach(function (step) { buildStep(step, main, true); });
+      rtr.appendChild(main);
+      br.__view.appendChild(rtr);
+
+      root.appendChild(counter);
+      root.appendChild(br);
+      root.appendChild(feedback);
+      update();
+      return;
+    }
+
+    var listEl2 = el("div", "cy-harden");
+    cfg.steps.forEach(function (step) { buildStep(step, listEl2, false); });
     root.appendChild(counter);
-    root.appendChild(listEl);
+    root.appendChild(listEl2);
     root.appendChild(feedback);
 
     function update() { counter.textContent = done + " of " + total + " secured"; }
@@ -598,6 +791,87 @@
     var feedback = el("p", "cy-act__feedback");
     feedback.setAttribute("aria-live", "polite");
 
+    function update() { counter.textContent = found + " of " + totalWeak + " weaknesses found"; }
+    function onSettle(node, why, n) {
+      why.textContent = n.why;
+      if (n.weak) {
+        node.classList.add("is-weak");
+        why.className = why.className.replace(/\bis-ok\b/, "") + " is-weak";
+        found += 1;
+        update();
+        if (found === totalWeak) {
+          feedback.className = "cy-act__feedback is-good";
+          feedback.textContent = "That is every weakness found. You would spot these on a real network.";
+          solved(root);
+        }
+      } else {
+        node.classList.add("is-ok");
+        why.className = why.className.replace(/\bis-weak\b/, "") + " is-ok";
+      }
+    }
+
+    if (cfg.frame) {
+      // Photograph-grade: a real router "Attached devices" table inside full
+      // browser chrome. Each row is tappable; tapping reveals why underneath it.
+      var br = buildBrowserFrame(cfg.frame);
+      var rtr = el("div", "cy-rtr cy-rtr--tap");
+      var main = el("div", "cy-rtr__main cy-rtr__main--full");
+      main.appendChild(el("p", "cy-rtr__h", "Attached devices"));
+      main.appendChild(el("p", "cy-rtr__lede", cfg.nodes.length + " devices connected through this router."));
+      var wrap = el("div", "cy-rtr__tblwrap");
+      var tbl = el("table", "cy-rtr__tbl cy-rtr__tbl--tap");
+      var thead = el("thead");
+      var hr = el("tr");
+      ["Device", ""].forEach(function (h) { hr.appendChild(el("th", null, h)); });
+      thead.appendChild(hr);
+      tbl.appendChild(thead);
+      var tbody = el("tbody");
+      cfg.nodes.forEach(function (n) {
+        var row = el("tr", "cy-rtr__row2");
+        var tdDev = el("td");
+        var btn = el("button", "cy-rtr__tapbtn", n.label);
+        btn.type = "button";
+        var detail = el("span", "cy-rtr__mac", n.detail || "");
+        tdDev.appendChild(btn);
+        tdDev.appendChild(document.createElement("br"));
+        tdDev.appendChild(detail);
+        var tdStat = el("td");
+        var pill = el("span", "cy-rtr__pill cy-rtr__pill--tap", "Check");
+        tdStat.appendChild(pill);
+        row.appendChild(tdDev);
+        row.appendChild(tdStat);
+        var whyRow = el("tr", "cy-rtr__whyrow");
+        var whyTd = el("td");
+        whyTd.colSpan = 2;
+        var why = el("p", "cy-netmap__why");
+        whyTd.appendChild(why);
+        whyRow.appendChild(whyTd);
+
+        btn.addEventListener("click", function () {
+          if (btn.disabled) return;
+          btn.disabled = true;
+          row.classList.add("is-settled");
+          onSettle(row, why, n);
+          pill.textContent = n.weak ? "Suspicious" : "Known";
+          pill.className = "cy-rtr__pill " + (n.weak ? "cy-rtr__pill--bad" : "cy-rtr__pill--ok");
+        });
+
+        tbody.appendChild(row);
+        tbody.appendChild(whyRow);
+      });
+      tbl.appendChild(tbody);
+      wrap.appendChild(tbl);
+      main.appendChild(wrap);
+      rtr.appendChild(main);
+      br.__view.appendChild(rtr);
+
+      root.appendChild(counter);
+      root.appendChild(br);
+      root.appendChild(feedback);
+      update();
+      return;
+    }
+
     var grid = el("div", "cy-netmap");
     cfg.nodes.forEach(function (n) {
       var cell = el("div", "cy-netmap__cell");
@@ -610,21 +884,7 @@
       node.addEventListener("click", function () {
         if (node.disabled) return;
         node.disabled = true;
-        why.textContent = n.why;
-        if (n.weak) {
-          node.classList.add("is-weak");
-          why.className = "cy-netmap__why is-weak";
-          found += 1;
-          update();
-          if (found === totalWeak) {
-            feedback.className = "cy-act__feedback is-good";
-            feedback.textContent = "That is every weakness found. You would spot these on a real network.";
-            solved(root);
-          }
-        } else {
-          node.classList.add("is-ok");
-          why.className = "cy-netmap__why is-ok";
-        }
+        onSettle(node, why, n);
       });
 
       cell.appendChild(node);
@@ -635,8 +895,6 @@
     root.appendChild(counter);
     root.appendChild(grid);
     root.appendChild(feedback);
-
-    function update() { counter.textContent = found + " of " + totalWeak + " weaknesses found"; }
     update();
   };
 
