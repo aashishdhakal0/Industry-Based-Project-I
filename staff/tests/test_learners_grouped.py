@@ -152,6 +152,72 @@ def test_grouped_search_narrows_across_groups(client, world):
     assert "finn@example.com" not in body
 
 
+# --- Certificate lookup by verification code -------------------------------
+
+def _certify(user, grade="Distinction"):
+    from certificates.models import Certificate
+
+    return Certificate.objects.create(user=user, grade=grade)
+
+
+def test_certified_property_reflects_valid_and_revoked(world):
+    from staff import services
+
+    cert = _certify(world["finn"])
+    rows = {r.user.email: r for r in services.collect_learners()}
+    assert rows["finn@example.com"].certified is True
+    assert rows["finn@example.com"].certificate_serial == cert.serial
+    assert rows["mo@example.com"].certified is False  # no certificate
+
+    cert.revoked_at = timezone.now()
+    cert.save(update_fields=["revoked_at"])
+    rows = {r.user.email: r for r in services.collect_learners()}
+    # A revoked certificate is still attached, but no longer a valid credential.
+    assert rows["finn@example.com"].certificate is not None
+    assert rows["finn@example.com"].certified is False
+
+
+def test_certificate_column_shows_credential_status(client, world):
+    as_admin(client, world)
+    _certify(world["finn"])
+    body = client.get(reverse("staff:learners")).content.decode()
+    assert "cy-c-cert" in body                 # Finn's credential shown
+    assert "Certified" in body
+
+
+def test_search_by_certificate_code_surfaces_banner_and_holder(client, world):
+    as_admin(client, world)
+    cert = _certify(world["finn"])
+    body = client.get(reverse("staff:learners") + f"?q={cert.serial}").content.decode()
+    # The certificate itself is surfaced, valid, with a link to the verify page.
+    assert "cy-c-certhit" in body
+    assert cert.serial in body
+    assert "Valid" in body
+    assert reverse("certificates:verify", args=[cert.serial]) in body
+    # And the table narrows to the holder.
+    assert "finn@example.com" in body
+    assert "mo@example.com" not in body
+
+
+def test_search_by_certificate_code_ignores_dashes(client, world):
+    as_admin(client, world)
+    cert = _certify(world["finn"])
+    nodash = cert.serial.replace("-", "")
+    body = client.get(reverse("staff:learners") + f"?q={nodash}").content.decode()
+    assert "cy-c-certhit" in body
+    assert "finn@example.com" in body
+
+
+def test_revoked_certificate_flagged_in_lookup(client, world):
+    as_admin(client, world)
+    cert = _certify(world["finn"])
+    cert.revoked_at = timezone.now()
+    cert.save(update_fields=["revoked_at"])
+    body = client.get(reverse("staff:learners") + f"?q={cert.serial}").content.decode()
+    assert "cy-c-certhit--revoked" in body
+    assert "Revoked" in body
+
+
 # --- Access control --------------------------------------------------------
 
 def test_learners_is_admin_only(client, world):

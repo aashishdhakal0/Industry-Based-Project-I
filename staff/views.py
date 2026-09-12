@@ -161,6 +161,9 @@ def learners(request):
     else:
         rows = services.collect_learners()   # students only
     total_all = len(rows)
+    # A pasted verification code surfaces the certificate itself (one lookup),
+    # over and above narrowing the table to its holder.
+    cert_match = services.certificate_for_query(q) if q else None
     rows = services.search_learners(rows, q)
 
     # Quick-chip counts reflect the current search, before the status/grade
@@ -210,6 +213,8 @@ def learners(request):
             "grade_label": services.QUICK_FILTERS[grade][0] if grade else "Any",
             "base_qs": base_qs,
             "organisations": Organisation.objects.all(),
+            "cert_match": cert_match,
+            "cert_match_uid": cert_match.user_id if cert_match else None,
         },
     )
 

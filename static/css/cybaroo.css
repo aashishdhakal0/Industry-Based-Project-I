@@ -7924,8 +7924,11 @@ a.cy-path__link:hover { background: var(--cy-surface-2); }
 .cy-c-org__head:hover { background: var(--cy-surface-3); }
 .cy-c-org__chevron { color: var(--cy-text-3); flex: none; height: 16px; transition: transform 0.15s ease; width: 16px; }
 .cy-c-org[open] .cy-c-org__chevron { transform: rotate(90deg); }
-.cy-c-org__name { color: var(--cy-text); font-size: 0.95rem; font-weight: 600; }
-.cy-c-org__stats { color: var(--cy-text-3); font-size: 0.8rem; }
+.cy-c-org__name { color: var(--cy-text); font-size: 0.98rem; font-weight: 600; letter-spacing: -0.01em; }
+.cy-c-org__stats { align-items: center; color: var(--cy-text-3); display: flex; flex-wrap: wrap; gap: 0 1.1rem; font-size: 0.78rem; margin-left: 0.35rem; }
+.cy-c-org__stat { align-items: baseline; display: inline-flex; gap: 0.3rem; position: relative; }
+.cy-c-org__stat + .cy-c-org__stat::before { background: var(--cy-border-lift); content: ""; height: 0.7rem; left: -0.55rem; position: absolute; top: 0.15rem; width: 1px; }
+.cy-c-org__stat b { color: var(--cy-text-2); font-family: var(--cy-font-mono); font-feature-settings: "tnum"; font-weight: 600; }
 .cy-c-org__csv { color: var(--cy-accent-strong); font-size: 0.8rem; margin-left: auto; text-decoration: none; }
 .cy-c-org__csv:hover { text-decoration: underline; }
 .cy-c-org .cy-c-tablewrap { border-top: 1px solid var(--cy-border); }
@@ -8012,37 +8015,73 @@ a.cy-path__link:hover { background: var(--cy-surface-2); }
 .cy-c-th.is-sorted { color: var(--cy-accent-strong); }
 .cy-c-th.is-sorted::after { content: "\2193"; }
 
-.cy-c-learner { display: block; text-decoration: none; }
-.cy-c-learner__name { align-items: center; color: var(--cy-text); display: inline-flex; font-weight: 500; gap: 0.35rem; }
+.cy-c-learner { display: flex; flex-direction: column; gap: 0.2rem; text-decoration: none; }
+.cy-c-learner__name { align-items: center; color: var(--cy-text); display: inline-flex; font-size: 0.9rem; font-weight: 600; gap: 0.4rem; letter-spacing: -0.005em; line-height: 1.25; }
 .cy-c-learner:hover .cy-c-learner__name { color: var(--cy-accent-strong); }
-.cy-c-learner__email { color: var(--cy-text-3); display: block; font-size: 0.8rem; }
-.cy-c-score { color: var(--cy-text-3); font-size: 0.8rem; margin-left: 0.35rem; }
+.cy-c-learner__email { color: var(--cy-text-3); display: block; font-family: var(--cy-font-mono); font-size: 0.76rem; line-height: 1.2; }
+.cy-c-score { color: var(--cy-text-3); font-family: var(--cy-font-mono); font-feature-settings: "tnum"; font-size: 0.78rem; margin-left: 0.4rem; }
 .cy-dot { background: var(--cy-text-3); border-radius: 50%; display: inline-block; height: 7px; width: 7px; }
 .cy-dot--warn { background: var(--cy-warnc); }
 
-.cy-c-mod { align-items: center; display: flex; gap: 0.6rem; }
-.cy-c-mod__count { color: var(--cy-text-2); font-family: var(--cy-font-mono); font-feature-settings: "tnum"; font-size: 0.85rem; white-space: nowrap; }
-.cy-c-mod__track { width: 4.5rem; height: 6px; }
+.cy-c-mod { align-items: flex-start; display: flex; flex-direction: column; gap: 0.35rem; }
+.cy-c-mod__count { color: var(--cy-text); font-family: var(--cy-font-mono); font-feature-settings: "tnum"; font-size: 0.82rem; font-weight: 600; white-space: nowrap; }
+.cy-c-mod__of { color: var(--cy-text-3); font-weight: 400; }
+.cy-c-mod__track { width: 5.5rem; height: 5px; }
 
 /* --- Learners table: refined columns, role treatment, staff rows ----------- */
-.cy-c-table--learners { min-width: 44rem; }
+.cy-c-table--learners { min-width: 52rem; }
+.cy-c-table--learners thead th { padding-top: 0.7rem; padding-bottom: 0.7rem; }
+.cy-c-table--learners tbody td { height: 3.5rem; padding-top: 0.55rem; padding-bottom: 0.55rem; }
 .cy-c-table--learners tbody td:first-child { min-width: 12rem; }
-.cy-c-table--learners .cy-c-mod__track { flex: 1; max-width: 5.5rem; }
-.cy-c-when { color: var(--cy-text-2); font-size: 0.85rem; white-space: nowrap; }
+.cy-c-table--learners .cy-c-mod__track { width: 5.5rem; }
+.cy-c-table--learners tbody tr { transition: background 0.12s ease; }
+.cy-c-table--learners tbody tr:hover { background: var(--cy-accent-tint); }
+.cy-c-when { color: var(--cy-text-2); font-family: var(--cy-font-mono); font-feature-settings: "tnum"; font-size: 0.82rem; white-space: nowrap; }
 .cy-c-dash { color: var(--cy-text-3); }
 
 /* A student's role reads as plain quiet text; a staff role earns a pill so the
    handful of non-learners are unmistakable without shouting. */
 .cy-c-rolelabel { color: var(--cy-text-3); font-size: 0.82rem; }
-.cy-c-rolepill { border-radius: 6px; display: inline-block; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.03em; padding: 0.12rem 0.5rem; text-transform: uppercase; }
+.cy-c-rolepill { border-radius: 6px; display: inline-block; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.03em; padding: 0.12rem 0.5rem; text-transform: uppercase; vertical-align: middle; }
 .cy-c-rolepill--administrator { background: var(--cy-info-bg); border: 1px solid var(--cy-info-ln); color: var(--cy-info-fg); }
 .cy-c-rolepill--instructor { background: var(--cy-teal-bg); border: 1px solid var(--cy-teal-ln); color: var(--cy-teal-fg); }
 
-/* Staff rows: a whisper of tint and dimmed cells, present but clearly not
-   learners (their learner-only cells carry a muted em dash). */
+/* Staff rows: a whisper of tint, and the four learner-only columns collapsed
+   into one calm line, so an admin's row reads as "not a learner" at a glance
+   instead of scattering em dashes across the table. */
 .cy-c-row--staff { background: rgba(255, 255, 255, 0.012); }
 .cy-app--console[data-theme="light"] .cy-c-row--staff { background: rgba(16, 24, 40, 0.02); }
-.cy-c-row--staff .cy-c-learner__name { color: var(--cy-text-2); font-weight: 500; }
+.cy-c-row--staff .cy-c-learner__name { color: var(--cy-text-2); font-weight: 600; }
+.cy-c-staffcell { color: var(--cy-text-3); }
+.cy-c-staffcell__note { font-size: 0.8rem; margin-left: 0.6rem; }
+
+/* Certificate column: a valid credential shown at a glance with its date; a
+   revoked one flagged; nothing earned shows the muted dash. */
+.cy-c-cert { align-items: center; color: var(--cy-good-fg); display: inline-flex; font-size: 0.8rem; font-weight: 500; gap: 0.35rem; white-space: nowrap; }
+.cy-c-cert .cy-i { height: 14px; width: 14px; }
+.cy-c-cert__date { color: var(--cy-text-3); font-family: var(--cy-font-mono); font-feature-settings: "tnum"; font-size: 0.7rem; }
+.cy-c-cert--revoked { color: var(--cy-warn-fg); }
+
+/* The row whose certificate code was searched: a soft accent wash + left rail
+   so the holder is unmistakable among the results. */
+.cy-c-table tbody tr.is-certmatch,
+.cy-c-table--learners tbody tr.is-certmatch:hover { background: var(--cy-accent-tint); box-shadow: inset 3px 0 0 var(--cy-accent-strong); }
+
+/* --- Certificate match banner: a pasted code surfaces the certificate --------- */
+.cy-c-certhit { align-items: center; background: linear-gradient(180deg, var(--cy-good-bg), transparent); border: 1px solid var(--cy-good-ln); border-radius: 12px; display: flex; flex-wrap: wrap; gap: 0.9rem; margin-bottom: 1.1rem; padding: 0.9rem 1.05rem; }
+.cy-c-certhit--revoked { background: linear-gradient(180deg, var(--cy-warn-bg), transparent); border-color: var(--cy-warn-ln); }
+.cy-c-certhit__seal { align-items: center; background: var(--cy-good-bg); border: 1px solid var(--cy-good-ln); border-radius: 11px; color: var(--cy-good-fg); display: grid; flex: none; height: 44px; place-items: center; width: 44px; }
+.cy-c-certhit--revoked .cy-c-certhit__seal { background: var(--cy-warn-bg); border-color: var(--cy-warn-ln); color: var(--cy-warn-fg); }
+.cy-c-certhit__seal .cy-i { height: 22px; width: 22px; }
+.cy-c-certhit__body { flex: 1; min-width: 14rem; }
+.cy-c-certhit__top { align-items: center; display: flex; flex-wrap: wrap; gap: 0.6rem; }
+.cy-c-certhit__code { color: var(--cy-text); font-family: var(--cy-font-mono); font-feature-settings: "tnum"; font-size: 0.9rem; font-weight: 600; letter-spacing: 0.02em; }
+.cy-c-certhit__badge { border-radius: 6px; font-size: 0.66rem; font-weight: 700; letter-spacing: 0.05em; padding: 0.12rem 0.5rem; text-transform: uppercase; }
+.cy-c-certhit__badge--ok { background: var(--cy-good-bg); border: 1px solid var(--cy-good-ln); color: var(--cy-good-fg); }
+.cy-c-certhit__badge--revoked { background: var(--cy-warn-bg); border: 1px solid var(--cy-warn-ln); color: var(--cy-warn-fg); }
+.cy-c-certhit__sub { color: var(--cy-text-2); font-size: 0.82rem; margin: 0.3rem 0 0; }
+.cy-c-certhit__sub b { color: var(--cy-text); font-weight: 600; }
+.cy-c-certhit__acts { display: flex; flex: none; gap: 0.5rem; }
 
 /* --- Toolbar: search + independent Status / Grade dropdowns ----------------- */
 .cy-c-toolbar { align-items: center; display: flex; flex-wrap: wrap; gap: 0.6rem; margin-bottom: 1rem; }

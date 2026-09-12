@@ -27,7 +27,7 @@
   <form class="cy-c-search cy-c-search--flex" method="get" action="{% url 'staff:learners' %}" role="search">
     <svg class="cy-i cy-c-search__icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg>
     <input class="cy-c-search__input" type="search" name="q" value="{{ q }}"
-           placeholder="Search name, email or organisation" aria-label="Search learners">
+           placeholder="Search name, email, organisation or certificate code" aria-label="Search learners">
     <input type="hidden" name="view" value="{{ view }}">
     {% if sort %}<input type="hidden" name="sort" value="{{ sort }}">{% endif %}
     {% if status %}<input type="hidden" name="status" value="{{ status }}">{% endif %}
@@ -76,6 +76,39 @@
      href="?view={{ view }}&status=not_started{% if q %}&q={{ q|urlencode }}{% endif %}{% if grade %}&grade={{ grade }}{% endif %}{% if view == 'list' %}&sort={{ sort }}{% endif %}">Not started{% if chip_counts.not_started %} <span class="cy-c-chip__n">{{ chip_counts.not_started }}</span>{% endif %}</a>
 </div>
 
+{# Certificate match: a pasted verification code surfaces the certificate itself. #}
+{% if cert_match %}
+  <div class="cy-c-certhit {% if not cert_match.is_valid %}cy-c-certhit--revoked{% endif %}">
+    <span class="cy-c-certhit__seal">
+      {% if cert_match.is_valid %}
+        <svg class="cy-i" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l7 3v5c0 4-3 7-7 8-4-1-7-4-7-8V6l7-3z"/><path d="M9 12l2 2 4-4"/></svg>
+      {% else %}
+        <svg class="cy-i" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l7 3v5c0 4-3 7-7 8-4-1-7-4-7-8V6l7-3z"/><path d="M9 9l6 6M15 9l-6 6"/></svg>
+      {% endif %}
+    </span>
+    <div class="cy-c-certhit__body">
+      <div class="cy-c-certhit__top">
+        <span class="cy-c-certhit__code">{{ cert_match.serial }}</span>
+        {% if cert_match.is_valid %}
+          <span class="cy-c-certhit__badge cy-c-certhit__badge--ok">Valid</span>
+        {% else %}
+          <span class="cy-c-certhit__badge cy-c-certhit__badge--revoked">Revoked</span>
+        {% endif %}
+      </div>
+      <p class="cy-c-certhit__sub">
+        Held by <b>{{ cert_match.user.get_full_name|default:cert_match.user.email }}</b>
+        {% if cert_match.user.profile.org %}<span class="cy-c-muted">·</span> {{ cert_match.user.profile.org.name }}{% endif %}
+        <span class="cy-c-muted">·</span> issued <b>{{ cert_match.issued_at|date:"j F Y" }}</b>
+        {% if cert_match.grade %}<span class="cy-c-muted">·</span> {{ cert_match.grade }}{% endif %}
+      </p>
+    </div>
+    <div class="cy-c-certhit__acts">
+      <a class="cy-btn cy-btn--ghost cy-btn--sm" href="{% url 'staff:learner_detail' cert_match.user.pk %}?back={{ base_qs|urlencode }}">View learner</a>
+      <a class="cy-btn cy-btn--primary cy-btn--sm" href="{% url 'certificates:verify' cert_match.serial %}" target="_blank" rel="noopener">Verify page</a>
+    </div>
+  </div>
+{% endif %}
+
 {% if view == "grouped" %}
   {# --------- Grouped by organisation --------- #}
   {% for g in groups %}
@@ -84,18 +117,18 @@
         <svg class="cy-c-org__chevron" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>
         <span class="cy-c-org__name">{{ g.name }}</span>
         <span class="cy-c-org__stats">
-          {{ g.count }} member{{ g.count|pluralize }}
-          <span class="cy-c-muted">·</span> {{ g.students }} student{{ g.students|pluralize }}
-          <span class="cy-c-muted">·</span> {{ g.avg_completion }}% avg completion
+          <span class="cy-c-org__stat"><b>{{ g.count }}</b> member{{ g.count|pluralize }}</span>
+          <span class="cy-c-org__stat"><b>{{ g.students }}</b> student{{ g.students|pluralize }}</span>
+          <span class="cy-c-org__stat"><b>{{ g.avg_completion }}%</b> avg completion</span>
         </span>
         {% if g.org_id %}<a class="cy-c-org__csv" href="{% url 'staff:org_learners_csv' g.org_id %}">Export CSV</a>{% endif %}
       </summary>
       <div class="cy-c-tablewrap">
         <table class="cy-c-table cy-c-table--learners">
-          <thead><tr><th>Person</th><th>Role</th><th>Modules</th><th>Grade</th><th>Status</th><th>Last active</th></tr></thead>
+          <thead><tr><th>Person</th><th>Role</th><th>Modules</th><th>Grade</th><th>Certificate</th><th>Status</th><th class="cy-c-num">Last active</th></tr></thead>
           <tbody>
             {% for row in g.members %}
-              <tr class="{% if not row.is_student %}cy-c-row--staff{% endif %}">
+              <tr class="{% if not row.is_student %}cy-c-row--staff{% endif %}{% if cert_match_uid and row.user.pk == cert_match_uid %} is-certmatch{% endif %}">
                 <td>
                   <a class="cy-c-learner" href="{% url 'staff:learner_detail' row.user.pk %}?back={{ base_qs|urlencode }}">
                     <span class="cy-c-learner__name">
@@ -105,29 +138,29 @@
                     <span class="cy-c-learner__email">{{ row.user.email }}</span>
                   </a>
                 </td>
-                <td>
-                  {% if row.is_student %}
-                    <span class="cy-c-rolelabel">Student</span>
-                  {% else %}
-                    <span class="cy-c-rolepill cy-c-rolepill--{{ row.user.role|lower }}">{{ row.role_label }}</span>
-                  {% endif %}
-                </td>
-                <td>
-                  {% if row.is_student %}
+                {% if row.is_student %}
+                  <td><span class="cy-c-rolelabel">Student</span></td>
+                  <td>
                     <span class="cy-c-mod">
-                      <span class="cy-c-mod__count">{{ row.modules_completed }} / {{ row.modules_total }}</span>
+                      <span class="cy-c-mod__count">{{ row.modules_completed }}<span class="cy-c-mod__of"> / {{ row.modules_total }}</span></span>
                       <span class="cy-c-bar__track cy-c-mod__track"><span class="cy-c-bar__fill" style="width: {{ row.completion_percent }}%;"></span></span>
                     </span>
-                  {% else %}<span class="cy-c-dash">—</span>{% endif %}
-                </td>
-                <td>
-                  {% if row.is_student and row.overall_score is not None %}
-                    <span class="cy-tierbadge cy-tierbadge--{{ row.tier.slug }}">{{ row.tier.name }}</span>
-                    <span class="cy-c-score">{{ row.overall_score }}%</span>
-                  {% else %}<span class="cy-c-dash">—</span>{% endif %}
-                </td>
-                <td><span class="cy-status cy-status--{{ row.status }}"><span class="cy-status__dot"></span>{{ row.status_label }}</span></td>
-                <td class="cy-c-when">{% if row.last_active %}<span title="{{ row.last_active|date:'j M Y, H:i' }}">{{ row.last_active|date:"j M Y" }}</span>{% else %}<span class="cy-c-muted">Never</span>{% endif %}</td>
+                  </td>
+                  <td>
+                    {% if row.overall_score is not None %}
+                      <span class="cy-tierbadge cy-tierbadge--{{ row.tier.slug }}">{{ row.tier.name }}</span>
+                      <span class="cy-c-score">{{ row.overall_score }}%</span>
+                    {% else %}<span class="cy-c-dash">—</span>{% endif %}
+                  </td>
+                  <td>{% include "staff/_cert_cell.html" with row=row %}</td>
+                  <td><span class="cy-status cy-status--{{ row.status }}"><span class="cy-status__dot"></span>{{ row.status_label }}</span></td>
+                {% else %}
+                  <td class="cy-c-staffcell" colspan="5">
+                    <span class="cy-c-rolepill cy-c-rolepill--{{ row.user.role|lower }}">{{ row.role_label }}</span>
+                    <span class="cy-c-staffcell__note">Staff account · no learner progress</span>
+                  </td>
+                {% endif %}
+                <td class="cy-c-when cy-c-num">{% if row.last_active %}<span title="{{ row.last_active|date:'j M Y, H:i' }}">{{ row.last_active|date:"j M Y" }}</span>{% else %}<span class="cy-c-muted">Never</span>{% endif %}</td>
               </tr>
             {% endfor %}
           </tbody>
@@ -179,6 +212,7 @@
           <th><a class="cy-c-th {% if sort == 'name' %}is-sorted{% endif %}" href="?view=list&sort=name{% if q %}&q={{ q|urlencode }}{% endif %}{% if status %}&status={{ status }}{% endif %}{% if grade %}&grade={{ grade }}{% endif %}">Learner</a></th>
           <th><a class="cy-c-th {% if sort == 'completion' %}is-sorted{% endif %}" href="?view=list&sort=completion{% if q %}&q={{ q|urlencode }}{% endif %}{% if status %}&status={{ status }}{% endif %}{% if grade %}&grade={{ grade }}{% endif %}">Modules</a></th>
           <th><a class="cy-c-th {% if sort == 'grade' %}is-sorted{% endif %}" href="?view=list&sort=grade{% if q %}&q={{ q|urlencode }}{% endif %}{% if status %}&status={{ status }}{% endif %}{% if grade %}&grade={{ grade }}{% endif %}">Grade</a></th>
+          <th>Certificate</th>
           <th>Status</th>
           <th class="cy-c-num"><a class="cy-c-th {% if sort == 'points' %}is-sorted{% endif %}" href="?view=list&sort=points{% if q %}&q={{ q|urlencode }}{% endif %}{% if status %}&status={{ status }}{% endif %}{% if grade %}&grade={{ grade }}{% endif %}">Points</a></th>
           <th><a class="cy-c-th {% if sort == 'activity' %}is-sorted{% endif %}" href="?view=list&sort=activity{% if q %}&q={{ q|urlencode }}{% endif %}{% if status %}&status={{ status }}{% endif %}{% if grade %}&grade={{ grade }}{% endif %}">Last active</a></th>
@@ -186,7 +220,7 @@
       </thead>
       <tbody>
         {% for row in rows %}
-          <tr>
+          <tr class="{% if cert_match_uid and row.user.pk == cert_match_uid %}is-certmatch{% endif %}">
             <td class="cy-c-check"><input type="checkbox" name="ids" value="{{ row.user.pk }}" data-bulk-item aria-label="Select {{ row.name }}"></td>
             <td>
               <a class="cy-c-learner" href="{% url 'staff:learner_detail' row.user.pk %}?back={{ base_qs|urlencode }}">
@@ -210,12 +244,13 @@
                 <span class="cy-c-score">{{ row.overall_score }}%</span>
               {% else %}<span class="cy-c-dash">—</span>{% endif %}
             </td>
+            <td>{% include "staff/_cert_cell.html" with row=row %}</td>
             <td><span class="cy-status cy-status--{{ row.status }}"><span class="cy-status__dot"></span>{{ row.status_label }}</span></td>
             <td class="cy-c-num">{{ row.points }}</td>
             <td class="cy-c-when">{% if row.last_active %}<span title="{{ row.last_active|date:'j M Y, H:i' }}">{{ row.last_active|date:"j M Y" }}</span>{% else %}<span class="cy-c-muted">Never</span>{% endif %}</td>
           </tr>
         {% empty %}
-          <tr><td colspan="7" class="cy-c-table__empty">No learners match. <a href="?view=list">Clear</a>.</td></tr>
+          <tr><td colspan="8" class="cy-c-table__empty">No learners match. <a href="?view=list">Clear</a>.</td></tr>
         {% endfor %}
       </tbody>
     </table>

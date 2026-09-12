@@ -17,6 +17,7 @@ from django.db.models import Count, Max, Q
 from django.utils import timezone
 
 from authentication.models import User, UserProfile
+from certificates.models import Certificate
 from modules import badges as badge_catalogue
 from modules import gamification as g
 from modules.grading import BANDS, Tier, grade_from_scores, tier_for_score
@@ -43,6 +44,7 @@ class LearnerRow:
     flagged: bool
     days_inactive: int | None
     repeat_failed: bool = False
+    certificate: object | None = None  # latest Certificate, or None
 
     @property
     def name(self):
@@ -89,6 +91,15 @@ class LearnerRow:
         """Started the course, not finished it, and gone quiet — the learner who
         needs a nudge (distinct from someone who has never begun)."""
         return self.is_student and self.started and not self.completed_course and self.inactive
+
+    @property
+    def certified(self):
+        """Holds a certificate that has not been revoked (a valid credential)."""
+        return self.certificate is not None and self.certificate.is_valid
+
+    @property
+    def certificate_serial(self):
+        return self.certificate.serial if self.certificate else None
 
     @property
     def is_student(self):
@@ -214,6 +225,16 @@ def collect_learners(now=None, roles=None, as_at=None):
         .order_by("first_name", "last_name", "email")
     )
 
+    # Latest certificate per person, in one bounded pass (ordering newest-first,
+    # setdefault keeps the most recent). Respects `as_at` so the compliance view
+    # sees only certificates issued by that date.
+    cert_qs = Certificate.objects.filter(user__role__in=roles)
+    if as_at is not None:
+        cert_qs = cert_qs.filter(issued_at__lte=as_at)
+    cert_map = {}
+    for cert in cert_qs.order_by("user_id", "-issued_at"):
+        cert_map.setdefault(cert.user_id, cert)
+
     rows = []
     for user in students:
         completed = 0
@@ -247,6 +268,7 @@ def collect_learners(now=None, roles=None, as_at=None):
                 flagged=bool(profile and profile.flagged),
                 days_inactive=days_inactive,
                 repeat_failed=user.id in repeat_fail_ids,
+                certificate=cert_map.get(user.id),
             )
         )
     return rows
@@ -261,21 +283,50 @@ def sort_and_filter(rows, *, sort=DEFAULT_SORT, tier=None):
 
 
 def search_learners(rows, q):
-    """Narrow rows by a free-text query over name, email and organisation.
+    """Narrow rows by a free-text query over name, email, organisation and the
+    learner's certificate verification code.
 
     Operates on the already-composed rows, so search adds no queries — the
-    aggregation in collect_learners() stays the single bounded pass.
+    aggregation in collect_learners() stays the single bounded pass. Certificate
+    codes match with or without their dashes, so pasting either shape finds the
+    holder.
     """
     q = (q or "").strip().lower()
     if not q:
         return rows
+    q_nodash = q.replace("-", "").replace(" ", "")
     out = []
     for r in rows:
         profile = getattr(r.user, "profile", None)
         org = (profile.organisation if profile else "") or ""
-        if q in f"{r.name} {r.user.email} {org}".lower():
+        serial = (r.certificate_serial or "").lower()
+        if q in f"{r.name} {r.user.email} {org} {serial}".lower():
+            out.append(r)
+        elif serial and q_nodash and q_nodash in serial.replace("-", ""):
             out.append(r)
     return out
+
+
+def certificate_for_query(q):
+    """Return the Certificate whose public serial matches the query, when the
+    query looks like a verification code — so pasting a CYB-XXXX-XXXX-XXXX code
+    surfaces the certificate itself. Bounded: at most one indexed lookup. Matches
+    with or without the CYB- prefix and dashes.
+    """
+    q = (q or "").strip()
+    if not q:
+        return None
+    qs = Certificate.objects.select_related(
+        "user", "user__profile", "user__profile__org"
+    )
+    cert = qs.filter(serial__iexact=q).first()
+    if cert is not None:
+        return cert
+    hexpart = q.upper().replace("CYB", "").replace("-", "").replace(" ", "")
+    if len(hexpart) >= 12 and all(c in "0123456789ABCDEF" for c in hexpart[:12]):
+        serial = f"CYB-{hexpart[:4]}-{hexpart[4:8]}-{hexpart[8:12]}"
+        cert = qs.filter(serial=serial).first()
+    return cert
 
 
 # Quick-filter chips: one-click predicates over a composed row. The tier keys
