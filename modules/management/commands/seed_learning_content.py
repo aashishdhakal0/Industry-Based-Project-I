@@ -162,10 +162,10 @@ know what to look for, and to slow down when something feels rushed.</blockquote
 
 MODULE1_SIM = {
     "kind": "scenes",
-    "intro": "You look after the network at Wattle Grove Medical Centre, a busy "
-    "Bendigo clinic. Two things need your attention this morning. Read what is "
-    "actually on each screen, then make the call, using what Lesson 1 taught about "
-    "weak points and who is on your Wi-Fi.",
+    "intro": "You help look after the network at Yarraville Real Estate, a small "
+    "inner-west Melbourne agency. Two things need your attention this morning. Read "
+    "what is actually on each screen, then make the call, using what Lesson 1 taught "
+    "about weak points and who is on your Wi-Fi.",
     "start": "router",
     "scenes": {
         "router": {
@@ -183,7 +183,7 @@ MODULE1_SIM = {
                 ],
             },
             "title": "9:05am, the router settings page is open",
-            "narrative": "You have logged in to the clinic router to check it over. "
+            "narrative": "You have logged in to the office router to check it over. "
             "Read the four settings above. Three are fine, but one is a wide-open "
             "door that Lesson 1 called the single most important fix. Which do you "
             "deal with first?",
@@ -215,17 +215,17 @@ MODULE1_SIM = {
             "screen": {
                 "chrome": "window",
                 "icon": "i-shield",
-                "title": "Clinic Wi-Fi · Connected devices",
+                "title": "Office Wi-Fi · Connected devices",
                 "items": [
-                    {"name": "Reception iPad", "sub": "192.168.1.12 · joined 9:01am", "tag": "This clinic"},
-                    {"name": "Dr Chen's Laptop", "sub": "192.168.1.14 · joined 8:32am", "tag": "This clinic"},
-                    {"name": "Clinic Printer", "sub": "192.168.1.30 · always on", "tag": "This clinic"},
+                    {"name": "Reception PC", "sub": "192.168.1.12 · joined 9:01am", "tag": "This office"},
+                    {"name": "Trust-account PC", "sub": "192.168.1.14 · joined 8:32am", "tag": "This office"},
+                    {"name": "Office printer", "sub": "192.168.1.30 · always on", "tag": "This office"},
                     {"name": "UNKNOWN DEVICE", "sub": "4f:2a:9c:81:e0 · joined 2 hours ago", "tag": "Not recognised", "flag": "bad"},
                 ],
             },
             "title": "11:20am, the connected-devices list",
-            "narrative": "You open the list of everything on the clinic Wi-Fi. Three "
-            "devices are the clinic's own. One, with an unfamiliar hardware address, "
+            "narrative": "You open the list of everything on the office Wi-Fi. Three "
+            "devices are the agency's own. One, with an unfamiliar hardware address, "
             "joined two hours ago and is not recognised. What do you do?",
             "choices": [
                 {"label": "Change the Wi-Fi password so unknown devices drop off, then set up a guest network",
@@ -233,17 +233,17 @@ MODULE1_SIM = {
                  "consequence": "Exactly. Changing the Wi-Fi password forces every "
                  "device to reconnect with the new one, so anything you did not "
                  "authorise simply falls off. A separate guest network then keeps "
-                 "visitors' phones away from the computers holding patient records "
-                 "for good."},
-                {"label": "Leave it; it is probably a patient's phone that found the password",
+                 "visitors' phones away from the computers holding client and trust "
+                 "records for good."},
+                {"label": "Leave it; it is probably a staff member's phone that found the password",
                  "outcome": "bad", "to": "end",
                  "consequence": "Maybe, but you cannot assume that. An unrecognised "
-                 "device sharing the same network as your patient records is worth "
-                 "two minutes to shut out. Change the Wi-Fi password so it drops "
-                 "off."},
+                 "device sharing the same network as your client and trust records is "
+                 "worth two minutes to shut out. Change the Wi-Fi password so it "
+                 "drops off."},
                 {"label": "Unplug the router for the rest of the day to be safe",
                  "outcome": "bad", "to": "end",
-                 "consequence": "That takes the whole clinic offline, staff and all, "
+                 "consequence": "That takes the whole office offline, staff and all, "
                  "for one unknown device, and it can simply reconnect when the "
                  "router comes back. Change the Wi-Fi password instead of pulling "
                  "the plug."},
@@ -251,7 +251,7 @@ MODULE1_SIM = {
         },
         "end": {
             "backdrop": "win",
-            "title": "That is the clinic network looked after",
+            "title": "That is the office network looked after",
             "narrative": "Two ordinary checks, one steady habit behind both: read "
             "what the screen is actually telling you, close the door you did not "
             "mean to leave open, and keep the people you do not know off the "
@@ -263,8 +263,8 @@ MODULE1_SIM = {
 
 MODULE2_SIM = {
     "kind": "scenes",
-    "intro": "It is a normal Tuesday at Corangamite Accounting, a small firm in "
-    "Colac, until the shared drive starts behaving strangely. Read what is on each "
+    "intro": "It is a normal Monday at Ballarat Auto Spares, a busy parts "
+    "wholesaler, until the shared drive starts behaving strangely. Read what is on each "
     "screen, then make the call, using what Lesson 1 taught about ransomware.",
     "start": "files",
     "scenes": {
@@ -352,7 +352,7 @@ MODULE2_SIM = {
 
 MODULE3_SIM = {
     "kind": "scenes",
-    "intro": "You are on the front desk at Brunswick Family Dental. Two messages "
+    "intro": "You are in the office at Sunbury Plumbing & Gas. Two messages "
     "this afternoon both want money moved. Read exactly what is on each screen, then "
     "decide, using what Lesson 1 taught about business email compromise and voice "
     "clones.",
@@ -362,34 +362,34 @@ MODULE3_SIM = {
             "backdrop": "email",
             "screen": {
                 "chrome": "browser", "tab": "Mail · Inbox", "secure": True,
-                "url": "mail.brunswickfamilydental.com.au/inbox",
+                "url": "mail.sunburyplumbinggas.com.au/inbox",
                 "email": {
-                    "from": "Dr Priya Lam <p.lam@dental-admin-mail.com>",
+                    "from": "Wayne Castellano <w.castellano@sunbury-admin-mail.com>",
                     "subject": "URGENT: confidential payment needed today",
                     "date": "2:11pm",
                     "preview": "I'm between patients and can't take calls. Please pay "
-                    "our new dental lab $48,500 before 4pm today, and keep this "
-                    "between us for now. I'll explain later. Thanks, Priya.",
+                    "a new supplier $18,600 before 4pm today, and keep this "
+                    "between us for now. I'll explain later. Thanks, Wayne.",
                 },
             },
-            "title": "2:11pm, an urgent email from Dr Lam",
-            "narrative": "It looks like it is from the principal, Dr Lam. Read the "
+            "title": "2:11pm, an urgent email from Wayne",
+            "narrative": "It looks like it is from the owner, Wayne. Read the "
             "sender address after the name, and the request itself: an unusual "
             "payment, a deadline, and a request to keep it quiet. What do you do?",
             "choices": [
-                {"label": "Call Dr Lam on the number you already have and confirm before doing anything",
+                {"label": "Call Wayne on the number you already have and confirm before doing anything",
                  "outcome": "good", "to": "call",
-                 "consequence": "Right. The address is a lookalike (dental-admin-mail.com, "
-                 "not the practice's domain), and the pressure and secrecy are there to "
+                 "consequence": "Right. The address is a lookalike (sunbury-admin-mail.com, "
+                 "not the business's domain), and the pressure and secrecy are there to "
                  "stop you checking. Verifying on a number you already trust is the one "
                  "move this scam cannot survive."},
-                {"label": "Pay the $48,500 to the new dental lab, since it is from Dr Lam",
+                {"label": "Pay the $18,600 to the new supplier, since it is from Wayne",
                  "outcome": "bad", "to": "call",
                  "consequence": "That is exactly what business email compromise relies "
                  "on. The lookalike domain, the urgency, and the secrecy are all red "
                  "flags. Any new or urgent payment deserves a call to a trusted number "
                  "first."},
-                {"label": "Reply to the email asking Dr Lam to confirm the account",
+                {"label": "Reply to the email asking Wayne to confirm the account",
                  "outcome": "bad", "to": "call",
                  "consequence": "If the mailbox is impersonated or compromised, your "
                  "question goes to the attacker, who happily confirms. Replying can "
@@ -401,27 +401,27 @@ MODULE3_SIM = {
             "screen": {
                 "chrome": "phone", "time": "2:14pm", "app": "Incoming call",
                 "rows": [
-                    {"k": "Caller", "v": "Dr Priya Lam (principal)"},
+                    {"k": "Caller", "v": "Wayne Castellano (owner)"},
                     {"k": "Number", "v": "+61 4●● ●●● 118"},
                     {"k": "Note", "v": "Saved in your contacts", "flag": "warn"},
                 ],
             },
             "title": "2:14pm, the front desk phone rings",
-            "narrative": "The caller ID shows Dr Lam's name and number, and the voice "
-            "on the line sounds exactly like her. She is insistent: make the transfer "
+            "narrative": "The caller ID shows Wayne's name and number, and the voice "
+            "on the line sounds exactly like him. He is insistent: make the transfer "
             "now, and why are you asking questions? What do you do?",
             "choices": [
-                {"label": "Hang up and call Dr Lam back on the number saved from before, not this call",
+                {"label": "Hang up and call Wayne back on the number saved from before, not this call",
                  "outcome": "good", "to": "end",
                  "consequence": "Exactly. A caller ID can be spoofed and a voice can be "
                  "cloned from a few seconds of public audio. Calling back on a number "
                  "you already trust is the one check neither trick can beat."},
-                {"label": "Make the transfer; the voice is clearly Dr Lam",
+                {"label": "Make the transfer; the voice is clearly Wayne",
                  "outcome": "bad", "to": "end",
                  "consequence": "A familiar voice is no longer proof. AI voice cloning "
                  "can copy a person from a short clip. Never move money on a voice and "
                  "a caller ID alone."},
-                {"label": "Ask a personal question to check it is really her",
+                {"label": "Ask a personal question to check it is really him",
                  "outcome": "bad", "to": "end",
                  "consequence": "A well-prepared attacker may know the answer, and a "
                  "clone can respond smoothly. Do not try to out-quiz the caller. Hang "
@@ -441,7 +441,7 @@ MODULE3_SIM = {
 
 MODULE4_SIM = {
     "kind": "scenes",
-    "intro": "You look after admin at Kensington Physiotherapy and you are working "
+    "intro": "You look after admin at Coburg Migration & Legal and you are working "
     "from a cafe today. Two everyday moments, each with a safer and a riskier "
     "path. Read the screen, then choose, using what Lesson 1 taught about secure "
     "sending and untrusted Wi-Fi.",
@@ -454,16 +454,16 @@ MODULE4_SIM = {
                 "rows": [
                     {"k": "To", "v": "joe.private@gmail.com", "flag": "warn"},
                     {"k": "Subject", "v": "the form"},
-                    {"k": "Attached", "v": "Nguyen_medical_history.pdf", "flag": "warn"},
+                    {"k": "Attached", "v": "Nguyen_passport_scan.pdf", "flag": "warn"},
                     {"k": "Encryption", "v": "None (ordinary email)", "flag": "bad"},
                 ],
             },
-            "title": "10:40am, about to send a patient's medical history",
-            "narrative": "A colleague has asked you to send a patient's medical "
-            "history to their personal Gmail, as a plain attachment, so they can read "
-            "it at home. It is highly sensitive health data. What do you do?",
+            "title": "10:40am, about to send a client's passport scan",
+            "narrative": "A colleague has asked you to send a client's passport "
+            "scan to their personal Gmail, as a plain attachment, so they can read "
+            "it at home. It is a highly sensitive identity document. What do you do?",
             "choices": [
-                {"label": "Stop, and send it through the clinic's secure portal, or password-protect it and send the password separately",
+                {"label": "Stop, and send it through the firm's secure client portal, or password-protect it and send the password separately",
                  "outcome": "good", "to": "wifi",
                  "consequence": "Right. Health data is exactly what needs a sealed "
                  "channel, so only the intended person can open it and one wrong "
@@ -472,7 +472,7 @@ MODULE4_SIM = {
                 {"label": "Send it as-is; plain email is quicker and the colleague is waiting",
                  "outcome": "bad", "to": "wifi",
                  "consequence": "Plain email is a postcard, and a personal Gmail is "
-                 "outside the clinic's control. One wrong address, or anyone along the "
+                 "outside the firm's control. One wrong address, or anyone along the "
                  "way, and sensitive health data is exposed. Use a sealed channel."},
                 {"label": "Send it, but CC your manager so there is a second copy",
                  "outcome": "bad", "to": "wifi",
@@ -492,7 +492,7 @@ MODULE4_SIM = {
                 ],
             },
             "title": "10:52am, time to get online",
-            "narrative": "You need to reach the clinic system. The cafe Wi-Fi list "
+            "narrative": "You need to reach the firm's system. The cafe Wi-Fi list "
             "shows two networks with exactly the same name, both open, and one "
             "secured network. One of the identical two may be an evil twin. How do "
             "you connect?",
@@ -528,10 +528,9 @@ MODULE4_SIM = {
 
 MODULE5_SIM = {
     "kind": "scenes",
-    "intro": "You help run IT for Yarra Freight, a Melbourne logistics firm. Two "
-    "requests land on your desk this week. Read what each screen shows, then decide, "
-    "using what Lesson 1 taught about firewalls, remote access, and keeping things "
-    "patched.",
+    "intro": "You help run IT for Portsea Bay Motel. Two requests land on your desk "
+    "this week. Read what each screen shows, then decide, using what Lesson 1 taught "
+    "about firewalls, remote access, and keeping things patched.",
     "start": "remote",
     "scenes": {
         "remote": {
@@ -616,7 +615,7 @@ MODULE5_SIM = {
 
 MODULE6_SIM = {
     "kind": "scenes",
-    "intro": "You are the office manager at Riverside Dental in Geelong when the "
+    "intro": "You are the office manager at Bendigo Community Childcare when the "
     "monitoring board lights up. Read what each screen tells you, then make the "
     "call, using the response steps and the law from Lesson 1.",
     "start": "alert",
@@ -629,13 +628,13 @@ MODULE6_SIM = {
                 "rows": [
                     {"k": "09:14", "v": "Many failed logins, then one success", "flag": "bad"},
                     {"k": "09:20", "v": "Files encrypting on the records server", "flag": "bad"},
-                    {"k": "Patient records", "v": "At risk", "flag": "bad"},
+                    {"k": "Family records", "v": "At risk", "flag": "bad"},
                     {"k": "Backups", "v": "Last night, verified, offline", "flag": "ok"},
                 ],
             },
             "title": "09:22, the alert board lights up",
             "narrative": "The monitoring board shows a break-in an hour ago and files "
-            "now encrypting on the patient-records server. Staff are asking what to "
+            "now encrypting on the family-records server. Staff are asking what to "
             "do. What is your first move?",
             "choices": [
                 {"label": "Isolate the affected machines from the network, then start the response plan and report it",
@@ -662,7 +661,7 @@ MODULE6_SIM = {
                 "chrome": "window", "icon": "i-book",
                 "title": "Privacy · Breach assessment", "menu": "Notifiable Data Breaches",
                 "rows": [
-                    {"k": "Data exposed", "v": "Patient health records", "flag": "bad"},
+                    {"k": "Data exposed", "v": "Children's records (health, ID)", "flag": "bad"},
                     {"k": "Serious harm", "v": "Likely", "flag": "bad"},
                     {"k": "Assess within", "v": "30 days", "flag": "warn"},
                     {"k": "Regulator", "v": "OAIC", "flag": "warn"},
@@ -670,19 +669,19 @@ MODULE6_SIM = {
             },
             "title": "Contained and recovered. Now the law.",
             "narrative": "The machines are isolated, and clean backups are restoring "
-            "the records. But patient health data was copied before the encryption. "
+            "the records. But children's health and identity data was copied before the encryption. "
             "Under the Notifiable Data Breaches scheme, what do you do?",
             "choices": [
-                {"label": "Notify the OAIC and the affected patients, and tell them how to protect themselves",
+                {"label": "Notify the OAIC and the affected families, and tell them how to protect themselves",
                  "outcome": "good", "to": "end",
                  "consequence": "Right. Exposed health data is very likely to cause "
                  "serious harm, so the Privacy Act requires notifying the OAIC and the "
                  "affected people as soon as practicable. Telling people promptly is "
                  "the law, and it lets them protect themselves."},
-                {"label": "Keep it quiet to avoid embarrassing the practice",
+                {"label": "Keep it quiet to avoid embarrassing the centre",
                  "outcome": "bad", "to": "end",
                  "consequence": "Staying quiet about an eligible breach of health data "
-                 "breaks the law and leaves patients unable to protect themselves. The "
+                 "breaks the law and leaves families unable to protect themselves. The "
                  "scheme exists precisely so people are told."},
                 {"label": "Wait several months and decide later",
                  "outcome": "bad", "to": "end",

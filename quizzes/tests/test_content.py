@@ -260,18 +260,15 @@ def test_module_one_uses_technical_diagrams_in_lesson_one(seeded):
         "net-basics": "net-topology",
         "data-travels": "data-hops",
         "cia-triad": "cia-triad",
-        "weak-points": "router-labelled",
-        "who-is-on": "wifi-devices",
+        "weak-points": "router-admin",       # device-framed router settings screen
+        "read-the-address": "lookalike-login",  # device-framed browser sign-in
     }
     for key, dk in diagrams.items():
         assert by_key[key].diagram_key == dk, f"{key} should use diagram {dk}"
-    # The generic filler photos are gone from the teaching panels.
-    for key in ("net-basics", "data-travels", "cia-triad"):
-        assert not (by_key[key].image or {}).get("src"), f"{key} should be diagram-only"
-    # The router photo stays only as a supporting aid on weak-points.
-    aid = by_key["weak-points"].image
-    assert aid and aid.get("src") == "img/m1-router.webp"
-    assert aid.get("caption") and aid.get("credit"), "the router aid keeps caption + credit"
+    # Every teaching panel is diagram-only now: the stock router photo has been
+    # replaced by a device-framed router settings screen (own-origin, CSP-safe).
+    for key in ("net-basics", "data-travels", "cia-triad", "weak-points", "read-the-address"):
+        assert not (by_key[key].image or {}).get("src"), f"{key} should be diagram-only, no stock photo"
     # No animations on any Lesson 1 panel (teaching lesson).
     for t in l1.tasks.all():
         assert (t.payload or {}).get("hero") not in ANIMATIONS
@@ -288,11 +285,12 @@ def test_module_one_lesson_one_visuals_are_own_origin(seeded, client):
     html = client.get(reverse("learn:lesson", args=[1, 1])).content.decode()
     # The teaching diagrams render as inline SVG figures (own-origin, CSP-safe).
     assert "cy-td__svg" in html and "<svg" in html
-    # The router aid photo renders as an own-origin figure with a caption.
-    assert "cy-photo__img" in html and "cy-photo__cap" in html
-    assert "/static/img/m1-router.webp" in html or "img/m1-router.webp" in html
-    # The retired filler photos are no longer on the page.
-    for src in ("m1-network.webp", "m1-encryption.webp", "m1-records.webp"):
+    # The weak-points and check panels render device-framed recreations
+    # (a router settings screen and a browser sign-in), not stock photos.
+    assert "cy-radmin__form" in html      # router settings device frame
+    assert "cy-signin" in html            # lookalike browser sign-in device frame
+    # No stock photos anywhere in Lesson 1.
+    for src in ("m1-router.webp", "m1-network.webp", "m1-encryption.webp", "m1-records.webp"):
         assert src not in html, f"{src} should be gone from Lesson 1"
 
 

@@ -35,7 +35,7 @@ ACTIVITY_KINDS = {
     "HARDEN", "NETMAP", "RESPOND", "FIREWALL", "TABLETOP",
 }
 # The realistic, own-origin picture visuals this module teaches from.
-FIGURES = {"se-levers", "phishing-email", "sms-phish", "exec-email", "caller-id", "scene-vish"}
+FIGURES = {"se-levers", "phishing-email", "sms-phish", "exec-email", "phish-headers", "smishing-linkt"}
 DASHES = ("—", "–")
 
 
@@ -116,7 +116,7 @@ def test_uses_the_threat_figures(seeded):
         LessonTask.objects.filter(lesson__module=seeded)
         .exclude(diagram_key="").values_list("diagram_key", flat=True)
     )
-    assert {"caller-id", "scene-vish"} <= keys, f"mockups missing: {keys}"
+    assert {"phish-headers", "smishing-linkt"} <= keys, f"mockups missing: {keys}"
 
 
 # --- activity well-formedness (each solvable) ------------------------------

@@ -217,28 +217,30 @@ LESSONS = [
                 "</ol></div>",
             },
             {
-                "key": "spot-the-disguise",
+                "key": "enable-content",
                 "kind": "check",
                 "points": 2,
-                "title": "Quick check: read the attachment",
-                "diagram": "attachment-exe",
-                "body": "<p>One quick check to finish. An email arrives with the "
-                "attachment shown above. You now know the single most important "
-                "thing to read on a file like this. Look at it closely, then "
-                "answer.</p>"
-                "<div class=\"cy-callout\">Read the file name all the way to the "
-                "end. The real type is the last extension.</div>",
-                "question": "Looking at the attachment above, what is wrong with it?",
-                "hint": "How many extensions does the file name have, and which one is last?",
+                "title": "Quick check: the Enable Content banner",
+                "diagram": "enable-macros",
+                "body": "<p>One quick check to finish, on the Enable content trap you "
+                "just read about. Tanya opens a spreadsheet attached to an email, "
+                "'Statement_Feb.xlsm', and the yellow security bar above appears "
+                "across the top. The sheet looks blank until she clicks the button. "
+                "Read the bar, then answer.</p>"
+                "<div class=\"cy-callout\">Macros are small programs inside a "
+                "document. A file that only works once you enable them is a warning, "
+                "not an instruction.</div>",
+                "question": "The document shows a 'Security Warning: macros disabled' bar with an Enable Content button, and is blank until you click it. What should Tanya do?",
+                "hint": "What does Enable Content actually turn on, and why would a genuine statement need it?",
                 "options": [
-                    ("It has a double extension, .pdf.exe, so it is really a program disguised as a PDF, and should not be opened", True,
-                     "Right. The real type is the last extension: .exe runs code. The .pdf in the middle is padding to make it look like a harmless document. Do not open it, and report it."),
-                    ("Nothing, it is a normal PDF invoice", False,
-                     "Look again at the very end of the name: .pdf.exe. The final .exe makes it a program, not a PDF. That is the disguise."),
-                    ("The file is too small to be a real invoice", False,
-                     "Size is not the tell. The problem is the double extension: .pdf.exe is a program dressed up as a document."),
-                    ("It should have been sent as a link instead", False,
-                     "The delivery method is not the issue. The issue is that .pdf.exe is an executable disguised as a PDF."),
+                    ("Not click Enable Content. A statement that is blank until you enable macros is a classic malware trap; close it and reach the sender a way she already trusts", True,
+                     "Right. Enable Content switches on macros, which are programs inside the file that can run hidden malware. A real statement does not need macros to be readable. The blank sheet is bait to make her click. Disabling untrusted macros is a core ASD Essential Eight control."),
+                    ("Click Enable Content, since the document clearly needs it to display", False,
+                     "No. That is exactly the trap. The document is blank on purpose so you enable the macros, which can then run malware. A real statement does not need macros to be read."),
+                    ("Click Enable Content but only if the sender's name looks familiar", False,
+                     "No. A name is easy to fake, and a compromised mailbox sends from a real address. Never enable macros to view a document; verify the file another way."),
+                    ("Save the file and open it later when there is more time", False,
+                     "No. Saving it changes nothing; enabling macros later is the same risk. Do not enable content on an unexpected document at all."),
                 ],
             },
         ],
@@ -246,12 +248,12 @@ LESSONS = [
     {
         "title": "Put it to work: name it, triage it, react to it",
         "reading_time_minutes": 9,
-        "intro": "Now use it. You are at Corangamite Accounting, a six-person firm in "
-        "Colac, in the thick of tax season with client returns due. Principal Megan "
-        "Foley, bookkeeper Trevor and admin Priya keep it running. Sort malware by how "
-        "it behaves, triage the real morning inbox, diagnose what kind of trouble you "
-        "are looking at, read a fake-update pop-up, and work a ransomware incident "
-        "from the first move to recovery.",
+        "intro": "Now use it. You are at Ballarat Auto Spares, a busy parts "
+        "wholesaler and counter shop, on a Monday with the trade rush on. Owner Rick "
+        "Halloran, office admin Tanya Pillai and bookkeeper Dolores Fenn keep it "
+        "running. Sort malware by how it behaves, triage the real morning inbox, "
+        "diagnose what kind of trouble you are looking at, read a fake security "
+        "alert, and work a ransomware incident from the first move to recovery.",
         "tasks": [
             {
                 "key": "sort-malware",
@@ -275,18 +277,18 @@ LESSONS = [
                         {"id": "ransomware", "label": "Ransomware"},
                     ],
                     "items": [
-                        {"text": "Hides inside a file and only spreads when a person opens it", "bucket": "virus",
-                         "why": "That is a virus. It needs a human to open the infected file before it can do anything or spread."},
-                        {"text": "Copies itself from machine to machine across the network, no clicks needed", "bucket": "worm",
-                         "why": "That is a worm. Spreading by itself with no human action is exactly what lets it move so fast."},
-                        {"text": "Disguised as a free copy of paid software you install yourself", "bucket": "trojan",
-                         "why": "That is a trojan. You let it in because it looks legitimate, and then it does its real work."},
-                        {"text": "Quietly records the passwords you type and sends them to an attacker", "bucket": "spyware",
-                         "why": "That is spyware. It stays hidden and steals information rather than announcing itself."},
-                        {"text": "Locks every file and shows a demand for payment to unlock them", "bucket": "ransomware",
-                         "why": "That is ransomware. It makes itself very much known, holding your files hostage for money."},
-                        {"text": "Spreads to every USB stick and shared drive on its own", "bucket": "worm",
-                         "why": "Still a worm. Self-copying to other drives and machines with no help is the worm's signature."},
+                        {"text": "A supplier's price-list spreadsheet runs a hidden script the moment Dolores opens it, and not before", "bucket": "virus",
+                         "why": "That is a virus. It rides inside a normal-looking file and only runs when a person opens it. No open, no infection."},
+                        {"text": "Overnight, one infected counter PC copies the malware to every other machine on the shop network by itself, no clicks", "bucket": "worm",
+                         "why": "That is a worm. Spreading machine to machine on its own, with no human action, is exactly what lets it take out a whole office fast."},
+                        {"text": "A 'free' invoicing tool Josh downloads to save time installs fine, then quietly opens a back door for the attacker", "bucket": "trojan",
+                         "why": "That is a trojan. You install it yourself because it looks useful, and then it does its real, hidden job."},
+                        {"text": "A program sits unseen on the office PC, logging the bank passwords Rick types and sending them out", "bucket": "spyware",
+                         "why": "That is spyware. It hides and steals information quietly rather than announcing itself."},
+                        {"text": "Every file in the Accounts folder is renamed to end .locked and a screen demands payment to unlock them", "bucket": "ransomware",
+                         "why": "That is ransomware. Locking your files in place and demanding money to release them is its signature."},
+                        {"text": "The malware jumps onto the workshop's USB stock-take stick and rides it to the next PC it is plugged into", "bucket": "worm",
+                         "why": "Still a worm. Self-copying onto other drives and machines with no help is the worm's calling card."},
                     ],
                 },
             },
@@ -306,31 +308,31 @@ LESSONS = [
                 "payload": {
                     "prompt": "Mark each message Genuine or Phishing. Sort all five to finish.",
                     "emails": [
-                        {"from": "Megan Foley <megan@corangamite-accounting.com.au>",
-                         "subject": "Reminder: staff meeting moved to 9am Thursday",
-                         "preview": "Quick change to the diary before the BAS rush. Nothing to action, just a heads up.",
+                        {"from": "Rick Halloran <rick@ballaratautospares.com.au>",
+                         "subject": "Roster for the Show Day long weekend",
+                         "preview": "Counter cover sorted for Saturday. Shout if the times don't suit. No action needed.",
                          "phish": False,
-                         "why": "An expected note from the principal on the firm's own domain, asking nothing of you and pushing no link or attachment."},
-                        {"from": "ATO Online <no-reply@ato-refund-portal.net>",
-                         "subject": "Your business refund of $4,220 is ready, confirm now",
-                         "preview": "Open the attached Refund_form.zip within 24 hours or the refund is cancelled.",
+                         "why": "An expected note from the owner on the shop's own domain, asking nothing of you and pushing no link or attachment."},
+                        {"from": "Repco Trade <accounts@repco-tradeportal.net>",
+                         "subject": "OVERDUE: pay invoice INV-88231 today to avoid account hold",
+                         "preview": "Your trade account is about to be suspended. Open the attached Statement.zip and pay within 24 hours.",
                          "phish": True,
-                         "why": "The real ATO does not email refunds with a .zip and a countdown. A lookalike domain, urgency and an attachment: opening it can install malware."},
-                        {"from": "Microsoft 365 <no-reply@m365-mailcheck.com>",
-                         "subject": "Your mailbox is full, log in to keep access",
-                         "preview": "Verify your account through the link below or lose access within the hour.",
+                         "why": "A real supplier's account team does not chase you from a lookalike domain with a .zip and a countdown. The pressure and the zip attachment are the tells: opening it can install malware."},
+                        {"from": "Australia Post <track@auspost-delivery-au.com>",
+                         "subject": "Your parts delivery is held, pay a small redelivery fee",
+                         "preview": "We could not deliver your order. Confirm your address and pay $1.99 through the link to release it.",
                          "phish": True,
-                         "why": "A manufactured deadline pushing you to a login link. Reach the service the way you normally do, never through the link."},
-                        {"from": "Priya <priya@corangamite-accounting.com.au>",
-                         "subject": "Trevor's client folder, which drive?",
-                         "preview": "Can't find the Nguyen return, is it on the shared drive or your desktop? No rush.",
+                         "why": "A lookalike Australia Post domain, a tiny fee and a link to grab your card. Track a parcel through the official app or website, never a link like this."},
+                        {"from": "Dolores Fenn <dolores@ballaratautospares.com.au>",
+                         "subject": "Feb BAS figures ready for your check",
+                         "preview": "Numbers are in the shared Accounts folder when you get a sec. Nothing urgent.",
                          "phish": False,
-                         "why": "A normal, expected message from a colleague you know, on the firm domain, with no link, no attachment and no pressure."},
-                        {"from": "Xero Billing <accounts@xero-invoice-au.com>",
-                         "subject": "Action required: update bank details, enable macros to view",
-                         "preview": "Open the attached statement and click Enable content to keep your subscription active.",
+                         "why": "A normal, expected message from the bookkeeper you know, on the shop domain, with no link, no attachment and no pressure."},
+                        {"from": "MYOB Billing <billing@myob-secure-login.com>",
+                         "subject": "Action required: update payment details, enable content to view",
+                         "preview": "Open the attached statement and click Enable Content to keep your subscription active.",
                          "phish": True,
-                         "why": "The Enable macros trick from a lookalike of a tool you really use. Enabling content can run hidden malware. Log in to Xero directly instead."},
+                         "why": "The Enable content trick from a lookalike of a tool you really use. Enabling content runs macros that can install malware. Log in to MYOB directly instead."},
                     ],
                 },
             },
@@ -354,51 +356,52 @@ LESSONS = [
                         {"id": "glitch", "label": "Ordinary glitch"},
                     ],
                     "events": [
-                        {"text": "Every file on the shared drive is renamed with a .locked ending, and a note on screen demands Bitcoin to unlock them.",
+                        {"text": "Every file in the shop's Accounts folder is renamed to end .locked, and a red screen demands Bitcoin to unlock them.",
                          "category": "ransomware",
                          "why": "Ransomware. Files locked in place plus a payment demand is its signature. Your data is still there, you just cannot reach it."},
-                        {"text": "A customer says the personal details they gave you have turned up for sale on a leak site.",
+                        {"text": "A customer rings: the card they used on the shop's online order form has been used for fraud, and others say the same.",
                          "category": "breach",
-                         "why": "A data breach. Private information has been exposed to people who should not have it, a failure of confidentiality."},
-                        {"text": "The office laptop is running slowly. You check, and the hard drive is almost completely full.",
-                         "category": "glitch",
-                         "why": "An ordinary glitch. A full drive is a common, harmless cause of slowness. Not every problem is an attack."},
-                        {"text": "A supplier emails to say their systems were breached, and the login you saved with them may be exposed.",
-                         "category": "breach",
-                         "why": "A data breach, on their side. Your details are exposed, so change that password anywhere you reused it and turn on two-factor."},
-                        {"text": "The office printer keeps dropping off the network and needs a restart most mornings.",
+                         "why": "A data breach. Customer details have been exposed to people who should not have them, a failure of confidentiality that must be assessed."},
+                        {"text": "The counter eftpos terminal freezes about 3pm most days and needs a quick reboot to come good.",
                          "category": "glitch",
                          "why": "An ordinary glitch. Routine equipment trouble with a mundane cause, not a security incident."},
-                        {"text": "A staff PC is locked behind a red countdown screen demanding payment to release the files.",
+                        {"text": "A parts supplier emails to say they were hacked, and the trade-account login the shop saved with them may be exposed.",
+                         "category": "breach",
+                         "why": "A data breach, on their side. Your login is exposed, so change that password anywhere it was reused and turn on two-factor."},
+                        {"text": "The stock-lookup database is slow to load all morning. You check the server and its disk is 98% full.",
+                         "category": "glitch",
+                         "why": "An ordinary glitch. A nearly full disk is a common, harmless cause of slowness. Not every problem is an attack."},
+                        {"text": "A workshop PC is stuck behind a full-screen countdown demanding payment to release the job files.",
                          "category": "ransomware",
                          "why": "Ransomware. The lock plus the countdown pressure to pay is the tell. Disconnect it, do not pay, report it."},
                     ],
                 },
             },
             {
-                "key": "read-fake-update",
+                "key": "read-scareware",
                 "kind": "check",
                 "points": 2,
-                "title": "Read the pop-up like an investigator",
-                "diagram": "fake-update",
-                "body": "<p>A picture-question, straight from Lesson 1's routes in. "
-                "The pop-up above appeared while browsing a random streaming site. "
-                "It looks official and it is in a hurry. Read it the way an "
-                "investigator would, then answer.</p>"
-                "<div class=\"cy-callout\">A genuine update never arrives as a "
-                "pop-up on an unrelated website, and real software does not put a "
-                "countdown on your safety.</div>",
-                "question": "Looking at this pop-up, what is the strongest sign it is malware, not a real update?",
-                "hint": "Where did it come from, and how is it pressuring you?",
+                "title": "Read the security alert like an investigator",
+                "diagram": "scareware-popup",
+                "body": "<p>A picture-question. While Josh was looking up a part, the "
+                "full-screen alert above took over the browser: a flashing 'Windows "
+                "Defender' warning that the PC is infected, with a phone number to "
+                "call now and a siren. Read it the way an investigator would, then "
+                "answer.</p>"
+                "<div class=\"cy-callout\">Real security software does not take over "
+                "your browser, blast a siren, or ask you to phone a number. That is a "
+                "scareware scam.</div>",
+                "question": "Looking at this alert, what is the strongest sign it is a scam, not a real virus warning?",
+                "hint": "Where did it appear, and what is it pressuring Josh to do?",
                 "options": [
-                    ("It appears on a random streaming site and rushes you to download, which is not how real updates work", True,
-                     "Right. The address is free-hd-movies-stream.info, nothing to do with any software maker, and it uses a countdown to rush you. Genuine updates come from the software itself or an app store, calmly."),
-                    ("It mentions Flash Player", False,
-                     "The name it borrows is not the tell. The giveaway is that it appears on an unrelated website and pressures you to download now."),
-                    ("It has a Not now option", False,
-                     "An option to dismiss it is not what makes it fake. The tell is the unrelated site and the rushed download."),
-                    ("It is written in English", False,
-                     "The language means nothing. The real signs are the unrelated website and the countdown pushing you to download."),
+                    ("It appears inside the web browser and pushes him to phone a support number, which no real security tool ever does", True,
+                     "Right. It is a web page pretending to be Windows, using a siren and a phone number to panic you into calling a fake 'support' line that will ask for remote access or payment. Real security software never cold-calls you or asks you to phone it. Close the tab; if it will not close, close the browser."),
+                    ("It uses the Windows Defender name", False,
+                     "The borrowed name is not the tell. The giveaway is that a web page is impersonating Windows and telling you to phone a number, which real security never does."),
+                    ("It says the PC is infected", False,
+                     "A claim of infection is easy to print on a page. The real sign is that it appeared in the browser and wants you to call a number, not that it names a threat."),
+                    ("It has a red background", False,
+                     "The colour means nothing. The real signs are that it hijacked the browser and is pushing Josh to phone a 'support' number."),
                 ],
             },
             {
@@ -423,7 +426,7 @@ LESSONS = [
                     "start": "note",
                     "nodes": {
                         "note": {
-                            "text": "It is 4pm on a Tuesday in tax season. Trevor is finishing a client return when files across his screen start renaming one after another, and a red screen takes over: your files are encrypted, pay 0.05 Bitcoin (about $3,400) within 72 hours. Half-finished returns are on the shared drive. What is your first move?",
+                            "text": "It is 4pm on a Monday, mid trade rush. Dolores is reconciling supplier invoices when files across her screen start renaming one after another, and a red screen takes over: your files are encrypted, pay 0.05 Bitcoin (about $3,400) within 72 hours. The shop's Accounts folder is on the shared drive. What is your first move?",
                             "choices": [
                                 {"label": "Disconnect the machine from the network straight away.", "outcome": "good",
                                  "feedback": "Exactly. Getting it off the network first stops the ransomware reaching shared drives and other machines.", "to": "contain"},
@@ -559,30 +562,30 @@ QUIZ = {
         # ---- Lesson 2: apply it (name, triage, react) ----
         {
             "lesson": 2, "difficulty": "MEDIUM",
-            "text": "While browsing a streaming site, a pop-up warns your video player is out of date and you must download an update now. What is the safe move?",
+            "text": "A full-screen 'Windows Defender' alert appears inside your web browser saying the PC is infected and to phone a support number now. What is the safe move?",
             "options": [
-                ("Ignore it and update software only from the maker or your app store", True,
-                 "Yes. Real updates come from the software itself or an official store, never from a pop-up on an unrelated website. This one is bait."),
-                ("Click Download Update straight away so you can keep watching", False,
-                 "No. That download is the trap. A pop-up on a streaming site is a classic way to deliver malware."),
-                ("Pay the small fee it asks for", False,
-                 "No. Never pay or download from a pop-up like this. Close the tab and move on."),
-                ("Forward the pop-up to a friend to check", False,
-                 "No. There is nothing to check. It is a fake designed to make you download malware."),
+                ("Close the tab or the whole browser; real security software never takes over your browser or asks you to phone a number", True,
+                 "Yes. It is a web page impersonating Windows, using panic to get you to call a fake support line that will ask for remote access or payment. Close it and move on."),
+                ("Phone the number so a technician can remove the virus", False,
+                 "No. That number reaches the scammers. They will ask to remote in or for payment. Real security never cold-calls or asks you to phone it."),
+                ("Click the alert to run the recommended scan", False,
+                 "No. Clicking is what they want; it can install the very malware it claims to find. Close the tab instead."),
+                ("Pay the fee it asks for to clean the PC", False,
+                 "No. Never pay a browser pop-up. It is a scam. Close it and, if it will not close, close the browser."),
             ],
         },
         {
             "lesson": 2, "difficulty": "HARD",
-            "text": "An email attachment is named Invoice_4471.pdf.exe. What does that tell you?",
+            "text": "A spreadsheet attached to an email is blank until you click a yellow 'Enable Content' bar at the top. What should you do?",
             "options": [
-                ("The double extension means it is really a program (.exe) disguised as a PDF, so do not open it and report it", True,
-                 "Yes. The real type is the last extension: .exe runs code. The .pdf in the middle is padding to look harmless."),
-                ("It is a normal PDF invoice, safe to open", False,
-                 "No. Look at the very end: .pdf.exe. The final .exe makes it a program, not a document."),
-                ("The file is simply too big to open", False,
-                 "No. Size is not the issue. The double extension is the disguise."),
-                ("It should have been sent as a link instead", False,
-                 "No. The delivery method is not the point. A .pdf.exe is an executable dressed up as a PDF."),
+                ("Do not enable content; a document that is blank until you enable macros is a trap, so verify it a way you already trust", True,
+                 "Yes. Enable Content turns on macros, small programs inside the file that can run malware. A genuine statement does not need macros to be read. The blank sheet is bait."),
+                ("Enable content, since the file clearly needs it to display", False,
+                 "No. That is exactly the trap. The file is blank on purpose so you switch on the macros, which then run. A real document does not need them."),
+                ("Enable content only if the sender's name looks right", False,
+                 "No. A name is easy to fake, and a hacked mailbox sends from a real address. Never enable macros to view a document."),
+                ("Print the document instead of opening it", False,
+                 "No. It is blank without the macros, so printing shows nothing, and the risk is enabling them at all. Verify the file another way."),
             ],
         },
         {

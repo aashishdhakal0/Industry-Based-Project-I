@@ -115,7 +115,7 @@ def test_lesson_one_uses_technical_diagrams(seeded):
     for t in l1.tasks.filter(kind="CONCEPT"):
         assert not (t.image or {}).get("src"), f"{t.task_key} should be diagram-only"
     # The comprehension CHECK keeps its readable lifecycle diagram.
-    assert l1.tasks.get(kind="CHECK").diagram_key == "ir-lifecycle"
+    assert l1.tasks.get(kind="CHECK").diagram_key == "ir-alert"
 
 
 @pytest.mark.django_db

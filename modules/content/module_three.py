@@ -187,29 +187,30 @@ LESSONS = [
                 "cybercrime types for organisations.</li></ol></div>",
             },
             {
-                "key": "caller-id-check",
+                "key": "read-the-sender",
                 "kind": "check",
                 "points": 2,
-                "title": "Quick check: does the caller ID prove it?",
-                "diagram": "caller-id",
-                "body": "<p>One quick check to finish. Your phone rings and the "
-                "screen shows the name and number of your CEO, Sarah, exactly as "
-                "they are saved in your contacts. The voice on the line sounds like "
-                "her too, and she needs a payment made right now. You just learned "
-                "the two things you can no longer trust.</p>"
-                "<div class=\"cy-callout\">A caller ID can be spoofed, and a voice "
-                "can be cloned. Neither is proof of who is really calling.</div>",
-                "question": "The caller ID shows your CEO's real name and number, and the voice sounds like her. What does that prove about who is calling?",
-                "hint": "Can the number that appears, and the voice, both be faked?",
+                "title": "Quick check: read the real sender",
+                "diagram": "phish-headers",
+                "body": "<p>One quick check to finish, using the four red flags you "
+                "just read. The email above landed in the office inbox. It looks like "
+                "a Microsoft security notice and it is pushing you to act. The name "
+                "at the top reads 'Microsoft 365 Security'. Now look past the display "
+                "name at the real sender address, and the request, then answer.</p>"
+                "<div class=\"cy-callout\">The friendly name on an email is free to "
+                "type. The real address, after the @, and what it asks you to do are "
+                "what give a phish away.</div>",
+                "question": "The email shows the name 'Microsoft 365 Security'. What is the strongest sign it is phishing?",
+                "hint": "Read the actual address after the @, and compare it to a real Microsoft domain.",
                 "options": [
-                    ("Very little: caller ID can be spoofed and a voice can be cloned, so verify on a number you already have before acting", True,
-                     "Right. Both the number on screen and the voice can be faked. The only reliable move is to hang up and call back on a number you already trust."),
-                    ("It proves the call is genuinely from your CEO", False,
-                     "No. Caller ID can be spoofed to show any name or number, and a voice can be cloned. A matching display is not proof."),
-                    ("It proves your phone has been hacked", False,
-                     "No. A spoofed caller ID does not mean your phone is compromised. The display was simply faked from the other end."),
-                    ("It proves the call is safe to act on", False,
-                     "No. Because both the ID and the voice can be faked, you should still verify by calling back on a trusted number."),
+                    ("The real sender address is a lookalike, security@m365-account-verify.co, not a Microsoft domain, and it rushes you to a link to 'keep your mailbox'", True,
+                     "Right. The display name 'Microsoft 365 Security' is free to type, but the real address after the @ is a lookalike domain, not microsoft.com. That plus the urgency and the login link is a classic phish. Reach the service the way you normally do, never through the link."),
+                    ("It mentions Microsoft, which real emails never do", False,
+                     "No. Genuine Microsoft emails do mention Microsoft. The tell is that the real sender address is a lookalike domain, and it is rushing you to a link."),
+                    ("It contains a link, which always means phishing", False,
+                     "Not on its own; plenty of genuine emails contain links. Here the giveaway is the lookalike sender address combined with the urgent 'verify or lose access' push."),
+                    ("It was sent to the whole office, not one person", False,
+                     "Being sent widely is not the strongest tell. The real sign is the lookalike sender address and the urgent link to sign in."),
                 ],
             },
         ],
@@ -217,12 +218,13 @@ LESSONS = [
     {
         "title": "Read it like an analyst: spot, verify, report",
         "reading_time_minutes": 9,
-        "intro": "Now put the checklist to work at Brunswick Family Dental, a busy "
-        "three-chair practice on Sydney Road. Practice manager Anita Rossi, "
-        "receptionist Jaydn and principal dentist Dr Lam run the day between "
-        "patients. Name the channel each con rides in on, triage the morning inbox, "
-        "read a live vishing scene, hold your nerve through an AI voice-clone call, "
-        "and pick the scam out of two lookalike messages.",
+        "intro": "Now put the checklist to work at Sunbury Plumbing & Gas, a busy "
+        "family trades business north of Melbourne. Owner Wayne Castellano is out on "
+        "jobs, office manager Bianca Okafor runs the phones and the invoices, and "
+        "apprentice Liam Dorsett is on the tools. Name the channel each con rides in "
+        "on, triage the morning inbox, read a live smishing text, hold your nerve "
+        "through an AI voice-clone call, and pick the scam out of two lookalike "
+        "messages.",
         "tasks": [
             {
                 "key": "channels",
@@ -245,24 +247,24 @@ LESSONS = [
                         {"id": "bec", "label": "Business email compromise"},
                     ],
                     "events": [
-                        {"text": "A mass email pretending to be from a big bank, sent to thousands, with a link to 'verify your login'.",
+                        {"text": "A mass email pretending to be from NAB, sent to thousands, with a link to 'verify your account before it is locked'.",
                          "category": "email",
-                         "why": "Email phishing: one generic message thrown wide to a huge list, hoping a few people click."},
-                        {"text": "A text message about a missed parcel, with a small fee and a link to a lookalike delivery site.",
+                         "why": "Email phishing: one generic message thrown wide to a huge list, hoping a few people click the link."},
+                        {"text": "A text about an unpaid toll on the work ute, a $3.10 fee, and a link to a lookalike Linkt site.",
                          "category": "sms",
                          "why": "Smishing: the same con delivered by SMS, betting you will tap the link on a small screen."},
-                        {"text": "A phone call from someone claiming to be the ATO, demanding an immediate payment or you will be arrested.",
+                        {"text": "A phone call from someone claiming to be the ATO, saying Wayne owes tax and will be arrested unless he pays by gift card today.",
                          "category": "voice",
-                         "why": "Vishing: a live phone call using fear and authority to rush you. The ATO does not work this way."},
-                        {"text": "A call where the voice sounds exactly like your manager, asking you to transfer money urgently.",
+                         "why": "Vishing: a live call using fear and authority to rush you. The ATO never demands gift cards or threatens arrest."},
+                        {"text": "A call to Bianca where the voice sounds exactly like Wayne, from a job site, urgently telling her to pay a supplier right now.",
                          "category": "voice",
-                         "why": "Vishing with AI voice cloning: a familiar voice can now be faked from public recordings. Verify on a known number."},
-                        {"text": "An email from your 'CEO', from a lookalike address, asking for a confidential urgent payment.",
+                         "why": "Vishing with AI voice cloning: a familiar voice can be faked from public recordings. Verify on a number you already have."},
+                        {"text": "An email from 'Wayne', from a lookalike address, asking Bianca to quietly pay a deposit to a new account before he is back.",
                          "category": "bec",
-                         "why": "Business email compromise: impersonating a leader to push through an unusual payment quietly."},
-                        {"text": "An email from 'Henry Schein accounts' says their bank details have changed, please pay this month's $6,200 invoice to the new account.",
+                         "why": "Business email compromise: impersonating the owner to push through an unusual payment quietly."},
+                        {"text": "An email from 'Reece accounts' says their bank details have changed, please pay this month's $6,200 invoice to the new account.",
                          "category": "bec",
-                         "why": "Business email compromise: a spoofed or hacked supplier redirecting a real invoice payment to a stranger. Confirm any account change on a number you already have."},
+                         "why": "Business email compromise: a spoofed or hacked supplier redirecting a real invoice to a stranger. Confirm any account change on a number you already have."},
                     ],
                 },
             },
@@ -281,72 +283,73 @@ LESSONS = [
                 "payload": {
                     "prompt": "Mark each message Genuine or Phishing. Sort all five to finish.",
                     "emails": [
-                        {"from": "Dr Lam <drlam@brunswickfamilydental.com.au>",
-                         "subject": "Can you reschedule Mr Osman to Thursday?",
-                         "preview": "Running behind on the crown fit. Move his 2pm to Thursday if he's happy. Thanks Jaydn.",
+                        {"from": "Wayne Castellano <wayne@sunburyplumbinggas.com.au>",
+                         "subject": "Push the Gilmore St job to Thursday?",
+                         "preview": "Parts are back-ordered. Move the Wednesday hot-water swap to Thursday if the customer's ok with it. Cheers Wayne.",
                          "phish": False,
-                         "why": "Expected, from the principal on the practice's own domain, about a real patient, pushing no link or attachment."},
-                        {"from": "IT Security <security@dental-verify.net>",
+                         "why": "Expected, from the owner on the business's own domain, about a real job, pushing no link or attachment."},
+                        {"from": "IT Security <security@365-mailcheck.net>",
                          "subject": "Your password expires in 2 hours, act now",
-                         "preview": "Confirm your current password here to avoid being locked out of the patient system.",
+                         "preview": "Confirm your current password here to avoid being locked out of your email.",
                          "phish": True,
-                         "why": "A lookalike domain and a rushed link asking you to confirm a password. Real IT never asks for that."},
-                        {"from": "Anita Rossi <anita@brunswickfamilydental.com.au>",
-                         "subject": "Staff roster for the long weekend",
-                         "preview": "Roster's on the noticeboard and in the shared drive. Let me know if the Saturday shift doesn't suit.",
+                         "why": "A lookalike domain and a rushed link asking you to confirm a password. Real IT never asks you to do that."},
+                        {"from": "Rhonda Steel <rhonda@sunburyplumbinggas.com.au>",
+                         "subject": "Feb BAS figures ready for your check",
+                         "preview": "Numbers are in the shared Accounts folder whenever you get a sec. No rush.",
                          "phish": False,
-                         "why": "A normal, expected note from your practice manager on the practice domain, with no link, attachment or pressure."},
+                         "why": "A normal, expected note from the bookkeeper on the business domain, with no link, attachment or pressure."},
                         {"from": "DocuSign <no-reply@docusign-portal-au.com>",
-                         "subject": "You have a document to sign, opens in 24 hours",
-                         "preview": "Review and sign the attached supplier contract before it expires.",
+                         "subject": "You have a contract to sign, opens in 24 hours",
+                         "preview": "Review and sign the attached supplier agreement before it expires.",
                          "phish": True,
                          "why": "A lookalike DocuSign domain with a manufactured deadline. Reach signing services the way you normally do, never through the link."},
-                        {"from": "Henry Schein <orders@henryschein.com.au>",
-                         "subject": "Your March order has shipped",
-                         "preview": "Your dental consumables order is on the way, tracking in your account. No action needed.",
+                        {"from": "Reece <orders@reece.com.au>",
+                         "subject": "Your order REE-40912 has shipped",
+                         "preview": "Your plumbing supplies order is on the way, tracking is in your account. No action needed.",
                          "phish": False,
                          "why": "A genuine order update from a supplier you actually use, on their real domain, asking nothing risky and pushing no login link."},
                     ],
                 },
             },
             {
-                "key": "read-vishing-scene",
+                "key": "read-smishing",
                 "kind": "check",
                 "points": 2,
-                "title": "Read the vishing scene",
-                "diagram": "scene-vish",
-                "body": "<p>A picture-question, straight from Lesson 1. Jaydn on the "
-                "front desk is on the phone to a caller who sounds exactly like Dr "
-                "Lam, the principal, urgently demanding a $48,500 transfer to a new "
-                "lab, and to keep it quiet. Read the scene the way an analyst would, "
-                "then answer.</p>"
-                "<div class=\"cy-callout\">A familiar voice and a matching caller ID "
-                "are no longer proof. Secrecy is there to stop you checking.</div>",
-                "question": "Looking at the scene, what should Jaydn do right now?",
-                "hint": "A voice can be cloned, and 'keep it quiet' is there to stop them verifying.",
+                "title": "Read the text message",
+                "diagram": "smishing-linkt",
+                "body": "<p>A picture-question. The text above lands on the work "
+                "phone while Liam is on a job: it says the ute has an unpaid toll and "
+                "a link to pay a small fee before a fine is added. It looks official "
+                "and it is in a hurry. Read it the way an analyst would, then "
+                "answer.</p>"
+                "<div class=\"cy-callout\">An unexpected text, a small fee, and a "
+                "link is the shape of nearly every smishing scam. The link is the "
+                "trap.</div>",
+                "question": "What is the safest thing to do with this toll text?",
+                "hint": "Where would you normally check a real toll account, and what is the link really for?",
                 "options": [
-                    ("Do not act on the call: hang up and ring Dr Lam back on a number the practice already has", True,
-                     "Right. Verifying on a number you already trust is the one move a cloned voice cannot beat. Do not let the pressure or the secrecy rush you."),
-                    ("Make the transfer, since the voice clearly sounds like Dr Lam", False,
-                     "No. A familiar voice can now be cloned from public recordings. Never move money on a voice alone."),
-                    ("Ask the caller a personal question to prove it is really Dr Lam", False,
-                     "No. A well-prepared attacker may know the answer, and a clone can respond smoothly. Hang up and call back instead."),
-                    ("Reply in the practice chat to confirm the new account", False,
-                     "No. That does not verify the caller. Confirm a money request on a phone number you already trust."),
+                    ("Do not tap the link. Check the toll account through the official Linkt app or website, typed in yourself", True,
+                     "Right. The unexpected text, the tiny fee and the link are classic smishing. The link leads to a lookalike page built to grab your card. Reach a real toll account the way you always do, never through a texted link."),
+                    ("Tap the link and pay the small fee to avoid the fine", False,
+                     "No. The link is the trap; the page is a lookalike built to steal your card details. Never pay through a link in an unexpected text."),
+                    ("Reply STOP to the message", False,
+                     "No. Replying just confirms the number is live and reaches a real person. Do not engage; check the toll account through the official app instead."),
+                    ("Forward it to Wayne so he can pay it", False,
+                     "No. Do not pass the link around. Check whether there is a real toll owing through the official Linkt app or website, not the text."),
                 ],
             },
             {
-                "key": "ceo-call",
+                "key": "owner-call",
                 "kind": "branch",
                 "points": 2,
-                "title": "Decision drill: the CEO calls",
+                "title": "Decision drill: the owner calls",
                 "hero": "phish-unfold",
                 "body": "<p>First, the anatomy. The animation above walks the phishing "
                 "chain end to end: an email arrives, you click, your password is "
                 "captured on a fake page, and the attacker signs in as you. Breaking "
                 "any one link stops it. Now a live version of that con, by phone.</p>"
                 "<p>The real test is what you do in the moment. A caller who "
-                "sounds exactly like the CEO is urgently demanding a transfer. Work "
+                "sounds exactly like the owner is urgently demanding a payment. Work "
                 "through the drill: make each call and see the consequence before the "
                 "next decision.</p>"
                 "<div class=\"cy-callout\"><strong>The rule:</strong> a familiar "
@@ -357,31 +360,31 @@ LESSONS = [
                     "start": "call",
                     "nodes": {
                         "call": {
-                            "text": "The front desk phone rings: the caller ID shows Dr Lam, the principal, and the voice sounds exactly like her. She says she is stuck between patients and needs Jaydn to transfer $48,500 to a new dental lab before 4pm today, and to keep it quiet for now. What do you do?",
+                            "text": "The office phone rings: the caller ID shows Wayne, the owner, and the voice sounds exactly like him. He says he is on a big job and needs Bianca to transfer $18,600 to a new supplier before 4pm to hold the parts, and to keep it quiet from the others for now. What do you do?",
                             "choices": [
-                                {"label": "Say you will handle it, hang up, and call her back on the number the practice already has", "outcome": "good",
+                                {"label": "Say you will sort it, hang up, and call Wayne back on the mobile number you already have", "outcome": "good",
                                  "feedback": "Right. Verifying on a number you already trust is the one move a voice clone cannot beat.", "to": "verify"},
-                                {"label": "Make the transfer, it is clearly her voice and she is the principal", "outcome": "bad",
+                                {"label": "Make the transfer, it is clearly his voice and he is the boss", "outcome": "bad",
                                  "feedback": "That is exactly what the scam needs. A familiar voice can be cloned, and the secrecy is there to stop you checking.", "to": "paid_bad"},
-                                {"label": "Ask her a personal question to prove it is really her", "outcome": "risky",
+                                {"label": "Ask him a personal question to prove it is really him", "outcome": "risky",
                                  "feedback": "Risky. A well-prepared attacker may know the answer, and a clone can respond smoothly. Hang up and call back instead.", "to": "verify"},
                             ],
                         },
                         "paid_bad": {
-                            "text": "The money lands in a criminal's account and is gone within minutes. The voice was an AI clone built from a recording of Dr Lam. A callback to her real number would have stopped it cold.",
+                            "text": "The money lands in a criminal's account and is gone within minutes. The voice was an AI clone built from a recording of Wayne. A callback to his real number would have stopped it cold.",
                             "choices": [],
                         },
                         "verify": {
-                            "text": "Jaydn calls Dr Lam's real mobile. She is bewildered: she made no such call, and knows nothing about any lab. The voice was a clone. What now?",
+                            "text": "Bianca calls Wayne's real mobile. He is baffled: he made no such call, and knows nothing about any new supplier. The voice was a clone. What now?",
                             "choices": [
-                                {"label": "Tell Anita and the rest of the front desk straight away so everyone is warned, and confirm no payment went out", "outcome": "good",
+                                {"label": "Tell Wayne and Rhonda straight away so everyone is warned, and confirm no payment went out", "outcome": "good",
                                  "feedback": "Exactly. Warning the team turns your near miss into everyone's defence against the next call.", "to": "win"},
                                 {"label": "Say nothing, since no money was actually lost", "outcome": "bad",
                                  "feedback": "Staying quiet leaves colleagues exposed to the same call. Report it so the whole team is ready.", "to": "quiet_bad"},
                             ],
                         },
                         "quiet_bad": {
-                            "text": "The following week the same clone calls the other receptionist, who has heard nothing about it, and a payment goes out. A quick warning would have prevented it.",
+                            "text": "The following week the same clone calls Rhonda, who has heard nothing about it, and a payment goes out. A quick warning would have prevented it.",
                             "choices": [],
                         },
                         "win": {
@@ -406,14 +409,14 @@ LESSONS = [
                 "payload": {
                     "prompt": "One of these is a phishing message. Tap the scam.",
                     "fake": "right",
-                    "why": "The right-hand one is from a lookalike domain (dental-verify.net) and pushes you to confirm your password through a link, which real IT never does. The left-hand one is from the practice's real domain and asks nothing of you.",
+                    "why": "The right-hand one is from a lookalike domain (365-mailcheck.net) and pushes you to confirm your password through a link, which real IT never does. The left-hand one is from the business's real domain and asks nothing of you.",
                     "left": {
-                        "sender": "IT Service Desk <helpdesk@brunswickfamilydental.com.au>",
+                        "sender": "IT Service Desk <helpdesk@sunburyplumbinggas.com.au>",
                         "text": "Scheduled maintenance this Saturday 7am to 8am. Email may be briefly unavailable. No action needed from you.",
                     },
                     "right": {
-                        "sender": "IT Security <security@dental-verify.net>",
-                        "text": "Your password expires today. Confirm your current password here within 2 hours to avoid being locked out of the patient system.",
+                        "sender": "IT Security <security@365-mailcheck.net>",
+                        "text": "Your password expires today. Confirm your current password here within 2 hours to avoid being locked out of your email.",
                     },
                 },
             },

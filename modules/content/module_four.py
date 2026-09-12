@@ -154,28 +154,28 @@ LESSONS = [
                 "you leave it.</div>",
             },
             {
-                "key": "read-the-send",
+                "key": "read-the-compose",
                 "kind": "check",
                 "points": 2,
-                "title": "Quick check: about to send the form",
-                "diagram": "scene-send",
-                "body": "<p>One quick check to finish. In the scene above, a worker "
-                "is about to email a client's medical form as a plain attachment, to "
-                "a personal Gmail address, and a colleague has noticed. You now know "
-                "what 'sealed' means and what plain email is. What should happen "
-                "next?</p>"
-                "<div class=\"cy-callout\">Match the care to the sensitivity: private "
-                "health data needs a sealed channel, not whatever is quickest.</div>",
-                "question": "Looking at the scene, what should the worker do before sending the client's medical form?",
-                "hint": "Weigh how sensitive the file is against how exposed plain email to a personal address is.",
+                "title": "Quick check: about to hit send",
+                "diagram": "compose-send",
+                "body": "<p>One quick check to finish. The compose window above is "
+                "ready to go: a client's passport scan, attached as a plain file, "
+                "addressed to a personal Gmail account, with Send one click away. You "
+                "now know what 'sealed' means and what plain email is. Read the "
+                "window, then answer.</p>"
+                "<div class=\"cy-callout\">Match the care to the sensitivity: a "
+                "passport scan needs a sealed channel, not whatever is quickest.</div>",
+                "question": "Looking at this compose window, what should happen before Send is clicked?",
+                "hint": "Weigh how sensitive the attachment is against how exposed a plain email to a personal address really is.",
                 "options": [
-                    ("Stop, and send it through a secure channel, or a password-protected file with the password sent separately", True,
-                     "Right. A medical form is exactly the kind of private data that needs a sealed channel, so only the intended person can open it, and one wrong address is not a breach."),
-                    ("Send it, plain email is quicker and the colleague is waiting", False,
+                    ("Stop, and send it through a secure channel, or as a password-protected file with the password sent separately, to the client's verified address", True,
+                     "Right. A passport scan is exactly the kind of private data that needs a sealed channel, so only the intended person can open it, and one wrong address is not a breach. The personal Gmail address is a second warning sign."),
+                    ("Just click Send, plain email is quicker and everyone uses it", False,
                      "No. Plain email is a postcard, and one wrong address is a breach. Speed does not change how sensitive the file is."),
-                    ("Send it, but CC a manager so someone else has a copy", False,
+                    ("Click Send, but CC the principal so someone else has a copy", False,
                      "No. That just exposes the private file to more inboxes. Use a sealed, access-controlled channel instead."),
-                    ("Paste the details into the body of the email instead of attaching them", False,
+                    ("Paste the passport details into the body of the email instead of attaching the file", False,
                      "No. The email body is just as exposed as an attachment. The fix is a sealed channel, not a different part of the email."),
                 ],
             },
@@ -184,11 +184,13 @@ LESSONS = [
     {
         "title": "Put it to work: sharing safely, files, links, and Wi-Fi",
         "reading_time_minutes": 9,
-        "intro": "Now use it at Kensington Physiotherapy, a two-site clinic where "
-        "owner Dan Whitmore, admin Lucy and physio Sam send patient files between "
-        "the rooms and the road all day. Sort what is sealed from what is open, tell "
-        "a safe share from a leak, read a real share-settings screen, make a live "
-        "sharing decision, and harden a workspace for life on the move.",
+        "intro": "Now use it at Coburg Migration & Legal, a small practice that "
+        "handles passports, visa applications and police checks all day. Principal "
+        "Farah Haddad, paralegal Owen Tran and admin Steph Corrigan send sensitive "
+        "client documents between the office and the road constantly. Sort what is "
+        "sealed from what is open, tell a safe share from a leak, read a real "
+        "share-settings screen, make a live sharing decision, and harden a workspace "
+        "for life on the move.",
         "tasks": [
             {
                 "key": "encrypted-or-open",
@@ -209,18 +211,18 @@ LESSONS = [
                         {"id": "open", "label": "Out in the open"},
                     ],
                     "items": [
-                        {"text": "A message sent through an end-to-end encrypted app", "bucket": "enc",
-                         "why": "Encrypted. Only you and the recipient can read it, not even the service carrying it."},
-                        {"text": "A normal email carrying sensitive client details", "bucket": "open",
+                        {"text": "Owen sends a client's police check through an end-to-end encrypted messaging app", "bucket": "enc",
+                         "why": "Encrypted. Only Owen and the recipient can read it, not even the service carrying it."},
+                        {"text": "Steph emails a visa applicant's payslips as a plain attachment", "bucket": "open",
                          "why": "Out in the open. Standard email is like a postcard: it passes through servers and can be read or misdirected."},
-                        {"text": "A web page showing the padlock and https", "bucket": "enc",
+                        {"text": "The client portal Farah logs in to shows the padlock and https", "bucket": "enc",
                          "why": "Encrypted in transit. The padlock means the connection is scrambled, so an eavesdropper cannot read it."},
-                        {"text": "What you type over open cafe Wi-Fi with no VPN", "bucket": "open",
+                        {"text": "A passport scan uploaded over the airport's open Wi-Fi with no VPN", "bucket": "open",
                          "why": "Out in the open. On an unsecured network a stranger nearby may capture what you send."},
-                        {"text": "A password-protected file, with the password sent a separate way", "bucket": "enc",
+                        {"text": "A locked ZIP of documents, sent with the password read out on a separate phone call", "bucket": "enc",
                          "why": "Encrypted. The file is scrambled, and because the password travels separately, seeing one is not enough."},
-                        {"text": "An ordinary SMS text message", "bucket": "open",
-                         "why": "Out in the open. Standard texts are not end-to-end encrypted, so they are a poor choice for private information."},
+                        {"text": "An ID photo sent as an ordinary SMS or MMS text", "bucket": "open",
+                         "why": "Out in the open. Standard texts are not end-to-end encrypted, so they are a poor choice for private documents."},
                     ],
                 },
             },
@@ -242,22 +244,22 @@ LESSONS = [
                         {"id": "leak", "label": "A leak"},
                     ],
                     "events": [
-                        {"text": "A link restricted to specific people, that expires and can be revoked.",
+                        {"text": "A OneDrive link to a visa file, restricted to the named client, set to expire in 7 days.",
                          "category": "safe",
-                         "why": "Safe share. You control exactly who gets in, and you can withdraw access later."},
-                        {"text": "A public 'anyone with the link can view' share, posted in a group chat.",
+                         "why": "Safe share. You control exactly who gets in, and access lapses on its own."},
+                        {"text": "An 'anyone with the link can view' link to a passport scan, dropped in a WhatsApp group.",
                          "category": "leak",
-                         "why": "A leak. Anyone who ever sees or forwards that link can open the file, and you cannot take it back."},
-                        {"text": "A password-protected file, with the password sent by a separate phone call.",
+                         "why": "A leak. Anyone who ever sees or forwards that link can open the scan, and you cannot take it back."},
+                        {"text": "A password-protected file, with the password read out on a separate phone call.",
                          "category": "safe",
                          "why": "Safe share. The lock and the key travel separately, so intercepting one is not enough."},
-                        {"text": "Emailing the whole spreadsheet as an attachment to a mailing list.",
+                        {"text": "Emailing the whole client spreadsheet as an attachment to an outside mailing list.",
                          "category": "leak",
                          "why": "A leak. You lose all control of the copy, and it can be forwarded anywhere from there."},
-                        {"text": "Granting a colleague view-only access to just the folder they need.",
+                        {"text": "Giving Owen view-only access to just the one client folder he is working on.",
                          "category": "safe",
-                         "why": "Safe share. Least access: they get only what they need, and nothing more."},
-                        {"text": "Sharing a file, and putting its password in the very same message.",
+                         "why": "Safe share. Least access: he gets only what he needs, and nothing more."},
+                        {"text": "Sharing a locked file, and putting its password in the very same message.",
                          "category": "leak",
                          "why": "A leak. Sending the lock and the key together means anyone who sees the message has both."},
                     ],
@@ -294,11 +296,10 @@ LESSONS = [
                 "kind": "branch",
                 "points": 2,
                 "title": "Decision drill: secure link, or email attachment?",
-                "body": "<p>A real sharing decision, start to finish. Sam is at the "
-                "Kensington rooms and needs a patient's rehab file that Lucy has at "
-                "the second site. The choice Lucy makes about how to send it decides "
-                "who can reach it, and whether she can ever take it back. Work "
-                "through it.</p>"
+                "body": "<p>A real sharing decision, start to finish. Owen is out at "
+                "a client meeting and needs a visa file that Steph has back at the "
+                "office. The choice Steph makes about how to send it decides who can "
+                "reach it, and whether she can ever take it back. Work through it.</p>"
                 "<div class=\"cy-callout\"><strong>The rule:</strong> share a "
                 "permissioned link, not a loose copy. Control who can open it, and "
                 "keep the power to revoke.</div>",
@@ -307,7 +308,7 @@ LESSONS = [
                     "start": "share",
                     "nodes": {
                         "share": {
-                            "text": "Sam needs a patient's rehab file (Nguyen_rehab_plan.pdf) that is at the other site. How does Lucy get it to him?",
+                            "text": "Owen needs a client's visa file (Nguyen_visa_docs.pdf) that is back at the office. How does Steph get it to him?",
                             "choices": [
                                 {"label": "Share a link restricted to them, that you can expire or revoke later", "outcome": "good",
                                  "feedback": "Right. A permissioned link keeps you in control of who can open it, and lets you take access back.", "to": "perms"},

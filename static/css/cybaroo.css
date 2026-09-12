@@ -9945,6 +9945,76 @@ a.cy-mrow:hover { border-color: var(--cy-border-lift); transform: translateX(3px
 .cy-scr__lock svg { height: 0.8rem; width: 0.8rem; display: block; }
 .cy-scr__url--insecure { border-color: rgba(255, 77, 77, 0.5); }
 .cy-scr__url--insecure .cy-scr__lock { color: var(--cy-danger); }
+.cy-scr__lock--ok { color: #5ad19b; }
+
+/* A recreated web sign-in form (for the lookalike-login figure). */
+.cy-signin { margin: 0 auto; max-width: 19rem; padding: 0.4rem 0.2rem 0.6rem; text-align: left; }
+.cy-signin__brand { align-items: center; color: var(--cy-text); display: flex; font-weight: 700; gap: 0.5rem; font-size: 0.95rem; margin-bottom: 0.9rem; }
+.cy-signin__mark { background: linear-gradient(135deg, #2a7fb8, #12203a); border-radius: 6px; color: #eaf3fb; font-family: var(--cy-font-mono); font-size: 0.62rem; font-weight: 700; letter-spacing: 0.04em; padding: 4px 6px; }
+.cy-signin__lbl { color: var(--cy-text-3); font-size: 0.68rem; font-weight: 600; margin: 0.55rem 0 0.25rem; }
+.cy-signin__field { background: var(--cy-surface-3); border: 1px solid var(--cy-border-lift); border-radius: 7px; color: var(--cy-text-2); font-family: var(--cy-font-mono); font-size: 0.76rem; padding: 0.5rem 0.65rem; }
+.cy-signin__btn { background: linear-gradient(120deg, #2a7fb8, #1f5f92); border-radius: 7px; color: #eaf3fb; font-size: 0.8rem; font-weight: 700; margin-top: 0.85rem; padding: 0.55rem; text-align: center; }
+
+/* A recreated spreadsheet with the Enable Content macro-warning bar. */
+.cy-scr--win { }
+.cy-scr__winbar { align-items: center; background: var(--cy-surface-3); border-bottom: 1px solid var(--cy-border); display: flex; justify-content: space-between; padding: 0.45rem 0.7rem; }
+.cy-scr__wintitle { align-items: center; color: var(--cy-text-2); display: flex; font-size: 0.78rem; font-weight: 600; gap: 0.4rem; }
+.cy-scr__wintitle svg { height: 0.9rem; width: 0.9rem; }
+.cy-scr__winctl { color: var(--cy-text-3); font-family: var(--cy-font-mono); font-size: 0.7rem; letter-spacing: 0.1em; }
+.cy-macbar { align-items: center; background: #4a3c12; border-bottom: 1px solid #6b5518; color: #f3e2b0; display: flex; flex-wrap: wrap; gap: 0.5rem; padding: 0.5rem 0.7rem; }
+.cy-macbar__i { color: #e8c04a; font-size: 1rem; }
+.cy-macbar__t { font-size: 0.78rem; } .cy-macbar__t b { color: #ffe9a8; }
+.cy-macbar__btn { background: #d9c07a; border-radius: 5px; color: #2a2210; font-size: 0.72rem; font-weight: 700; margin-left: auto; padding: 0.25rem 0.7rem; }
+.cy-macgrid { padding: 0; }
+.cy-macgrid__hd { display: grid; grid-template-columns: 1.6rem repeat(4, 1fr); }
+.cy-macgrid__hd span { background: var(--cy-surface-3); border-right: 1px solid var(--cy-border); border-bottom: 1px solid var(--cy-border); color: var(--cy-text-3); font-family: var(--cy-font-mono); font-size: 0.66rem; padding: 0.2rem; text-align: center; }
+.cy-macgrid__rows { display: grid; grid-auto-rows: 1.3rem; grid-template-columns: 1.6rem; }
+.cy-macgrid__rows span { background: var(--cy-surface-2); border-right: 1px solid var(--cy-border); border-bottom: 1px solid var(--cy-border); color: var(--cy-text-3); font-family: var(--cy-font-mono); font-size: 0.66rem; text-align: center; }
+
+/* A recreated scareware / tech-support-scam browser alert. */
+.cy-scare { background: linear-gradient(180deg, #2a0f0f, #1a0a0a); border: 1px solid #7a2020; border-radius: 10px; margin: 0.3rem auto; max-width: 22rem; padding: 1rem 1.1rem 1.15rem; text-align: center; }
+.cy-scare__hd { align-items: center; color: #ff9a9a; display: flex; font-size: 0.74rem; font-weight: 700; gap: 0.4rem; justify-content: center; letter-spacing: 0.02em; }
+.cy-scare__x { color: #ff5a5a; font-size: 1rem; }
+.cy-scare__big { color: #ffdede; font-size: 1.1rem; font-weight: 700; margin-top: 0.5rem; } .cy-scare__big b { color: #ff6b6b; }
+.cy-scare__sub { color: #e6b4b4; font-size: 0.72rem; margin-top: 0.4rem; }
+.cy-scare__num { color: #fff; font-family: var(--cy-font-mono); font-size: 0.86rem; margin-top: 0.6rem; } .cy-scare__num b { color: #ffd36b; }
+.cy-scare__btn { background: linear-gradient(120deg, #e04141, #b52020); border-radius: 7px; color: #fff; font-size: 0.8rem; font-weight: 700; margin-top: 0.7rem; padding: 0.55rem; }
+
+/* A recreated email compose window (before-you-hit-send check). */
+.cy-compose { padding: 0.2rem 0.1rem; }
+.cy-compose__row { align-items: baseline; border-bottom: 1px solid var(--cy-border); display: flex; gap: 0.7rem; padding: 0.5rem 0.2rem; }
+.cy-compose__k { color: var(--cy-text-3); flex: none; font-size: 0.74rem; width: 3.4rem; }
+.cy-compose__v { color: var(--cy-text); font-size: 0.82rem; }
+.cy-compose__v--warn { color: #ffb15a; }
+.cy-compose__msg { color: var(--cy-text-2); font-size: 0.82rem; padding: 0.7rem 0.2rem; }
+.cy-compose__att { align-items: center; background: var(--cy-surface-3); border: 1px solid var(--cy-border-lift); border-radius: 8px; color: var(--cy-text-2); display: inline-flex; font-size: 0.78rem; gap: 0.4rem; margin: 0 0.2rem; padding: 0.35rem 0.6rem; }
+.cy-compose__att .cy-i { color: var(--cy-cyan-soft); height: 14px; width: 14px; }
+.cy-compose__attmeta { color: var(--cy-text-3); font-size: 0.68rem; }
+.cy-compose__foot { display: flex; padding: 0.7rem 0.2rem 0.2rem; }
+.cy-compose__send { background: linear-gradient(120deg, #22e0ff, #00c8f0); border-radius: 7px; color: #04121a; font-size: 0.82rem; font-weight: 700; padding: 0.45rem 1.3rem; }
+
+/* A recreated firewall rules screen (the default-action check). */
+.cy-fw { padding: 0.3rem 0.2rem; }
+.cy-fw__row { align-items: center; border-bottom: 1px solid var(--cy-border); display: flex; gap: 0.7rem; padding: 0.55rem 0.35rem; }
+.cy-fw__row--default { background: rgba(230, 180, 85, 0.08); border-bottom: 0; border-radius: 6px; }
+.cy-fw__act { border-radius: 5px; flex: none; font-family: var(--cy-font-mono); font-size: 0.66rem; font-weight: 700; padding: 0.16rem 0.5rem; text-align: center; width: 3.6rem; }
+.cy-fw__act--allow { background: rgba(114, 189, 151, 0.16); color: #81c995; }
+.cy-fw__act--deny { background: rgba(255, 77, 77, 0.16); color: #ff9a9a; }
+.cy-fw__act--warn { background: rgba(230, 180, 85, 0.2); color: #ffb15a; }
+.cy-fw__desc { color: var(--cy-text-2); font-size: 0.8rem; } .cy-fw__desc b { color: var(--cy-text); }
+
+/* A recreated endpoint-security alert (the incident-response first-move check). */
+.cy-iralert { padding: 0.3rem 0.2rem 0.4rem; }
+.cy-iralert__hd { align-items: center; color: #ff9a9a; display: flex; font-size: 0.9rem; font-weight: 700; gap: 0.45rem; margin-bottom: 0.7rem; }
+.cy-iralert__x { color: #ff5a5a; font-size: 1.05rem; }
+.cy-iralert__rows { display: flex; flex-direction: column; }
+.cy-iralert__row { border-bottom: 1px solid var(--cy-border); display: flex; gap: 0.7rem; justify-content: space-between; padding: 0.45rem 0.3rem; }
+.cy-iralert__k { color: var(--cy-text-3); font-size: 0.76rem; }
+.cy-iralert__v { color: var(--cy-text); font-family: var(--cy-font-mono); font-size: 0.78rem; text-align: right; }
+.cy-iralert__v--bad { color: #ff9a9a; }
+.cy-iralert__btns { display: flex; gap: 0.6rem; margin-top: 0.9rem; }
+.cy-iralert__btn { background: var(--cy-surface-3); border: 1px solid var(--cy-border-lift); border-radius: 7px; color: var(--cy-text-2); font-size: 0.8rem; font-weight: 600; padding: 0.45rem 0.9rem; }
+.cy-iralert__btn--go { background: linear-gradient(120deg, #ff5a5a, #c0392b); border-color: transparent; color: #fff; }
 .cy-scr__insecure { color: var(--cy-danger); font-family: var(--cy-font-mono); font-size: 0.62rem; font-weight: 700; letter-spacing: 0.03em; text-transform: uppercase; }
 
 .cy-scr__body { background: var(--scr-screen); color: var(--scr-ink); padding: 0.9rem; }

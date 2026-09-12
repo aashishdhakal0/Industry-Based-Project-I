@@ -34,7 +34,7 @@ ACTIVITY_KINDS = {
     "HARDEN", "NETMAP", "RESPOND", "FIREWALL", "TABLETOP",
 }
 # The realistic, own-origin picture visuals Module 2 teaches from.
-FIGURES = {"malware-family", "attachment-exe", "locked-files", "breach-notify", "fake-update"}
+FIGURES = {"malware-family", "enable-macros", "locked-files", "breach-notify", "scareware-popup"}
 DASHES = ("—", "–")
 
 
@@ -115,7 +115,7 @@ def test_lesson_one_uses_technical_diagrams_lesson_two_keeps_mockups(seeded):
         LessonTask.objects.filter(lesson__module=seeded)
         .exclude(diagram_key="").values_list("diagram_key", flat=True)
     )
-    assert {"attachment-exe", "fake-update"} <= keys, f"mockups missing: {keys}"
+    assert {"enable-macros", "scareware-popup"} <= keys, f"mockups missing: {keys}"
 
 
 # --- activity well-formedness (each solvable) ------------------------------

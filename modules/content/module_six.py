@@ -169,29 +169,28 @@ LESSONS = [
                 "(oaic.gov.au).</li></ol></div>",
             },
             {
-                "key": "order-check",
+                "key": "read-the-alert",
                 "kind": "check",
                 "points": 2,
-                "title": "Quick check: why contain before you clean up?",
-                "diagram": "ir-lifecycle",
-                "body": "<p>One quick check to finish. The lifecycle above runs "
-                "prepare, identify, contain, eradicate, recover, learn. You just saw "
-                "why that order is not up for grabs. Put the key reason into your own "
-                "words.</p>"
-                "<div class=\"cy-callout\">You cannot recover cleanly until you have "
-                "eradicated the cause, and you cannot eradicate until you have "
-                "contained the spread.</div>",
-                "question": "Looking at the lifecycle above, why must containment come before eradication and recovery?",
-                "hint": "Think about what happens if the trouble is still spreading while you clean up.",
+                "title": "Quick check: the alert just fired",
+                "diagram": "ir-alert",
+                "body": "<p>One quick check to finish. The monitoring alert above has "
+                "just fired: ransomware detected on a workstation, files encrypting "
+                "right now. You just learned the order the response runs in. Read the "
+                "alert, then answer.</p>"
+                "<div class=\"cy-callout\">The first move is always to contain: stop "
+                "the spread before you try to clean up or restore anything.</div>",
+                "question": "The alert shows ransomware encrypting files on a workstation right now. What is the right first move?",
+                "hint": "Think about what happens to the rest of the network while you investigate or reboot.",
                 "options": [
-                    ("If you have not stopped the spread first, cleaning up and restoring just gets undone as it keeps moving", True,
-                     "Right. Containment stops the bleeding. Trying to eradicate or recover while the attack is still spreading means it reaches the machines you have just cleaned or restored."),
-                    ("The order does not really matter; you can do them in any sequence", False,
-                     "No. The order is the point. Each phase depends on the one before, which is why containment comes before eradication and recovery."),
-                    ("Recovery is the first thing you should ever do", False,
-                     "No. Recovering while the cause is still active just reinfects what you restore. You contain, then eradicate, then recover."),
-                    ("Eradication means paying the ransom", False,
-                     "No. Eradication means removing the malware and closing the way it got in. It has nothing to do with paying."),
+                    ("Isolate that machine from the network immediately, then start the response plan", True,
+                     "Right. Containment comes first: getting the machine off the network stops the ransomware reaching shared drives and other computers. You cannot clean up or restore safely while it is still spreading."),
+                    ("Reboot the machine a few times to see if it clears", False,
+                     "No. Rebooting does not undo the encryption, and every second it stays connected it spreads further. Isolate it from the network first."),
+                    ("Dismiss the alert and investigate properly after lunch", False,
+                     "No. Waiting lets it keep encrypting and spreading. The whole point of the alert is to act now: isolate the machine first."),
+                    ("Restore the files from backup straight away on the same machine", False,
+                     "No. Restoring while the cause is still active just gets re-encrypted. Contain first, then eradicate, then recover."),
                 ],
             },
         ],
@@ -199,7 +198,7 @@ LESSONS = [
     {
         "title": "Work the incident: a tabletop from alert to review",
         "reading_time_minutes": 10,
-        "intro": "Now run it for real. Riverside Dental in Geelong has been hit by "
+        "intro": "Now run it for real. Bendigo Community Childcare has been hit by "
         "ransomware. Work the incident as a tabletop exercise, one decision at a "
         "time, and watch the situation board respond: detect and contain first, "
         "then eradicate, recover, and face the law.",
@@ -214,16 +213,16 @@ LESSONS = [
                 "incident, worked one decision at a time, the way professional teams "
                 "rehearse. Everything Lesson 1 taught about the first hours applies "
                 "here. Make each call and watch the situation board change, tracking "
-                "systems, patient data, the clock, and your response.</p>"
+                "systems, family data, the clock, and your response.</p>"
                 "<div class=\"cy-callout\"><strong>The first hours decide "
                 "everything.</strong> Name it, understand it, and contain it, in "
                 "that order, without destroying what you will need later.</div>",
                 "payload": {
                     "prompt": "Work the incident one decision at a time. Watch the board respond.",
-                    "scenario": "Riverside Dental, Geelong. Six staff, no in-house IT. 8:05am Monday: the receptionist cannot open any files, and a message on screen is demanding payment to unlock them.",
+                    "scenario": "Bendigo Community Childcare. Ten staff, no in-house IT. 8:05am Monday: the admin cannot open any files, and a message on screen is demanding payment to unlock them.",
                     "board": [
                         {"id": "systems", "label": "Systems", "state": "warn", "value": "Acting up"},
-                        {"id": "data", "label": "Patient data", "state": "ok", "value": "Intact?"},
+                        {"id": "data", "label": "Family data", "state": "ok", "value": "Intact?"},
                         {"id": "clock", "label": "Clock", "state": "ok", "value": "8:05 am"},
                         {"id": "notify", "label": "Response", "state": "ok", "value": "Not started"},
                     ],
@@ -249,13 +248,13 @@ LESSONS = [
                             "title": "How bad is it?",
                             "prompt": "The plan is running and help is on the way. Before touching anything else, what do you need to know?",
                             "options": [
-                                {"label": "Which machines are affected, and whether patient records are among them", "outcome": "good",
-                                 "consequence": "Knowing the scope, especially whether patient data is caught up in it, shapes every decision that follows, including the legal ones later.",
+                                {"label": "Which machines are affected, and whether family records are among them", "outcome": "good",
+                                 "consequence": "Knowing the scope, especially whether family data is caught up in it, shapes every decision that follows, including the legal ones later.",
                                  "board": {"data": {"state": "warn", "value": "Scoping"}}},
-                                {"label": "Nothing; just pay the ransom now so the practice can open", "outcome": "bad",
+                                {"label": "Nothing; just pay the ransom now so the centre can open", "outcome": "bad",
                                  "consequence": "Paying is a gamble with no guarantee you get the files back, it funds the next attack, and it skips the questions the law will later ask. Understand the scope first.",
                                  "board": {"notify": {"state": "warn", "value": "Paid?"}, "clock": {"state": "warn", "value": "Rushed"}}},
-                                {"label": "Announce on the practice's social media that you have been hacked", "outcome": "bad",
+                                {"label": "Announce on the centre's social media that you have been hacked", "outcome": "bad",
                                  "consequence": "Going public before you understand the incident, or your obligations, spreads panic and can breach the very rules you must follow. Assess privately first.",
                                  "board": {"notify": {"state": "bad", "value": "Public"}}},
                             ],
@@ -263,7 +262,7 @@ LESSONS = [
                         {
                             "phase": "Contain",
                             "title": "Stop the spread",
-                            "prompt": "You have found it on three machines, including the one holding patient records. How do you stop it spreading further?",
+                            "prompt": "You have found it on three machines, including the one holding family records. How do you stop it spreading further?",
                             "options": [
                                 {"label": "Disconnect the affected machines from the network, and check the backups are safe and untouched", "outcome": "good",
                                  "consequence": "Isolating the affected machines stops the spread, and protecting the backups protects your way back. This is containment done right.",
@@ -299,22 +298,22 @@ LESSONS = [
                         {"id": "worse", "label": "Makes it worse"},
                     ],
                     "events": [
-                        {"text": "Start the incident response plan and call the people it names.",
+                        {"text": "Start the incident response plan and ring the director and the IT support it names.",
                          "category": "sound",
                          "why": "Sound. The plan exists for this moment. Following it is how a scare stays a scare."},
-                        {"text": "Keep working on the affected computer to finish the morning's bookings.",
+                        {"text": "Keep using the affected computer to finish the morning's sign-ins.",
                          "category": "worse",
                          "why": "Makes it worse. Every minute it stays in use, the attack spreads further and does more damage."},
-                        {"text": "Disconnect the affected machine from the network.",
+                        {"text": "Unplug the affected machine's network cable and turn off its Wi-Fi.",
                          "category": "sound",
                          "why": "Sound. Isolating it stops the spread while keeping the evidence intact, unlike a blind shutdown."},
-                        {"text": "Delete the ransom message and pretend it did not happen.",
+                        {"text": "Post on the centre's Facebook page that the system has been hacked.",
                          "category": "worse",
-                         "why": "Makes it worse. Hiding it removes evidence and delays the real response, while the attack carries on underneath."},
-                        {"text": "Write down what you saw and when, as the incident unfolds.",
+                         "why": "Makes it worse. Going public before you understand the incident spreads panic and can breach the very rules you must follow."},
+                        {"text": "Note down what you saw and the time, as the incident unfolds.",
                          "category": "sound",
                          "why": "Sound. A simple timeline is invaluable later, for recovery, for the review, and for any notification you must make."},
-                        {"text": "Pay the ransom straight away to make it stop.",
+                        {"text": "Pay the ransom straight away so the enrolment system comes back.",
                          "category": "worse",
                          "why": "Makes it worse. Paying is no guarantee, funds more attacks, and skips the assessment the law will later require."},
                     ],
@@ -388,10 +387,10 @@ LESSONS = [
                 "then face the law honestly.</div>",
                 "payload": {
                     "prompt": "Finish the incident. Work the last three phases and watch the board.",
-                    "scenario": "Riverside Dental, later the same week. The attack is contained, the affected machines are isolated, and the backups are safe. The way in has been traced to one office computer with a remote-login left open and unpatched.",
+                    "scenario": "Bendigo Community Childcare, later the same week. The attack is contained, the affected machines are isolated, and the backups are safe. The way in has been traced to one office computer with a remote-login left open and unpatched.",
                     "board": [
                         {"id": "systems", "label": "Systems", "state": "warn", "value": "Contained"},
-                        {"id": "data", "label": "Patient data", "state": "warn", "value": "Backups safe"},
+                        {"id": "data", "label": "Family data", "state": "warn", "value": "Backups safe"},
                         {"id": "clock", "label": "Clock", "state": "warn", "value": "Day 1"},
                         {"id": "notify", "label": "The law", "state": "ok", "value": "To assess"},
                     ],
@@ -415,7 +414,7 @@ LESSONS = [
                         {
                             "phase": "Recover",
                             "title": "Come back cleanly",
-                            "prompt": "The machines are clean and the entry point is closed. How do you get the practice running again?",
+                            "prompt": "The machines are clean and the entry point is closed. How do you get the centre running again?",
                             "options": [
                                 {"label": "Restore from the clean backups, verify each system, and bring them back one at a time", "outcome": "good",
                                  "consequence": "Careful, verified recovery from clean backups is how you come back without dragging the problem back with you.",
@@ -431,13 +430,13 @@ LESSONS = [
                         {
                             "phase": "Review and the law",
                             "title": "Face it honestly",
-                            "prompt": "The practice is back. Patient records, names, dates of birth and health details, were on an affected machine. What now?",
+                            "prompt": "The centre is back. Family records, children's names, dates of birth and medical and allergy details, were on an affected machine. What now?",
                             "options": [
-                                {"label": "Assess it under the Notifiable Data Breaches scheme, and if serious harm is likely, notify the OAIC and the affected patients", "outcome": "good",
-                                 "consequence": "Health information is sensitive, so a breach like this is very likely notifiable. Telling the regulator and the affected people is both the law and the decent thing.",
+                                {"label": "Assess it under the Notifiable Data Breaches scheme, and if serious harm is likely, notify the OAIC and the affected families", "outcome": "good",
+                                 "consequence": "Children's health and identity information is sensitive, so a breach like this is very likely notifiable. Telling the regulator and the affected people is both the law and the decent thing.",
                                  "board": {"notify": {"state": "ok", "value": "Notified"}, "clock": {"state": "ok", "value": "Handled"}}},
                                 {"label": "Say nothing and hope no one ever finds out", "outcome": "bad",
-                                 "consequence": "Hiding an eligible breach of health data breaks the law under the Privacy Act, and the harm to patients, and to trust, is far worse when it comes out later.",
+                                 "consequence": "Hiding an eligible breach of children's data breaks the law under the Privacy Act, and the harm to families, and to trust, is far worse when it comes out later.",
                                  "board": {"notify": {"state": "bad", "value": "Hidden"}}},
                                 {"label": "Delete the logs so there is no record of what happened", "outcome": "bad",
                                  "consequence": "Destroying the evidence is the worst move of all: it obstructs the response, breaches your obligations, and leaves you unable to learn what went wrong.",

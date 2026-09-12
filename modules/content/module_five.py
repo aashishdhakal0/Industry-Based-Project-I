@@ -154,28 +154,29 @@ LESSONS = [
                 "keep it patched and watched.</div>",
             },
             {
-                "key": "default-deny-check",
+                "key": "read-the-default",
                 "kind": "check",
                 "points": 2,
-                "title": "Quick check: how should a firewall decide?",
-                "diagram": "firewall",
-                "body": "<p>One quick check to finish. The picture shows the firewall "
-                "sitting between the internet and your network, letting the wanted "
-                "traffic through and turning everything else away. You just learned "
-                "the safest way to set the rules. Which approach is it?</p>"
-                "<div class=\"cy-callout\">The safest firewall starts closed and "
-                "opens only what the business genuinely needs.</div>",
-                "question": "Looking at the firewall above, what is the safest way to decide what it allows?",
-                "hint": "Do you start open and close things, or start closed and open things?",
+                "title": "Quick check: read the firewall's last rule",
+                "diagram": "fw-default",
+                "body": "<p>One quick check to finish. The firewall rules screen above "
+                "lists the allow rules at the top, and then a final rule that decides "
+                "what happens to everything the rules above did not mention. You just "
+                "learned which final rule is the safe one. Read the bottom rule, then "
+                "answer.</p>"
+                "<div class=\"cy-callout\">The safest firewall starts closed: the "
+                "last rule should deny anything not explicitly allowed above.</div>",
+                "question": "For the last rule, the catch-all that decides everything not listed above, which setting is safe?",
+                "hint": "Should the leftover, un-named traffic be allowed in, or denied?",
                 "options": [
-                    ("Start closed: deny everything, then allow only the specific traffic the business needs", True,
-                     "Right. This is default-deny. You open the few doors you need and leave everything else shut, so anything you did not think of is blocked by default."),
-                    ("Start open: allow everything, then block the bad things as you notice them", False,
-                     "No. That is default-allow, and it means anything you have not thought to block gets in. Start closed and open only what you need."),
-                    ("Allow anything from Australian addresses and block the rest", False,
-                     "No. Location is easy to fake and says nothing about intent. Decide by what traffic the business actually needs, starting from closed."),
-                    ("Allow anything that uses the padlock (https)", False,
-                     "No. Plenty of unwanted traffic is encrypted too. The padlock is not a safety rating. Start closed and allow only what is needed."),
+                    ("DENY everything else. Start closed and allow only the specific traffic listed above", True,
+                     "Right. This is default-deny. The few doors you need are opened by the rules above, and the final rule shuts everything else, so anything you did not think of is blocked by default."),
+                    ("ALLOW everything else, then block bad traffic as you notice it", False,
+                     "No. That is default-allow, and it means anything you have not thought to block gets in. The catch-all should deny, not allow."),
+                    ("ALLOW everything else, but only from Australian addresses", False,
+                     "No. Location is easy to fake and says nothing about intent. The safe catch-all denies anything not explicitly allowed."),
+                    ("ALLOW everything else that uses the padlock (https)", False,
+                     "No. Plenty of unwanted traffic is encrypted too. The padlock is not a safety rating. The catch-all should deny."),
                 ],
             },
         ],
@@ -183,12 +184,12 @@ LESSONS = [
     {
         "title": "Put the defences to work: rules, zones, and weak spots",
         "reading_time_minutes": 9,
-        "intro": "Now use it at Yarra Freight, a Melbourne depot where ops manager "
-        "Paul Nguyen runs dispatch, drivers carry tablets, and the accounts and "
-        "customer records sit on one server out the back. Read the firewall rule "
-        "set and judge live traffic, sort devices into the right zones, read a "
-        "segmented network, hunt the weak spots on the depot map, and think "
-        "default-deny.",
+        "intro": "Now use it at Portsea Bay Motel, a 30-room motel where manager "
+        "Glenys Park runs the front desk, guests bring their own devices, and the "
+        "booking system, card terminal and CCTV all share the one network. Read the "
+        "firewall rule set and judge live traffic, sort devices into the right "
+        "zones, read a segmented network, hunt the weak spots on the site map, and "
+        "think default-deny.",
         "tasks": [
             {
                 "key": "read-the-rules",
@@ -209,22 +210,23 @@ LESSONS = [
                 "payload": {
                     "prompt": "Here is a small firm's firewall. Read the rules, then decide for each connection below whether it is Allowed or Blocked.",
                     "rules": [
-                        {"n": 1, "action": "ALLOW", "desc": "Staff browsing and email, going out to the internet"},
-                        {"n": 2, "action": "ALLOW", "desc": "Anyone on the internet reaching your public website"},
-                        {"n": 3, "action": "DENY", "desc": "Remote Desktop from the internet to any office computer"},
-                        {"n": 4, "action": "DENY", "desc": "Everything else coming in from the internet (default deny)"},
+                        {"n": 1, "action": "ALLOW", "desc": "Front desk staff browsing and email, going out to the internet"},
+                        {"n": 2, "action": "ALLOW", "desc": "Guests on the guest Wi-Fi reaching the internet"},
+                        {"n": 3, "action": "ALLOW", "desc": "Anyone on the internet reaching the motel's booking website"},
+                        {"n": 4, "action": "DENY", "desc": "Remote Desktop from the internet to any office computer"},
+                        {"n": 5, "action": "DENY", "desc": "Everything else coming in from the internet (default deny)"},
                     ],
                     "traffic": [
-                        {"text": "A staff member opens their webmail in a browser.", "verdict": "ALLOW", "rule": 1,
-                         "why": "Allowed by rule 1. Staff browsing and email going out is exactly what the first rule permits."},
-                        {"text": "A customer loads your public website.", "verdict": "ALLOW", "rule": 2,
-                         "why": "Allowed by rule 2. Your website is meant to be reached from the internet, so this is wanted traffic."},
-                        {"text": "An unknown address on the internet tries to open Remote Desktop on the reception PC.", "verdict": "BLOCK", "rule": 3,
-                         "why": "Blocked by rule 3. Remote Desktop exposed to the internet is a classic way in, so it is denied outright."},
-                        {"text": "An automated scanner probes a random office computer's file sharing.", "verdict": "BLOCK", "rule": 4,
-                         "why": "Blocked by rule 4. Nothing above matched, so the default-deny rule turns it away. This is most of what a firewall does all day."},
-                        {"text": "A stranger on the internet tries to connect straight to your accounts computer.", "verdict": "BLOCK", "rule": 4,
-                         "why": "Blocked by rule 4. There is no rule inviting that connection in, so the default deny stops it at the door."},
+                        {"text": "A guest streams a movie on the guest Wi-Fi.", "verdict": "ALLOW", "rule": 2,
+                         "why": "Allowed by rule 2. Guests reaching the internet from the guest Wi-Fi is exactly what that rule permits."},
+                        {"text": "A traveller loads the motel's booking website to reserve a room.", "verdict": "ALLOW", "rule": 3,
+                         "why": "Allowed by rule 3. The booking website is meant to be reached from the internet, so this is wanted traffic."},
+                        {"text": "An unknown internet address tries to open Remote Desktop on the reception PC.", "verdict": "BLOCK", "rule": 4,
+                         "why": "Blocked by rule 4. Remote Desktop exposed to the internet is a classic way in, so it is denied outright."},
+                        {"text": "An automated scanner probes the CCTV recorder from the internet.", "verdict": "BLOCK", "rule": 5,
+                         "why": "Blocked by rule 5. Nothing above matched, so the default-deny rule turns it away. This is most of what a firewall does all day."},
+                        {"text": "A stranger on the internet tries to connect straight to the card payment terminal.", "verdict": "BLOCK", "rule": 5,
+                         "why": "Blocked by rule 5. There is no rule inviting that connection in, so the default deny stops it at the door."},
                     ],
                 },
             },
@@ -252,24 +254,24 @@ LESSONS = [
                         {"id": "restricted", "label": "Restricted (sensitive)"},
                     ],
                     "events": [
-                        {"text": "The dispatch laptop Paul uses for everyday scheduling.",
+                        {"text": "The reception PC Glenys uses for check-ins and email.",
                          "category": "trusted",
-                         "why": "Trusted zone. Everyday staff devices belong on the internal work network, not mixed in with visitors or the crown jewels."},
-                        {"text": "The Wi-Fi in the driver waiting area, for visiting drivers' phones.",
+                         "why": "Trusted zone. Everyday managed staff devices belong on the internal work network, not mixed in with guests or the crown jewels."},
+                        {"text": "The Wi-Fi in the rooms and lobby for guests' phones and laptops.",
                          "category": "guest",
-                         "why": "Guest zone. Visitor devices you do not control must be kept off the staff network entirely, on their own segment."},
-                        {"text": "The server holding customer records and accounts out the back.",
-                         "category": "restricted",
-                         "why": "Restricted zone. The most sensitive systems get their own tightly controlled segment, reachable only by who genuinely needs them."},
-                        {"text": "A visiting mechanic's personal tablet.",
-                         "category": "guest",
-                         "why": "Guest zone. An outside device you do not manage should never touch the staff or sensitive networks."},
-                        {"text": "The front-desk computer used for consignment bookings.",
-                         "category": "trusted",
-                         "why": "Trusted zone. A managed staff machine belongs on the internal work network."},
-                        {"text": "The payment and card terminal for freight charges.",
+                         "why": "Guest zone. Devices you do not control must be kept off the staff network entirely, on their own segment."},
+                        {"text": "The card payment terminal at the front desk.",
                          "category": "restricted",
                          "why": "Restricted zone. Payment systems carry the highest risk and the strictest rules, so they are isolated on their own segment."},
+                        {"text": "A guest's own laptop, joined to the room Wi-Fi.",
+                         "category": "guest",
+                         "why": "Guest zone. An outside device you do not manage should never touch the staff or sensitive networks."},
+                        {"text": "The night manager's work laptop for the booking system.",
+                         "category": "trusted",
+                         "why": "Trusted zone. A managed staff machine belongs on the internal work network."},
+                        {"text": "The CCTV recorder holding the camera footage.",
+                         "category": "restricted",
+                         "why": "Restricted zone. Sensitive systems like the camera recorder get their own tightly controlled segment, reachable only by who genuinely needs them."},
                     ],
                 },
             },
@@ -319,8 +321,8 @@ LESSONS = [
                          "why": "A default password is public knowledge. This is often the very first thing an attacker tries."},
                         {"label": "Remote Desktop open to the internet on the office PC", "weak": True,
                          "why": "An exposed remote-login door is scanned and attacked constantly. It should be behind a VPN, not open to the world."},
-                        {"label": "Driver waiting-area Wi-Fi sharing the same network as the accounts computer", "weak": True,
-                         "why": "No segmentation. A problem on a visitor's device can reach the sensitive accounts machine. These belong on separate zones."},
+                        {"label": "Guest lobby Wi-Fi sharing the same network as the card payment terminal", "weak": True,
+                         "why": "No segmentation. A problem on a guest's device can reach the payment terminal. These belong on separate zones."},
                         {"label": "Server software two years without an update", "weak": True,
                          "why": "Unpatched software has known holes that are freely documented. It needs regular updates to stay safe."},
                         {"label": "Staff laptops on the trusted work network", "weak": False,
@@ -350,18 +352,18 @@ LESSONS = [
                         {"id": "deny", "label": "Deny by default"},
                     ],
                     "items": [
-                        {"text": "Staff web browsing out to the internet", "bucket": "allow",
-                         "why": "Allow. Everyday browsing is normal outbound traffic the office needs to work."},
+                        {"text": "Guests on the guest Wi-Fi reaching the internet", "bucket": "allow",
+                         "why": "Allow. Guest devices going out to the internet is expected traffic the motel offers on purpose."},
                         {"text": "Remote Desktop reachable from the internet", "bucket": "deny",
                          "why": "Deny by default. An exposed remote-login door is one of the most scanned and attacked services there is."},
-                        {"text": "Reaching your public website from outside", "bucket": "allow",
-                         "why": "Allow. The website is meant to be public, so this is wanted traffic."},
-                        {"text": "Direct connections from the internet to the accounts PC", "bucket": "deny",
-                         "why": "Deny by default. Internal computers should never be directly reachable from the internet."},
-                        {"text": "Sending and receiving normal work email", "bucket": "allow",
-                         "why": "Allow. Email is core to the business, so this traffic is expected."},
-                        {"text": "File sharing exposed to the whole internet", "bucket": "deny",
-                         "why": "Deny by default. Internal file sharing belongs inside the network, never open to the world."},
+                        {"text": "Reaching the motel's booking website from outside", "bucket": "allow",
+                         "why": "Allow. The booking site is meant to be public, so this is wanted traffic."},
+                        {"text": "Direct internet connections to the card payment terminal", "bucket": "deny",
+                         "why": "Deny by default. Payment and internal systems should never be directly reachable from the internet."},
+                        {"text": "The front desk sending and receiving normal work email", "bucket": "allow",
+                         "why": "Allow. Email is core to running the motel, so this traffic is expected."},
+                        {"text": "The CCTV recorder exposed to the whole internet", "bucket": "deny",
+                         "why": "Deny by default. The camera recorder belongs inside the network, never open to the world."},
                     ],
                 },
             },

@@ -35,7 +35,7 @@ ACTIVITY_KINDS = {
     "SORT", "MAILSORT", "CLASSIFY", "BRANCH", "SEQUENCE", "SPOT",
     "HARDEN", "NETMAP", "RESPOND", "FIREWALL", "TABLETOP",
 }
-FIGURES = {"msg-encrypted", "secure-bars", "secure-share", "vpn-tunnel", "scene-send", "wifi-evil-twin"}
+FIGURES = {"msg-encrypted", "secure-bars", "secure-share", "vpn-tunnel", "compose-send", "wifi-evil-twin"}
 DASHES = ("—", "–")
 
 
@@ -115,7 +115,7 @@ def test_uses_the_secure_comms_figures(seeded):
         LessonTask.objects.filter(lesson__module=seeded)
         .exclude(diagram_key="").values_list("diagram_key", flat=True)
     )
-    assert {"scene-send", "secure-share", "wifi-evil-twin"} <= keys, f"mockups missing: {keys}"
+    assert {"compose-send", "secure-share", "wifi-evil-twin"} <= keys, f"mockups missing: {keys}"
 
 
 # --- activity well-formedness (each solvable) ------------------------------

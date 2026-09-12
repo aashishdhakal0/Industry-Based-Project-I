@@ -47,9 +47,11 @@ def test_module_one_lesson_one_uses_technical_diagrams(seeded):
     intro = LessonTask.objects.get(lesson__module__order_index=1, task_key="net-basics")
     assert intro.diagram_key == "net-topology"
     assert not (intro.image or {}).get("src") and not intro.payload.get("hero")
+    # The weak-points panel now uses a device-framed router settings screen, and
+    # the stock router photo has been removed entirely.
     weak = LessonTask.objects.get(lesson__module__order_index=1, task_key="weak-points")
-    assert weak.diagram_key == "router-labelled"
-    assert (weak.image or {}).get("src") == "img/m1-router.webp"
+    assert weak.diagram_key == "router-admin"
+    assert not (weak.image or {}).get("src")
 
 
 @pytest.mark.django_db
@@ -60,10 +62,11 @@ def test_module_one_lesson_page_renders_diagrams_and_no_animation(seeded):
     client = Client()
     client.force_login(student)
     html = client.get(reverse("learn:lesson", args=[1, 1]), HTTP_HOST="127.0.0.1").content.decode()
-    # Teaching diagrams render as own-origin inline SVG; the router aid photo is
-    # present; the comprehension CHECK keeps its readable mockup; no animation.
+    # Teaching diagrams render as own-origin inline SVG; the weak-points and check
+    # panels render device-framed recreations (router screen, browser sign-in);
+    # no stock photos; no animation on this teaching lesson.
     assert "cy-td__svg" in html and "<svg" in html
-    assert "cy-photo__img" in html and "m1-router.webp" in html
-    assert "m1-network.webp" not in html          # retired filler photo gone
-    assert "cy-wifid" in html          # who-is-on comprehension mockup still present
+    assert "cy-radmin__form" in html   # device-framed router settings screen
+    assert "cy-signin" in html         # device-framed lookalike browser sign-in
+    assert "m1-router.webp" not in html and "m1-network.webp" not in html   # no stock photos
     assert "cy-scene2" not in html
