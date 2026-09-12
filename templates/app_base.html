@@ -46,7 +46,7 @@
         <svg class="cy-i cy-i--menu" aria-hidden="true"><use href="#i-menu"/></svg>
         <svg class="cy-i cy-i--close" aria-hidden="true"><use href="#i-close"/></svg>
       </button>
-      <a class="cy-wordmark" href="{% if user.is_administrator %}{% url 'staff:overview' %}{% else %}{% url 'dashboard' %}{% endif %}">
+      <a class="cy-wordmark" href="{% if console %}{% url 'staff:overview' %}{% else %}{% url 'dashboard' %}{% endif %}">
         <span class="cy-mark" aria-hidden="true"></span>
         {{ site_name }}
       </a>
@@ -56,14 +56,18 @@
     <div class="cy-side-backdrop" id="cy-side-backdrop" hidden></div>
 
     <aside class="cy-side" id="cy-side" aria-label="Sections">
-      <a class="cy-side__brand" href="{% if user.is_administrator %}{% url 'staff:overview' %}{% else %}{% url 'dashboard' %}{% endif %}">
+      <a class="cy-side__brand" href="{% if console %}{% url 'staff:overview' %}{% else %}{% url 'dashboard' %}{% endif %}">
         <span class="cy-mark" aria-hidden="true"></span>
         {{ site_name }}
       </a>
 
       <nav class="cy-side__nav">
-        {% if user.is_administrator %}
-          {% comment %}Administrator: the polished console is the whole surface.
+        {% if console %}
+          {% comment %}The nav follows the SECTION you are in, not your role: the
+             admin console shows the console nav, the student app shows the student
+             nav. So an administrator browsing the student side sees the student
+             nav (and can jump back via the discreet console link in the foot),
+             rather than the admin menu bleeding onto student pages.
              Django's raw /admin/ sits de-emphasised in the sidebar foot for the
              rare time an admin needs raw data, not as a peer of these.{% endcomment %}
           <a class="cy-side__item {% if active == 'admin_overview' %}is-active{% endif %}" href="{% url 'staff:overview' %}">
@@ -104,9 +108,15 @@
       </nav>
 
       <div class="cy-side__foot">
-        {% if user.is_administrator %}
+        {% if console %}
           <a class="cy-side__adv" href="{% url 'admin:index' %}">
             <svg class="cy-i" aria-hidden="true"><use href="#i-layers"/></svg> Raw data · Django admin
+          </a>
+        {% elif user.is_administrator %}
+          {# One discreet way for an admin browsing the student side to return to
+             the console. Not the logo, not the full admin menu. #}
+          <a class="cy-side__adv" href="{% url 'staff:overview' %}">
+            <svg class="cy-i" aria-hidden="true"><use href="#i-grid"/></svg> Admin console
           </a>
         {% endif %}
         {% include "_logout_form.html" %}
