@@ -113,8 +113,8 @@
             <svg class="cy-i" aria-hidden="true"><use href="#i-layers"/></svg> Raw data · Django admin
           </a>
         {% elif user.is_administrator %}
-          {# One discreet way for an admin browsing the student side to return to
-             the console. Not the logo, not the full admin menu. #}
+          {% comment %}One discreet way for an admin browsing the student side to
+             return to the console. Not the logo, not the full admin menu.{% endcomment %}
           <a class="cy-side__adv" href="{% url 'staff:overview' %}">
             <svg class="cy-i" aria-hidden="true"><use href="#i-grid"/></svg> Admin console
           </a>
