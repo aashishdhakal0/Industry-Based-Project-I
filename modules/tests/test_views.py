@@ -922,14 +922,14 @@ from django.template.loader import render_to_string
 
 def test_each_diagram_renders_its_content():
     cases = {
-        "net-topology": "Attached devices",
+        "net-topology": "NetGuard R6300",
         "data-hops": "Spring2024!",
         "data-journey": "Connection is secure",
         "cia-triad": "Confidentiality",
         "ransom-lock-full": "Your files are encrypted",
         "wifi-picker-evil-twin": "Melbourne Airport Free Wifi",
         "network-path": "Your router",
-        "router-admin": "Admin password",
+        "router-admin": "Network Security Check",
         "scam-email": "auspost-au-secure.info",
         "email-invoice": "bunya-supplies-billing.com",
         "security-settings": "Two-factor authentication",

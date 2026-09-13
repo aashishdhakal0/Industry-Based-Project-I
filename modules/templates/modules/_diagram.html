@@ -74,32 +74,32 @@
 
 {% elif key == "phishing-email" %}
   <figure class="cy-diagram" role="img"
-          aria-label="A suspicious email open in a webmail browser window: a lookalike sender address billing at flour-supplier-au dot info, an urgent deadline to pay within the hour, and a risky View the invoice link, each flagged as a red flag.">
-    <div class="cy-scr cy-scr--browser">
-      <div class="cy-scr__chrome">
-        <span class="cy-scr__dots"><i></i><i></i><i></i></span>
-        <span class="cy-scr__tab"><b style="background:#d93636"></b><span>Mail &middot; Inbox</span></span>
+          aria-label="A phone lock screen at Sunbury Plumbing and Gas, Tuesday 7:52am, showing one new Mail notification. Sender Flour Supplier, but the preview reveals the real address, billing at flour-supplier-au dot info, a lookalike. Subject: pay the overdue invoice within the hour or deliveries stop. Preview text: our bank details have changed, view the invoice. Three callouts flag the lookalike domain, the manufactured urgency, and the unexpected link and bank change.">
+    <div class="cy-ph cy-ph--lock">
+      <div class="cy-ph__status">
+        <span class="cy-ph__time">7:52</span>
+        <span class="cy-ph__stat">
+          <span class="cy-ph__bars"><i></i><i></i><i></i><i></i></span>
+          <span class="cy-ph__batt"><i style="width:61%"></i></span>
+        </span>
       </div>
-      <div class="cy-scr__addr">
-        <span class="cy-scr__nav">&#8592; &#8594;</span>
-        <span class="cy-scr__url"><span class="cy-scr__lock"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 10V7a6 6 0 0111 0v3"/><rect x="4" y="10" width="16" height="10" rx="2"/></svg></span><span>mail.yourbakery.com.au/inbox</span></span>
-      </div>
-      <div class="cy-scr__body">
-        <div class="cy-email">
-          <div class="cy-email__line">
-            <span class="cy-email__k">From</span>
-            <span class="cy-email__v">Flour Supplier &lt;<mark class="cy-email__flag">billing@flour-supplier-au.info</mark>&gt;</span>
+      <div class="cy-ph__view">
+        <div class="cy-ph__lockclock"><b>7:52</b><span>Tuesday, 14 October</span></div>
+        <div class="cy-notif">
+          <div class="cy-notif__card">
+            <div class="cy-notif__top">
+              <span class="cy-notif__icon" style="background:#ea4335">M</span>
+              <span class="cy-notif__app">Mail</span>
+              <span class="cy-notif__time">now</span>
+            </div>
+            <p class="cy-notif__from">Flour Supplier</p>
+            <p class="cy-notif__prev">Pay the overdue invoice within the hour or deliveries stop. Our bank details have changed &ndash; view the invoice to confirm&hellip;</p>
           </div>
-          <p class="cy-email__note">Lookalike domain, not your real supplier's address.</p>
-          <div class="cy-email__line">
-            <span class="cy-email__k">Subject</span>
-            <span class="cy-email__v"><mark class="cy-email__flag">Pay the overdue invoice within the hour or deliveries stop</mark></span>
-          </div>
-          <p class="cy-email__note">Urgency and a deadline, designed to stop you thinking.</p>
-          <div class="cy-email__body">
-            Our bank details have changed. <mark class="cy-email__flag">View the invoice</mark>
-          </div>
-          <p class="cy-email__note">An unexpected link and a change of bank details. Do not click; verify by phone.</p>
+        </div>
+        <div class="cy-plflags">
+          <span class="cy-flag cy-flag--red">From billing@flour-supplier-au.info, not the real supplier</span>
+          <span class="cy-flag cy-flag--gold">A deadline built to stop you thinking</span>
+          <span class="cy-flag cy-flag--red">An unexpected link, and a bank detail change</span>
         </div>
       </div>
     </div>
@@ -158,28 +158,29 @@
 
 {% elif key == "malware-family" %}
   <figure class="cy-diagram" role="img"
-          aria-label="The malware family: malware is the umbrella term, with viruses, worms, trojans, spyware and ransomware as members.">
-    <div class="cy-scr cy-scr--win">
-      <div class="cy-scr__chrome">
-        <span class="cy-scr__title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 8a4 4 0 018 0M12 12v7M6 10H3m3 4H4m14-4h3m-3 4h2M8 12H5.5m0 0a6.5 6.5 0 0013 0"/><circle cx="12" cy="9" r="4"/></svg>Malware family</span>
-        <span class="cy-scr__winctl">&#8722; &#9633; &#10005;</span>
-      </div>
-      <div class="cy-scr__body">
-        <div class="cy-tree">
-          <div class="cy-tree__root">Malware</div>
-          <div class="cy-tree__stem" aria-hidden="true"></div>
-          <div class="cy-tree__kids">
-            <span class="cy-tree__kid">Virus</span>
-            <span class="cy-tree__kid">Worm</span>
-            <span class="cy-tree__kid">Trojan</span>
-            <span class="cy-tree__kid">Spyware</span>
-            <span class="cy-tree__kid">Ransomware</span>
-          </div>
+          aria-label="A printed reference poster pinned to a corkboard in the Ballarat Auto Spares back office, curling slightly at the corners. Titled Know your malware, it lists five members of the malware family with a one-line description each: virus, worm, trojan, spyware and ransomware. A counter rostering sheet is pinned beside it.">
+    <div class="cy-cork">
+      <div class="cy-cork__pin" style="left:38%;top:6px;"></div>
+      <div class="cy-cork__poster">
+        <div class="cy-cork__pin cy-cork__pin--onpaper" style="left:50%;top:-7px;"></div>
+        <p class="cy-cork__eyebrow">Reference &middot; pinned by Tanya</p>
+        <h3 class="cy-cork__title">Know your malware</h3>
+        <p class="cy-cork__sub">Malware is the umbrella term. Every one of these is a different member of the family.</p>
+        <div class="cy-cork__list">
+          <div class="cy-cork__item"><b>Virus</b><span>hides inside a file, spreads when a person opens it</span></div>
+          <div class="cy-cork__item"><b>Worm</b><span>copies itself machine to machine, no click needed</span></div>
+          <div class="cy-cork__item"><b>Trojan</b><span>disguised as something useful you install yourself</span></div>
+          <div class="cy-cork__item"><b>Spyware</b><span>hides and quietly records what you type</span></div>
+          <div class="cy-cork__item"><b>Ransomware</b><span>encrypts your files and demands payment</span></div>
         </div>
+      </div>
+      <div class="cy-cork__note" style="left:64%;top:38%;">
+        <div class="cy-cork__pin" style="left:50%;top:-6px;"></div>
+        Counter roster &mdash; see Rick
       </div>
     </div>
     <figcaption class="cy-diagram__cap cy-diagram__cap--single">
-      Malware is the family. A virus is just one member, alongside worms, trojans, spyware and ransomware.
+      Malware is the family. A virus is just one member, alongside worms, trojans, spyware and ransomware &mdash; and each behaves differently enough that what stops one does little against another.
     </figcaption>
   </figure>
 
@@ -438,52 +439,34 @@
 
 {% elif key == "router-admin" %}
   <figure class="cy-diagram" role="img"
-          aria-label="The router's Security settings page open in a browser at 192.168.1.1, marked not secure. The admin password is still the factory default, admin, flagged in red as a default. Wi-Fi encryption is WPA2. The guest network is On and Open with no password, flagged red. Automatic firmware updates are off and an update is available. Remote management is off.">
-    <div class="cy-br">
-      <div class="cy-br__tabs">
-        <span class="cy-br__lights"><i></i><i></i><i></i></span>
-        <span class="cy-br__tab is-on"><b class="cy-br__fav" style="background:#0f6f78">R</b><span>NetGuard R6300 &middot; Security</span><i class="cy-br__x">&times;</i></span>
-        <span class="cy-br__tab"><b class="cy-br__fav" style="background:#ea4335">M</b><span>Gmail</span></span>
-        <span class="cy-br__plus">+</span>
-      </div>
-      <div class="cy-br__bar">
-        <span class="cy-br__nav">&#8592; &#8594;</span><span class="cy-br__reload">&#8635;</span>
-        <span class="cy-br__omni">
-          <span class="cy-br__lk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M12 12v4"/></svg></span><span class="cy-br__ns">Not secure</span>
-          <span class="cy-br__url"><span class="g">http://</span>192.168.1.1<b>/security</b></span>
-          <span class="cy-br__star">&#9734;</span>
-        </span>
-      </div>
-      <div class="cy-br__marks">
-        <span class="cy-br__mark"><b style="background:#0f6f78"></b>Router</span>
-        <span class="cy-br__mark"><b style="background:#13b5ea"></b>Xero</span>
-        <span class="cy-br__mark"><b style="background:#ea4335"></b>Gmail</span>
-        <span class="cy-br__mark"><b style="background:#6b3fa0"></b>MYOB</span>
-        <span class="cy-br__mark"><b style="background:#1a73e8"></b>OAIC</span>
-      </div>
-      <div class="cy-br__view">
-        <div class="cy-rtr">
-          <div class="cy-rtr__brand">NetGuard R6300 <span>Firmware 1.2.8</span></div>
-          <div class="cy-rtr__nav">
-            <span class="cy-rtr__ni">Status</span>
-            <span class="cy-rtr__ni">Wireless</span>
-            <span class="cy-rtr__ni is-on">Security</span>
-            <span class="cy-rtr__ni">Devices</span>
-          </div>
-          <div class="cy-rtr__main">
-            <p class="cy-rtr__h">Security</p>
-            <p class="cy-rtr__lede">Settings that control who can reach this router and network.</p>
-            <div class="cy-rtr__row"><span class="cy-rtr__k">Admin password <small>Sign-in for this page</small></span><span class="cy-rtr__pill cy-rtr__pill--bad">Default &middot; admin</span></div>
-            <div class="cy-rtr__row"><span class="cy-rtr__k">Wi-Fi encryption</span><span class="cy-rtr__v">WPA2-PSK</span></div>
-            <div class="cy-rtr__row"><span class="cy-rtr__k">Guest network <small>YarraRidge-Guest</small></span><span class="cy-rtr__pill cy-rtr__pill--bad">On &middot; Open (no password)</span></div>
-            <div class="cy-rtr__row"><span class="cy-rtr__k">Automatic firmware updates</span><span class="cy-rtr__pill cy-rtr__pill--warn">Off &middot; update available</span></div>
-            <div class="cy-rtr__row"><span class="cy-rtr__k">Remote management <small>Admin from the internet</small></span><span class="cy-rtr__pill cy-rtr__pill--ok">Off</span></div>
-          </div>
+          aria-label="A printed network security check report, photographed lying on a desk. Letterhead reads Bayside IT Support. Title: Network Security Check, Yarraville Real Estate, dated 14 October. Five findings are listed with a stamped verdict each: admin password still the factory default, marked FAIL; Wi-Fi encryption WPA2, marked PASS; guest network on and open with no password, marked FAIL; automatic firmware updates off with an update available, marked WARN; remote management off, marked PASS. A handwritten signature and today's date sit at the bottom.">
+    <div class="cy-doc">
+      <div class="cy-doc__page">
+        <div class="cy-doc__letterhead">
+          <span class="cy-doc__co">BAYSIDE IT SUPPORT</span>
+          <span class="cy-doc__coabn">ABN 71 605 214 883 &middot; (03) 9555 0142</span>
+        </div>
+        <h3 class="cy-doc__title">Network Security Check</h3>
+        <p class="cy-doc__meta">Yarraville Real Estate &middot; 24 Anderson St, Yarraville VIC 3013 &middot; 14 October</p>
+        <table class="cy-doc__tbl">
+          <thead><tr><th>Item checked</th><th>Finding</th><th>Result</th></tr></thead>
+          <tbody>
+            <tr><td>Router admin password</td><td>Still the factory default, <span class="cy-doc__mono">admin</span></td><td><span class="cy-doc__stamp cy-doc__stamp--fail">FAIL</span></td></tr>
+            <tr><td>Wi-Fi encryption</td><td>WPA2-PSK, current standard</td><td><span class="cy-doc__stamp cy-doc__stamp--pass">PASS</span></td></tr>
+            <tr><td>Guest network</td><td>On, Open, no password set</td><td><span class="cy-doc__stamp cy-doc__stamp--fail">FAIL</span></td></tr>
+            <tr><td>Automatic firmware updates</td><td>Off &mdash; one update available</td><td><span class="cy-doc__stamp cy-doc__stamp--warn">WARN</span></td></tr>
+            <tr><td>Remote management</td><td>Off, as it should be</td><td><span class="cy-doc__stamp cy-doc__stamp--pass">PASS</span></td></tr>
+          </tbody>
+        </table>
+        <p class="cy-doc__note">Two findings need action before this network meets a basic standard: the admin password and the open guest network. Recommend both are fixed this week.</p>
+        <div class="cy-doc__sign">
+          <span class="cy-doc__signname">R. Okonkwo</span>
+          <span class="cy-doc__signrole">Bayside IT Support &middot; 14 Oct</span>
         </div>
       </div>
     </div>
     <figcaption class="cy-diagram__cap cy-diagram__cap--single">
-      The router's own Security page, open in a browser. Read the rows: two are wide-open doors, the factory <b>admin</b> password and an open guest network.
+      The written-up result of a router check, the kind a contractor leaves behind. Same five settings as ever, but on paper the two failures do not get to hide in a settings menu.
     </figcaption>
   </figure>
 
@@ -585,24 +568,52 @@
 
 {% elif key == "enable-macros" %}
   <figure class="cy-diagram" role="img"
-          aria-label="A spreadsheet named Statement underscore Feb dot x l s m open in a spreadsheet program. A yellow security warning bar across the top reads: Security Warning, macros have been disabled, with an Enable Content button. The sheet below is blank.">
-    <div class="cy-scr cy-scr--win">
-      <div class="cy-scr__winbar">
-        <span class="cy-scr__wintitle"><svg viewBox="0 0 24 24" fill="none" stroke="#3aa06a" stroke-width="1.8" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 3v18"/></svg> Statement_Feb.xlsm &middot; Spreadsheet</span>
-        <span class="cy-scr__winctl">&#8211; &#9633; &#10005;</span>
+          aria-label="A timeline of five minutes at the Ballarat Auto Spares counter. 9:14am: an email arrives, Statement_Feb.xlsm, claiming to be from the accountant. 9:16am: Tanya opens the attachment. A spreadsheet appears, blank except for a yellow security warning bar reading macros have been disabled. 9:17am: she clicks Enable Content to see the numbers. 9:17am, one second later: the macro runs in the background, invisible on screen. 9:22am: a second machine on the same network starts behaving strangely.">
+    <div class="cy-tl">
+      <div class="cy-tl__line" aria-hidden="true"></div>
+      <div class="cy-tl__step">
+        <span class="cy-tl__dot"></span>
+        <span class="cy-tl__time">9:14am</span>
+        <div class="cy-tl__card">
+          <p class="cy-tl__h">Email arrives</p>
+          <p class="cy-tl__d">"Statement_Feb.xlsm" &mdash; looks like it's from the accountant.</p>
+        </div>
       </div>
-      <div class="cy-macbar">
-        <span class="cy-macbar__i" aria-hidden="true">&#9888;</span>
-        <span class="cy-macbar__t"><b>SECURITY WARNING</b> Macros have been disabled.</span>
-        <span class="cy-macbar__btn">Enable Content</span>
+      <div class="cy-tl__step">
+        <span class="cy-tl__dot"></span>
+        <span class="cy-tl__time">9:16am</span>
+        <div class="cy-tl__card">
+          <p class="cy-tl__h">Tanya opens it</p>
+          <p class="cy-tl__d">The sheet is blank. A yellow bar says macros have been disabled.</p>
+        </div>
       </div>
-      <div class="cy-macgrid" aria-hidden="true">
-        <div class="cy-macgrid__hd"><span></span><span>A</span><span>B</span><span>C</span><span>D</span></div>
-        <div class="cy-macgrid__rows"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span></div>
+      <div class="cy-tl__step cy-tl__step--bad">
+        <span class="cy-tl__dot"></span>
+        <span class="cy-tl__time">9:17am</span>
+        <div class="cy-tl__card">
+          <p class="cy-tl__h">"Enable Content" clicked</p>
+          <p class="cy-tl__d">To see the numbers underneath. This is the whole trap.</p>
+        </div>
+      </div>
+      <div class="cy-tl__step cy-tl__step--bad">
+        <span class="cy-tl__dot"></span>
+        <span class="cy-tl__time">9:17am +1s</span>
+        <div class="cy-tl__card">
+          <p class="cy-tl__h">Macro runs, silently</p>
+          <p class="cy-tl__d">Nothing changes on screen. That is by design.</p>
+        </div>
+      </div>
+      <div class="cy-tl__step cy-tl__step--worse">
+        <span class="cy-tl__dot"></span>
+        <span class="cy-tl__time">9:22am</span>
+        <div class="cy-tl__card">
+          <p class="cy-tl__h">A second PC turns strange</p>
+          <p class="cy-tl__d">Five minutes, and it is no longer just Tanya's problem.</p>
+        </div>
       </div>
     </div>
     <figcaption class="cy-diagram__cap cy-diagram__cap--single">
-      The sheet is blank until you click Enable Content, which switches on the macros. That is the bait, not a technical step you are meant to complete.
+      The sheet stays blank until someone clicks Enable Content, which switches the macros on. That click is the bait, not a technical step anyone is meant to complete &mdash; and five minutes later it is already spreading.
     </figcaption>
   </figure>
 
@@ -635,33 +646,36 @@
 
 {% elif key == "phish-headers" %}
   <figure class="cy-diagram" role="img"
-          aria-label="An email open in a webmail inbox. The subject is: Action required, your mailbox will be closed. The sender shows the name Microsoft 365 Security, but the real address in angle brackets is security at m365 dash account dash verify dot co, a lookalike domain, not microsoft dot com. It is addressed to team at sunburyplumbinggas dot com dot au and urges you to verify now within 24 hours through a Verify my mailbox button.">
-    <div class="cy-scr cy-scr--browser">
-      <div class="cy-scr__chrome">
-        <span class="cy-scr__dots"><i></i><i></i><i></i></span>
-        <span class="cy-scr__tab"><b style="background:#c43f1e"></b><span>Mail &middot; Inbox</span></span>
-      </div>
-      <div class="cy-scr__addr">
-        <span class="cy-scr__nav">&#8592; &#8594;</span>
-        <span class="cy-scr__url"><span class="cy-scr__lock cy-scr__lock--ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 018 0v3"/></svg></span>https://mail.sunburyplumbinggas.com.au/inbox</span>
-      </div>
-      <div class="cy-scr__body">
-        <div class="cy-mail">
-          <div class="cy-mail__subj">Action required: your mailbox will be closed</div>
-          <div class="cy-mail__meta">
-            <span class="cy-mail__av">M</span>
-            <span class="cy-mail__who"><b>Microsoft 365 Security</b> <span class="em">&lt;security@m365-account-verify.co&gt;</span><br><span class="cy-mail__to">to team@sunburyplumbinggas.com.au</span></span>
-            <span class="cy-mail__date">Mon 8:03 AM</span>
-          </div>
-          <div class="cy-mail__body">
-            We detected unusual sign-in activity on your account. Your mailbox will be <b>permanently closed within 24 hours</b> unless you verify your details now.<br><br>
-            <span class="cy-signin__btn" style="display:inline-block;max-width:14rem">Verify my mailbox</span>
-          </div>
+          aria-label="A side-by-side comparison of two email senders, both displaying the friendly name Microsoft 365 Security. On the left, flagged as the one that landed in the Sunbury Plumbing and Gas inbox, the real address is security at m365 dash account dash verify dot co, a lookalike domain, urging mailbox verification within 24 hours. On the right, a genuine Microsoft notice, the real address is account dash security dash noreply at accountprotection dot microsoft dot com, the official domain, with no invented deadline.">
+    <div class="cy-cmp">
+      <div class="cy-cmp__col cy-cmp__col--bad">
+        <p class="cy-cmp__tag cy-cmp__tag--bad">What landed in the inbox</p>
+        <div class="cy-cmp__card">
+          <p class="cy-cmp__name">Microsoft 365 Security</p>
+          <p class="cy-cmp__addr">&lt;security@<mark class="cy-cmp__hl cy-cmp__hl--bad">m365-account-verify.co</mark>&gt;</p>
+          <p class="cy-cmp__to">to team@sunburyplumbinggas.com.au</p>
+          <p class="cy-cmp__subj">Action required: your mailbox will be closed</p>
+          <p class="cy-cmp__snip">Unusual sign-in activity detected. Your mailbox will be <b>permanently closed within 24 hours</b> unless you verify now.</p>
         </div>
+        <p class="cy-cmp__note">Not a Microsoft domain, and a deadline Microsoft never sends.</p>
+      </div>
+      <div class="cy-cmp__mid" aria-hidden="true">
+        <span class="cy-cmp__vs">vs</span>
+      </div>
+      <div class="cy-cmp__col cy-cmp__col--ok">
+        <p class="cy-cmp__tag cy-cmp__tag--ok">A genuine Microsoft notice</p>
+        <div class="cy-cmp__card">
+          <p class="cy-cmp__name">Microsoft account team</p>
+          <p class="cy-cmp__addr">&lt;account-security-noreply@<mark class="cy-cmp__hl cy-cmp__hl--ok">accountprotection.microsoft.com</mark>&gt;</p>
+          <p class="cy-cmp__to">to team@sunburyplumbinggas.com.au</p>
+          <p class="cy-cmp__subj">New sign-in to your Microsoft account</p>
+          <p class="cy-cmp__snip">We noticed a new sign-in. If this was you, no action is needed. Review activity any time in your account.</p>
+        </div>
+        <p class="cy-cmp__note">The real domain, and no countdown pushing you to click.</p>
       </div>
     </div>
     <figcaption class="cy-diagram__cap cy-diagram__cap--single">
-      The friendly name says "Microsoft 365 Security", but read the real address: m365-account-verify.co is a lookalike, not microsoft.com, and it is rushing you to a link.
+      Same friendly name, "Microsoft 365 Security", on both. The friendly name is free to type. The address after the @ is not &mdash; and that is the only one of the two that tells the truth.
     </figcaption>
   </figure>
 
@@ -1483,59 +1497,83 @@
   </figure>
 {% elif key == "net-topology" %}
   <figure class="cy-diagram" role="img"
-          aria-label="The router's Attached Devices page open in a browser at 192.168.1.1, marked not secure. A table lists six devices connected to the Yarra Ridge Dental network: Front-desk-PC, an EFTPOS terminal, an HP LaserJet printer, Priya's iPhone, Dr Tom's Pixel and the reception iPad, each with an IP address, a MAC address, a connection type and an online status.">
-    <div class="cy-br">
-      <div class="cy-br__tabs">
-        <span class="cy-br__lights"><i></i><i></i><i></i></span>
-        <span class="cy-br__tab is-on"><b class="cy-br__fav" style="background:#0f6f78">R</b><span>NetGuard R6300 &middot; Devices</span><i class="cy-br__x">&times;</i></span>
-        <span class="cy-br__tab"><b class="cy-br__fav" style="background:#13b5ea">X</b><span>Xero</span></span>
-        <span class="cy-br__plus">+</span>
-      </div>
-      <div class="cy-br__bar">
-        <span class="cy-br__nav">&#8592; &#8594;</span><span class="cy-br__reload">&#8635;</span>
-        <span class="cy-br__omni">
-          <span class="cy-br__lk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M12 12v4"/></svg></span><span class="cy-br__ns">Not secure</span>
-          <span class="cy-br__url"><span class="g">http://</span>192.168.1.1<b>/devices</b></span>
-          <span class="cy-br__star">&#9734;</span>
-        </span>
-      </div>
-      <div class="cy-br__marks">
-        <span class="cy-br__mark"><b style="background:#0f6f78"></b>Router</span>
-        <span class="cy-br__mark"><b style="background:#13b5ea"></b>Xero</span>
-        <span class="cy-br__mark"><b style="background:#ea4335"></b>Gmail</span>
-        <span class="cy-br__mark"><b style="background:#6b3fa0"></b>MYOB</span>
-        <span class="cy-br__mark"><b style="background:#1a73e8"></b>OAIC</span>
-      </div>
-      <div class="cy-br__view">
-        <div class="cy-rtr">
-          <div class="cy-rtr__brand">NetGuard R6300 <span>Firmware 1.2.8</span></div>
-          <div class="cy-rtr__nav">
-            <span class="cy-rtr__ni">Status</span>
-            <span class="cy-rtr__ni">Wireless</span>
-            <span class="cy-rtr__ni">Security</span>
-            <span class="cy-rtr__ni is-on">Devices</span>
-          </div>
-          <div class="cy-rtr__main">
-            <p class="cy-rtr__h">Attached devices</p>
-            <p class="cy-rtr__lede">6 devices connected through this router.</p>
-            <div class="cy-rtr__tblwrap">
-              <table class="cy-rtr__tbl">
-                <thead><tr><th>Device</th><th>IP address</th><th>MAC address</th><th>Connection</th><th>Status</th></tr></thead>
-                <tbody>
-                  <tr><td class="cy-rtr__dev">Front-desk-PC</td><td class="cy-rtr__ip">192.168.1.24</td><td class="cy-rtr__mac">e4:5f:01:9c:2a:7b</td><td>Ethernet</td><td class="cy-rtr__on">Online</td></tr>
-                  <tr><td class="cy-rtr__dev">EFTPOS-VX520</td><td class="cy-rtr__ip">192.168.1.31</td><td class="cy-rtr__mac">00:1b:44:11:3a:b7</td><td>Wi-Fi 2.4GHz</td><td class="cy-rtr__on">Online</td></tr>
-                  <tr><td class="cy-rtr__dev">HP-LaserJet-M182</td><td class="cy-rtr__ip">192.168.1.40</td><td class="cy-rtr__mac">3c:52:82:0e:11:9d</td><td>Wi-Fi 2.4GHz</td><td class="cy-rtr__on">Online</td></tr>
-                  <tr><td class="cy-rtr__dev">Priya-iPhone</td><td class="cy-rtr__ip">192.168.1.52</td><td class="cy-rtr__mac">a4:83:e7:2c:88:10</td><td>Wi-Fi 5GHz</td><td class="cy-rtr__on">Online</td></tr>
-                  <tr><td class="cy-rtr__dev">Dr-Tom-Pixel</td><td class="cy-rtr__ip">192.168.1.58</td><td class="cy-rtr__mac">d8:5d:e2:4f:6a:c1</td><td>Wi-Fi 5GHz</td><td class="cy-rtr__on">Online</td></tr>
-                  <tr><td class="cy-rtr__dev">Reception-iPad</td><td class="cy-rtr__ip">192.168.1.61</td><td class="cy-rtr__mac">f0:18:98:73:52:2e</td><td>Wi-Fi 5GHz</td><td class="cy-rtr__on">Online</td></tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </div>
+          aria-label="A network topology diagram for Yarraville Real Estate. Six devices, the reception PC, the trust-account PC, a shared printer, and three phones belonging to Dean, Priya and Cody, each connect by a labelled line to a central router, NetGuard R6300 at 192.168.1.1. A single line leads from the router out to a cloud labelled The internet, showing that every device's traffic passes through that one gateway.">
+    <div class="cy-topo">
+      <svg class="cy-topo__svg" viewBox="0 0 760 460" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <marker id="topo-ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+            <path d="M0 0 L7 4 L0 8 z" fill="#8a7568"/>
+          </marker>
+        </defs>
+        <!-- connecting lines, drawn first so nodes sit on top -->
+        <path d="M195 108 L344 218" class="cy-topo__wire cy-topo__wire--eth"/>
+        <path d="M195 350 L344 238" class="cy-topo__wire cy-topo__wire--eth"/>
+        <path d="M360 108 L376 218" class="cy-topo__wire cy-topo__wire--wifi"/>
+        <path d="M540 108 L400 220" class="cy-topo__wire cy-topo__wire--wifi"/>
+        <path d="M540 230 L410 232" class="cy-topo__wire cy-topo__wire--wifi"/>
+        <path d="M540 352 L400 246" class="cy-topo__wire cy-topo__wire--wifi"/>
+        <path d="M400 198 L420 60 L590 40" class="cy-topo__wire cy-topo__wire--wan" fill="none" marker-end="url(#topo-ar)"/>
+
+        <!-- the router, centre -->
+        <g class="cy-topo__router">
+          <rect x="344" y="196" width="76" height="68" rx="10"/>
+          <path d="M362 220 h40 M362 230 h40 M362 240 h26" class="cy-topo__routerlines"/>
+          <text x="382" y="278" class="cy-topo__routerlabel">NetGuard R6300</text>
+          <text x="382" y="292" class="cy-topo__routersub">192.168.1.1</text>
+        </g>
+
+        <!-- internet cloud -->
+        <g class="cy-topo__cloud" transform="translate(596,2)">
+          <path d="M14 40 a16 16 0 0 1 -2 -31.8 a20 20 0 0 1 38.5 -7 a15 15 0 0 1 -2.5 29.8 -8 8 0 0 1 -1 9z" fill="#2a211e" stroke="#5a443c" stroke-width="1.5"/>
+          <text x="24" y="62" class="cy-topo__cloudlabel" text-anchor="middle">The internet</text>
+        </g>
+
+        <!-- device nodes -->
+        <g class="cy-topo__dev" transform="translate(115,72)">
+          <rect x="0" y="0" width="160" height="60" rx="9"/>
+          <text x="80" y="24" class="cy-topo__name">Reception-PC</text>
+          <text x="80" y="40" class="cy-topo__ip">192.168.1.24</text>
+          <text x="80" y="53" class="cy-topo__conn">Ethernet &middot; Cody</text>
+        </g>
+        <g class="cy-topo__dev" transform="translate(115,320)">
+          <rect x="0" y="0" width="160" height="60" rx="9"/>
+          <text x="80" y="24" class="cy-topo__name">Trust-Account-PC</text>
+          <text x="80" y="40" class="cy-topo__ip">192.168.1.31</text>
+          <text x="80" y="53" class="cy-topo__conn">Ethernet &middot; Marion</text>
+        </g>
+        <g class="cy-topo__dev" transform="translate(280,72)">
+          <rect x="0" y="0" width="160" height="60" rx="9"/>
+          <text x="80" y="24" class="cy-topo__name">HP-LaserJet-M182</text>
+          <text x="80" y="40" class="cy-topo__ip">192.168.1.40</text>
+          <text x="80" y="53" class="cy-topo__conn">Wi-Fi &middot; shared printer</text>
+        </g>
+        <g class="cy-topo__dev" transform="translate(460,72)">
+          <rect x="0" y="0" width="160" height="60" rx="9"/>
+          <text x="80" y="24" class="cy-topo__name">Dean-iPhone</text>
+          <text x="80" y="40" class="cy-topo__ip">192.168.1.52</text>
+          <text x="80" y="53" class="cy-topo__conn">Wi-Fi 5GHz &middot; principal</text>
+        </g>
+        <g class="cy-topo__dev" transform="translate(460,200)">
+          <rect x="0" y="0" width="160" height="60" rx="9"/>
+          <text x="80" y="24" class="cy-topo__name">Priya-Pixel</text>
+          <text x="80" y="40" class="cy-topo__ip">192.168.1.58</text>
+          <text x="80" y="53" class="cy-topo__conn">Wi-Fi 5GHz &middot; property manager</text>
+        </g>
+        <g class="cy-topo__dev" transform="translate(460,322)">
+          <rect x="0" y="0" width="160" height="60" rx="9"/>
+          <text x="80" y="24" class="cy-topo__name">Cody-Phone</text>
+          <text x="80" y="40" class="cy-topo__ip">192.168.1.63</text>
+          <text x="80" y="53" class="cy-topo__conn">Wi-Fi 5GHz &middot; administrator</text>
+        </g>
+
+        <!-- legend -->
+        <g class="cy-topo__legend" transform="translate(24,420)">
+          <line x1="0" y1="0" x2="26" y2="0" class="cy-topo__wire cy-topo__wire--eth"/><text x="32" y="4" class="cy-topo__legendtext">Ethernet</text>
+          <line x1="118" y1="0" x2="144" y2="0" class="cy-topo__wire cy-topo__wire--wifi"/><text x="150" y="4" class="cy-topo__legendtext">Wi-Fi</text>
+        </g>
+      </svg>
     </div>
-    <figcaption class="cy-diagram__cap cy-diagram__cap--single">A network is just devices sharing one connection. This is the router's own <b>Attached devices</b> list at Yarra Ridge Dental: every computer, the EFTPOS terminal, the printer and the phones, all talking through the one gateway out to the internet.</figcaption>
+    <figcaption class="cy-diagram__cap cy-diagram__cap--single">A network is just devices sharing one connection. At Yarraville Real Estate that is the reception PC, the trust-account PC, the shared printer and everyone's phones, all reaching the internet through the one router in the middle. Every one of those six lines is a way in, if the router itself is not looked after.</figcaption>
   </figure>
 
 {% elif key == "data-hops" %}
