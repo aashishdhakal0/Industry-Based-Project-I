@@ -2,12 +2,16 @@
 
 Pins the restructured shape against order_index=3: Lesson 1 TEACHES (four reading
 CONCEPT panels, each with a real threat visual, plus one light comprehension
-check on caller-ID spoofing), Lesson 2 APPLIES (name the channel, triage a mixed
-inbox, read a vishing scene, work an AI voice-clone call, and spot the scam).
-Plus the universal quality checks: activity payloads are well-formed and
-solvable, the quiz bank is valid and split across the two lessons, the voice is
-em-dash-free, the phishing family and channels are covered, and a full
-interactive journey reaches the module-complete moment.
+check on caller-ID spoofing), Lesson 2 APPLIES as hands-on, almost entirely
+phone-framed artefacts, distinct from Modules 1 and 2's desktop consoles: name
+the lever on a lock-screen notification stack (CLASSIFY), tell two SMS threads
+apart (SPOT), hunt for forged lines in a raw email header (NETMAP), a live
+cloned-voice call with a scrolling transcript (BRANCH), and a voicemail inbox
+(MAILSORT). Payload well-formedness for these new phone-shaped artefacts lives
+in test_module_three_lesson_two.py. Plus the universal quality checks: the quiz
+bank is valid and split across the two lessons, the voice is em-dash-free, the
+phishing family and channels are covered, and a full interactive journey
+reaches the module-complete moment.
 """
 
 import json as _json
@@ -28,7 +32,7 @@ User = get_user_model()
 
 LESSON_KINDS = {
     1: ["CONCEPT", "CONCEPT", "CONCEPT", "CONCEPT", "CHECK"],
-    2: ["CLASSIFY", "MAILSORT", "CHECK", "BRANCH", "SPOT"],
+    2: ["CLASSIFY", "SPOT", "NETMAP", "BRANCH", "MAILSORT"],
 }
 ACTIVITY_KINDS = {
     "SORT", "MAILSORT", "CLASSIFY", "BRANCH", "SEQUENCE", "SPOT",
@@ -81,10 +85,20 @@ def test_lesson_one_is_a_teaching_lesson(seeded):
 
 @pytest.mark.django_db
 def test_lesson_two_is_an_apply_lesson(seeded):
+    """Lesson 2 APPLIES: hands-on activities, never a reading panel, and never a
+    bare CHECK-on-a-diagram (that is Lesson 1's shape). At least one activity
+    hands the learner a real device-framed artefact (almost all of them, here,
+    a phone) to work."""
     tasks = list(seeded.lessons.get(lesson_number=2).tasks.order_by("order"))
     assert len([t for t in tasks if t.kind in ACTIVITY_KINDS]) >= 3
     assert not [t for t in tasks if t.kind == "CONCEPT"]
-    assert [t for t in tasks if t.kind == "CHECK" and t.diagram_key], "L2 needs a picture question"
+    assert not [t for t in tasks if t.kind == "CHECK"], "L2 tests; a bare CHECK-on-a-diagram is Lesson 1's shape"
+    framed = [
+        t for t in tasks
+        if (t.payload or {}).get("frame") or (t.payload or {}).get("phone")
+        or (t.payload or {}).get("variant") in ("sms", "call", "voicemail")
+    ]
+    assert framed, "Lesson 2 needs at least one device-framed interactive artefact"
 
 
 @pytest.mark.django_db
@@ -111,43 +125,23 @@ def test_uses_the_threat_figures(seeded):
     }
     for t in l1.tasks.filter(kind="CONCEPT"):
         assert not (t.image or {}).get("src"), f"{t.task_key} should be diagram-only"
-    # The readable picture-question mockups remain (caller-id check, scene-vish L2).
+    # The readable picture-question mockup remains (the L1 comprehension check).
+    # Lesson 2's artefacts all render dynamically from their own payload (a
+    # phone frame or a browser console), so none of them carry a diagram_key.
     keys = set(
         LessonTask.objects.filter(lesson__module=seeded)
         .exclude(diagram_key="").values_list("diagram_key", flat=True)
     )
-    assert {"phish-headers", "smishing-linkt"} <= keys, f"mockups missing: {keys}"
+    assert {"phish-headers"} <= keys, f"mockups missing: {keys}"
 
 
 # --- activity well-formedness (each solvable) ------------------------------
 
 
-@pytest.mark.django_db
-def test_classify_activity_is_solvable(seeded):
-    task = seeded.lessons.get(lesson_number=2).tasks.get(kind="CLASSIFY")
-    p = task.payload
-    cats = {c["id"] for c in p["categories"]}
-    assert len(cats) >= 2 and len(p["events"]) >= 4
-    for e in p["events"]:
-        assert e["category"] in cats and e.get("text") and e.get("why")
-    assert {e["category"] for e in p["events"]} == cats, "no dead category"
-
-
-@pytest.mark.django_db
-def test_mailsort_activity_is_solvable(seeded):
-    task = seeded.lessons.get(lesson_number=2).tasks.get(kind="MAILSORT")
-    p = task.payload
-    assert any(e["phish"] for e in p["emails"]) and any(not e["phish"] for e in p["emails"])
-    for e in p["emails"]:
-        assert e.get("from") and e.get("subject") and e.get("preview") and e.get("why")
-
-
-@pytest.mark.django_db
-def test_spot_activity_is_solvable(seeded):
-    task = seeded.lessons.get(lesson_number=2).tasks.get(kind="SPOT")
-    p = task.payload
-    assert p["fake"] in ("left", "right") and p.get("why")
-    assert p.get("left") and p.get("right")
+# CLASSIFY, MAILSORT and SPOT well-formedness for this module's own new phone
+# payload shapes (events with app/from/preview, voicemails, sms bubbles) lives
+# in test_module_three_lesson_two.py, since the generic {text/emails} shape
+# these once assumed no longer applies here.
 
 
 @pytest.mark.django_db

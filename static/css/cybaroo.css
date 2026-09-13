@@ -10876,3 +10876,120 @@ a.cy-mrow:hover { border-color: var(--cy-border-lift); transform: translateX(3px
 .cy-lockscr__sum { background:rgba(255,90,90,.09); border:1px solid rgba(255,90,90,.3); border-radius:9px; font-family:var(--cy-font-mono); font-size:12px; margin-top:16px; padding:9px 14px; }
 .cy-lockscr__sum b { color:#ffd166; }
 .cy-lockscr__timer { color:#ffd166; font-family:var(--cy-font-mono); font-size:13px; margin-top:12px; }
+
+/* ============================================================================
+   MODULE 3 LESSON 2 (v53+) — .cy-ph phone frame + its four skins.
+   Phone-centric artefacts (a lock screen, an SMS thread, a live call, a
+   voicemail list) for a phishing/social-engineering module: the phone
+   counterpart to .cy-br. Self-contained, hard-coded real product colours (not
+   theme tokens), same principle as .cy-br. CSP-safe, own-origin.
+   ========================================================================== */
+.cy-ph { background:#fff; border-radius:34px; box-shadow:0 22px 54px rgba(0,0,0,.55), 0 0 0 9px #17181c, 0 0 0 11px #34363c; color:#000; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; margin:0 auto; max-width:22rem; overflow:hidden; width:100%; }
+.cy-ph__status { align-items:center; background:#fff; color:#000; display:flex; font-size:13px; font-weight:600; justify-content:space-between; padding:12px 20px 4px; }
+.cy-ph__stat { align-items:center; display:flex; gap:5px; }
+.cy-ph__bars { display:flex; align-items:flex-end; gap:2px; height:9px; }
+.cy-ph__bars i { background:#000; border-radius:1px; display:block; width:3px; }
+.cy-ph__bars i:nth-child(1){ height:4px; } .cy-ph__bars i:nth-child(2){ height:6px; } .cy-ph__bars i:nth-child(3){ height:8px; } .cy-ph__bars i:nth-child(4){ height:9px; }
+.cy-ph__wifi { color:#000; height:11px; width:15px; }
+.cy-ph__batt { border:1px solid #000; border-radius:2.5px; display:inline-flex; height:11px; opacity:.9; padding:1.5px; width:20px; }
+.cy-ph__batt i { background:#000; border-radius:1px; display:block; width:100%; }
+.cy-ph__appbar { align-items:center; border-bottom:1px solid #e6e8eb; display:flex; gap:8px; padding:8px 16px 10px; }
+.cy-ph__appicon { align-items:center; border-radius:7px; color:#fff; display:grid; flex:none; font-size:11px; font-weight:800; height:22px; place-items:center; width:22px; }
+.cy-ph__apptitle { color:#000; font-size:15px; font-weight:700; }
+.cy-ph__view { background:#f2f2f7; min-height:8rem; }
+.cy-ph__home { background:#fff; display:flex; justify-content:center; padding:8px 0 9px; }
+.cy-ph__home::after { background:#000; border-radius:999px; content:""; display:block; height:4px; opacity:.85; width:110px; }
+
+/* ---- T1: CLASSIFY as a lock-screen notification stack --------------------- */
+.cy-ph--lock .cy-ph__status { color:#fff; }
+.cy-ph--lock .cy-ph__status .cy-ph__bars i, .cy-ph--lock .cy-ph__batt i { background:#fff; }
+.cy-ph--lock .cy-ph__wifi, .cy-ph--lock .cy-ph__batt { color:#fff; border-color:#fff; }
+.cy-ph--lock .cy-ph__view { background:linear-gradient(165deg,#2b2f45,#12141f 60%); padding:6px 12px 18px; }
+.cy-ph__lockclock { color:#fff; padding:6px 4px 14px; text-align:center; }
+.cy-ph__lockclock b { display:block; font-size:44px; font-weight:600; line-height:1; }
+.cy-ph__lockclock span { color:rgba(255,255,255,.8); font-size:13px; }
+.cy-notif { display:flex; flex-direction:column; gap:8px; }
+.cy-notif__card { background:rgba(255,255,255,.14); backdrop-filter:blur(6px); border-radius:13px; cursor:pointer; padding:10px 12px; text-align:left; width:100%; }
+.cy-notif__top { align-items:center; display:flex; gap:6px; }
+.cy-notif__icon { align-items:center; border-radius:5px; color:#fff; display:grid; flex:none; font-size:9px; font-weight:800; height:16px; place-items:center; width:16px; }
+.cy-notif__icon svg { height:10px; width:10px; }
+.cy-notif__app { color:rgba(255,255,255,.75); flex:1; font-size:11px; font-weight:600; letter-spacing:.02em; text-transform:uppercase; }
+.cy-notif__time { color:rgba(255,255,255,.6); font-size:11px; }
+.cy-notif__from { color:#fff; font-size:13.5px; font-weight:700; margin-top:3px; }
+.cy-notif__prev { color:rgba(255,255,255,.88); font-size:13px; line-height:1.35; margin-top:1px; }
+.cy-notif__verdicts { display:flex; flex-wrap:wrap; gap:6px; margin-top:9px; }
+.cy-notif__verdict { background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.28); border-radius:999px; color:#fff; cursor:pointer; font-size:11px; font-weight:600; padding:4px 10px; }
+.cy-notif__verdict:hover:not(:disabled) { background:rgba(255,255,255,.22); }
+.cy-notif__verdict:disabled { cursor:default; opacity:.5; }
+.cy-notif__verdict.is-right { background:rgba(0,229,204,.28); border-color:#00e5cc; }
+.cy-notif__why { color:rgba(255,255,255,.85); font-size:11.5px; margin:7px 0 0; }
+.cy-notif__why:empty { display:none; }
+.cy-notif__card.is-done { opacity:.62; }
+.cy-notif__card.is-shake { animation:cy-shake .4s; }
+
+/* ---- T2: SPOT as two side-by-side SMS threads ------------------------------ */
+.cy-spot__phones { display:grid; gap:1rem; grid-template-columns:repeat(auto-fit, minmax(14rem, 1fr)); }
+.cy-spot__phonecard { background:transparent; border:2px solid transparent; border-radius:24px; cursor:pointer; padding:0; transition:border-color .15s, transform .15s; }
+.cy-spot__phonecard:hover { border-color:var(--cy-violet); transform:translateY(-2px); }
+.cy-spot__phonecard .cy-ph { box-shadow:0 10px 26px rgba(0,0,0,.35), 0 0 0 7px #17181c, 0 0 0 9px #34363c; pointer-events:none; }
+.cy-spot__phonecard.is-fake { border-color:var(--cy-danger); }
+.cy-spot__phonecard.is-real { border-color:var(--cy-cyan); }
+.cy-smst { display:flex; flex-direction:column; gap:8px; padding:12px 10px 18px; }
+.cy-smst__contact { color:#3c3c43; font-size:11.5px; font-weight:700; text-align:center; }
+.cy-smst__row { display:flex; }
+.cy-smst__bubble { background:#e9e9eb; border-radius:16px 16px 16px 4px; color:#000; font-size:13px; line-height:1.4; max-width:88%; padding:9px 12px; }
+.cy-smst__bubble a { color:#0b5fff; word-break:break-all; }
+.cy-smst__meta { color:#8e8e93; font-size:10px; margin:2px 4px 0; }
+
+/* ---- T3: NETMAP reused for header inspection (no new CSS needed; the
+   existing .cy-rtr table pattern already reads correctly as a header list) -- */
+
+/* ---- T4: BRANCH as a live call screen with a scrolling transcript --------- */
+.cy-ph--call .cy-ph__view { background:linear-gradient(165deg,#1c2333,#0c0f18 65%); padding:0; }
+.cy-callcard { align-items:center; color:#fff; display:flex; flex-direction:column; padding:22px 20px 16px; text-align:center; }
+.cy-callcard__avatar { align-items:center; background:#3a3f52; border-radius:50%; color:#c7cbe0; display:grid; font-size:22px; font-weight:700; height:64px; place-items:center; width:64px; }
+.cy-callcard__name { font-size:19px; font-weight:700; margin-top:10px; }
+.cy-callcard__sub { color:#a9afc9; font-size:12.5px; margin-top:2px; }
+.cy-transcript { background:#0c0f18; display:flex; flex-direction:column; gap:9px; max-height:15rem; overflow-y:auto; padding:14px 16px 18px; }
+.cy-transcript__line { display:flex; }
+.cy-transcript__line.is-caller { justify-content:flex-start; }
+.cy-transcript__line.is-you { justify-content:flex-end; }
+.cy-transcript__bubble { border-radius:15px; font-size:13px; line-height:1.42; max-width:85%; padding:9px 12px; }
+.is-caller .cy-transcript__bubble { background:#2a3145; border-radius:15px 15px 15px 4px; color:#e7eaf5; }
+.is-you .cy-transcript__bubble { background:#0b5fff; border-radius:15px 15px 4px 15px; color:#fff; }
+.cy-transcript__note { color:#8792b3; font-size:11.5px; font-style:italic; padding:2px 4px; text-align:center; }
+.cy-callchoices { background:#0c0f18; border-top:1px solid #1e2436; display:flex; flex-direction:column; gap:8px; padding:12px 14px 16px; }
+.cy-callchoice { background:#171d2c; border:1px solid #2a3145; border-radius:11px; color:#e7eaf5; cursor:pointer; font-size:13px; padding:10px 13px; text-align:left; }
+.cy-callchoice:hover:not(:disabled) { border-color:#5b7fff; }
+.cy-callchoice:disabled { cursor:default; opacity:.55; }
+.cy-callnext { margin:2px 14px 14px; }
+
+/* ---- T5: MAILSORT as a Voicemail app list ---------------------------------- */
+.cy-vm__list { display:flex; flex-direction:column; }
+.cy-vm__row { border-bottom:1px solid #e6e8eb; padding:11px 14px; }
+.cy-vm__row:last-child { border-bottom:0; }
+.cy-vm__top { align-items:baseline; display:flex; gap:8px; justify-content:space-between; }
+.cy-vm__from { color:#000; font-size:14px; font-weight:700; }
+.cy-vm__time { color:#8e8e93; flex:none; font-size:11px; }
+.cy-vm__num { color:#8e8e93; font-size:11.5px; margin-top:1px; }
+.cy-vm__play { align-items:center; display:flex; gap:8px; margin-top:7px; }
+.cy-vm__playbtn { align-items:center; background:#0b5fff; border-radius:50%; color:#fff; display:grid; flex:none; height:26px; place-items:center; width:26px; }
+.cy-vm__playbtn svg { height:12px; width:12px; }
+.cy-vm__wave { color:#c7c7cc; flex:1; font-size:10px; letter-spacing:1px; }
+.cy-vm__dur { color:#8e8e93; flex:none; font-size:11px; }
+.cy-vm__transcript { color:#3c3c43; font-size:12.5px; line-height:1.4; margin:7px 0 0; }
+.cy-vm__verdicts { display:flex; gap:8px; margin-top:9px; }
+.cy-vm__verdict { background:#fff; border:1px solid #dadce0; border-radius:7px; color:#3c4043; cursor:pointer; font-size:11.5px; font-weight:600; padding:5px 12px; }
+.cy-vm__verdict:hover:not(:disabled) { border-color:#0b5fff; color:#0b5fff; }
+.cy-vm__verdict:disabled { cursor:default; opacity:.55; }
+.cy-vm__verdict.is-right { background:#e6f4ea; border-color:#137333; color:#137333; }
+.cy-vm__verdict.is-wrong { background:#fce8e6; border-color:#c5221f; color:#c5221f; }
+.cy-vm__why { color:#5f6368; font-size:11.5px; margin:7px 0 0; }
+.cy-vm__why.is-good { color:#137333; font-weight:600; }
+.cy-vm__why.is-bad { color:#c5221f; font-weight:600; }
+.cy-vm__why:empty { display:none; }
+.cy-vm__row.is-shake { animation:cy-shake .4s; }
+.cy-vm__row.is-settled.is-genuine { background:#f2fbf5; }
+.cy-vm__row.is-settled.is-phish { background:#fdf3f2; }
+
+@media (max-width:480px) { .cy-spot__phones { grid-template-columns:1fr; } }

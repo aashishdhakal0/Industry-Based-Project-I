@@ -33,6 +33,31 @@
     return svg;
   }
 
+  // A small set of own-drawn glyphs for notification app icons, so "Mail" and
+  // "Messages" (both starting with M) read as distinct at a glance instead of
+  // colliding on the same letter. Falls back to the app's first letter.
+  var APP_GLYPHS = {
+    "Phone": "M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.13.96.36 1.9.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0122 16.92z",
+    "Messages": "M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z",
+    "Mail": "M4 4h16a2 2 0 012 2v12a2 2 0 01-2 2H4a2 2 0 01-2-2V6a2 2 0 012-2z M22 6l-10 7L2 6",
+  };
+  function appGlyphOrLetter(container, appName) {
+    var d = APP_GLYPHS[appName];
+    if (!d) { container.textContent = (appName || "?").slice(0, 1).toUpperCase(); return; }
+    var svg = document.createElementNS(SVGNS, "svg");
+    svg.setAttribute("viewBox", "0 0 24 24");
+    svg.setAttribute("aria-hidden", "true");
+    var path = document.createElementNS(SVGNS, "path");
+    path.setAttribute("d", d);
+    path.setAttribute("fill", "none");
+    path.setAttribute("stroke", "#fff");
+    path.setAttribute("stroke-width", "1.6");
+    path.setAttribute("stroke-linejoin", "round");
+    path.setAttribute("stroke-linecap", "round");
+    svg.appendChild(path);
+    container.appendChild(svg);
+  }
+
   function solved(container) {
     container.dispatchEvent(new CustomEvent("cy:solved", { bubbles: true }));
   }
@@ -99,6 +124,47 @@
     br.appendChild(view);
     br.__view = view;
     return br;
+  }
+
+  // ------------------------------------------------------------ .cy-ph phone --
+  // A realistic phone frame (status bar with time/signal/wifi/battery, an app
+  // bar, a home indicator) — the phone counterpart to buildBrowserFrame(),
+  // shared by every phone-based artefact (Module 3: notifications, SMS, a live
+  // call screen, voicemail). phone: {time, app, appIcon, appIconBg}
+  function buildPhoneFrame(phone) {
+    var ph = el("div", "cy-ph");
+
+    var status = el("div", "cy-ph__status");
+    status.appendChild(el("span", "cy-ph__time", phone.time || "9:41"));
+    var right = el("span", "cy-ph__stat");
+    var sig = el("span", "cy-ph__bars");
+    for (var i = 0; i < 4; i++) sig.appendChild(el("i"));
+    right.appendChild(sig);
+    var wifi = document.createElementNS(SVGNS, "svg");
+    wifi.setAttribute("class", "cy-ph__wifi"); wifi.setAttribute("viewBox", "0 0 24 16");
+    wifi.innerHTML = '<path d="M12 13.2a1.3 1.3 0 100 2.6 1.3 1.3 0 000-2.6z" fill="currentColor" stroke="none"/><path d="M7.8 10.4a6 6 0 018.4 0M4.6 7.3a10.4 10.4 0 0114.8 0" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>';
+    right.appendChild(wifi);
+    var batt = el("span", "cy-ph__batt"); batt.appendChild(el("i"));
+    right.appendChild(batt);
+    status.appendChild(right);
+    ph.appendChild(status);
+
+    if (phone.app) {
+      var appbar = el("div", "cy-ph__appbar");
+      if (phone.appIcon) {
+        var ic = el("span", "cy-ph__appicon", phone.appIcon);
+        if (phone.appIconBg) ic.style.background = phone.appIconBg;
+        appbar.appendChild(ic);
+      }
+      appbar.appendChild(el("span", "cy-ph__apptitle", phone.app));
+      ph.appendChild(appbar);
+    }
+
+    var view = el("div", "cy-ph__view");
+    ph.appendChild(view);
+    ph.appendChild(el("div", "cy-ph__home"));
+    ph.__view = view;
+    return ph;
   }
 
   // ---------------------------------------------------------------- SORT ----
@@ -199,11 +265,50 @@
   CONTROLLERS.SPOT = function (root, cfg) {
     if (cfg.prompt) root.appendChild(el("p", "cy-act__prompt", cfg.prompt));
 
-    var pair = el("div", "cy-spot__pair");
+    var pair = el("div", cfg.variant === "sms" ? "cy-spot__phones" : "cy-spot__pair");
     var feedback = el("p", "cy-act__feedback");
     feedback.setAttribute("aria-live", "polite");
 
     function card(side, data) {
+      if (cfg.variant === "sms") {
+        // Photograph-grade: a full phone frame per side, an SMS thread. The
+        // tell sits in the contact name (a saved contact vs. a bare number)
+        // and whether the message carries a link.
+        // A saved contact gets a coloured initial (like a real address-book
+        // match); an unsaved number gets a plain grey circle, no letter, the
+        // way iOS shows a stranger. That contrast is itself part of the tell.
+        var ph = buildPhoneFrame(data.contact
+          ? { app: data.contact, appIcon: data.contact.slice(0, 1).toUpperCase(), appIconBg: avatarColor(data.contact) }
+          : { app: data.number || "Unknown", appIcon: "", appIconBg: "#c7c7cc" });
+        var thread = el("div", "cy-smst");
+        thread.appendChild(el("p", "cy-smst__contact", data.contact || data.number || ""));
+        (data.bubbles || [data.text]).forEach(function (t) {
+          var row = el("div", "cy-smst__row");
+          var b = el("span", "cy-smst__bubble");
+          if (data.link) {
+            var idx = t.indexOf(data.link);
+            if (idx !== -1) {
+              b.appendChild(document.createTextNode(t.slice(0, idx)));
+              var a = el("a", null, data.link); a.href = "#"; a.addEventListener("click", function (e) { e.preventDefault(); });
+              b.appendChild(a);
+              b.appendChild(document.createTextNode(t.slice(idx + data.link.length)));
+            } else { b.textContent = t; }
+          } else {
+            b.textContent = t;
+          }
+          row.appendChild(b);
+          thread.appendChild(row);
+        });
+        thread.appendChild(el("p", "cy-smst__meta", "Text message · " + (data.time || "now")));
+        ph.__view.appendChild(thread);
+
+        var pbtn = el("button", "cy-spot__phonecard");
+        pbtn.type = "button";
+        pbtn.setAttribute("data-side", side);
+        pbtn.appendChild(ph);
+        pbtn.addEventListener("click", function () { pick(side, pbtn); });
+        return pbtn;
+      }
       if (cfg.variant === "login" && data.tab) {
         // Photograph-grade: a full mini browser window per side, the address bar
         // (and its padlock / Not secure state) carrying the actual tell.
@@ -418,7 +523,78 @@
   };
 
   // -------------------------------------------------------------- BRANCH ----
+  // Photograph-grade: a live incoming-call screen (BRANCH's "call" variant).
+  // The same nodes/choices tree as the plain branch, but the caller's lines
+  // accumulate into a scrolling transcript instead of replacing the scene, and
+  // your own choice is echoed back as a line before its consequence, so the
+  // whole thing reads like a real call transcript rather than a text box that
+  // resets each step. Solved when a node is reached with no choices.
+  function renderBranchCall(root, cfg) {
+    if (cfg.prompt) root.appendChild(el("p", "cy-act__prompt", cfg.prompt));
+
+    var ph = buildPhoneFrame({});
+    ph.classList.add("cy-ph--call");
+    var view = ph.__view;
+
+    var card = el("div", "cy-callcard");
+    card.appendChild(el("span", "cy-callcard__avatar", (cfg.caller || "?").slice(0, 1).toUpperCase()));
+    card.appendChild(el("span", "cy-callcard__name", cfg.caller || "Unknown caller"));
+    card.appendChild(el("span", "cy-callcard__sub", cfg.subtitle || "Call in progress"));
+    view.appendChild(card);
+
+    var transcript = el("div", "cy-transcript");
+    transcript.setAttribute("aria-live", "polite");
+    view.appendChild(transcript);
+
+    var choicesWrap = el("div", "cy-callchoices");
+    view.appendChild(choicesWrap);
+    root.appendChild(ph);
+
+    function addLine(kind, text) {
+      var line = el("div", "cy-transcript__line is-" + kind);
+      line.appendChild(el("span", "cy-transcript__bubble", text));
+      transcript.appendChild(line);
+      transcript.scrollTop = transcript.scrollHeight;
+    }
+    function addNote(text) {
+      transcript.appendChild(el("p", "cy-transcript__note", text));
+      transcript.scrollTop = transcript.scrollHeight;
+    }
+    function clear(node) { while (node.firstChild) node.removeChild(node.firstChild); }
+
+    function renderNode(id) {
+      var node = cfg.nodes[id];
+      if (!node) return;
+      addLine("caller", node.text);
+      clear(choicesWrap);
+      if (!node.choices || node.choices.length === 0) {
+        ph.classList.add("is-complete");
+        solved(root);
+        return;
+      }
+      node.choices.forEach(function (ch) {
+        var b = el("button", "cy-callchoice", ch.label);
+        b.type = "button";
+        b.addEventListener("click", function () { choose(ch); });
+        choicesWrap.appendChild(b);
+      });
+    }
+
+    function choose(ch) {
+      Array.prototype.forEach.call(choicesWrap.children, function (b) { b.disabled = true; });
+      addLine("you", ch.label);
+      if (ch.feedback) addNote(ch.feedback);
+      var next = el("button", "cy-btn cy-btn--primary cy-callnext", "Continue");
+      next.type = "button";
+      next.addEventListener("click", function () { clear(choicesWrap); renderNode(ch.to); });
+      choicesWrap.appendChild(next);
+    }
+
+    renderNode(cfg.start);
+  }
+
   CONTROLLERS.BRANCH = function (root, cfg) {
+    if (cfg.variant === "call") { renderBranchCall(root, cfg); return; }
     if (cfg.prompt) root.appendChild(el("p", "cy-act__prompt", cfg.prompt));
 
     var box = el("div", "cy-branch");
@@ -475,11 +651,95 @@
     renderNode(cfg.start);
   };
 
+  // Photograph-grade: a lock-screen notification stack (CLASSIFY's phone
+  // variant). Each item is a real-looking banner (app, sender, preview); the
+  // categories render as small pill verdicts under the tapped notification.
+  // Solved when every notification is classified correctly.
+  function renderClassifyLockscreen(root, cfg) {
+    var ph = buildPhoneFrame({ time: cfg.time || "9:41" });
+    ph.classList.add("cy-ph--lock");
+    var view = ph.__view;
+    if (cfg.date) {
+      var clock = el("div", "cy-ph__lockclock");
+      clock.appendChild(el("b", null, cfg.time || "9:41"));
+      clock.appendChild(el("span", null, cfg.date));
+      view.appendChild(clock);
+    }
+    if (cfg.prompt) view.appendChild(el("p", "cy-act__prompt", cfg.prompt));
+
+    var total = cfg.events.length;
+    var done = 0;
+    var counter = el("p", "cy-classify__count");
+    counter.setAttribute("aria-live", "polite");
+    var feedback = el("p", "cy-act__feedback");
+    feedback.setAttribute("aria-live", "polite");
+
+    var stack = el("div", "cy-notif");
+    cfg.events.forEach(function (event) {
+      var card = el("button", "cy-notif__card");
+      card.type = "button";
+      var top = el("div", "cy-notif__top");
+      var ic = el("span", "cy-notif__icon");
+      appGlyphOrLetter(ic, event.app);
+      if (event.iconBg) ic.style.background = event.iconBg;
+      top.appendChild(ic);
+      top.appendChild(el("span", "cy-notif__app", event.app || ""));
+      top.appendChild(el("span", "cy-notif__time", event.time || "now"));
+      card.appendChild(top);
+      card.appendChild(el("div", "cy-notif__from", event.from || ""));
+      card.appendChild(el("div", "cy-notif__prev", event.preview || event.text || ""));
+
+      var verdicts = el("div", "cy-notif__verdicts");
+      var why = el("p", "cy-notif__why");
+      var settled = false;
+      cfg.categories.forEach(function (cat) {
+        var b = el("button", "cy-notif__verdict", cat.label);
+        b.type = "button";
+        b.addEventListener("click", function (e) {
+          e.stopPropagation();
+          if (settled) return;
+          if (cat.id === event.category) {
+            settled = true;
+            card.classList.add("is-done");
+            b.classList.add("is-right");
+            why.textContent = event.why;
+            Array.prototype.forEach.call(verdicts.children, function (o) { o.disabled = true; });
+            done += 1;
+            update();
+            if (done === total) {
+              feedback.className = "cy-act__feedback is-good";
+              feedback.textContent = "Every lever named. That is how you read the pressure, not just the words.";
+              solved(root);
+            }
+          } else {
+            card.classList.add("is-shake");
+            window.setTimeout(function () { card.classList.remove("is-shake"); }, 400);
+            why.textContent = "Not that one. Read it again: what is it actually leaning on?";
+          }
+        });
+        verdicts.appendChild(b);
+      });
+      card.appendChild(verdicts);
+      card.appendChild(why);
+      stack.appendChild(card);
+    });
+
+    view.appendChild(stack);
+    view.appendChild(counter);
+    view.appendChild(feedback);
+    root.appendChild(ph);
+
+    function update() { counter.textContent = done + " of " + total + " named"; }
+    update();
+  }
+
   // ------------------------------------------------------------ CLASSIFY ----
   // Read one alert/event at a time and pick its category. Distinct from SORT:
   // each event is a card diagnosed on the spot, with teaching feedback. Solved
   // when every event is correctly categorised.
   CONTROLLERS.CLASSIFY = function (root, cfg) {
+    if (cfg.phone) { renderClassifyLockscreen(root, cfg); return; }
+
     // Photograph-grade: when a frame is given, the whole triage list renders
     // inside real browser chrome (e.g. an incident register), not a bare card
     // list. Falls back to the plain layout otherwise.
@@ -566,7 +826,97 @@
     return AVATAR_BG[h % AVATAR_BG.length];
   }
 
+  // Photograph-grade: a real Voicemail app list (MAILSORT's voicemail variant).
+  // Each row is a caller, a played waveform, a transcript, and a verdict, using
+  // the same two-button mechanic as the Gmail inbox. Solved when every
+  // voicemail is sorted correctly.
+  function renderMailsortVoicemail(root, cfg) {
+    if (cfg.prompt) root.appendChild(el("p", "cy-act__prompt", cfg.prompt));
+    var total = cfg.voicemails.length;
+    var done = 0;
+    var counter = el("p", "cy-mail__count");
+    counter.setAttribute("aria-live", "polite");
+    var feedback = el("p", "cy-act__feedback");
+    feedback.setAttribute("aria-live", "polite");
+
+    var ph = buildPhoneFrame({ app: "Voicemail", appIcon: "▶", appIconBg: "#0b5fff" });
+    var list = el("div", "cy-vm__list");
+
+    cfg.voicemails.forEach(function (vm) {
+      var row = el("div", "cy-vm__row");
+      var settled = false;
+      var correct = vm.phish ? "phishing" : "genuine";
+
+      var top = el("div", "cy-vm__top");
+      top.appendChild(el("span", "cy-vm__from", vm.from || ""));
+      top.appendChild(el("span", "cy-vm__time", vm.time || ""));
+      row.appendChild(top);
+      if (vm.number) row.appendChild(el("p", "cy-vm__num", vm.number));
+
+      var play = el("div", "cy-vm__play");
+      var btn = el("span", "cy-vm__playbtn");
+      var playSvg = document.createElementNS(SVGNS, "svg");
+      playSvg.setAttribute("viewBox", "0 0 24 24");
+      var playPath = document.createElementNS(SVGNS, "path");
+      playPath.setAttribute("d", "M8 5l12 7-12 7V5z");
+      playPath.setAttribute("fill", "currentColor");
+      playSvg.appendChild(playPath);
+      btn.appendChild(playSvg);
+      play.appendChild(btn);
+      play.appendChild(el("span", "cy-vm__wave", "▁▂▃▅▃▂▁▃▅▆▃▁▂▄▂▁"));
+      play.appendChild(el("span", "cy-vm__dur", vm.duration || ""));
+      row.appendChild(play);
+
+      row.appendChild(el("p", "cy-vm__transcript", "“" + (vm.transcript || "") + "”"));
+
+      var verdicts = el("div", "cy-vm__verdicts");
+      var why = el("p", "cy-vm__why");
+      [["genuine", "Genuine"], ["phishing", "Scam"]].forEach(function (pair) {
+        var b = el("button", "cy-vm__verdict", pair[1]);
+        b.type = "button";
+        b.addEventListener("click", function () {
+          if (settled) return;
+          if (pair[0] === correct) {
+            settled = true;
+            row.classList.add("is-settled", vm.phish ? "is-phish" : "is-genuine");
+            b.classList.add("is-right");
+            why.className = "cy-vm__why is-good";
+            why.textContent = (vm.phish ? "Scam. " : "Genuine. ") + vm.why;
+            Array.prototype.forEach.call(verdicts.children, function (o) { o.disabled = true; });
+            done += 1;
+            update();
+            if (done === total) {
+              feedback.className = "cy-act__feedback is-good";
+              feedback.textContent = "Every voicemail triaged. That verify-first habit is what beats a cloned voice.";
+              solved(root);
+            }
+          } else {
+            b.classList.add("is-wrong");
+            b.disabled = true;
+            row.classList.add("is-shake");
+            window.setTimeout(function () { row.classList.remove("is-shake"); }, 400);
+            why.className = "cy-vm__why is-bad";
+            why.textContent = "Listen again: who is it really from, and what is it asking for?";
+          }
+        });
+        verdicts.appendChild(b);
+      });
+      row.appendChild(verdicts);
+      row.appendChild(why);
+      list.appendChild(row);
+    });
+
+    ph.__view.appendChild(list);
+    root.appendChild(counter);
+    root.appendChild(ph);
+    root.appendChild(feedback);
+
+    function update() { counter.textContent = done + " of " + total + " triaged"; }
+    update();
+  }
+
   CONTROLLERS.MAILSORT = function (root, cfg) {
+    if (cfg.variant === "voicemail") { renderMailsortVoicemail(root, cfg); return; }
     if (cfg.prompt) root.appendChild(el("p", "cy-act__prompt", cfg.prompt));
     var total = cfg.emails.length;
     var done = 0;
@@ -838,13 +1188,15 @@
     }
 
     if (cfg.frame) {
-      // Photograph-grade: a real router "Attached devices" table inside full
-      // browser chrome. Each row is tappable; tapping reveals why underneath it.
+      // Photograph-grade: a tappable table inside full browser chrome (a
+      // router's "Attached devices" list by default, but any tap-to-inspect
+      // artefact reuses this, e.g. a raw email header block). Each row is
+      // tappable; tapping reveals why underneath it.
       var br = buildBrowserFrame(cfg.frame);
       var rtr = el("div", "cy-rtr cy-rtr--tap");
       var main = el("div", "cy-rtr__main cy-rtr__main--full");
-      main.appendChild(el("p", "cy-rtr__h", "Attached devices"));
-      main.appendChild(el("p", "cy-rtr__lede", cfg.nodes.length + " devices connected through this router."));
+      main.appendChild(el("p", "cy-rtr__h", cfg.heading || "Attached devices"));
+      main.appendChild(el("p", "cy-rtr__lede", cfg.lede || (cfg.nodes.length + " devices connected through this router.")));
       var wrap = el("div", "cy-rtr__tblwrap");
       var tbl = el("table", "cy-rtr__tbl cy-rtr__tbl--tap");
       var thead = el("thead");
