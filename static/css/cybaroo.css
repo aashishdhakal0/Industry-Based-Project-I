@@ -1906,6 +1906,9 @@ a.cy-path__card:hover .cy-path__go .cy-i { transform: translateX(3px); }
 }
 .cy-source a { color: var(--cy-text-2); }
 .cy-source a:hover { color: var(--cy-cyan); }
+/* Mid-paragraph use (a lesson citing a statistic, not the landing page's
+   closing note): also needs room below before the next paragraph starts. */
+.cy-prose .cy-source { margin: 0.9rem 0 1.1rem; }
 
 
 /* Role chooser — the primary way in. Two understated "log in as…" options, the
@@ -6817,15 +6820,12 @@ a.cy-path__link:hover { background: var(--cy-surface-2); }
 }
 .cy-callout strong { color: var(--cy-text); }
 
-/* Citations: a superscript marker next to a claim, and a compact source list at
-   the foot of a panel. Real sources, plainly attributed, the way a credible
-   learning platform footnotes a statistic or a named incident. */
-.cy-cite { color: var(--cy-violet-soft); font-family: var(--cy-font-mono); font-size: 0.62em; font-weight: 700; vertical-align: super; margin-left: 1px; }
-.cy-sources { border-top: 1px solid var(--cy-border); margin-top: 1.2rem; padding-top: 0.8rem; }
-.cy-sources__h { color: var(--cy-text-3); font-family: var(--cy-font-mono); font-size: 0.66rem; font-weight: 700; letter-spacing: 0.12em; margin: 0 0 0.4rem; text-transform: uppercase; }
-.cy-sources ol { color: var(--cy-text-3); display: flex; flex-direction: column; gap: 0.3rem; font-size: 0.78rem; list-style: none; margin: 0; padding: 0; }
-.cy-sources li { align-items: baseline; display: flex; gap: 0.45rem; }
-.cy-sources__n { color: var(--cy-violet-soft); font-family: var(--cy-font-mono); font-size: 0.7rem; font-weight: 700; flex: none; }
+/* Citations: standard web style, not academic footnotes. A source is either
+   named (and linked) inline in the sentence that uses it, or, when a statistic
+   sits in its own block or under a diagram, gets one small, muted line right
+   beneath it using the shared .cy-source component (defined once, above,
+   already used on the landing page's stat citation) — no lesson-specific
+   citation styling needed here. */
 
 /* Options: radio-driven. Hide the native control, style the label. */
 .cy-task__options { display: grid; gap: 0.6rem; }

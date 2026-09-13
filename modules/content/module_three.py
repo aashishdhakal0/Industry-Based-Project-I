@@ -39,11 +39,12 @@ LESSONS = [
                 "manipulating a person into helping the attacker: clicking a link, "
                 "opening a file, moving money, or handing over a password. No "
                 "firewall stops it, because it does not target the machine, it "
-                "targets you. This is not a fringe problem. The OAIC reports that "
+                "targets you. This is not a fringe problem. The "
+                "<a href=\"https://www.oaic.gov.au/\">OAIC</a> reports that "
                 "<strong>phishing is the leading cause</strong> of the cyber "
                 "incidents behind Australia's data breaches, and that "
                 "<strong>social engineering and impersonation are rising</strong> "
-                "sharply<span class=\"cy-cite\">1</span>.</p>"
+                "sharply.</p>"
                 "<p>It works because it borrows a real psychological shortcut: under "
                 "pressure, people stop analysing and fall back on habit and "
                 "instinct. Attackers pull five human levers to create that pressure:</p>"
@@ -62,12 +63,7 @@ LESSONS = [
                 "</ul>"
                 "<div class=\"cy-callout\">Whenever a message reaches for one of "
                 "these levers, that is your cue to slow down. The pressure is the "
-                "point: it is engineered to stop you checking.</div>"
-                "<div class=\"cy-sources\"><div class=\"cy-sources__h\">Source</div>"
-                "<ol><li><span class=\"cy-sources__n\">1</span> "
-                "OAIC Notifiable Data Breaches Report (oaic.gov.au); phishing is "
-                "reported as the leading source of malicious or criminal breaches.</li>"
-                "</ol></div>",
+                "point: it is engineered to stop you checking.</div>",
             },
             {
                 "key": "phishing-family",
@@ -153,9 +149,9 @@ LESSONS = [
                 "title": "Business email compromise: the quiet, costly one",
                 "diagram": "exec-email",
                 "body": "<p><strong>Business email compromise</strong> (BEC) is "
-                "among the costliest scams for Australian organisations, and the ASD "
-                "names it a key way cybercrime is committed"
-                "<span class=\"cy-cite\">1</span>. Yet it rarely looks "
+                "among the costliest scams for Australian organisations, and the "
+                "<a href=\"https://www.cyber.gov.au/\">ASD</a> names it a key way cybercrime is "
+                "committed. Yet it rarely looks "
                 "dramatic. There is no malware and no obvious threat. It looks like a "
                 "routine email, from a leader or a supplier you know, quietly asking "
                 "you to do one reasonable-sounding thing with money.</p>"
@@ -182,12 +178,7 @@ LESSONS = [
                 "attacker cannot answer that call.</p>"
                 "<div class=\"cy-callout\">Someone important, in a hurry, asking for "
                 "money or secrecy, from an address that is not quite right. That is "
-                "the signature of business email compromise.</div>"
-                "<div class=\"cy-sources\"><div class=\"cy-sources__h\">Source</div>"
-                "<ol><li><span class=\"cy-sources__n\">1</span> "
-                "Australian Signals Directorate, ASD Cyber Threat Report (cyber.gov.au); "
-                "business email compromise is reported among the highest-loss "
-                "cybercrime types for organisations.</li></ol></div>",
+                "the signature of business email compromise.</div>",
             },
             {
                 "key": "read-the-sender",

@@ -48,10 +48,10 @@ LESSONS = [
                 "entirely about the first hours: how fast someone names it as an "
                 "incident and starts the plan.</p>"
                 "<p>This is not a rare event to prepare for once and forget. The "
-                "Australian Signals Directorate received <strong>over 84,700 "
-                "cybercrime reports in 2024-25, about one every six minutes</strong>, "
-                "and the average incident cost a small business <strong>$56,600</strong>"
-                "<span class=\"cy-cite\">1</span>. "
+                "<a href=\"https://www.cyber.gov.au/\">Australian Signals Directorate</a> received "
+                "<strong>over 84,700 cybercrime reports in 2024-25, about one every "
+                "six minutes</strong>, and the average incident cost a small "
+                "business <strong>$56,600</strong>. "
                 "For a business that size, how the first hour is handled often decides "
                 "whether that number is the whole story or just the beginning.</p>"
                 "<p>That is why <strong>preparation</strong>, done in the calm before, "
@@ -60,11 +60,7 @@ LESSONS = [
                 "instead of freezing.</p>"
                 "<div class=\"cy-callout\">Time is the one thing you cannot get back "
                 "in an incident. Naming it early and starting the plan is what keeps "
-                "a scare from becoming a disaster.</div>"
-                "<div class=\"cy-sources\"><div class=\"cy-sources__h\">Source</div>"
-                "<ol><li><span class=\"cy-sources__n\">1</span> "
-                "Australian Signals Directorate, ASD Cyber Threat Report 2024-25 "
-                "(cyber.gov.au).</li></ol></div>",
+                "a scare from becoming a disaster.</div>",
             },
             {
                 "key": "the-lifecycle",
@@ -148,10 +144,11 @@ LESSONS = [
                 "breach of personal information is likely to cause <strong>serious "
                 "harm</strong>, you must notify both the regulator (the "
                 "<strong>OAIC</strong>) and the affected people as soon as "
-                "practicable. This is common and rising: the OAIC recorded "
-                "<strong>1,113 data breaches across 2024, a record</strong>"
-                "<span class=\"cy-cite\">2</span>, with the "
-                "<strong>health sector the most affected</strong>. Anything involving "
+                "practicable. This is common and rising: the "
+                "<a href=\"https://www.oaic.gov.au/\">OAIC</a> recorded "
+                "<strong>1,113 data breaches across 2024, a record</strong>, with "
+                "the <strong>health sector the most affected</strong>. Anything "
+                "involving "
                 "sensitive data, like health or identity details, is very likely to "
                 "meet the serious-harm bar. Telling people promptly is not just the "
                 "law; it is what lets them protect themselves, by changing passwords "
@@ -162,11 +159,7 @@ LESSONS = [
                 "learned.</p>"
                 "<div class=\"cy-callout\">Eradicate the cause, recover from clean "
                 "backups, notify honestly if personal data was breached, then fix "
-                "what let it happen.</div>"
-                "<div class=\"cy-sources\"><div class=\"cy-sources__h\">Source</div>"
-                "<ol><li><span class=\"cy-sources__n\">2</span> "
-                "OAIC Notifiable Data Breaches Report, January to December 2024 "
-                "(oaic.gov.au).</li></ol></div>",
+                "what let it happen.</div>",
             },
             {
                 "key": "read-the-alert",
