@@ -2,8 +2,11 @@
 
 Pins the restructured shape against order_index=2: Lesson 1 TEACHES (four reading
 CONCEPT panels, each with a real threat visual, plus one light comprehension
-check), Lesson 2 APPLIES (hands-on SORT, MAILSORT, CLASSIFY, a picture CHECK, and
-a ransomware BRANCH). Plus the universal quality checks: activity payloads are
+check), Lesson 2 APPLIES as hands-on, device-framed interactive artefacts
+distinct from Lesson 1's reading: SORT (a real Windows Security protection
+history), MAILSORT (a real Gmail inbox), SEQUENCE (order the ransomware response
+in front of a real lock screen), CLASSIFY (a real incident register), and a
+ransomware BRANCH. Plus the universal quality checks: activity payloads are
 well-formed and solvable, the quiz bank is valid and split across the two lessons,
 the voice is em-dash-free, the real 2022 Optus/Medibank facts and the NDB scheme
 are covered, and a full interactive journey reaches the module-complete moment.
@@ -27,7 +30,7 @@ User = get_user_model()
 
 LESSON_KINDS = {
     1: ["CONCEPT", "CONCEPT", "CONCEPT", "CONCEPT", "CHECK"],
-    2: ["SORT", "MAILSORT", "CLASSIFY", "CHECK", "BRANCH"],
+    2: ["SORT", "MAILSORT", "SEQUENCE", "CLASSIFY", "BRANCH"],
 }
 ACTIVITY_KINDS = {
     "SORT", "MAILSORT", "CLASSIFY", "BRANCH", "SEQUENCE", "SPOT",
@@ -35,6 +38,8 @@ ACTIVITY_KINDS = {
 }
 # The realistic, own-origin picture visuals Module 2 teaches from.
 FIGURES = {"malware-family", "enable-macros", "locked-files", "breach-notify", "scareware-popup"}
+# Lesson 2's device-framed interactive artefacts each get a real console chrome.
+FRAMED_KINDS = {"SORT", "MAILSORT", "CLASSIFY"}
 DASHES = ("—", "–")
 
 
@@ -80,10 +85,15 @@ def test_lesson_one_is_a_teaching_lesson(seeded):
 
 @pytest.mark.django_db
 def test_lesson_two_is_an_apply_lesson(seeded):
+    """Lesson 2 APPLIES: hands-on activities, never a reading panel, and never a
+    bare CHECK-on-a-diagram (that is Lesson 1's shape). At least one activity
+    hands the learner a real device-framed artefact to work."""
     tasks = list(seeded.lessons.get(lesson_number=2).tasks.order_by("order"))
     assert len([t for t in tasks if t.kind in ACTIVITY_KINDS]) >= 3
     assert not [t for t in tasks if t.kind == "CONCEPT"]
-    assert [t for t in tasks if t.kind == "CHECK" and t.diagram_key], "L2 needs a picture question"
+    assert not [t for t in tasks if t.kind == "CHECK"], "L2 tests; a bare CHECK-on-a-diagram is Lesson 1's shape"
+    framed = [t for t in tasks if (t.payload or {}).get("frame") or (t.payload or {}).get("gmail")]
+    assert framed, "Lesson 2 needs at least one device-framed interactive artefact"
 
 
 @pytest.mark.django_db
@@ -110,12 +120,13 @@ def test_lesson_one_uses_technical_diagrams_lesson_two_keeps_mockups(seeded):
     }
     for t in l1.tasks.filter(kind="CONCEPT"):
         assert not (t.image or {}).get("src"), f"{t.task_key} should be diagram-only"
-    # The readable picture-question mockups remain (the L1 check + the L2 puzzle).
+    # The readable picture-question mockup remains (the L1 check), and Lesson 2
+    # carries its own new device-framed visual (the ransom-lock screen).
     keys = set(
         LessonTask.objects.filter(lesson__module=seeded)
         .exclude(diagram_key="").values_list("diagram_key", flat=True)
     )
-    assert {"enable-macros", "scareware-popup"} <= keys, f"mockups missing: {keys}"
+    assert {"enable-macros", "ransom-lock-full"} <= keys, f"mockups missing: {keys}"
 
 
 # --- activity well-formedness (each solvable) ------------------------------

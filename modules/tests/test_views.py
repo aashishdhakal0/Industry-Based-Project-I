@@ -926,6 +926,7 @@ def test_each_diagram_renders_its_content():
         "data-hops": "Spring2024!",
         "data-journey": "Connection is secure",
         "cia-triad": "Confidentiality",
+        "ransom-lock-full": "Your files are encrypted",
         "network-path": "Your router",
         "router-admin": "Admin password",
         "scam-email": "auspost-au-secure.info",

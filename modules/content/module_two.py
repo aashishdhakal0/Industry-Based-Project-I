@@ -1,14 +1,16 @@
 """Module 2, Recognising Cyber Threats: understand it, then apply it.
 
-  Lesson 1  UNDERSTAND IT  — a teaching lesson. Four reading panels, each with a
+  Lesson 1  UNDERSTAND IT, a teaching lesson. Four reading panels, each with a
             real visual: what malware is and its family, how it gets into a small
             business, what ransomware does and how to beat it, and data breaches
             plus the Notifiable Data Breaches scheme, using the real 2022 Optus
             and Medibank incidents. One light comprehension check.
-  Lesson 2  APPLY IT       — a practical lesson. Five hands-on tasks that make the
-            learner use it: sort malware behaviours, triage a mixed inbox,
-            diagnose ransomware/breach/glitch, read a fake-update pop-up, and work
-            a ransomware incident.
+  Lesson 2  APPLY IT, hands-on interactive artefacts distinct from Lesson 1's
+            reading: name a detection from the shop's own protection history
+            (SORT), triage a real Gmail inbox (MAILSORT), order the ransomware
+            response in front of a real lock screen (SEQUENCE), assess a breach
+            in a real incident register (CLASSIFY), and work a ransom note from
+            the first move to recovery (BRANCH).
 
 Voice: warm, plain Australian English, no em-dashes, no emoji. The real cases
 (Optus and Medibank, both 2022) are presented as widely reported factual
@@ -249,26 +251,33 @@ LESSONS = [
         "title": "Put it to work: name it, triage it, react to it",
         "reading_time_minutes": 9,
         "intro": "Now use it. You are at Ballarat Auto Spares, a busy parts "
-        "wholesaler and counter shop, on a Monday with the trade rush on. Owner Rick "
-        "Halloran, office admin Tanya Pillai and bookkeeper Dolores Fenn keep it "
-        "running. Sort malware by how it behaves, triage the real morning inbox, "
-        "diagnose what kind of trouble you are looking at, read a fake security "
-        "alert, and work a ransomware incident from the first move to recovery.",
+        "wholesaler and counter shop, run by owner Rick Halloran with office admin "
+        "Tanya Pillai, bookkeeper Dolores Fenn and counter and workshop hand Josh "
+        "Tran. Name a threat from how it behaves, triage the real counter inbox, "
+        "order the ransomware response, assess a breach under the law, and work a "
+        "ransom note from the first move to recovery.",
         "tasks": [
             {
-                "key": "sort-malware",
+                "key": "name-the-threat",
                 "kind": "sort",
                 "points": 2,
-                "title": "Sort the behaviour to its malware type",
+                "title": "Name the threat",
                 "body": "<p>Lesson 1 introduced the malware family. Now prove you "
                 "can tell them apart by behaviour, which is what matters, because "
-                "each is stopped by different defences. Read each behaviour and "
-                "sort it to the member that fits.</p>"
+                "each is stopped by different defences. Below is Ballarat Auto "
+                "Spares' own protection history, six recent detections. Read each "
+                "and sort it to the member that fits.</p>"
                 "<div class=\"cy-callout\">The tell is in HOW it behaves: does it "
                 "spread itself, wait for a click, wear a disguise, hide and watch, "
                 "or lock and demand?</div>",
                 "payload": {
-                    "prompt": "Tap a behaviour, then tap the malware type it belongs to. Sort all six to finish.",
+                    "prompt": "Tap a detection, then tap the malware type it belongs to. Sort all six to finish.",
+                    "frame": {
+                        "tab": "Windows Security · Protection history", "fav": "W", "favbg": "#0067b8",
+                        "url_prefix": "https://", "url": "windowsdefender.microsoft.com", "url_bold": "/history",
+                        "marks": [{"label": "Router", "bg": "#0f6f78"}, {"label": "Xero", "bg": "#13b5ea"}, {"label": "Gmail", "bg": "#ea4335"}],
+                    },
+                    "heading": "Protection history",
                     "buckets": [
                         {"id": "virus", "label": "Virus"},
                         {"id": "worm", "label": "Worm"},
@@ -277,196 +286,207 @@ LESSONS = [
                         {"id": "ransomware", "label": "Ransomware"},
                     ],
                     "items": [
-                        {"text": "A supplier's price-list spreadsheet runs a hidden script the moment Dolores opens it, and not before", "bucket": "virus",
-                         "why": "That is a virus. It rides inside a normal-looking file and only runs when a person opens it. No open, no infection."},
-                        {"text": "Overnight, one infected counter PC copies the malware to every other machine on the shop network by itself, no clicks", "bucket": "worm",
-                         "why": "That is a worm. Spreading machine to machine on its own, with no human action, is exactly what lets it take out a whole office fast."},
-                        {"text": "A 'free' invoicing tool Josh downloads to save time installs fine, then quietly opens a back door for the attacker", "bucket": "trojan",
-                         "why": "That is a trojan. You install it yourself because it looks useful, and then it does its real, hidden job."},
-                        {"text": "A program sits unseen on the office PC, logging the bank passwords Rick types and sending them out", "bucket": "spyware",
-                         "why": "That is spyware. It hides and steals information quietly rather than announcing itself."},
-                        {"text": "Every file in the Accounts folder is renamed to end .locked and a screen demands payment to unlock them", "bucket": "ransomware",
-                         "why": "That is ransomware. Locking your files in place and demanding money to release them is its signature."},
-                        {"text": "The malware jumps onto the workshop's USB stock-take stick and rides it to the next PC it is plugged into", "bucket": "worm",
-                         "why": "Still a worm. Self-copying onto other drives and machines with no help is the worm's calling card."},
+                        {"text": "Thursday lunchtime, Tanya opens a 'brake pad compatibility chart' a customer emailed her, and only once she opens it does a script start silently renaming files in her Downloads folder.", "bucket": "virus",
+                         "why": "That is a virus. It rode inside a normal-looking attachment and only ran because a person opened it. No open, no infection."},
+                        {"text": "Overnight, the moment the network printer's firmware update reaches the counter subnet, it copies itself onto every PC connected there with nobody touching a keyboard.", "bucket": "worm",
+                         "why": "That is a worm. Spreading itself across machines with no human action is exactly what lets it take out a whole subnet overnight."},
+                        {"text": "Rick installs a free 'invoice reminder' tool he found online because it looks handy; it does remind him about invoices, but it also quietly opens a way in for someone outside the shop.", "bucket": "trojan",
+                         "why": "That is a trojan. You install it yourself because it looks useful, then it does its real, hidden job."},
+                        {"text": "For three weeks something has sat unseen on the trade-account PC, logging every password typed on the supplier login page, until Dolores spots a login from Perth on an account nobody in Ballarat made.", "bucket": "spyware",
+                         "why": "That is spyware. It hid and quietly stole information rather than announcing itself, which is exactly why it took three weeks to notice."},
+                        {"text": "At 7am Tuesday, every booking and quote in progress is renamed to end .locked, and a countdown demands payment in Monero within 48 hours.", "bucket": "ransomware",
+                         "why": "That is ransomware. Locking your files in place and demanding payment to release them is its signature."},
+                        {"text": "The moment Josh maps the parts-lookup network drive from the workshop PC, a copy of the same script appears on that PC's own shared folder, with no file ever opened.", "bucket": "worm",
+                         "why": "Still a worm. Copying itself onto other machines the instant they connect, with no click needed, is the worm's calling card."},
                     ],
                 },
             },
             {
-                "key": "triage-inbox",
+                "key": "triage-counter-inbox",
                 "kind": "mailsort",
                 "points": 2,
-                "title": "Triage the morning inbox",
+                "title": "Triage the parts-counter inbox",
                 "body": "<p>The commonest way malware reaches a small business is the "
-                "inbox. Here is a mixed morning's mail: some genuine, some carrying "
-                "malware or trying to trick you into installing it. Read the sender, "
-                "the subject and the preview, then mark each Genuine or Phishing. "
-                "The verdict and the tell are revealed as you go.</p>"
+                "inbox. Here is a mixed morning's mail at the counter. Read the "
+                "sender, the subject and the preview, then mark each Genuine or "
+                "Phishing.</p>"
                 "<div class=\"cy-callout\">The tells to weigh: is it expected, who "
                 "is it really from, is it rushing you, and is it pushing an "
                 "attachment, a link or an Enable content prompt?</div>",
                 "payload": {
                     "prompt": "Mark each message Genuine or Phishing. Sort all five to finish.",
+                    "gmail": True,
+                    "frame": {
+                        "tab": "Inbox · Ballarat Auto Spares", "fav": "M", "favbg": "#ea4335",
+                        "url_prefix": "https://", "url": "mail.google.com", "url_bold": "/mail/u/0",
+                        "marks": [{"label": "Router", "bg": "#0f6f78"}, {"label": "Xero", "bg": "#13b5ea"}, {"label": "Gmail", "bg": "#ea4335"}],
+                    },
                     "emails": [
-                        {"from": "Rick Halloran <rick@ballaratautospares.com.au>",
-                         "subject": "Roster for the Show Day long weekend",
-                         "preview": "Counter cover sorted for Saturday. Shout if the times don't suit. No action needed.",
+                        {"from": "Tanya Pillai", "addr": "tanya@ballaratautospares.com.au", "time": "6:12 AM", "unread": True,
+                         "subject": "Friday stocktake, start 6am",
+                         "preview": "Early start Friday for the quarterly stocktake. Coffee's on me. No reply needed.",
                          "phish": False,
-                         "why": "An expected note from the owner on the shop's own domain, asking nothing of you and pushing no link or attachment."},
-                        {"from": "Repco Trade <accounts@repco-tradeportal.net>",
-                         "subject": "OVERDUE: pay invoice INV-88231 today to avoid account hold",
-                         "preview": "Your trade account is about to be suspended. Open the attached Statement.zip and pay within 24 hours.",
+                         "why": "An expected note from a colleague on the shop's own domain, asking nothing of you and pushing no link or attachment."},
+                        {"from": "Burson Auto Parts", "addr": "accounts@burson-tradehub.net", "time": "6:47 AM", "unread": True,
+                         "subject": "Trade account suspended, verify within 12 hours",
+                         "preview": "Unusual activity detected. Open Account_Verification.zip and confirm your details to restore access.",
                          "phish": True,
-                         "why": "A real supplier's account team does not chase you from a lookalike domain with a .zip and a countdown. The pressure and the zip attachment are the tells: opening it can install malware."},
-                        {"from": "Australia Post <track@auspost-delivery-au.com>",
-                         "subject": "Your parts delivery is held, pay a small redelivery fee",
-                         "preview": "We could not deliver your order. Confirm your address and pay $1.99 through the link to release it.",
+                         "why": "A lookalike domain (burson-tradehub.net, not the real Burson domain), a short deadline and a .zip attachment. Opening it can install malware; call the supplier on a number you already have instead."},
+                        {"from": "Toll Group", "addr": "tracking@toll-parcel-au.com", "time": "7:03 AM", "unread": True,
+                         "subject": "Your parts delivery needs a customs fee",
+                         "preview": "A small customs fee of $2.40 is owed before delivery. Pay through the secure link to release your parcel.",
                          "phish": True,
-                         "why": "A lookalike Australia Post domain, a tiny fee and a link to grab your card. Track a parcel through the official app or website, never a link like this."},
-                        {"from": "Dolores Fenn <dolores@ballaratautospares.com.au>",
-                         "subject": "Feb BAS figures ready for your check",
-                         "preview": "Numbers are in the shared Accounts folder when you get a sec. Nothing urgent.",
+                         "why": "A lookalike delivery domain and a tiny fee designed to grab card details through a link. Genuine carriers don't ask for a surprise payment by link like this."},
+                        {"from": "Rick Halloran", "addr": "rick@ballaratautospares.com.au", "time": "7:20 AM", "unread": False,
+                         "subject": "New EFTPOS machine arriving Monday",
+                         "preview": "Bank's dropping off the replacement terminal Monday arvo. Just needs someone at the counter to sign for it.",
                          "phish": False,
-                         "why": "A normal, expected message from the bookkeeper you know, on the shop domain, with no link, no attachment and no pressure."},
-                        {"from": "MYOB Billing <billing@myob-secure-login.com>",
-                         "subject": "Action required: update payment details, enable content to view",
-                         "preview": "Open the attached statement and click Enable Content to keep your subscription active.",
+                         "why": "A plain, expected update from the owner on the shop's real domain, with nothing to click and no pressure."},
+                        {"from": "Xero Support", "addr": "billing@xero-account-center.com", "time": "7:41 AM", "unread": True,
+                         "subject": "Action required: enable content to view your subscription invoice",
+                         "preview": "Open the attached statement and click Enable Content to keep your Xero subscription active.",
                          "phish": True,
-                         "why": "The Enable content trick from a lookalike of a tool you really use. Enabling content runs macros that can install malware. Log in to MYOB directly instead."},
+                         "why": "The Enable Content trick again, this time impersonating Xero from a lookalike domain. Enabling content can run macros that install malware. Log in to Xero directly instead."},
                     ],
                 },
             },
             {
-                "key": "diagnose",
+                "key": "order-the-response",
+                "kind": "sequence",
+                "points": 2,
+                "title": "Order the ransomware response",
+                "diagram": "ransom-lock-full",
+                "body": "<p>First, the sight nobody wants: a ransom-lock screen, "
+                "exactly like the one that could appear on any PC in the shop. "
+                "Lesson 1 covered how a business beats ransomware. Now put the "
+                "response in the right order, the sequence that turns a bad morning "
+                "into a contained one.</p>"
+                "<div class=\"cy-callout\">Each step depends on the one before it. "
+                "Get the order right and nothing has to be undone.</div>",
+                "payload": {
+                    "prompt": "Tap the steps in the order you would actually do them. Place all five to finish.",
+                    "steps": [
+                        {"label": "Disconnect the infected machine from the network immediately.", "order": 1,
+                         "detail": "Stops it reaching shared drives and other PCs before anything else happens."},
+                        {"label": "Report the incident so every machine gets checked, not just the one in front of you.", "order": 2,
+                         "detail": "Gets the whole shop looked at properly, instead of guessing under pressure."},
+                        {"label": "Confirm which backup is clean and unaffected before touching anything.", "order": 3,
+                         "detail": "You need to know your way back exists before you start undoing damage."},
+                        {"label": "Wipe the infected machine and restore the files from that clean backup.", "order": 4,
+                         "detail": "That is what takes away the attacker's leverage entirely. No payment needed."},
+                        {"label": "Review how it got in and close that door so it can't happen again.", "order": 5,
+                         "detail": "Restoring the files doesn't fix the opening it used. Find it and close it."},
+                    ],
+                },
+            },
+            {
+                "key": "assess-the-breach",
                 "kind": "classify",
                 "points": 2,
-                "title": "Diagnose the trouble",
-                "body": "<p>When something goes wrong, the first skill is naming it: "
-                "is this <strong>ransomware</strong> (files locked, payment "
-                "demanded), a <strong>data breach</strong> (private data exposed), "
-                "or just an ordinary <strong>glitch</strong>? Not every problem is "
-                "an attack. Read each situation and diagnose it.</p>"
-                "<div class=\"cy-callout\">Ransomware locks what you have; a breach "
-                "leaks what you hold; a glitch is everyday equipment trouble.</div>",
+                "title": "Assess the breach",
+                "body": "<p>Lesson 1 covered the Notifiable Data Breaches scheme: "
+                "when a breach is likely to cause serious harm, the law requires an "
+                "assessment within 30 days and, if it meets the threshold, telling "
+                "the OAIC and the people affected. Here are six real-feeling "
+                "moments from around the shop. Sort each to how it should be "
+                "handled.</p>"
+                "<div class=\"cy-callout\">Ask: is serious harm likely, is it too "
+                "soon to tell, or is there really no personal information at "
+                "risk?</div>",
                 "payload": {
-                    "prompt": "Read each situation and tap the kind of trouble it is. Diagnose all six to finish.",
+                    "prompt": "Read each situation and tap how it should be handled. Assess all six to finish.",
+                    "frame": {
+                        "tab": "Incident register · Ballarat Auto Spares", "fav": "I", "favbg": "#8430ce",
+                        "url_prefix": "https://", "url": "console.ballaratautospares.com.au", "url_bold": "/incidents",
+                        "marks": [{"label": "Router", "bg": "#0f6f78"}, {"label": "Xero", "bg": "#13b5ea"}, {"label": "Gmail", "bg": "#ea4335"}],
+                    },
                     "categories": [
-                        {"id": "ransomware", "label": "Ransomware"},
-                        {"id": "breach", "label": "Data breach"},
-                        {"id": "glitch", "label": "Ordinary glitch"},
+                        {"id": "notify", "label": "Must notify"},
+                        {"id": "assess", "label": "Assess further"},
+                        {"id": "not", "label": "Not notifiable"},
                     ],
                     "events": [
-                        {"text": "Every file in the shop's Accounts folder is renamed to end .locked, and a red screen demands Bitcoin to unlock them.",
-                         "category": "ransomware",
-                         "why": "Ransomware. Files locked in place plus a payment demand is its signature. Your data is still there, you just cannot reach it."},
-                        {"text": "A customer rings: the card they used on the shop's online order form has been used for fraud, and others say the same.",
-                         "category": "breach",
-                         "why": "A data breach. Customer details have been exposed to people who should not have them, a failure of confidentiality that must be assessed."},
-                        {"text": "The counter eftpos terminal freezes about 3pm most days and needs a quick reboot to come good.",
-                         "category": "glitch",
-                         "why": "An ordinary glitch. Routine equipment trouble with a mundane cause, not a security incident."},
-                        {"text": "A parts supplier emails to say they were hacked, and the trade-account login the shop saved with them may be exposed.",
-                         "category": "breach",
-                         "why": "A data breach, on their side. Your login is exposed, so change that password anywhere it was reused and turn on two-factor."},
-                        {"text": "The stock-lookup database is slow to load all morning. You check the server and its disk is 98% full.",
-                         "category": "glitch",
-                         "why": "An ordinary glitch. A nearly full disk is a common, harmless cause of slowness. Not every problem is an attack."},
-                        {"text": "A workshop PC is stuck behind a full-screen countdown demanding payment to release the job files.",
-                         "category": "ransomware",
-                         "why": "Ransomware. The lock plus the countdown pressure to pay is the tell. Disconnect it, do not pay, report it."},
+                        {"text": "A parts supplier's leaked customer list, including Ballarat Auto Spares' trade-account details and past order history, turns up for sale online.",
+                         "category": "notify",
+                         "why": "Must notify. Trade-account and order details being exposed and actively for sale is exactly the serious harm the Notifiable Data Breaches scheme exists for. Assess within 30 days and notify the OAIC and affected people if it meets the threshold."},
+                        {"text": "Tanya emails a single customer's invoice to the wrong customer by mistake, then recalls it within two minutes before it is opened.",
+                         "category": "assess",
+                         "why": "Assess further. A quick, contained mistake with no evidence it was read still needs a proper look to confirm no real harm is likely."},
+                        {"text": "The eftpos terminal reboots itself mid-transaction and the sale has to be re-run; no card or customer data is affected.",
+                         "category": "not",
+                         "why": "Not notifiable. Nothing personal was exposed. This is ordinary equipment trouble, not a privacy incident."},
+                        {"text": "A staff spreadsheet with everyone's home addresses and pay rates is left visible on a shared drive every counter PC can open, for six months.",
+                         "category": "notify",
+                         "why": "Must notify. Sensitive personal and financial details exposed to more people than should have had access, for a long period, is likely to cause serious harm."},
+                        {"text": "A supplier calls to say their own systems were breached, and the shop's trade-account login with them might be exposed, though no misuse has been seen yet.",
+                         "category": "assess",
+                         "why": "Assess further. It's the supplier's breach, but your account there may be exposed. Check whether that password is reused elsewhere while it's assessed."},
+                        {"text": "A customer's phone number is read aloud by accident over the counter within earshot of the next customer in the queue.",
+                         "category": "not",
+                         "why": "Not notifiable. A single, minor slip with no realistic path to serious harm, though worth a quiet word with staff."},
                     ],
                 },
             },
             {
-                "key": "read-scareware",
-                "kind": "check",
-                "points": 2,
-                "title": "Read the security alert like an investigator",
-                "diagram": "scareware-popup",
-                "body": "<p>A picture-question. While Josh was looking up a part, the "
-                "full-screen alert above took over the browser: a flashing 'Windows "
-                "Defender' warning that the PC is infected, with a phone number to "
-                "call now and a siren. Read it the way an investigator would, then "
-                "answer.</p>"
-                "<div class=\"cy-callout\">Real security software does not take over "
-                "your browser, blast a siren, or ask you to phone a number. That is a "
-                "scareware scam.</div>",
-                "question": "Looking at this alert, what is the strongest sign it is a scam, not a real virus warning?",
-                "hint": "Where did it appear, and what is it pressuring Josh to do?",
-                "options": [
-                    ("It appears inside the web browser and pushes him to phone a support number, which no real security tool ever does", True,
-                     "Right. It is a web page pretending to be Windows, using a siren and a phone number to panic you into calling a fake 'support' line that will ask for remote access or payment. Real security software never cold-calls you or asks you to phone it. Close the tab; if it will not close, close the browser."),
-                    ("It uses the Windows Defender name", False,
-                     "The borrowed name is not the tell. The giveaway is that a web page is impersonating Windows and telling you to phone a number, which real security never does."),
-                    ("It says the PC is infected", False,
-                     "A claim of infection is easy to print on a page. The real sign is that it appeared in the browser and wants you to call a number, not that it names a threat."),
-                    ("It has a red background", False,
-                     "The colour means nothing. The real signs are that it hijacked the browser and is pushing Josh to phone a 'support' number."),
-                ],
-            },
-            {
-                "key": "ransomware-morning",
+                "key": "the-ransom-note",
                 "kind": "branch",
                 "points": 2,
-                "title": "Decision drill: a ransom note takes over your screen",
+                "title": "The ransom note",
                 "hero": "infection-spread",
                 "body": "<p>First, watch it happen. The animation above is why your "
-                "first move matters so much: on a flat network the infection reaches "
-                "every machine, while segmentation seals it into one zone. Now the "
-                "drill.</p>"
-                "<p>The real test is what you do in the moment. The incident "
-                "unfolds below: you choose your move and see the consequence before "
-                "the next decision. Your first move decides how far it spreads and "
-                "whether you recover cleanly. Draw on everything Lesson 1 taught "
-                "about ransomware.</p>"
+                "first move matters so much: on a flat network the infection "
+                "reaches every machine, while segmentation seals it into one zone. "
+                "Now the real test: what you do in the moment. Draw on everything "
+                "Lesson 1 taught about ransomware.</p>"
                 "<div class=\"cy-callout\"><strong>The rule:</strong> contain it, "
-                "report it, and restore from backup. Never lead with the ransom.</div>",
+                "report it, restore from backup, then close the door. Never lead "
+                "with the ransom.</div>",
                 "payload": {
                     "prompt": "The incident unfolds. Make each call and see how it plays out.",
                     "start": "note",
                     "nodes": {
                         "note": {
-                            "text": "It is 4pm on a Monday, mid trade rush. Dolores is reconciling supplier invoices when files across her screen start renaming one after another, and a red screen takes over: your files are encrypted, pay 0.05 Bitcoin (about $3,400) within 72 hours. The shop's Accounts folder is on the shared drive. What is your first move?",
+                            "text": "6:50am Wednesday, before opening. Rick unlocks the shop and finds the booking-and-eftpos PC frozen behind a red screen: 'Your files are encrypted. Pay $4,150 in Monero within 48 hours.' The shop opens at 7:30 and three trade customers are already waiting outside. What is Rick's first move?",
                             "choices": [
-                                {"label": "Disconnect the machine from the network straight away.", "outcome": "good",
-                                 "feedback": "Exactly. Getting it off the network first stops the ransomware reaching shared drives and other machines.", "to": "contain"},
-                                {"label": "Pay the 0.05 Bitcoin quickly so you can get back to work.", "outcome": "bad",
-                                 "feedback": "Paying is unreliable, funds crime, and does nothing about the open door. Never lead with the ransom.", "to": "pay_bad"},
-                                {"label": "Keep working on what you can and hope it stops.", "outcome": "bad",
-                                 "feedback": "Every second it stays connected, more files and machines are locked. The first move is to disconnect.", "to": "work_bad"},
+                                {"label": "Unplug the network cable from that PC right now.", "outcome": "good",
+                                 "feedback": "Right. Cutting it off the network first stops it reaching the shop's other systems while you work out what's next.", "to": "contain"},
+                                {"label": "Try a few things himself to unlock it before opening, the customers can wait.", "outcome": "bad",
+                                 "feedback": "Every minute it stays connected is a minute it can keep spreading. The first move is always to get it off the network, not to start troubleshooting.", "to": "fiddle_bad"},
+                                {"label": "Pay the $4,150 straight away so the shop can open on time.", "outcome": "bad",
+                                 "feedback": "Paying is unreliable, funds crime, and the door it came through is still open. Never lead with the ransom.", "to": "pay_bad"},
                             ],
                         },
-                        "pay_bad": {
-                            "text": "You pay, but the files stay locked and the door it came through is still open. Payment is unreliable, funds crime, and marks you as someone who pays. Contain first, never lead with the ransom.",
+                        "fiddle_bad": {
+                            "text": "While Rick pokes around, the infection reaches the shared parts-lookup drive. Every minute connected is more damage. The first move is always to disconnect.",
                             "choices": [],
                         },
-                        "work_bad": {
-                            "text": "While you carry on, the ransomware reaches the shared drive and two more machines. Every second connected is more damage. The first move is always to disconnect.",
+                        "pay_bad": {
+                            "text": "He pays, but the countdown resets and the files stay locked. Paying is unreliable and marks the shop as a soft target. Disconnect first, never lead with the ransom.",
                             "choices": [],
                         },
                         "contain": {
-                            "text": "Good: the machine is off the network and the spread is stopped. The screen still demands payment. What next?",
+                            "text": "Good, it's off the network. The red screen is still up, and the trade customers are waiting. What next?",
                             "choices": [
-                                {"label": "Report it to whoever looks after IT and leave the machine for them.", "outcome": "good",
-                                 "feedback": "Right. Reporting gets the right people checking every affected machine, not just the one in front of you.", "to": "restore"},
-                                {"label": "Delete the ransom note and quietly try to clean it up yourself.", "outcome": "bad",
-                                 "feedback": "Cleaning it alone can destroy evidence and miss other affected machines. Report it so the whole picture gets checked.", "to": "clean_bad"},
-                                {"label": "Pay after all, now that it is contained.", "outcome": "bad",
-                                 "feedback": "Even contained, paying is the wrong call. With the spread stopped, the answer is report, then restore from backup.", "to": "clean_bad"},
+                                {"label": "Open with pen, paper and the backup eftpos terminal, and report the incident properly.", "outcome": "good",
+                                 "feedback": "Right. The shop can trade on paper for a morning; reporting gets the whole system checked instead of guessed at under pressure.", "to": "report"},
+                                {"label": "Quietly try to remove the ransomware himself before telling anyone.", "outcome": "bad",
+                                 "feedback": "Cleaning it alone risks destroying evidence and missing another infected machine. Report it so the full picture gets checked.", "to": "clean_bad"},
+                                {"label": "Turn the trade customers away and spend the morning on the PC instead.", "outcome": "bad",
+                                 "feedback": "Turning customers away isn't necessary. Paper and the backup terminal keep the shop trading while it's dealt with properly.", "to": "clean_bad"},
                             ],
                         },
                         "clean_bad": {
-                            "text": "Cleaning it alone or paying destroys your position: it can wipe evidence, miss a second infected machine, or reward the attacker. Report it so the right people check the whole picture, then restore from backup.",
+                            "text": "Cleaning it alone, or closing the shop instead of reporting it, wastes the morning and still leaves the real problem unchecked. Report it, keep trading on paper, and let the full picture get looked at.",
                             "choices": [],
                         },
-                        "restore": {
-                            "text": "Reported. IT confirms last night's backup is clean and tested. How do you get back to work?",
+                        "report": {
+                            "text": "Reported. IT confirms last night's backup is clean and untouched. How does Rick get back to normal?",
                             "choices": [
-                                {"label": "Wipe the machine, then restore the files from the clean backup.", "outcome": "good",
-                                 "feedback": "That is the whole point of a backup: it takes away the attacker's leverage entirely. No payment needed.", "to": "win"},
-                                {"label": "Pay the ransom to save the hassle of restoring.", "outcome": "bad",
+                                {"label": "Wipe the machine, restore from the clean backup, then review how it got in.", "outcome": "good",
+                                 "feedback": "That is the whole point of a backup: it takes away the attacker's leverage entirely, and reviewing the entry point stops a repeat.", "to": "win"},
+                                {"label": "Pay anyway, to save the hassle of restoring.", "outcome": "bad",
                                  "feedback": "With a clean backup in hand, paying makes no sense at all. Restore, do not pay.", "to": "reconnect_bad"},
-                                {"label": "Reconnect the infected machine to check if the files came back.", "outcome": "bad",
+                                {"label": "Reconnect the infected machine to see if the files have come back on their own.", "outcome": "bad",
                                  "feedback": "Reconnecting an infected machine risks spreading it again. Keep it isolated, wipe it, and restore from the clean backup.", "to": "reconnect_bad"},
                             ],
                         },
@@ -475,7 +495,7 @@ LESSONS = [
                             "choices": [],
                         },
                         "win": {
-                            "text": "Contained, reported, and restored from backup with nothing paid. That is exactly how a business beats ransomware: the backup, not the wallet, is what saves you.",
+                            "text": "Contained, reported, restored from backup, and the entry point reviewed, with nothing paid. That is exactly how a business beats ransomware: the backup, not the wallet, is what saves you.",
                             "choices": [],
                         },
                     },

@@ -107,10 +107,24 @@
     var placed = 0;
     var selected = null;
 
-    if (cfg.prompt) root.appendChild(el("p", "cy-act__prompt", cfg.prompt));
+    // Photograph-grade: when a frame is given, everything below renders inside
+    // real browser chrome instead of straight onto the panel, so sorting reads
+    // as working a genuine console (e.g. Windows Security's protection history)
+    // rather than a bare card widget. Falls back to the plain layout otherwise.
+    var dest = root;
+    if (cfg.frame) {
+      var br = buildBrowserFrame(cfg.frame);
+      var page = el("div", "cy-sortpg");
+      if (cfg.heading) page.appendChild(el("p", "cy-sortpg__h", cfg.heading));
+      br.__view.appendChild(page);
+      root.appendChild(br);
+      dest = page;
+    }
+
+    if (cfg.prompt) dest.appendChild(el("p", "cy-act__prompt", cfg.prompt));
 
     var tray = el("div", "cy-sort__tray");
-    root.appendChild(tray);
+    dest.appendChild(tray);
 
     var bucketsWrap = el("div", "cy-sort__buckets");
     var zones = {};
@@ -133,11 +147,11 @@
       bucket.addEventListener("drop", function (e) { e.preventDefault(); bucket.classList.remove("is-over"); drop(); });
       bucketsWrap.appendChild(bucket);
     });
-    root.appendChild(bucketsWrap);
+    dest.appendChild(bucketsWrap);
 
     var feedback = el("p", "cy-act__feedback");
     feedback.setAttribute("aria-live", "polite");
-    root.appendChild(feedback);
+    dest.appendChild(feedback);
 
     function select(chip) {
       if (selected) selected.classList.remove("is-selected");
@@ -466,7 +480,20 @@
   // each event is a card diagnosed on the spot, with teaching feedback. Solved
   // when every event is correctly categorised.
   CONTROLLERS.CLASSIFY = function (root, cfg) {
-    if (cfg.prompt) root.appendChild(el("p", "cy-act__prompt", cfg.prompt));
+    // Photograph-grade: when a frame is given, the whole triage list renders
+    // inside real browser chrome (e.g. an incident register), not a bare card
+    // list. Falls back to the plain layout otherwise.
+    var dest = root;
+    if (cfg.frame) {
+      var br = buildBrowserFrame(cfg.frame);
+      var page = el("div", "cy-sortpg");
+      if (cfg.heading) page.appendChild(el("p", "cy-sortpg__h", cfg.heading));
+      br.__view.appendChild(page);
+      root.appendChild(br);
+      dest = page;
+    }
+
+    if (cfg.prompt) dest.appendChild(el("p", "cy-act__prompt", cfg.prompt));
     var total = cfg.events.length;
     var done = 0;
 
@@ -520,9 +547,9 @@
       list.appendChild(card);
     });
 
-    root.appendChild(counter);
-    root.appendChild(list);
-    root.appendChild(feedback);
+    dest.appendChild(counter);
+    dest.appendChild(list);
+    dest.appendChild(feedback);
 
     function update() { counter.textContent = done + " of " + total + " classified"; }
     update();

@@ -10829,3 +10829,50 @@ a.cy-mrow:hover { border-color: var(--cy-border-lift); transform: translateX(3px
 .cy-tt__next { margin-top:0.9rem; }
 .cy-tt.is-complete .cy-tt__title { color:var(--cy-cyan); }
 @media (prefers-reduced-motion: reduce) { .cy-board__cell.is-changed { animation:none; } }
+
+/* ============================================================================
+   MODULE 2 LESSON 2 (v52+) — SORT and CLASSIFY, framed.
+   .cy-sortpg wraps an existing SORT/CLASSIFY layout for real device chrome: it
+   sits inside .cy-br__view (white) and locally redefines the same custom
+   properties those layouts already read (--cy-surface*, --cy-border*,
+   --cy-text*, --cy-violet, --cy-cyan*, --cy-danger), so every existing rule
+   just works with light, real-product colours, no duplicate ruleset needed.
+   Unframed SORT/CLASSIFY (every other module's current use) is untouched.
+   ========================================================================== */
+.cy-sortpg {
+  --cy-surface: #f8f9fa;
+  --cy-surface-2: #fff;
+  --cy-surface-3: #f1f3f4;
+  --cy-border: #e6e8eb;
+  --cy-border-lift: #dadce0;
+  --cy-text: #202124;
+  --cy-text-2: #3c4043;
+  --cy-text-3: #5f6368;
+  --cy-violet: #1a73e8;
+  --cy-cyan: #137333;
+  --cy-cyan-soft: #137333;
+  --cy-danger: #c5221f;
+  padding: 14px 16px 16px;
+}
+.cy-sortpg__h { color:#202124; font-family:-apple-system,"Segoe UI",Roboto,Arial,sans-serif; font-size:14px; font-weight:700; margin:0 0 3px; }
+.cy-sortpg .cy-act__prompt { font-family:-apple-system,"Segoe UI",Roboto,Arial,sans-serif; font-size:12.5px; }
+.cy-sortpg .cy-sort__item,
+.cy-sortpg .cy-classify__opt { font-family:-apple-system,"Segoe UI",Roboto,Arial,sans-serif; }
+.cy-sortpg .cy-sort__placed { background:rgba(19,115,51,0.08); }
+.cy-sortpg .cy-classify__opt.is-right { background:rgba(19,115,51,0.1); }
+.cy-sortpg .cy-classify__opt.is-wrong { background:rgba(197,34,31,0.08); }
+
+/* ---- A full-screen, device-framed ransom-lock (extends .cy-lock from the
+   Module 1 CIA triptych into its own standalone diagram) -------------------- */
+.cy-lockscr { background:#0a0b0e; border:1px solid #23262b; border-radius:11px; box-shadow:0 20px 50px rgba(0,0,0,.5); margin:0 auto; max-width:520px; overflow:hidden; width:100%; }
+.cy-lockscr__bar { align-items:center; background:#15161a; border-bottom:1px solid #23262b; display:flex; gap:8px; padding:9px 12px; }
+.cy-lockscr__bar i { border-radius:50%; display:block; height:10px; width:10px; }
+.cy-lockscr__bar i:nth-child(1){ background:#ff5f57; } .cy-lockscr__bar i:nth-child(2){ background:#febc2e; } .cy-lockscr__bar i:nth-child(3){ background:#28c840; }
+.cy-lockscr__body { align-items:center; background:radial-gradient(120% 100% at 50% 0%,#2a1015,#0a0b0e 70%); display:flex; flex-direction:column; padding:38px 26px 42px; text-align:center; }
+.cy-lockscr__ic { color:#ff5a5a; }
+.cy-lockscr__ic svg { height:40px; width:40px; }
+.cy-lockscr__h { color:#ff6060; font-size:17px; font-weight:800; margin:16px 0 8px; }
+.cy-lockscr__p { color:#b9c2cf; font-size:12.5px; line-height:1.5; max-width:26rem; }
+.cy-lockscr__sum { background:rgba(255,90,90,.09); border:1px solid rgba(255,90,90,.3); border-radius:9px; font-family:var(--cy-font-mono); font-size:12px; margin-top:16px; padding:9px 14px; }
+.cy-lockscr__sum b { color:#ffd166; }
+.cy-lockscr__timer { color:#ffd166; font-family:var(--cy-font-mono); font-size:13px; margin-top:12px; }

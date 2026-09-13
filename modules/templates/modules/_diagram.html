@@ -1661,4 +1661,20 @@
     <figcaption class="cy-diagram__cap cy-diagram__cap--single">Contain first: get the infected machine off the network so the trouble cannot spread, then clean up. The rest of the clinic keeps working.</figcaption>
   </figure>
 
+{% elif key == "ransom-lock-full" %}
+  <figure class="cy-diagram" role="img"
+          aria-label="A full-screen ransomware lock screen. Your files are encrypted. Pay 0.05 Bitcoin, about 4,150 dollars, within 48 hours. A countdown timer ticks down beneath the demand.">
+    <div class="cy-lockscr">
+      <div class="cy-lockscr__bar"><i></i><i></i><i></i></div>
+      <div class="cy-lockscr__body">
+        <span class="cy-lockscr__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 018 0v3"/></svg></span>
+        <p class="cy-lockscr__h">Your files are encrypted</p>
+        <p class="cy-lockscr__p">Every booking, quote and invoice on this machine has been locked. Only we can restore them.</p>
+        <div class="cy-lockscr__sum">Demand: <b>0.05 BTC (approx. $4,150)</b> &middot; Deadline: <b>48 hours</b></div>
+        <p class="cy-lockscr__timer">Time left: 47:58:12</p>
+      </div>
+    </div>
+    <figcaption class="cy-diagram__cap cy-diagram__cap--single">The sight nobody wants: a ransom-lock screen. Files locked in place, a payment demand, a countdown. Contain, report, restore from backup, never pay.</figcaption>
+  </figure>
+
 {% endif %}
