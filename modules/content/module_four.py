@@ -1,14 +1,19 @@
 """Module 4, Secure Communication Practices: understand it, then apply it.
 
-  Lesson 1  UNDERSTAND IT  — a teaching lesson. Four reading panels, each with a
+  Lesson 1  UNDERSTAND IT, a teaching lesson. Four reading panels, each with a
             real visual: what encryption means (sealed envelope vs postcard); the
             padlock and https, and what they do and do not prove, plus end-to-end
             encryption; sharing safely with permissioned links and keeping the key
             separate; and staying private on the move (open Wi-Fi, evil twins, and
             VPNs). One light comprehension check on an insecure send.
-  Lesson 2  APPLY IT       — a practical lesson. Five hands-on tasks: sort
-            encrypted vs open, judge safe shares from leaks, read a share-settings
-            screen, work a real share decision, and harden a mobile workspace.
+  Lesson 2  APPLY IT, hands-on artefacts drawn from settings panels, toggles and
+            modal overlays, distinct from Modules 1-2's desktop consoles and
+            Module 3's phone apps: sort a week's real activity log (SORT), read
+            a browser's connection-details panel and find what a padlock does
+            not prove (NETMAP), fix a leaky share on a floating Drive-style
+            dialog (HARDEN), order your moves past an evil-twin Wi-Fi picker
+            (SEQUENCE), and work a live privacy-law incident when a stale share
+            link is found by a search engine (TABLETOP).
 
 Voice: warm, plain Australian English, no em-dashes, no emoji. Grounded in ACSC
 (cyber.gov.au) guidance on secure communication, protecting information, and
@@ -188,232 +193,223 @@ LESSONS = [
         "handles passports, visa applications and police checks all day. Principal "
         "Farah Haddad, paralegal Owen Tran and admin Steph Corrigan send sensitive "
         "client documents between the office and the road constantly. Sort what is "
-        "sealed from what is open, tell a safe share from a leak, read a real "
-        "share-settings screen, make a live sharing decision, and harden a workspace "
-        "for life on the move.",
+        "sealed from what is open, read what a padlock actually proves, fix a leaky "
+        "share, order your moves at a departure gate, and work a live privacy "
+        "incident.",
         "tasks": [
             {
-                "key": "encrypted-or-open",
+                "key": "sealed-or-postcard",
                 "kind": "sort",
                 "points": 2,
-                "title": "Encrypted, or out in the open?",
+                "title": "Sealed, or a postcard?",
                 "body": "<p>Lesson 1 drew the line between a sealed envelope and a "
-                "postcard. Prove you can place any everyday channel on the right side "
-                "of it. Read each item and sort it: encrypted (only the right person "
-                "can read it) or out in the open (others along the way could).</p>"
-                "<div class=\"cy-callout\">Ask of each one: if a stranger watched the "
-                "traffic, would they see the contents, or only scrambled "
+                "postcard. Below is this week's activity log at the practice, six "
+                "things that actually went out. Read each and sort it: encrypted "
+                "(only the right person can read it) or out in the open (others "
+                "along the way could).</p>"
+                "<div class=\"cy-callout\">Ask of each one: if a stranger watched "
+                "the traffic, would they see the contents, or only scrambled "
                 "characters?</div>",
                 "payload": {
                     "prompt": "Tap an item, then tap whether it is Encrypted or Out in the open. Sort all six to finish.",
+                    "heading": "Sent & shared this week",
+                    "frame": {
+                        "tab": "Activity log · Coburg Migration & Legal", "fav": "C", "favbg": "#5f6368",
+                        "url_prefix": "https://", "url": "portal.coburgmigrationlegal.com.au", "url_bold": "/activity",
+                        "marks": [{"label": "Router", "bg": "#0f6f78"}, {"label": "Xero", "bg": "#13b5ea"}, {"label": "Gmail", "bg": "#ea4335"}],
+                    },
                     "buckets": [
                         {"id": "enc", "label": "Encrypted"},
                         {"id": "open", "label": "Out in the open"},
                     ],
                     "items": [
-                        {"text": "Owen sends a client's police check through an end-to-end encrypted messaging app", "bucket": "enc",
-                         "why": "Encrypted. Only Owen and the recipient can read it, not even the service carrying it."},
-                        {"text": "Steph emails a visa applicant's payslips as a plain attachment", "bucket": "open",
-                         "why": "Out in the open. Standard email is like a postcard: it passes through servers and can be read or misdirected."},
-                        {"text": "The client portal Farah logs in to shows the padlock and https", "bucket": "enc",
-                         "why": "Encrypted in transit. The padlock means the connection is scrambled, so an eavesdropper cannot read it."},
-                        {"text": "A passport scan uploaded over the airport's open Wi-Fi with no VPN", "bucket": "open",
-                         "why": "Out in the open. On an unsecured network a stranger nearby may capture what you send."},
-                        {"text": "A locked ZIP of documents, sent with the password read out on a separate phone call", "bucket": "enc",
-                         "why": "Encrypted. The file is scrambled, and because the password travels separately, seeing one is not enough."},
-                        {"text": "An ID photo sent as an ordinary SMS or MMS text", "bucket": "open",
-                         "why": "Out in the open. Standard texts are not end-to-end encrypted, so they are a poor choice for private documents."},
+                        {"text": "Owen texts a boarding pass QR code via standard SMS to a partner picking someone up from the airport", "bucket": "open",
+                         "why": "Out in the open. Standard SMS is not end-to-end encrypted, a poor choice even for something this ordinary."},
+                        {"text": "Steph photographs a new starter's tax file number and sends it as an MMS to the bookkeeper", "bucket": "open",
+                         "why": "Out in the open. MMS travels the same way as SMS: not end-to-end encrypted."},
+                        {"text": "Farah video-calls a client through Signal to talk through their visa application", "bucket": "enc",
+                         "why": "Encrypted. Signal calls are end-to-end encrypted between the two devices."},
+                        {"text": "Steph emails the weekly staff roster as a plain PDF to everyone's personal address", "bucket": "open",
+                         "why": "Out in the open. Standard email is a postcard, whatever the content. It passes through servers along the way."},
+                        {"text": "A signed court order is uploaded to the firm's cloud drive over the office's WPA3 Wi-Fi, padlock showing", "bucket": "enc",
+                         "why": "Encrypted at the Wi-Fi layer and in transit to the site. Two layers, not one."},
+                        {"text": "A client's appointment reference is confirmed over an encrypted VoIP call on the firm's Teams line", "bucket": "enc",
+                         "why": "Encrypted. The call itself is encrypted in transit, unlike a plain phone line or a text."},
                     ],
                 },
             },
             {
-                "key": "safe-share-or-leak",
-                "kind": "classify",
+                "key": "read-connection-panel",
+                "kind": "netmap",
                 "points": 2,
-                "title": "Safe share, or a leak?",
-                "body": "<p>The quick share option is often the leaky one. A "
-                "permissioned link, restricted to named people and revocable, keeps "
-                "you in control. A public share, or a copy emailed around, does not. "
-                "Read each share and decide.</p>"
-                "<div class=\"cy-callout\">The safe question is always the same: who "
-                "can open this, and can I take that access back later?</div>",
+                "title": "Read the connection panel",
+                "body": "<p>Lesson 1 warned you: the padlock proves the connection "
+                "is private, not that the person on the other end is honest. Owen "
+                "followed a link from an email and landed here to sign in, padlock "
+                "showing. Here is that real browser's connection details panel. "
+                "Two of the five fields below are the actual problem. Find them.</p>"
+                "<div class=\"cy-callout\">Encrypted, and a valid certificate, are "
+                "both genuinely true here. Neither one tells you who you are "
+                "actually dealing with.</div>",
                 "payload": {
-                    "prompt": "Read each share and tap whether it is a safe share or a leak. Sort all six to finish.",
-                    "categories": [
-                        {"id": "safe", "label": "Safe share"},
-                        {"id": "leak", "label": "A leak"},
-                    ],
-                    "events": [
-                        {"text": "A OneDrive link to a visa file, restricted to the named client, set to expire in 7 days.",
-                         "category": "safe",
-                         "why": "Safe share. You control exactly who gets in, and access lapses on its own."},
-                        {"text": "An 'anyone with the link can view' link to a passport scan, dropped in a WhatsApp group.",
-                         "category": "leak",
-                         "why": "A leak. Anyone who ever sees or forwards that link can open the scan, and you cannot take it back."},
-                        {"text": "A password-protected file, with the password read out on a separate phone call.",
-                         "category": "safe",
-                         "why": "Safe share. The lock and the key travel separately, so intercepting one is not enough."},
-                        {"text": "Emailing the whole client spreadsheet as an attachment to an outside mailing list.",
-                         "category": "leak",
-                         "why": "A leak. You lose all control of the copy, and it can be forwarded anywhere from there."},
-                        {"text": "Giving Owen view-only access to just the one client folder he is working on.",
-                         "category": "safe",
-                         "why": "Safe share. Least access: he gets only what he needs, and nothing more."},
-                        {"text": "Sharing a locked file, and putting its password in the very same message.",
-                         "category": "leak",
-                         "why": "A leak. Sending the lock and the key together means anyone who sees the message has both."},
-                    ],
-                },
-            },
-            {
-                "key": "read-share-link",
-                "kind": "check",
-                "points": 2,
-                "title": "Read the share settings",
-                "diagram": "secure-share",
-                "body": "<p>A picture-question, straight from Lesson 1. The same file "
-                "can be shared two ways, and the settings screen tells you which is "
-                "safe. One link lets anyone in and never expires; the other is "
-                "restricted, password protected and revocable. Read the two and "
-                "decide which keeps you in control.</p>"
-                "<div class=\"cy-callout\">A safe share answers three questions: who "
-                "can open it, does it expire, and can you take access back?</div>",
-                "question": "Looking at the two link settings above, which is the safe one, and why?",
-                "hint": "Which one lets you control who gets in, and take it back?",
-                "options": [
-                    ("The restricted link: only specific people, password protected, and it expires and can be revoked", True,
-                     "Right. It limits who can open the file and lets you withdraw access. The 'anyone with the link, never expires' option loses control the moment it is forwarded."),
-                    ("The 'anyone with the link' one, because it is easier for people to open", False,
-                     "No. Easy for anyone means easy for the wrong person too. Once forwarded, you cannot take it back."),
-                    ("They are equally safe, it is the same file", False,
-                     "No. The file is the same, but the access is not. Control over who gets in is the whole point."),
-                    ("Neither, you should never share files", False,
-                     "No. Sharing is fine when you control it. The restricted, expiring, revocable link is the safe way."),
-                ],
-            },
-            {
-                "key": "link-or-attachment",
-                "kind": "branch",
-                "points": 2,
-                "title": "Decision drill: secure link, or email attachment?",
-                "body": "<p>A real sharing decision, start to finish. Owen is out at "
-                "a client meeting and needs a visa file that Steph has back at the "
-                "office. The choice Steph makes about how to send it decides who can "
-                "reach it, and whether she can ever take it back. Work through it.</p>"
-                "<div class=\"cy-callout\"><strong>The rule:</strong> share a "
-                "permissioned link, not a loose copy. Control who can open it, and "
-                "keep the power to revoke.</div>",
-                "payload": {
-                    "prompt": "The file needs sharing. Make each call and see the consequence.",
-                    "start": "share",
-                    "nodes": {
-                        "share": {
-                            "text": "Owen needs a client's visa file (Nguyen_visa_docs.pdf) that is back at the office. How does Steph get it to him?",
-                            "choices": [
-                                {"label": "Share a link restricted to them, that you can expire or revoke later", "outcome": "good",
-                                 "feedback": "Right. A permissioned link keeps you in control of who can open it, and lets you take access back.", "to": "perms"},
-                                {"label": "Email the file as an attachment", "outcome": "bad",
-                                 "feedback": "Now there is a loose copy you cannot control. It can be forwarded anywhere, and you can never recall it.", "to": "attach_bad"},
-                                {"label": "Post a public 'anyone with the link' share in the team chat", "outcome": "bad",
-                                 "feedback": "Anyone who sees or forwards that link can open a client's file. A public link is a leak waiting to happen.", "to": "public_bad"},
-                            ],
-                        },
-                        "attach_bad": {
-                            "text": "Weeks later the attachment is forwarded to the wrong person, and a client's file is loose with no way to pull it back. A permissioned link would have kept you in control.",
-                            "choices": [],
-                        },
-                        "public_bad": {
-                            "text": "The public link gets forwarded beyond the team, and now strangers can open the file. Anyone-with-the-link means exactly that.",
-                            "choices": [],
-                        },
-                        "perms": {
-                            "text": "The link is set to the right person. Before you send it, what access do you give them?",
-                            "choices": [
-                                {"label": "View-only, the least they need, with an expiry date", "outcome": "good",
-                                 "feedback": "Exactly. Least access plus an expiry means the share does only what it must, for only as long as it must.", "to": "win"},
-                                {"label": "Full edit access, forever, just in case", "outcome": "bad",
-                                 "feedback": "That hands over more power than needed, indefinitely. Give the least access required, and set it to expire.", "to": "edit_bad"},
-                            ],
-                        },
-                        "edit_bad": {
-                            "text": "The open-ended edit access lingers long after it was needed, a standing risk if that account is ever compromised. Least access, with an expiry, is the safer default.",
-                            "choices": [],
-                        },
-                        "win": {
-                            "text": "Shared as a restricted, view-only, expiring link. You controlled who got in, gave only what was needed, and kept the power to revoke. That is sharing on your terms.",
-                            "choices": [],
-                        },
+                    "prompt": "Tap every field that is a genuine red flag. Find both to finish.",
+                    "heading": "Connection details",
+                    "lede": "Everything this browser can tell you about the page you're on.",
+                    "frame": {
+                        "tab": "Sign in · Coburg Migration & Legal", "fav": "C", "favbg": "#1a73e8",
+                        "url_prefix": "https://", "url": "migration-legal-secure-check.com", "url_bold": "/portal",
+                        "marks": [{"label": "Router", "bg": "#0f6f78"}, {"label": "Xero", "bg": "#13b5ea"}, {"label": "Gmail", "bg": "#ea4335"}],
                     },
+                    "nodes": [
+                        {"label": "Connection: Encrypted (TLS 1.3)", "detail": "the technical link between you and this page", "weak": False,
+                         "why": "Genuine: the traffic between your browser and this site is scrambled. But encrypted does not mean honest."},
+                        {"label": "Certificate: Valid, issued by Let's Encrypt", "detail": "proof someone controls this domain", "weak": False,
+                         "why": "A valid certificate just proves someone controls this domain, for a moment. Anyone, including a scammer, can get one free in minutes."},
+                        {"label": "Address: migration-legal-secure-check.com", "detail": "the domain you are actually on", "weak": True,
+                         "why": "Not the firm's real domain (coburgmigrationlegal.com.au). A valid padlock on a lookalike address is exactly how a phishing page earns its trust badge."},
+                        {"label": "Site identity: Not verified as an organisation", "detail": "whether a real business has been confirmed", "weak": True,
+                         "why": "No one has confirmed which real business runs this site. The padlock alone never tells you that."},
+                        {"label": "Cookies and site data: 3 trackers active", "detail": "ordinary site tracking", "weak": False,
+                         "why": "Ordinary, and unrelated to whether the site is trustworthy. Trackers exist on plenty of legitimate sites too."},
+                    ],
                 },
             },
             {
-                "key": "harden-workspace",
+                "key": "fix-share-settings",
                 "kind": "harden",
                 "points": 2,
-                "title": "Secure the workspace before you leave",
-                "hero": "eavesdrop",
-                "diagram": "wifi-evil-twin",
-                "body": "<p>First, the why. The animation above shows the same cafe "
-                "Wi-Fi two ways: in the open, an eavesdropper reads your login; "
-                "through a VPN, they see only scrambled noise. Now secure your own "
-                "setup.</p>"
-                "<p>The Wi-Fi picker below shows a classic trap: two near-identical "
-                "open networks, one of which may be an <strong>evil twin</strong> set "
-                "up to watch your traffic. Secure each part of your mobile "
-                "setup.</p>"
-                "<div class=\"cy-callout\">For each item, choose the option that "
-                "closes the gap and watch it flip to Secured.</div>",
+                "title": "Fix the share settings",
+                "body": "<p>Lesson 1 covered permissioned links, least access, and "
+                "keeping the password separate from the file. Owen set up this "
+                "share for a client's visa documents in a hurry, four settings "
+                "wrong. Fix each one and watch it flip to Fixed.</p>"
+                "<div class=\"cy-callout\">Pick the option that actually closes the "
+                "gap, not the one that is merely more convenient.</div>",
                 "payload": {
-                    "prompt": "Secure each part of your on-the-move setup. Lock down all four to finish.",
+                    "prompt": "Fix each setting on this share. Lock down all four to finish.",
+                    "variant": "sharemodal",
+                    "heading": "Share \"Nguyen_visa_docs.pdf\"",
+                    "file": "Nguyen_visa_docs.pdf · 4.2 MB",
                     "steps": [
-                        {
-                            "label": "Doing sensitive work on open cafe Wi-Fi",
-                            "risk": "An open network, or an evil twin, can let a stranger watch what you send.",
-                            "options": [
-                                {"text": "Use your phone's mobile hotspot or a trusted VPN instead", "correct": True,
-                                 "why": "A hotspot keeps you off the untrusted network; a VPN wraps your traffic in encryption so an eavesdropper sees only scrambled data."},
-                                {"text": "Pick whichever cafe network has the strongest signal", "correct": False,
-                                 "why": "Signal strength says nothing about safety, and the strongest one could be the evil twin. Use a hotspot or VPN."},
-                                {"text": "Just avoid websites with a padlock", "correct": False,
-                                 "why": "Backwards. The padlock is good. The real fix on open Wi-Fi is a hotspot or a VPN."},
-                            ],
-                        },
-                        {
-                            "label": "Your laptop screen when you step away",
-                            "risk": "An unlocked screen in a public place is an open door to your accounts and files.",
-                            "options": [
-                                {"text": "Lock the screen every time you leave it, even for a minute", "correct": True,
-                                 "why": "A locked screen means a moment away does not become someone else's access to everything."},
-                                {"text": "Turn the brightness down so it is harder to read", "correct": False,
-                                 "why": "Dimming does nothing to stop someone using it. Lock the screen."},
-                                {"text": "Trust that a cafe is a safe place", "correct": False,
-                                 "why": "Public places are exactly where devices get grabbed or snooped. Lock it."},
-                            ],
-                        },
-                        {
-                            "label": "Software updates on your laptop and phone",
-                            "risk": "Out-of-date software leaves known holes open for attackers to walk through.",
-                            "options": [
-                                {"text": "Turn on automatic updates so patches apply promptly", "correct": True,
-                                 "why": "Automatic updates close known holes fast, before attackers can use them, without you having to remember."},
-                                {"text": "Update only once a year to avoid disruption", "correct": False,
-                                 "why": "That leaves known holes open for months. Patch promptly, ideally automatically."},
-                                {"text": "Skip updates while travelling", "correct": False,
-                                 "why": "Travelling is when you are on riskier networks. Keep updates on."},
-                            ],
-                        },
-                        {
-                            "label": "A file link you shared publicly last week",
-                            "risk": "A leftover public link keeps a file open to anyone, long after it was needed.",
-                            "options": [
-                                {"text": "Revoke the public link and re-share it to just the people who need it", "correct": True,
-                                 "why": "Revoking closes the open door; a restricted re-share gives access only to the right people."},
-                                {"text": "Leave it, since nothing has gone wrong yet", "correct": False,
-                                 "why": "An open link is a standing risk. Close it once it is no longer needed."},
-                                {"text": "Rename the file so the link is harder to guess", "correct": False,
-                                 "why": "The existing link still works. Revoke it and re-share with proper permissions."},
-                            ],
-                        },
+                        {"label": "General access", "value": "Anyone with the link",
+                         "risk": "Anyone who ever sees this link, forwarded or not, can open it.",
+                         "options": [
+                            {"text": "Change to Restricted, and add only the named client", "correct": True,
+                             "why": "Right. Restricted access means only the person you named can open it, and you keep control of who that is."},
+                            {"text": "Leave it as Anyone with the link, but set it to view-only", "correct": False,
+                             "why": "Still leaky. Anyone with the link can still open it, whatever their role. Restrict who can reach it at all."},
+                            {"text": "Leave it, it's just a link, unlikely anyone finds it", "correct": False,
+                             "why": "A link is not a secret. Once shared once, you cannot control where it travels. Restrict it properly."},
+                         ]},
+                        {"label": "Role", "value": "Editor",
+                         "risk": "An editor can change or delete the file, not just read it.",
+                         "options": [
+                            {"text": "Change the role to Viewer", "correct": True,
+                             "why": "Right. A client reviewing their own documents needs to read them, not change them. Give the least access that does the job."},
+                            {"text": "Leave it as Editor, they might need to fill in a field", "correct": False,
+                             "why": "Give access based on what the job actually needs, not what might possibly help. Viewer is enough here."},
+                            {"text": "Change it to Commenter instead", "correct": False,
+                             "why": "Better than Editor, but still more than a client reviewing their own file needs. Viewer is the least-access choice."},
+                         ]},
+                        {"label": "Link expiry", "value": "Never expires",
+                         "risk": "A link with no expiry is a standing risk that outlives the reason it was created.",
+                         "options": [
+                            {"text": "Set the link to expire in 7 days", "correct": True,
+                             "why": "Right. A short, deliberate expiry means the share does its job and then closes itself, no cleanup required later."},
+                            {"text": "Leave it as Never expires, easier to remember", "correct": False,
+                             "why": "Convenient for you, but it leaves the door open indefinitely. Set a real expiry."},
+                            {"text": "Set it to expire in 1 year", "correct": False,
+                             "why": "Still far longer than this share needs to exist. Match the expiry to the actual task, a matter of days."},
+                         ]},
+                        {"label": "Note to recipient", "value": "Password: Nguyen2024!",
+                         "risk": "The lock and the key are travelling in the same message. Anyone who sees this share has both.",
+                         "options": [
+                            {"text": "Remove the password from the note and send it by phone instead", "correct": True,
+                             "why": "Right. Sending the password on a separate channel means intercepting or forwarding this message alone is not enough to open the file."},
+                            {"text": "Leave the password in the note, it's convenient", "correct": False,
+                             "why": "Convenient for whoever intercepts it too. Split the file and the password across two channels."},
+                            {"text": "Just make the password longer", "correct": False,
+                             "why": "A longer password sitting right next to the file does not fix the real problem: they are travelling together."},
+                         ]},
+                    ],
+                },
+            },
+            {
+                "key": "departure-gate",
+                "kind": "sequence",
+                "points": 2,
+                "title": "Order your move at the departure gate",
+                "diagram": "wifi-picker-evil-twin",
+                "body": "<p>Lesson 1 covered open networks, evil twins, VPNs and "
+                "locking your screen. Steph is at the departure gate on the way "
+                "to a conference. The Wi-Fi picker above shows the classic trap: "
+                "two near-identical network names, sitting side by side. Put the "
+                "right response in order.</p>"
+                "<div class=\"cy-callout\">Each step depends on the one before it. "
+                "Get the order right and nothing is left exposed.</div>",
+                "payload": {
+                    "prompt": "Tap the steps in the order you would actually take them. Place all five to finish.",
+                    "steps": [
+                        {"label": "Notice the two near-identical Wi-Fi names and don't join either yet.", "order": 1,
+                         "detail": "A near-identical name, both open, is exactly how an evil twin hides in plain sight."},
+                        {"label": "Switch to your phone's hotspot, or turn on the firm's VPN.", "order": 2,
+                         "detail": "Off the untrusted network entirely, or wrapped in an encrypted tunnel if you must use it."},
+                        {"label": "Only start the sensitive work once you're on a connection you trust.", "order": 3,
+                         "detail": "Sensitive work waits for a trustworthy connection, not the other way around."},
+                        {"label": "Lock the screen the moment you step away to board.", "order": 4,
+                         "detail": "An unlocked laptop at a gate is an open door to every account you're signed into."},
+                        {"label": "Report the lookalike network name once you're safely on board.", "order": 5,
+                         "detail": "A quick report helps the next traveller avoid the same trap."},
+                    ],
+                },
+            },
+            {
+                "key": "the-leaked-file",
+                "kind": "tabletop",
+                "points": 2,
+                "title": "The leaked file",
+                "body": "<p>Last one, and it pulls sharing and the law together. "
+                "Work the incident live. The board tracks the state of the "
+                "practice as you act.</p>"
+                "<div class=\"cy-callout\">Contain it, find out who actually saw "
+                "it, then meet your obligations. In that order.</div>",
+                "payload": {
+                    "prompt": "Work the incident phase by phase. The board updates with each call.",
+                    "scenario": "Farah discovers that a batch of client passport scans, shared by Steph months ago as 'anyone with the link' and never revoked, has been indexed by a search engine and is now publicly findable by anyone who searches the right terms.",
+                    "board": [
+                        {"id": "link", "label": "Link status", "state": "bad", "value": "Public & indexed"},
+                        {"id": "clients", "label": "Client trust", "state": "warn", "value": "Not yet told"},
+                        {"id": "duty", "label": "Privacy duty", "state": "warn", "value": "Not yet assessed"},
+                    ],
+                    "stages": [
+                        {"phase": "Contain", "title": "The link is still live",
+                         "prompt": "The scans are still publicly reachable right now. What is the first move?",
+                         "options": [
+                            {"label": "Revoke the link immediately and request the pages be removed from the search index", "outcome": "good",
+                             "consequence": "Right. Revoking stops any new access, and a removal request clears the cached, indexed copy so it stops turning up in search.", "board": {"link": {"state": "ok", "value": "Revoked, removal requested"}}},
+                            {"label": "Just delete the shared folder", "outcome": "bad",
+                             "consequence": "Deleting the folder does not clear the search engine's own cached copy. The scans can still turn up in results.", "board": {"link": {"state": "bad", "value": "Still indexed"}}},
+                            {"label": "Wait and see if anyone actually finds it", "outcome": "bad",
+                             "consequence": "Every day it stays indexed is another day it can be found. Contain it now, do not wait.", "board": {"link": {"state": "bad", "value": "Still public"}}},
+                         ]},
+                        {"phase": "Assess", "title": "Who actually saw it",
+                         "prompt": "The link is down. Before anything else, what do you need to know?",
+                         "options": [
+                            {"label": "Check the access logs to see who actually viewed the files while the link was public", "outcome": "good",
+                             "consequence": "Right. The logs tell you the real scope, not a guess, which is exactly what a proper assessment needs.", "board": {"clients": {"state": "warn", "value": "Scope confirmed"}}},
+                            {"label": "Assume no one saw it since nobody has complained", "outcome": "bad",
+                             "consequence": "No complaint is not the same as no access. Check the logs before you assume anything.", "board": {"clients": {"state": "bad", "value": "Unknown scope"}}},
+                         ]},
+                        {"phase": "Notify", "title": "Meeting the obligation",
+                         "prompt": "The logs show the files were viewed a number of times by unknown visitors. What now?",
+                         "options": [
+                            {"label": "Assess it under the Privacy Act's Notifiable Data Breaches scheme, and tell the affected clients and the OAIC if serious harm is likely", "outcome": "good",
+                             "consequence": "Right. Passport scans exposed to unknown viewers is exactly the kind of serious harm the scheme exists for. A proper assessment and honest notification is the law, and it rebuilds trust.", "board": {"duty": {"state": "ok", "value": "Assessed & notified"}, "clients": {"state": "ok", "value": "Told directly"}}},
+                            {"label": "Stay quiet now that the link is fixed", "outcome": "bad",
+                             "consequence": "The exposure already happened. Staying quiet can itself breach the law, and clients find out anyway, just later and worse.", "board": {"duty": {"state": "bad", "value": "Unreported"}}},
+                            {"label": "Mention it quietly to the principal partner only, no formal assessment", "outcome": "bad",
+                             "consequence": "A private word is not an assessment, and it leaves the actual legal obligation unmet.", "board": {"duty": {"state": "bad", "value": "Not assessed"}}},
+                         ]},
                     ],
                 },
             },

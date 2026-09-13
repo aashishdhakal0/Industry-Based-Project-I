@@ -1677,4 +1677,47 @@
     <figcaption class="cy-diagram__cap cy-diagram__cap--single">The sight nobody wants: a ransom-lock screen. Files locked in place, a payment demand, a countdown. Contain, report, restore from backup, never pay.</figcaption>
   </figure>
 
+{% elif key == "wifi-picker-evil-twin" %}
+  <figure class="cy-diagram" role="img"
+          aria-label="A phone's Wi-Fi settings list at a departure gate. Two networks have near-identical names, Melbourne Airport Free Wifi and Melbourne Airport Free-Wifi, both open with no password, sitting one above the other. Further down, Personal Hotspot and a VPN toggle are also listed.">
+    <div class="cy-ph">
+      <div class="cy-ph__status">
+        <span class="cy-ph__time">4:12</span>
+        <span class="cy-ph__stat">
+          <span class="cy-ph__bars"><i></i><i></i><i></i><i></i></span>
+          <span class="cy-ph__batt"><i style="width:70%"></i></span>
+        </span>
+      </div>
+      <div class="cy-ph__appbar"><span class="cy-ph__apptitle">Wi-Fi</span></div>
+      <div class="cy-ph__view">
+        <div class="cy-wifilist">
+          <p class="cy-wifilist__h">Networks</p>
+          <div class="cy-wifilist__row cy-wifilist__row--flag">
+            <span class="cy-wifilist__name">Melbourne Airport Free Wifi</span>
+            <span class="cy-wifilist__meta">Open <svg viewBox="0 0 24 24" class="cy-wifilist__sig" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 12a12 12 0 0116 0M7.5 15.5a7 7 0 019 0M11 19a2 2 0 012 0"/></svg></span>
+          </div>
+          <div class="cy-wifilist__row cy-wifilist__row--flag">
+            <span class="cy-wifilist__name">Melbourne Airport Free-Wifi</span>
+            <span class="cy-wifilist__meta">Open <svg viewBox="0 0 24 24" class="cy-wifilist__sig" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 12a12 12 0 0116 0M7.5 15.5a7 7 0 019 0M11 19a2 2 0 012 0"/></svg></span>
+          </div>
+          <div class="cy-wifilist__row">
+            <span class="cy-wifilist__name">Qantas Club</span>
+            <span class="cy-wifilist__meta"><svg viewBox="0 0 24 24" class="cy-wifilist__lock" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="5" y="10" width="14" height="9" rx="2"/><path d="M8 10V7a4 4 0 018 0v3"/></svg> <svg viewBox="0 0 24 24" class="cy-wifilist__sig" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 12a12 12 0 0116 0M7.5 15.5a7 7 0 019 0M11 19a2 2 0 012 0"/></svg></span>
+          </div>
+          <p class="cy-wifilist__h">Other</p>
+          <div class="cy-wifilist__row">
+            <span class="cy-wifilist__name">Personal Hotspot <small>your own phone</small></span>
+            <span class="cy-wifilist__meta"><svg viewBox="0 0 24 24" class="cy-wifilist__lock" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="5" y="10" width="14" height="9" rx="2"/><path d="M8 10V7a4 4 0 018 0v3"/></svg></span>
+          </div>
+          <div class="cy-wifilist__row">
+            <span class="cy-wifilist__name">Firm VPN <small>off</small></span>
+            <span class="cy-wifilist__toggle"></span>
+          </div>
+        </div>
+      </div>
+      <div class="cy-ph__home"></div>
+    </div>
+    <figcaption class="cy-diagram__cap cy-diagram__cap--single">Two near-identical names, both open, sitting side by side. One of them is not the airport's. A hotspot or the firm VPN, both listed right below, are the safer choice either way.</figcaption>
+  </figure>
+
 {% endif %}

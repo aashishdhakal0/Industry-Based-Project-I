@@ -1052,11 +1052,32 @@
     var feedback = el("p", "cy-act__feedback");
     feedback.setAttribute("aria-live", "polite");
 
-    function buildStep(step, listEl, settingsUI) {
-      var card = el("div", settingsUI ? "cy-rtr__row cy-rtr__row--fix" : "cy-harden__step");
+    function buildStep(step, listEl, settingsUI, modalUI) {
+      var card = el("div", modalUI ? "cy-sharemodal__row" : settingsUI ? "cy-rtr__row cy-rtr__row--fix" : "cy-harden__step");
       var settled = false;
 
-      if (settingsUI) {
+      if (modalUI) {
+        // Photograph-grade: a floating share-dialog row (label, the current
+        // wrong value as a pill, fix options below it), the overlay-modal
+        // register instead of a full settings page.
+        var mtop = el("div", "cy-sharemodal__top");
+        mtop.appendChild(el("span", "cy-sharemodal__k", step.label));
+        var mstatus = el("span", "cy-sharemodal__v cy-sharemodal__v--bad", step.value || "At risk");
+        mtop.appendChild(mstatus);
+        card.appendChild(mtop);
+        if (step.risk) card.appendChild(el("p", "cy-sharemodal__risk", step.risk));
+        var mopts = el("div", "cy-sharemodal__opts");
+        var mwhy = el("p", "cy-sharemodal__why");
+        step.options.forEach(function (opt) {
+          var mb = el("button", "cy-sharemodal__opt", opt.text);
+          mb.type = "button";
+          mb.addEventListener("click", function () { settle(opt, mb); });
+          mopts.appendChild(mb);
+        });
+        card.appendChild(mopts);
+        card.appendChild(mwhy);
+        var status = mstatus, opts = mopts, why = mwhy;
+      } else if (settingsUI) {
         var top = el("div", "cy-rtr__fixtop");
         var kwrap = el("span", "cy-rtr__k", step.label);
         if (step.value) kwrap.appendChild(el("small", null, step.risk || ""));
@@ -1096,20 +1117,22 @@
 
       function settle(opt, btn) {
         if (settled) return;
+        var doneCls = modalUI ? "cy-sharemodal__why" : settingsUI ? "cy-netmap__why" : "cy-harden__why";
         if (opt.correct) {
           settled = true;
-          card.classList.add(settingsUI ? "is-fixed" : "is-secured");
-          status.textContent = "Secured";
-          status.className = settingsUI ? "cy-rtr__pill cy-rtr__pill--ok" : "cy-harden__status";
+          card.classList.add((settingsUI || modalUI) ? "is-fixed" : "is-secured");
+          status.textContent = "Fixed";
+          status.className = modalUI ? "cy-sharemodal__v cy-sharemodal__v--ok"
+            : settingsUI ? "cy-rtr__pill cy-rtr__pill--ok" : "cy-harden__status";
           btn.classList.add("is-right");
-          why.className = (settingsUI ? "cy-netmap__why" : "cy-harden__why") + " is-good";
+          why.className = doneCls + " is-good";
           why.textContent = opt.why;
           Array.prototype.forEach.call(opts.children, function (o) { o.disabled = true; });
           done += 1;
           update();
           if (done === total) {
             feedback.className = "cy-act__feedback is-good";
-            feedback.textContent = "Workspace secured. Every part locked down.";
+            feedback.textContent = modalUI ? "Every setting fixed. That's what a share you control looks like." : "Workspace secured. Every part locked down.";
             solved(root);
           }
         } else {
@@ -1117,12 +1140,32 @@
           btn.disabled = true;
           card.classList.add("is-shake");
           window.setTimeout(function () { card.classList.remove("is-shake"); }, 400);
-          why.className = (settingsUI ? "cy-netmap__why" : "cy-harden__why") + " is-bad";
+          why.className = doneCls + " is-bad";
           why.textContent = opt.why || "That leaves a gap. Try the more secure option.";
         }
       }
 
       listEl.appendChild(card);
+    }
+
+    if (cfg.variant === "sharemodal") {
+      // Photograph-grade: a floating Google Drive-style share dialog, not a
+      // full settings page. Four rows, each with the current wrong value and
+      // the fix options beneath it.
+      var modal = el("div", "cy-sharemodal");
+      modal.appendChild(el("p", "cy-sharemodal__hdr", cfg.heading || "Share"));
+      if (cfg.file) {
+        var fileRow = el("p", "cy-sharemodal__file");
+        fileRow.appendChild(el("span", "cy-sharemodal__fileicon"));
+        fileRow.appendChild(document.createTextNode(cfg.file));
+        modal.appendChild(fileRow);
+      }
+      cfg.steps.forEach(function (step) { buildStep(step, modal, false, true); });
+      root.appendChild(counter);
+      root.appendChild(modal);
+      root.appendChild(feedback);
+      update();
+      return;
     }
 
     if (cfg.settings && cfg.frame) {

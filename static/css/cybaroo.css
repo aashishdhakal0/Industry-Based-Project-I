@@ -10993,3 +10993,51 @@ a.cy-mrow:hover { border-color: var(--cy-border-lift); transform: translateX(3px
 .cy-vm__row.is-settled.is-phish { background:#fdf3f2; }
 
 @media (max-width:480px) { .cy-spot__phones { grid-template-columns:1fr; } }
+
+/* ============================================================================
+   MODULE 4 LESSON 2 (v54+) — settings panels, toggles and modal overlays: a
+   register distinct from Modules 1-2's desktop consoles and Module 3's phone
+   apps. Self-contained, hard-coded real product colours, same principle as
+   .cy-br/.cy-ph. CSP-safe, own-origin.
+   ========================================================================== */
+
+/* ---- T3: HARDEN as a floating Drive-style share modal, not a full page ---- */
+.cy-sharemodal { background:#fff; border-radius:14px; box-shadow:0 24px 60px rgba(0,0,0,.55); color:#202124; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; margin:0 auto; max-width:30rem; overflow:hidden; width:100%; }
+.cy-sharemodal__hdr { color:#202124; font-size:15px; font-weight:700; margin:0; padding:16px 18px 2px; }
+.cy-sharemodal__file { align-items:center; color:#5f6368; display:flex; font-size:12px; gap:7px; margin:0; padding:0 18px 12px; border-bottom:1px solid #e6e8eb; padding-bottom:14px; }
+.cy-sharemodal__fileicon { background:#1a73e8; border-radius:3px; display:inline-block; flex:none; height:13px; width:10px; }
+.cy-sharemodal__row { border-bottom:1px solid #f1f3f4; padding:13px 18px; }
+.cy-sharemodal__row:last-child { border-bottom:0; }
+.cy-sharemodal__top { align-items:flex-start; display:flex; flex-wrap:wrap; gap:0.5rem 0.85rem; justify-content:space-between; }
+.cy-sharemodal__k { color:#202124; flex:1 1 10rem; font-size:13px; font-weight:600; min-width:0; }
+.cy-sharemodal__v { border-radius:6px; flex:none; font-size:11.5px; font-weight:700; padding:3px 10px; }
+.cy-sharemodal__v--bad { background:#fce8e6; color:#c5221f; }
+.cy-sharemodal__v--ok { background:#e6f4ea; color:#137333; }
+.cy-sharemodal__risk { color:#5f6368; font-size:11.5px; line-height:1.4; margin:5px 0 0; }
+.cy-sharemodal__opts { display:flex; flex-wrap:wrap; gap:7px; margin-top:10px; }
+.cy-sharemodal__opt { background:#fff; border:1px solid #dadce0; border-radius:16px; color:#3c4043; cursor:pointer; font-size:12px; font-weight:600; padding:6px 13px; }
+.cy-sharemodal__opt:hover:not(:disabled) { border-color:#1a73e8; color:#1a73e8; }
+.cy-sharemodal__opt:disabled { cursor:default; opacity:.55; }
+.cy-sharemodal__opt.is-right { background:#e6f4ea; border-color:#137333; color:#137333; }
+.cy-sharemodal__opt.is-wrong { background:#fce8e6; border-color:#c5221f; color:#c5221f; }
+.cy-sharemodal__why { color:#5f6368; font-size:11.5px; margin:8px 0 0; }
+.cy-sharemodal__why.is-good { color:#137333; font-weight:600; }
+.cy-sharemodal__why.is-bad { color:#c5221f; font-weight:600; }
+.cy-sharemodal__why:empty { display:none; }
+.cy-sharemodal__row.is-shake { animation:cy-shake .4s; }
+.cy-sharemodal__row.is-fixed { background:#f8fbf9; }
+
+/* ---- T4 hero: a Wi-Fi picker with an evil twin (static diagram) ----------- */
+.cy-wifilist { padding:4px 0 10px; }
+.cy-wifilist__h { color:#6d6d72; font-size:11px; font-weight:600; letter-spacing:.02em; margin:14px 16px 4px; text-transform:uppercase; }
+.cy-wifilist__h:first-child { margin-top:10px; }
+.cy-wifilist__row { align-items:center; background:#fff; border-bottom:1px solid #e6e8eb; display:flex; justify-content:space-between; padding:11px 16px; }
+.cy-wifilist__row--flag { background:#fff7f0; }
+.cy-wifilist__name { color:#000; display:flex; flex-direction:column; font-size:13.5px; }
+.cy-wifilist__name small { color:#8e8e93; font-size:10.5px; font-weight:400; margin-top:1px; }
+.cy-wifilist__meta { align-items:center; color:#8e8e93; display:flex; font-size:11.5px; gap:4px; }
+.cy-wifilist__sig, .cy-wifilist__lock { color:#8e8e93; flex:none; height:14px; width:14px; }
+.cy-wifilist__row--flag .cy-wifilist__meta { color:#c5221f; font-weight:600; }
+.cy-wifilist__row--flag .cy-wifilist__sig { color:#c5221f; }
+.cy-wifilist__toggle { background:#e9e9eb; border-radius:999px; display:block; flex:none; height:20px; position:relative; width:34px; }
+.cy-wifilist__toggle::after { background:#fff; border-radius:50%; box-shadow:0 1px 3px rgba(0,0,0,.3); content:""; height:16px; left:2px; position:absolute; top:2px; width:16px; }

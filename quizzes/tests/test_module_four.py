@@ -3,12 +3,16 @@
 Pins the restructured shape against order_index=4: Lesson 1 TEACHES (four reading
 CONCEPT panels, each with a real visual: encryption, the padlock and end-to-end,
 sharing safely, and staying private on the move) plus one light comprehension
-check on an insecure send. Lesson 2 APPLIES (sort encrypted vs open, judge safe
-shares from leaks, read a share-settings screen, work a share decision, and
-harden a mobile workspace). Plus the universal quality checks: activities are
-well-formed and solvable, the quiz is valid and split across the two lessons, the
-voice is em-dash-free, the ground is covered, and a full journey reaches the
-module-complete moment.
+check on an insecure send. Lesson 2 APPLIES as hands-on artefacts drawn from
+settings panels, toggles and modal overlays, distinct from Modules 1-2's desktop
+consoles and Module 3's phone apps: sort a real activity log (SORT), read a
+browser's connection-details panel (NETMAP), fix a leaky share on a floating
+Drive-style dialog (HARDEN), order a departure-gate procedure past an evil-twin
+Wi-Fi picker (SEQUENCE), and a live privacy-law incident board (TABLETOP).
+Payload well-formedness for the new artefact shapes lives in
+test_module_four_lesson_two.py. Plus the universal quality checks: the quiz is
+valid and split across the two lessons, the voice is em-dash-free, the ground is
+covered, and a full journey reaches the module-complete moment.
 """
 
 import json as _json
@@ -29,7 +33,7 @@ User = get_user_model()
 
 LESSON_KINDS = {
     1: ["CONCEPT", "CONCEPT", "CONCEPT", "CONCEPT", "CHECK"],
-    2: ["SORT", "CLASSIFY", "CHECK", "BRANCH", "HARDEN"],
+    2: ["SORT", "NETMAP", "HARDEN", "SEQUENCE", "TABLETOP"],
 }
 ACTIVITY_KINDS = {
     "SORT", "MAILSORT", "CLASSIFY", "BRANCH", "SEQUENCE", "SPOT",
@@ -81,10 +85,18 @@ def test_lesson_one_is_a_teaching_lesson(seeded):
 
 @pytest.mark.django_db
 def test_lesson_two_is_an_apply_lesson(seeded):
+    """Lesson 2 APPLIES: hands-on activities, never a reading panel, and never a
+    bare CHECK-on-a-diagram (that is Lesson 1's shape). At least one activity
+    hands the learner a real device-framed artefact to work."""
     tasks = list(seeded.lessons.get(lesson_number=2).tasks.order_by("order"))
     assert len([t for t in tasks if t.kind in ACTIVITY_KINDS]) >= 3
     assert not [t for t in tasks if t.kind == "CONCEPT"]
-    assert [t for t in tasks if t.kind == "CHECK" and t.diagram_key], "L2 needs a picture question"
+    assert not [t for t in tasks if t.kind == "CHECK"], "L2 tests; a bare CHECK-on-a-diagram is Lesson 1's shape"
+    framed = [
+        t for t in tasks
+        if (t.payload or {}).get("frame") or (t.payload or {}).get("variant") == "sharemodal"
+    ]
+    assert framed, "Lesson 2 needs at least one device-framed interactive artefact"
 
 
 @pytest.mark.django_db
@@ -109,13 +121,14 @@ def test_uses_the_secure_comms_figures(seeded):
     }
     for t in l1.tasks.filter(kind="CONCEPT"):
         assert not (t.image or {}).get("src"), f"{t.task_key} should be diagram-only"
-    # The readable picture-question mockups remain (scene-send check, secure-share
-    # + wifi-evil-twin in Lesson 2).
+    # The readable picture-question mockup remains (the L1 compose-send check),
+    # and Lesson 2 carries its own new device-framed hero (the evil-twin Wi-Fi
+    # picker), distinct from the plain wifi-evil-twin figure L1 teaches from.
     keys = set(
         LessonTask.objects.filter(lesson__module=seeded)
         .exclude(diagram_key="").values_list("diagram_key", flat=True)
     )
-    assert {"compose-send", "secure-share", "wifi-evil-twin"} <= keys, f"mockups missing: {keys}"
+    assert {"compose-send", "secure-share", "wifi-evil-twin", "wifi-picker-evil-twin"} <= keys, f"mockups missing: {keys}"
 
 
 # --- activity well-formedness (each solvable) ------------------------------
@@ -132,38 +145,10 @@ def test_sort_activity_is_solvable(seeded):
     assert len({i["bucket"] for i in p["items"]}) >= 2
 
 
-@pytest.mark.django_db
-def test_classify_activity_is_solvable(seeded):
-    task = seeded.lessons.get(lesson_number=2).tasks.get(kind="CLASSIFY")
-    p = task.payload
-    cats = {c["id"] for c in p["categories"]}
-    assert len(cats) >= 2 and len(p["events"]) >= 4
-    for e in p["events"]:
-        assert e["category"] in cats and e.get("text") and e.get("why")
-    assert {e["category"] for e in p["events"]} == cats, "no dead category"
-
-
-@pytest.mark.django_db
-def test_branch_activity_is_solvable(seeded):
-    task = seeded.lessons.get(lesson_number=2).tasks.get(kind="BRANCH")
-    p = task.payload
-    assert p.get("prompt") and p["start"] in p["nodes"]
-    nodes = p["nodes"]
-    seen, stack, outcomes, endings = set(), [p["start"]], set(), []
-    while stack:
-        nid = stack.pop()
-        if nid in seen:
-            continue
-        seen.add(nid)
-        node = nodes[nid]
-        assert node.get("text")
-        for c in node.get("choices", []):
-            assert c.get("label") and c.get("feedback") and c["to"] in nodes
-            outcomes.add(c["outcome"]); stack.append(c["to"])
-        if not node.get("choices"):
-            endings.append(nid)
-    assert set(nodes) == seen, "unreachable nodes"
-    assert "good" in outcomes and "bad" in outcomes and len(endings) >= 2
+# NETMAP and TABLETOP well-formedness for this module's own new artefacts
+# (the connection-details panel, the leaked-file incident board) lives in
+# test_module_four_lesson_two.py, alongside the sharemodal-specific HARDEN
+# checks (this generic one below still applies, since it shares field names).
 
 
 @pytest.mark.django_db
