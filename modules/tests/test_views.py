@@ -953,7 +953,7 @@ def test_each_diagram_renders_its_content():
         "exec-email": "ceo-office-mail.com",
         "caller-id": "Sarah Whitton",
         "msg-encrypted": "Encrypted",
-        "secure-share": "Restricted to specific people",
+        "secure-share": "Viewer, not Editor",
         "wifi-evil-twin": "Corner Cafe Free WiFi",
         "net-scene": "YOUR NETWORK",
         "scene-vish": "keep it",

@@ -5,17 +5,17 @@ order_index rather than as columns on the Module table. Deriving them here means
 no schema change and one place to restyle all six cards.
 """
 
-# Matte (hi, deep) gradient endpoints, one per module position. Warm
-# orange/amber/copper family (2026-09 "Ember" restyle), so the six cards read
-# as a cohesive set with variety, none of them a cool colour sitting in an
-# otherwise warm palette.
+# Matte (hi, deep) gradient endpoints, one per module position. Navy/blue/
+# cyan family (2026-09 "Aurora" restyle), so the six cards read as a cohesive
+# set with variety, none of them a warm colour sitting in an otherwise cool
+# palette.
 TILES = [
-    ("#ff5a36", "#c43f1e"),  # coral-orange (the primary accent itself)
-    ("#ffa53c", "#c77a1e"),  # amber
-    ("#ff7a54", "#c2472a"),  # salmon
-    ("#e8935a", "#a8632e"),  # copper
-    ("#f2555a", "#b8302e"),  # ember-red
-    ("#d9a64a", "#96701f"),  # bronze
+    ("#4e93ff", "#2563eb"),  # blue (the primary accent itself)
+    ("#2dd4ff", "#0891b2"),  # cyan
+    ("#38bdf8", "#0369a1"),  # sky
+    ("#6366f1", "#3730a3"),  # indigo
+    ("#2dd4bf", "#0f766e"),  # teal
+    ("#818cf8", "#4338ca"),  # periwinkle
 ]
 
 # Icon id (see templates/_icons.html) per module position.

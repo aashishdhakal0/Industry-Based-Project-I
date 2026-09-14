@@ -5,53 +5,73 @@
 
 {% if key == "cia-triad" %}
   <figure class="cy-diagram" role="img"
-          aria-label="The three pillars of security, each shown as a real screen where it has failed. Confidentiality: a Google Drive share dialog for Patient_records_2024.xlsx set to Anyone with the link can view. Integrity: a supplier tax invoice where the bank account for payment has been quietly changed, highlighted. Availability: a ransomware lock screen saying the practice's files are encrypted.">
-    <div class="cy-cia3">
-      <div class="cy-cia3__cell">
-        <div class="cy-cia3__frame">
-          <div class="cy-drv">
-            <div class="cy-drv__h">Share <span>&ldquo;Patient_records_2024.xlsx&rdquo;</span></div>
-            <div class="cy-drv__gen">
-              <span class="cy-drv__globe"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 010 18M12 3a15 15 0 000 18"/></svg></span>
-              <span><span class="cy-drv__lab">Anyone with the link</span><span class="cy-drv__sub">Anyone on the internet with the link can view</span></span>
-              <span class="cy-drv__role">Viewer &#9662;</span>
-            </div>
-            <div class="cy-drv__foot"><span class="cy-drv__copy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" style="width:12px;height:12px;vertical-align:-1px"><path d="M10 14a4 4 0 006 0l3-3a4 4 0 00-6-6l-1 1M14 10a4 4 0 00-6 0l-3 3a4 4 0 006 6l1-1"/></svg> Copy link</span><span class="cy-drv__done">Done</span></div>
-          </div>
-        </div>
-        <p class="cy-cia3__cap"><span class="cy-cia3__tag cy-cia3__tag--c">Confidentiality</span><span class="cy-cia3__what">The wrong people can see it.</span></p>
-      </div>
-      <div class="cy-cia3__cell">
-        <div class="cy-cia3__frame">
-          <div class="cy-inv">
-            <div class="cy-inv__top"><span class="cy-inv__co">Bright Dental Supplies<small>ABN 44 128 907 331</small></span><span class="cy-inv__t">TAX INVOICE</span></div>
-            <p class="cy-inv__meta">Bill to: Yarra Ridge Dental &middot; Inv #BDS-4471 &middot; 14 Oct 2025</p>
-            <div class="cy-inv__li"><span>Composite restorative kit</span><span>$1,240.00</span></div>
-            <div class="cy-inv__li"><span>Sterilisation pouches x500</span><span>$186.00</span></div>
-            <div class="cy-inv__li"><b>Total due</b><b>$1,426.00</b></div>
-            <div class="cy-inv__pay">
-              <span class="cy-inv__payh">Please pay to</span>
-              <div class="cy-inv__bsb">BSB <mark>083-170</mark> &nbsp; Acct <mark>55 981 402</mark></div>
-              <div class="cy-inv__bsb">Bright Dental Supplies Pty Ltd</div>
-            </div>
-          </div>
-        </div>
-        <p class="cy-cia3__cap"><span class="cy-cia3__tag cy-cia3__tag--i">Integrity</span><span class="cy-cia3__what">The bank details were quietly changed.</span></p>
-      </div>
-      <div class="cy-cia3__cell">
-        <div class="cy-cia3__frame">
-          <div class="cy-lock">
-            <span class="cy-lock__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 018 0v3"/></svg></span>
-            <p class="cy-lock__h">Your files are encrypted</p>
-            <p class="cy-lock__p">Patient records, x-rays and accounts on this practice&rsquo;s systems are locked.</p>
-            <p class="cy-lock__timer">Time left: 71:58:04</p>
-          </div>
-        </div>
-        <p class="cy-cia3__cap"><span class="cy-cia3__tag cy-cia3__tag--a">Availability</span><span class="cy-cia3__what">You can&rsquo;t reach it when you need it.</span></p>
-      </div>
+          aria-label="A structure diagram: Security at the top, branching to three questions, Confidentiality, Integrity and Availability, each defined in one line and each connected down to the real 2022 Australian incident that shows it failing. Confidentiality connects to the Optus breach, 9.8 million records exposed. Integrity connects to a landlord's payout account quietly changed in a rent ledger. Availability connects to the Medibank attack, 9.7 million people's health data stolen through remote access with no second factor.">
+    <div class="cy-triad">
+      <svg class="cy-triad__svg" viewBox="0 0 780 470" xmlns="http://www.w3.org/2000/svg">
+        <path d="M390 62 L390 92 M390 92 L166 130 M390 92 L390 130 M390 92 L614 130" class="cy-triad__wire" fill="none"/>
+        <path d="M166 190 L166 246 M390 190 L390 246 M614 190 L614 246" class="cy-triad__wire" fill="none"/>
+
+        <g class="cy-triad__hub"><rect x="330" y="18" width="120" height="44" rx="9"/><text x="390" y="45" class="cy-triad__hublabel">SECURITY</text></g>
+
+        <g class="cy-triad__node" transform="translate(96,130)">
+          <rect x="0" y="0" width="140" height="60" rx="9"/>
+          <text x="70" y="23" class="cy-triad__letter">C &middot; Confidentiality</text>
+          <text x="70" y="40" class="cy-triad__q">Can only the right</text>
+          <text x="70" y="52" class="cy-triad__q">people see it?</text>
+        </g>
+        <g class="cy-triad__node" transform="translate(320,130)">
+          <rect x="0" y="0" width="140" height="60" rx="9"/>
+          <text x="70" y="23" class="cy-triad__letter">I &middot; Integrity</text>
+          <text x="70" y="40" class="cy-triad__q">Is it accurate and</text>
+          <text x="70" y="52" class="cy-triad__q">unaltered?</text>
+        </g>
+        <g class="cy-triad__node" transform="translate(544,130)">
+          <rect x="0" y="0" width="140" height="60" rx="9"/>
+          <text x="70" y="23" class="cy-triad__letter">A &middot; Availability</text>
+          <text x="70" y="40" class="cy-triad__q">Is it there when</text>
+          <text x="70" y="52" class="cy-triad__q">you need it?</text>
+        </g>
+
+        <g class="cy-triad__case" transform="translate(66,246)">
+          <rect x="0" y="0" width="200" height="200" rx="10"/>
+          <text x="100" y="26" class="cy-triad__caseyear">2022</text>
+          <text x="100" y="48" class="cy-triad__caseh">Optus breach</text>
+          <text x="16" y="76" class="cy-triad__cased">9.8 million current and</text>
+          <text x="16" y="92" class="cy-triad__cased">former customers' data</text>
+          <text x="16" y="108" class="cy-triad__cased">exposed, some passport</text>
+          <text x="16" y="124" class="cy-triad__cased">and licence numbers.</text>
+          <text x="16" y="152" class="cy-triad__casewhy">For an agency: a tenant's</text>
+          <text x="16" y="168" class="cy-triad__casewhy">licence and payslips</text>
+          <text x="16" y="184" class="cy-triad__casewhy">reaching the wrong inbox.</text>
+        </g>
+        <g class="cy-triad__case" transform="translate(290,246)">
+          <rect x="0" y="0" width="200" height="200" rx="10"/>
+          <text x="100" y="26" class="cy-triad__caseyear">EVERY YEAR</text>
+          <text x="100" y="48" class="cy-triad__caseh">Payment redirection</text>
+          <text x="16" y="76" class="cy-triad__cased">A landlord's payout</text>
+          <text x="16" y="92" class="cy-triad__cased">account, quietly changed</text>
+          <text x="16" y="108" class="cy-triad__cased">in the rent ledger. The</text>
+          <text x="16" y="124" class="cy-triad__cased">record still opens fine.</text>
+          <text x="16" y="152" class="cy-triad__casewhy">Nothing looks wrong until</text>
+          <text x="16" y="168" class="cy-triad__casewhy">the rent lands in the</text>
+          <text x="16" y="184" class="cy-triad__casewhy">wrong account.</text>
+        </g>
+        <g class="cy-triad__case" transform="translate(514,246)">
+          <rect x="0" y="0" width="200" height="200" rx="10"/>
+          <text x="100" y="26" class="cy-triad__caseyear">2022</text>
+          <text x="100" y="48" class="cy-triad__caseh">Medibank attack</text>
+          <text x="16" y="76" class="cy-triad__cased">9.7 million people's</text>
+          <text x="16" y="92" class="cy-triad__cased">health data stolen, later</text>
+          <text x="16" y="108" class="cy-triad__cased">published. In through</text>
+          <text x="16" y="124" class="cy-triad__cased">remote access, no MFA.</text>
+          <text x="16" y="152" class="cy-triad__casewhy">The same class of attack</text>
+          <text x="16" y="168" class="cy-triad__casewhy">locks a business out of</text>
+          <text x="16" y="184" class="cy-triad__casewhy">its own systems for days.</text>
+        </g>
+      </svg>
     </div>
     <figcaption class="cy-diagram__cap cy-diagram__cap--single">
-      Security rests on three pillars. Each screen shows one of them broken: kept private (Confidentiality), kept accurate (Integrity), kept available (Availability).
+      Every control in this course defends one of three questions. Each one maps to a real Australian incident: kept private (Confidentiality), kept accurate (Integrity), kept available (Availability).
     </figcaption>
   </figure>
 
@@ -228,89 +248,191 @@
   </figure>
 
 {% elif key == "se-levers" %}
-  <figure class="cy-diagram cy-levers" role="img"
-          aria-label="The levers of social engineering: authority, urgency, fear and curiosity, all pushing on you.">
-    <div class="cy-levers__row">
-      <div class="cy-levers__set">
-        <span class="cy-levers__lever">Authority</span>
-        <span class="cy-levers__lever">Urgency</span>
-        <span class="cy-levers__lever">Fear</span>
-        <span class="cy-levers__lever">Curiosity</span>
-      </div>
-      <span class="cy-levers__push" aria-hidden="true">
-        <svg class="cy-i"><use href="#i-arrow-right"/></svg>
-        <svg class="cy-i"><use href="#i-arrow-right"/></svg>
-      </span>
-      <div class="cy-levers__you">You</div>
+  <figure class="cy-diagram" role="img"
+          aria-label="A radial diagram: You at the centre, with five levers of social engineering surrounding and pressing inward, each labelled with the instinct it exploits and a real example of how it sounds. Authority: claims to be the boss, the bank or the tax office. Urgency: a countdown or deadline to stop you checking. Fear: a threat that your account will be closed or you will be fined. Curiosity: a tempting subject line or mystery attachment. Greed: a prize, refund or too-good offer.">
+    <div class="cy-lev">
+      <svg class="cy-lev__svg" viewBox="0 0 760 560" xmlns="http://www.w3.org/2000/svg">
+        <path d="M380 280 L206 128" class="cy-lev__wire"/>
+        <path d="M380 280 L380 90" class="cy-lev__wire"/>
+        <path d="M380 280 L554 128" class="cy-lev__wire"/>
+        <path d="M380 280 L590 330" class="cy-lev__wire"/>
+        <path d="M380 280 L216 400" class="cy-lev__wire"/>
+
+        <g class="cy-lev__you"><circle cx="380" cy="280" r="52"/><text x="380" y="287" class="cy-lev__youtext">YOU</text></g>
+
+        <g class="cy-lev__node" transform="translate(56,44)">
+          <rect x="0" y="0" width="200" height="78" rx="10"/>
+          <text x="100" y="24" class="cy-lev__name">Authority</text>
+          <text x="100" y="42" class="cy-lev__ex">"This is the ATO. You</text>
+          <text x="100" y="56" class="cy-lev__ex">owe an overdue amount."</text>
+        </g>
+        <g class="cy-lev__node" transform="translate(280,10)">
+          <rect x="0" y="0" width="200" height="78" rx="10"/>
+          <text x="100" y="24" class="cy-lev__name">Urgency</text>
+          <text x="100" y="42" class="cy-lev__ex">"Act within the hour or</text>
+          <text x="100" y="56" class="cy-lev__ex">your account is closed."</text>
+        </g>
+        <g class="cy-lev__node" transform="translate(504,44)">
+          <rect x="0" y="0" width="200" height="78" rx="10"/>
+          <text x="100" y="24" class="cy-lev__name">Fear</text>
+          <text x="100" y="42" class="cy-lev__ex">"Unusual activity found.</text>
+          <text x="100" y="56" class="cy-lev__ex">You will be fined."</text>
+        </g>
+        <g class="cy-lev__node" transform="translate(538,304)">
+          <rect x="0" y="0" width="200" height="78" rx="10"/>
+          <text x="100" y="24" class="cy-lev__name">Curiosity</text>
+          <text x="100" y="42" class="cy-lev__ex">"See who viewed your</text>
+          <text x="100" y="56" class="cy-lev__ex">profile" &mdash; open attached.</text>
+        </g>
+        <g class="cy-lev__node" transform="translate(56,364)">
+          <rect x="0" y="0" width="200" height="78" rx="10"/>
+          <text x="100" y="24" class="cy-lev__name">Greed</text>
+          <text x="100" y="42" class="cy-lev__ex">"You've won a $500 gift</text>
+          <text x="100" y="56" class="cy-lev__ex">card. Claim it now."</text>
+        </g>
+      </svg>
     </div>
     <figcaption class="cy-diagram__cap cy-diagram__cap--single">
-      Social engineering does not attack the computer. It presses these ordinary human instincts until you act.
+      Social engineering does not attack the computer. It presses five ordinary human instincts, all at once or one at a time, until you act without checking.
     </figcaption>
   </figure>
 
 {% elif key == "encryption" %}
-  <figure class="cy-diagram cy-encrypt" role="img"
-          aria-label="Encryption: a readable message is scrambled with a key, travels as gibberish, and is unscrambled with the key at the other end.">
-    <div class="cy-encrypt__row">
-      <span class="cy-encrypt__plain">HELLO</span>
-      <span class="cy-encrypt__op" aria-hidden="true"><svg class="cy-i"><use href="#i-lock"/></svg></span>
-      <span class="cy-encrypt__cipher">8f&#64;3!x9q</span>
-      <span class="cy-encrypt__op" aria-hidden="true"><svg class="cy-i"><use href="#i-lock"/></svg></span>
-      <span class="cy-encrypt__plain">HELLO</span>
+  <figure class="cy-diagram" role="img"
+          aria-label="The same message, sent two ways, shown as two rows travelling through the same three hops: your device, the Wi-Fi or mobile network, and the open internet, to the recipient. Top row, out in the open: the message 'Meeting moved to 3pm, bring the Nguyen file' reads in plain text at every single hop, like a postcard. Bottom row, encrypted: the message becomes ciphertext, aa3f-c281-99de and so on, on the wire at every hop, and only turns back into readable text on the recipient's device, which holds the matching key.">
+    <div class="cy-eflow">
+      <svg class="cy-eflow__svg" viewBox="0 0 800 300" xmlns="http://www.w3.org/2000/svg">
+        <defs><marker id="ef-ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0 0 L7 4 L0 8 z" fill="#8a7568"/></marker></defs>
+        <path d="M120 60 L200 60" class="cy-eflow__wire" marker-end="url(#ef-ar)"/>
+        <path d="M360 60 L440 60" class="cy-eflow__wire" marker-end="url(#ef-ar)"/>
+        <path d="M600 60 L680 60" class="cy-eflow__wire" marker-end="url(#ef-ar)"/>
+        <path d="M120 220 L200 220" class="cy-eflow__wire" marker-end="url(#ef-ar)"/>
+        <path d="M360 220 L440 220" class="cy-eflow__wire" marker-end="url(#ef-ar)"/>
+        <path d="M600 220 L680 220" class="cy-eflow__wire" marker-end="url(#ef-ar)"/>
+
+        <text x="20" y="34" class="cy-eflow__rowlabel cy-eflow__rowlabel--bad">OUT IN THE OPEN</text>
+        <g class="cy-eflow__end"><circle cx="60" cy="60" r="26"/><text x="60" y="65" class="cy-eflow__endtext">You</text></g>
+        <g class="cy-eflow__hop cy-eflow__hop--bad" transform="translate(200,34)"><rect x="0" y="0" width="160" height="52" rx="8"/><text x="80" y="20" class="cy-eflow__hoplabel">Your Wi-Fi</text><text x="80" y="38" class="cy-eflow__hopmsg">"Meeting moved to 3pm&#8230;"</text></g>
+        <g class="cy-eflow__hop cy-eflow__hop--bad" transform="translate(440,34)"><rect x="0" y="0" width="160" height="52" rx="8"/><text x="80" y="20" class="cy-eflow__hoplabel">The open internet</text><text x="80" y="38" class="cy-eflow__hopmsg">"&#8230;bring the Nguyen file"</text></g>
+        <g class="cy-eflow__end"><circle cx="720" cy="60" r="26"/><text x="720" y="65" class="cy-eflow__endtext">Them</text></g>
+        <text x="640" y="98" class="cy-eflow__readable cy-eflow__readable--bad">readable the whole way</text>
+
+        <text x="20" y="194" class="cy-eflow__rowlabel cy-eflow__rowlabel--ok">ENCRYPTED</text>
+        <g class="cy-eflow__end"><circle cx="60" cy="220" r="26"/><text x="60" y="225" class="cy-eflow__endtext">You</text></g>
+        <g class="cy-eflow__hop cy-eflow__hop--ok" transform="translate(200,194)"><rect x="0" y="0" width="160" height="52" rx="8"/><text x="80" y="20" class="cy-eflow__hoplabel">Your Wi-Fi</text><text x="80" y="38" class="cy-eflow__hopmsg">aa3f&#8209;c281&#8209;99de&#8209;&#8230;</text></g>
+        <g class="cy-eflow__hop cy-eflow__hop--ok" transform="translate(440,194)"><rect x="0" y="0" width="160" height="52" rx="8"/><text x="80" y="20" class="cy-eflow__hoplabel">The open internet</text><text x="80" y="38" class="cy-eflow__hopmsg">7e02&#8209;61bf&#8209;3a4c&#8209;&#8230;</text></g>
+        <g class="cy-eflow__end cy-eflow__end--key"><circle cx="720" cy="220" r="26"/><text x="720" y="225" class="cy-eflow__endtext">Them</text></g>
+        <text x="640" y="258" class="cy-eflow__readable cy-eflow__readable--ok">ciphertext until the key unlocks it</text>
+      </svg>
     </div>
-    <figcaption class="cy-diagram__cap">
-      <span><b>With the key</b>, the message scrambles and unscrambles cleanly.</span>
-      <span><b>Without the key</b>, anyone who intercepts it in the middle sees only gibberish.</span>
+    <figcaption class="cy-diagram__cap cy-diagram__cap--single">
+      The same message, sent two ways, through the same three hops. Encryption does not change the path. It changes what anyone sitting on that path actually sees.
     </figcaption>
   </figure>
 
 {% elif key == "firewall" %}
   <figure class="cy-diagram" role="img"
-          aria-label="A firewall between the internet and your network, allowing wanted traffic and blocking the rest.">
-    <div class="cy-scr cy-scr--win">
-      <div class="cy-scr__chrome">
-        <span class="cy-scr__title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="1.5"/><path d="M3 9h18M3 15h18M9 4v5m6-5v5M6 15v5m12-5v5"/></svg>Firewall</span>
-        <span class="cy-scr__winctl">&#8722; &#9633; &#10005;</span>
-      </div>
-      <div class="cy-scr__body">
-        <div class="cy-fw">
-          <div class="cy-fw__row">
-            <span class="cy-fw__end cy-fw__end--net">The internet</span>
-            <span class="cy-fw__gate">
-              <svg class="cy-i" aria-hidden="true"><use href="#i-shield"/></svg>
-              <span>Firewall</span>
-            </span>
-            <span class="cy-fw__end cy-fw__end--you">Your network</span>
-          </div>
-        </div>
-      </div>
+          aria-label="A firewall rule-matching diagram for the Portsea Bay Motel. On the left, four incoming connections. On the right, a five-rule firewall table read top to bottom: rule 1 allow front desk browsing, rule 2 allow guest Wi-Fi to the internet, rule 3 allow anyone reaching the booking website, rule 4 deny remote desktop from the internet, rule 5 deny everything else, the default. A line connects each connection to the specific rule that matches it first. A guest streaming a movie matches rule 2 and is allowed. A traveller loading the booking website matches rule 3 and is allowed. An unknown address opening Remote Desktop matches rule 4 and is blocked. An automated scanner probing the CCTV recorder matches no numbered rule and is caught, and blocked, by the default deny.">
+    <div class="cy-fwm">
+      <svg class="cy-fwm__svg" viewBox="0 0 820 320" xmlns="http://www.w3.org/2000/svg">
+        <path d="M240 40 L470 34" class="cy-fwm__wire cy-fwm__wire--ok"/>
+        <path d="M240 108 L470 74" class="cy-fwm__wire cy-fwm__wire--ok"/>
+        <path d="M240 176 L470 154" class="cy-fwm__wire cy-fwm__wire--bad"/>
+        <path d="M240 244 L470 234" class="cy-fwm__wire cy-fwm__wire--bad"/>
+
+        <g class="cy-fwm__traffic" transform="translate(8,10)">
+          <rect x="0" y="0" width="240" height="60" rx="8"/>
+          <text x="14" y="24" class="cy-fwm__t">Guest streams a movie</text>
+          <text x="14" y="40" class="cy-fwm__t2">on the guest Wi-Fi</text>
+          <text x="226" y="24" class="cy-fwm__verdict cy-fwm__verdict--ok" text-anchor="end">ALLOW</text>
+        </g>
+        <g class="cy-fwm__traffic" transform="translate(8,78)">
+          <rect x="0" y="0" width="240" height="60" rx="8"/>
+          <text x="14" y="24" class="cy-fwm__t">Traveller loads the</text>
+          <text x="14" y="40" class="cy-fwm__t2">motel booking website</text>
+          <text x="226" y="24" class="cy-fwm__verdict cy-fwm__verdict--ok" text-anchor="end">ALLOW</text>
+        </g>
+        <g class="cy-fwm__traffic" transform="translate(8,146)">
+          <rect x="0" y="0" width="240" height="60" rx="8"/>
+          <text x="14" y="24" class="cy-fwm__t">Unknown address opens</text>
+          <text x="14" y="40" class="cy-fwm__t2">Remote Desktop on reception PC</text>
+          <text x="226" y="24" class="cy-fwm__verdict cy-fwm__verdict--bad" text-anchor="end">BLOCK</text>
+        </g>
+        <g class="cy-fwm__traffic" transform="translate(8,214)">
+          <rect x="0" y="0" width="240" height="60" rx="8"/>
+          <text x="14" y="24" class="cy-fwm__t">Automated scanner probes</text>
+          <text x="14" y="40" class="cy-fwm__t2">the CCTV recorder</text>
+          <text x="226" y="24" class="cy-fwm__verdict cy-fwm__verdict--bad" text-anchor="end">BLOCK</text>
+        </g>
+
+        <g class="cy-fwm__rules" transform="translate(470,4)">
+          <rect x="0" y="0" width="344" height="270" rx="10" class="cy-fwm__rulesbox"/>
+          <text x="16" y="24" class="cy-fwm__ruleshdr">FIREWALL RULES &middot; read top to bottom</text>
+          <g transform="translate(16,38)"><rect x="0" y="0" width="312" height="36" rx="6" class="cy-fwm__rulerow cy-fwm__rulerow--ok"/><text x="10" y="16" class="cy-fwm__ruleaction">1 ALLOW</text><text x="10" y="30" class="cy-fwm__ruledesc">Front desk staff browsing and email</text></g>
+          <g transform="translate(16,78)"><rect x="0" y="0" width="312" height="36" rx="6" class="cy-fwm__rulerow cy-fwm__rulerow--ok"/><text x="10" y="16" class="cy-fwm__ruleaction">2 ALLOW</text><text x="10" y="30" class="cy-fwm__ruledesc">Guest Wi-Fi reaching the internet</text></g>
+          <g transform="translate(16,118)"><rect x="0" y="0" width="312" height="36" rx="6" class="cy-fwm__rulerow cy-fwm__rulerow--ok"/><text x="10" y="16" class="cy-fwm__ruleaction">3 ALLOW</text><text x="10" y="30" class="cy-fwm__ruledesc">Anyone reaching the booking website</text></g>
+          <g transform="translate(16,158)"><rect x="0" y="0" width="312" height="36" rx="6" class="cy-fwm__rulerow cy-fwm__rulerow--bad"/><text x="10" y="16" class="cy-fwm__ruleaction">4 DENY</text><text x="10" y="30" class="cy-fwm__ruledesc">Remote Desktop from the internet</text></g>
+          <g transform="translate(16,198)"><rect x="0" y="0" width="312" height="36" rx="6" class="cy-fwm__rulerow cy-fwm__rulerow--bad"/><text x="10" y="16" class="cy-fwm__ruleaction">5 DENY</text><text x="10" y="30" class="cy-fwm__ruledesc">Everything else (default deny)</text></g>
+          <text x="16" y="256" class="cy-fwm__rulesfoot">First rule that matches wins. Nothing skips ahead.</text>
+        </g>
+      </svg>
     </div>
-    <figcaption class="cy-diagram__cap">
-      <span><b>Wanted traffic</b> (your browsing and email) is allowed through.</span>
-      <span><b>Everything else</b>, including constant automated probes, is turned away at the door.</span>
+    <figcaption class="cy-diagram__cap cy-diagram__cap--single">
+      Four real connections, read against the same five rules, top to bottom. Two match a numbered rule and pass. Two match nothing above, so rule 5, the default deny, catches them &mdash; which is most of what a firewall does, all day.
     </figcaption>
   </figure>
 
 {% elif key == "segmentation" %}
   <figure class="cy-diagram" role="img"
-          aria-label="A segmented network divided into separate guest, staff and sensitive zones, so a problem in one is contained.">
-    <div class="cy-scr cy-scr--win">
-      <div class="cy-scr__chrome">
-        <span class="cy-scr__title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Network zones</span>
-        <span class="cy-scr__winctl">&#8722; &#9633; &#10005;</span>
-      </div>
-      <div class="cy-scr__body">
-        <div class="cy-seg">
-          <div class="cy-seg__zones">
-            <span class="cy-seg__zone">Guest</span>
-            <span class="cy-seg__zone">Staff</span>
-            <span class="cy-seg__zone cy-seg__zone--locked">Sensitive</span>
-          </div>
-        </div>
-      </div>
+          aria-label="Three watertight network compartments side by side, Guest, Trusted and Restricted, each with its own real devices, separated by firewalled gates. In the Guest zone, a phone is flagged infected. A red blocked line, with a cross, runs from the infected phone toward the Restricted zone's accounts terminal and is stopped at the gate. A green allowed line runs from a Trusted-zone staff PC through to the Restricted zone, because that traffic is genuinely needed.">
+    <div class="cy-seg2">
+      <svg class="cy-seg2__svg" viewBox="0 0 800 320" xmlns="http://www.w3.org/2000/svg">
+        <defs><marker id="sg-x" markerWidth="14" markerHeight="14" refX="7" refY="7"><path d="M2 2 L12 12 M12 2 L2 12" stroke="#f5495f" stroke-width="2.4" stroke-linecap="round"/></marker></defs>
+
+        <rect x="16" y="40" width="220" height="240" rx="12" class="cy-seg2__zone cy-seg2__zone--guest"/>
+        <text x="126" y="64" class="cy-seg2__zonelabel">GUEST ZONE</text>
+        <rect x="292" y="40" width="220" height="240" rx="12" class="cy-seg2__zone cy-seg2__zone--trusted"/>
+        <text x="402" y="64" class="cy-seg2__zonelabel">TRUSTED ZONE</text>
+        <rect x="564" y="40" width="220" height="240" rx="12" class="cy-seg2__zone cy-seg2__zone--restricted"/>
+        <text x="674" y="64" class="cy-seg2__zonelabel">RESTRICTED ZONE</text>
+
+        <g class="cy-seg2__dev cy-seg2__dev--bad" transform="translate(46,90)">
+          <rect x="0" y="0" width="160" height="50" rx="8"/>
+          <text x="80" y="20" class="cy-seg2__devname">Guest phone</text>
+          <text x="80" y="36" class="cy-seg2__devflag">infected, unpatched</text>
+        </g>
+        <g class="cy-seg2__dev" transform="translate(46,170)">
+          <rect x="0" y="0" width="160" height="40" rx="8"/>
+          <text x="80" y="25" class="cy-seg2__devname">Public Wi-Fi devices</text>
+        </g>
+
+        <g class="cy-seg2__dev" transform="translate(322,90)">
+          <rect x="0" y="0" width="160" height="40" rx="8"/>
+          <text x="80" y="25" class="cy-seg2__devname">Staff PC</text>
+        </g>
+        <g class="cy-seg2__dev" transform="translate(322,150)">
+          <rect x="0" y="0" width="160" height="40" rx="8"/>
+          <text x="80" y="25" class="cy-seg2__devname">Staff laptop</text>
+        </g>
+
+        <g class="cy-seg2__dev" transform="translate(594,90)">
+          <rect x="0" y="0" width="160" height="40" rx="8"/>
+          <text x="80" y="25" class="cy-seg2__devname">Accounts terminal</text>
+        </g>
+        <g class="cy-seg2__dev" transform="translate(594,150)">
+          <rect x="0" y="0" width="160" height="40" rx="8"/>
+          <text x="80" y="25" class="cy-seg2__devname">Payment terminal</text>
+        </g>
+
+        <path d="M206 115 C 420 260, 560 260, 640 130" class="cy-seg2__path cy-seg2__path--bad" marker-end="url(#sg-x)"/>
+        <path d="M482 108 L594 108" class="cy-seg2__path cy-seg2__path--ok"/>
+
+        <text x="400" y="300" class="cy-seg2__legend cy-seg2__legend--bad">&#10005; Blocked: the guest zone cannot reach Restricted, infected or not</text>
+        <text x="400" y="316" class="cy-seg2__legend cy-seg2__legend--ok">&#8213; Allowed: staff traffic that genuinely needs to reach Restricted</text>
+      </svg>
     </div>
     <figcaption class="cy-diagram__cap cy-diagram__cap--single">
-      Separate zones, like watertight compartments: trouble in one is sealed off from the rest.
+      Three watertight compartments. The infected phone in Guest can flood its own zone, but the gate to Restricted was never open to it in the first place &mdash; segmented, not just labelled.
     </figcaption>
   </figure>
 
@@ -332,27 +454,31 @@
 
 {% elif key == "ir-lifecycle" %}
   <figure class="cy-diagram" role="img"
-          aria-label="The incident response lifecycle: Preparation, Identification, Containment, Eradication, Recovery, Lessons Learned, looping back to Preparation.">
-    <div class="cy-scr cy-scr--win">
-      <div class="cy-scr__chrome">
-        <span class="cy-scr__title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M21 12a9 9 0 11-2.6-6.4M21 4v4h-4"/></svg>Incident response playbook</span>
-        <span class="cy-scr__winctl">&#8722; &#9633; &#10005;</span>
-      </div>
-      <div class="cy-scr__body">
-        <div class="cy-ir">
-          <ol class="cy-ir__ring">
-            <li class="cy-ir__phase"><span class="cy-ir__n">1</span> Preparation</li>
-            <li class="cy-ir__phase"><span class="cy-ir__n">2</span> Identification</li>
-            <li class="cy-ir__phase"><span class="cy-ir__n">3</span> Containment</li>
-            <li class="cy-ir__phase"><span class="cy-ir__n">4</span> Eradication</li>
-            <li class="cy-ir__phase"><span class="cy-ir__n">5</span> Recovery</li>
-            <li class="cy-ir__phase"><span class="cy-ir__n">6</span> Lessons Learned</li>
-          </ol>
-        </div>
-      </div>
+          aria-label="The six-phase incident response lifecycle, arranged as a loop with an arrow running clockwise through each phase and back to the start. Preparation: plan, backups and contacts ready. Identification: confirm it is real. Containment: stop the spread. Eradication: remove the cause. Recovery: restore from clean backups. Lessons Learned: review and get stronger, looping back into Preparation for next time.">
+    <div class="cy-loop">
+      <svg class="cy-loop__svg" viewBox="0 0 780 450" xmlns="http://www.w3.org/2000/svg">
+        <defs><marker id="lp-ar" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0 0 L8 4.5 L0 9 z" fill="#8a7568"/></marker></defs>
+        <path d="M460 68 A 190 190 0 0 1 610 172" class="cy-loop__wire" marker-end="url(#lp-ar)"/>
+        <path d="M610 248 A 190 190 0 0 1 460 382" class="cy-loop__wire" marker-end="url(#lp-ar)"/>
+        <path d="M320 382 A 190 190 0 0 1 170 248" class="cy-loop__wire" marker-end="url(#lp-ar)"/>
+        <path d="M170 172 A 190 190 0 0 1 320 68" class="cy-loop__wire" marker-end="url(#lp-ar)"/>
+        <path d="M610 172 A 190 190 0 0 1 610 248" class="cy-loop__wire" marker-end="url(#lp-ar)"/>
+        <path d="M170 248 A 190 190 0 0 1 170 172" class="cy-loop__wire" marker-end="url(#lp-ar)"/>
+
+        <g class="cy-loop__hub"><circle cx="390" cy="225" r="58"/><text x="390" y="220" class="cy-loop__hubt1">INCIDENT</text><text x="390" y="238" class="cy-loop__hubt2">RESPONSE</text></g>
+
+        <g class="cy-loop__node" transform="translate(310,10)"><rect x="0" y="0" width="160" height="58" rx="9"/><text x="80" y="22" class="cy-loop__n">1 &middot; Preparation</text><text x="80" y="38" class="cy-loop__d">Plan, backups, contacts</text><text x="80" y="50" class="cy-loop__d">ready, before anything.</text></g>
+        <g class="cy-loop__node" transform="translate(538,140)"><rect x="0" y="0" width="164" height="58" rx="9"/><text x="82" y="22" class="cy-loop__n">2 &middot; Identification</text><text x="82" y="38" class="cy-loop__d">Confirm it's real, not</text><text x="82" y="50" class="cy-loop__d">a glitch.</text></g>
+        <g class="cy-loop__node" transform="translate(538,222)"><rect x="0" y="0" width="164" height="58" rx="9"/><text x="82" y="22" class="cy-loop__n">3 &middot; Containment</text><text x="82" y="38" class="cy-loop__d">Stop the spread to more</text><text x="82" y="50" class="cy-loop__d">systems.</text></g>
+        <g class="cy-loop__node" transform="translate(310,354)"><rect x="0" y="0" width="160" height="58" rx="9"/><text x="80" y="22" class="cy-loop__n">4 &middot; Eradication</text><text x="80" y="38" class="cy-loop__d">Remove the cause, close</text><text x="80" y="50" class="cy-loop__d">the way in.</text></g>
+        <g class="cy-loop__node" transform="translate(78,222)"><rect x="0" y="0" width="164" height="58" rx="9"/><text x="82" y="22" class="cy-loop__n">5 &middot; Recovery</text><text x="82" y="38" class="cy-loop__d">Restore from clean</text><text x="82" y="50" class="cy-loop__d">backups, safely.</text></g>
+        <g class="cy-loop__node" transform="translate(78,140)"><rect x="0" y="0" width="164" height="58" rx="9"/><text x="82" y="22" class="cy-loop__n">6 &middot; Lessons Learned</text><text x="82" y="38" class="cy-loop__d">Review, get stronger for</text><text x="82" y="50" class="cy-loop__d">next time.</text></g>
+
+        <text x="390" y="434" class="cy-loop__foot">Skip a phase, and the attack simply reaches whatever you just cleaned or restored.</text>
+      </svg>
     </div>
     <figcaption class="cy-diagram__cap cy-diagram__cap--single">
-      Six phases in order, and the last loops back to make your preparation stronger for next time.
+      Six phases, in this order, every time. The last one loops back into the first, so every incident leaves the next Preparation a little stronger.
     </figcaption>
   </figure>
 
@@ -706,7 +832,7 @@
           aria-label="An email compose window titled New message. The To field is a personal Gmail address, personal-backup-2011 at gmail dot com. The subject is: Passport scan for your file. A short message is typed, and an attachment named Passport underscore Nguyen dot pdf, 1.2 megabytes, is added. A blue Send button is ready.">
     <div class="cy-scr cy-scr--win">
       <div class="cy-scr__winbar">
-        <span class="cy-scr__wintitle"><svg viewBox="0 0 24 24" fill="none" stroke="#ff8b6b" stroke-width="1.8" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg> New message</span>
+        <span class="cy-scr__wintitle"><svg viewBox="0 0 24 24" fill="none" stroke="#7eb6ff" stroke-width="1.8" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg> New message</span>
         <span class="cy-scr__winctl">&#8722; &#9633; &#10005;</span>
       </div>
       <div class="cy-scr__body">
@@ -730,7 +856,7 @@
     <div class="cy-scr cy-scr--browser">
       <div class="cy-scr__chrome">
         <span class="cy-scr__dots"><i></i><i></i><i></i></span>
-        <span class="cy-scr__tab"><b style="background:#c43f1e"></b><span>Firewall &middot; Rules</span></span>
+        <span class="cy-scr__tab"><b style="background:#2563eb"></b><span>Firewall &middot; Rules</span></span>
       </div>
       <div class="cy-scr__addr">
         <span class="cy-scr__nav">&#8592; &#8594;</span>
@@ -1060,31 +1186,40 @@
 
 {% elif key == "secure-share" %}
   <figure class="cy-diagram" role="img"
-          aria-label="A cloud storage share dialog open in a browser, showing two link settings. The risky one: anyone with the link can view, no expiry. The safe one: restricted to specific people, password protected, expires in 7 days.">
-    <div class="cy-scr cy-scr--browser">
-      <div class="cy-scr__chrome">
-        <span class="cy-scr__dots"><i></i><i></i><i></i></span>
-        <span class="cy-scr__tab"><b style="background:#2b8bff"></b><span>Share &ldquo;Client_form.pdf&rdquo;</span></span>
-      </div>
-      <div class="cy-scr__addr">
-        <span class="cy-scr__nav">&#8592; &#8594;</span>
-        <span class="cy-scr__url"><span class="cy-scr__lock"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 10V7a6 6 0 0111 0v3"/><rect x="4" y="10" width="16" height="10" rx="2"/></svg></span><span>drive.yourclinic.com.au/share</span></span>
-      </div>
-      <div class="cy-scr__body">
-        <div class="cy-share">
-          <div class="cy-share__opt cy-share__opt--bad">
-            <div class="cy-share__head"><svg class="cy-i" aria-hidden="true"><use href="#i-close"/></svg> Anyone with the link can view</div>
-            <ul class="cy-share__list"><li>No sign-in needed</li><li>Never expires</li><li>Can be forwarded to anyone</li></ul>
+          aria-label="An annotated share dialog for Client_form.pdf, done safely, with four numbered callouts. One: general access restricted to named people, not anyone with the link. Two: role set to viewer, not editor, the least access that does the job. Three: link expiry in 7 days, not never. Four: no password included in the note to recipient, because it should travel by a separate channel like a phone call.">
+    <div class="cy-ann">
+      <div class="cy-ann__art">
+        <div class="cy-sharemodal" style="margin:0;">
+          <p class="cy-sharemodal__hdr">Share &ldquo;Client_form.pdf&rdquo;</p>
+          <div class="cy-sharemodal__file"><span class="cy-sharemodal__fileicon"></span> Client_form.pdf &middot; 640 KB</div>
+          <div class="cy-sharemodal__row cy-ann__row">
+            <span class="cy-ann__badge">1</span>
+            <div class="cy-sharemodal__top"><span class="cy-sharemodal__k">General access</span><span class="cy-sharemodal__v cy-sharemodal__v--ok">Restricted</span></div>
           </div>
-          <div class="cy-share__opt cy-share__opt--good">
-            <div class="cy-share__head"><svg class="cy-i" aria-hidden="true"><use href="#i-check"/></svg> Restricted to specific people</div>
-            <ul class="cy-share__list"><li>Password protected</li><li>Expires in 7 days</li><li>Access can be revoked</li></ul>
+          <div class="cy-sharemodal__row cy-ann__row">
+            <span class="cy-ann__badge">2</span>
+            <div class="cy-sharemodal__top"><span class="cy-sharemodal__k">Role</span><span class="cy-sharemodal__v cy-sharemodal__v--ok">Viewer</span></div>
+          </div>
+          <div class="cy-sharemodal__row cy-ann__row">
+            <span class="cy-ann__badge">3</span>
+            <div class="cy-sharemodal__top"><span class="cy-sharemodal__k">Link expiry</span><span class="cy-sharemodal__v cy-sharemodal__v--ok">7 days</span></div>
+          </div>
+          <div class="cy-sharemodal__row cy-ann__row">
+            <span class="cy-ann__badge">4</span>
+            <div class="cy-sharemodal__top"><span class="cy-sharemodal__k">Note to recipient</span></div>
+            <p class="cy-sharemodal__risk">&ldquo;Here's the form we discussed. Call if you can't open it.&rdquo;</p>
           </div>
         </div>
       </div>
+      <div class="cy-ann__notes">
+        <div class="cy-ann__note"><span class="cy-ann__badge">1</span><div><b>Restricted, not "anyone with the link"</b><p>Only the named person can open it, whoever the link is later forwarded to.</p></div></div>
+        <div class="cy-ann__note"><span class="cy-ann__badge">2</span><div><b>Viewer, not Editor</b><p>The least access that does the job. They need to read it, not change it.</p></div></div>
+        <div class="cy-ann__note"><span class="cy-ann__badge">3</span><div><b>Expires in 7 days, not never</b><p>A standing link is a standing risk. This one closes itself.</p></div></div>
+        <div class="cy-ann__note"><span class="cy-ann__badge">4</span><div><b>No password in the note</b><p>If this file needed one, it would travel by a phone call, not this message.</p></div></div>
+      </div>
     </div>
     <figcaption class="cy-diagram__cap cy-diagram__cap--single">
-      Same file, two links. The safe one controls who gets in, and lets you take it back.
+      Four settings, each doing one job. Get all four right and a shared file stays exactly as shared: to the right person, for only as long as it needs to be.
     </figcaption>
   </figure>
 
@@ -1202,7 +1337,7 @@
       <path d="M92 131 q6 3 12 0" stroke="#3a2f2a" stroke-width="1.5" fill="none" stroke-linecap="round"/>
       <path d="M120 168 q26 -4 40 -18" stroke="#3f7d8c" stroke-width="13" fill="none" stroke-linecap="round"/>
       <!-- standing colleague pointing (right) -->
-      <path d="M372 190 q0 -74 34 -74 q34 0 34 74 Z" fill="#ff5a36"/>
+      <path d="M372 190 q0 -74 34 -74 q34 0 34 74 Z" fill="#4e93ff"/>
       <circle cx="406" cy="86" r="21" fill="#d99a6c"/>
       <path d="M386 84 q0 -24 20 -24 q20 0 20 24 q-10 -9 -20 -9 q-10 0 -20 9 Z" fill="#241a30"/>
       <circle cx="400" cy="86" r="2.2" fill="#3a2f2a"/>
@@ -1210,7 +1345,7 @@
       <path d="M394 79 l7 3 M419 79 l-7 3" stroke="#3a2f2a" stroke-width="1.5" fill="none" stroke-linecap="round"/>
       <path d="M400 97 q6 3 12 0" stroke="#3a2f2a" stroke-width="1.5" fill="none" stroke-linecap="round"/>
       <!-- pointing arm toward the screen -->
-      <path d="M376 138 q-30 -6 -44 -26" stroke="#ff5a36" stroke-width="13" fill="none" stroke-linecap="round"/>
+      <path d="M376 138 q-30 -6 -44 -26" stroke="#4e93ff" stroke-width="13" fill="none" stroke-linecap="round"/>
       <circle cx="330" cy="110" r="6" fill="#d99a6c"/>
       <text x="352" y="44" fill="#e6b455" font-size="24" font-weight="800" font-family="sans-serif">!</text>
     </svg>
@@ -1524,7 +1659,7 @@
 
         <!-- internet cloud -->
         <g class="cy-topo__cloud" transform="translate(596,2)">
-          <path d="M14 40 a16 16 0 0 1 -2 -31.8 a20 20 0 0 1 38.5 -7 a15 15 0 0 1 -2.5 29.8 -8 8 0 0 1 -1 9z" fill="#2a211e" stroke="#5a443c" stroke-width="1.5"/>
+          <path d="M14 40 a16 16 0 0 1 -2 -31.8 a20 20 0 0 1 38.5 -7 a15 15 0 0 1 -2.5 29.8 -8 8 0 0 1 -1 9z" fill="#16283f" stroke="#5a443c" stroke-width="1.5"/>
           <text x="24" y="62" class="cy-topo__cloudlabel" text-anchor="middle">The internet</text>
         </g>
 
@@ -1615,14 +1750,14 @@
           aria-label="A labelled router. Four things to secure: change the default admin password, use WPA2 or WPA3 with a long passphrase, keep visitors on a separate guest network, and turn on automatic firmware updates.">
     <svg viewBox="0 0 680 330" xmlns="http://www.w3.org/2000/svg" class="cy-td__svg">
       <!-- router body -->
-      <g><line x1="312" y1="150" x2="300" y2="118" stroke="#9c8579" stroke-width="3" stroke-linecap="round"/><line x1="340" y1="148" x2="340" y2="112" stroke="#9c8579" stroke-width="3" stroke-linecap="round"/><line x1="368" y1="150" x2="380" y2="118" stroke="#9c8579" stroke-width="3" stroke-linecap="round"/>
+      <g><line x1="312" y1="150" x2="300" y2="118" stroke="#2dd4ff" stroke-width="3" stroke-linecap="round"/><line x1="340" y1="148" x2="340" y2="112" stroke="#2dd4ff" stroke-width="3" stroke-linecap="round"/><line x1="368" y1="150" x2="380" y2="118" stroke="#2dd4ff" stroke-width="3" stroke-linecap="round"/>
         <rect x="284" y="150" width="112" height="66" rx="12" fill="#12202b" stroke="#33465f" stroke-width="2"/>
-        <circle cx="304" cy="196" r="3.4" fill="#9c8579"/><circle cx="320" cy="196" r="3.4" fill="#9c8579"/><circle cx="336" cy="196" r="3.4" fill="#e6b455"/>
+        <circle cx="304" cy="196" r="3.4" fill="#2dd4ff"/><circle cx="320" cy="196" r="3.4" fill="#2dd4ff"/><circle cx="336" cy="196" r="3.4" fill="#e6b455"/>
         <rect x="352" y="189" width="34" height="14" rx="3" fill="none" stroke="#33465f"/><line x1="360" y1="189" x2="360" y2="203" stroke="#33465f"/><line x1="369" y1="189" x2="369" y2="203" stroke="#33465f"/><line x1="378" y1="189" x2="378" y2="203" stroke="#33465f"/>
         <text x="340" y="176" class="cy-td__router">ROUTER</text></g>
       <!-- callouts -->
       <g stroke="#3a5075" stroke-width="1.4"><path d="M284 164 H176"/><path d="M284 202 H176"/><path d="M396 164 H504"/><path d="M396 202 H504"/></g>
-      <circle cx="176" cy="164" r="2.6" fill="#ff8b6b"/><circle cx="176" cy="202" r="2.6" fill="#ff8b6b"/><circle cx="504" cy="164" r="2.6" fill="#ff8b6b"/><circle cx="504" cy="202" r="2.6" fill="#ff8b6b"/>
+      <circle cx="176" cy="164" r="2.6" fill="#7eb6ff"/><circle cx="176" cy="202" r="2.6" fill="#7eb6ff"/><circle cx="504" cy="164" r="2.6" fill="#7eb6ff"/><circle cx="504" cy="202" r="2.6" fill="#7eb6ff"/>
       <g class="cy-td__call cy-td__call--r"><text x="166" y="150">Admin password</text><text x="166" y="167" class="cy-td__csub">Change the default.</text></g>
       <g class="cy-td__call cy-td__call--r"><text x="166" y="205">Wi-Fi encryption</text><text x="166" y="222" class="cy-td__csub">WPA2/WPA3, long key.</text></g>
       <g class="cy-td__call"><text x="514" y="150">Guest network</text><text x="514" y="167" class="cy-td__csub">Keep visitors apart.</text></g>
@@ -1660,8 +1795,8 @@
           aria-label="A one-hour timeline of an incident. The alert fires at zero minutes. The window that matters is the first thirty minutes, when containing the incident stops it spreading. Every hour of delay lets the damage grow.">
     <svg viewBox="0 0 660 250" xmlns="http://www.w3.org/2000/svg" class="cy-td__svg">
       <!-- golden window shading -->
-      <rect x="70" y="96" width="256" height="52" rx="6" fill="rgba(156,133,121,0.10)" stroke="#9c8579" stroke-width="1" stroke-dasharray="4 4"/>
-      <text x="198" y="90" class="cy-td__eyebrow" style="fill:#ff8a5c;text-anchor:middle">THE WINDOW THAT MATTERS</text>
+      <rect x="70" y="96" width="256" height="52" rx="6" fill="rgba(45, 212, 255, 0.10)" stroke="#2dd4ff" stroke-width="1" stroke-dasharray="4 4"/>
+      <text x="198" y="90" class="cy-td__eyebrow" style="fill:#7ff0ff;text-anchor:middle">THE WINDOW THAT MATTERS</text>
       <!-- axis -->
       <line x1="70" y1="148" x2="600" y2="148" stroke="#3a5075" stroke-width="2"/>
       <g stroke="#3a5075" stroke-width="1.5">
@@ -1671,7 +1806,7 @@
       <g class="cy-td__sub" style="text-anchor:middle"><text x="70" y="170">0 min</text><text x="198" y="170">15</text><text x="326" y="170">30</text><text x="454" y="170">45</text><text x="592" y="170">60</text></g>
       <!-- markers -->
       <circle cx="70" cy="148" r="6" fill="#ff4d4d"/><text x="70" y="126" class="cy-td__red" style="text-anchor:middle">Alert fires</text>
-      <circle cx="326" cy="148" r="6" fill="#9c8579"/><text x="326" y="126" class="cy-td__lane--cyan" style="font-size:11px;text-anchor:middle;font-family:var(--cy-font-mono)">Contained</text>
+      <circle cx="326" cy="148" r="6" fill="#2dd4ff"/><text x="326" y="126" class="cy-td__lane--cyan" style="font-size:11px;text-anchor:middle;font-family:var(--cy-font-mono)">Contained</text>
       <!-- cost note -->
       <g><rect x="70" y="196" width="522" height="34" rx="7" fill="rgba(245,73,95,0.07)" stroke="#3a5075" stroke-width="1"/><text x="331" y="217" class="cy-td__sub" style="text-anchor:middle;font-size:11.5px">Every hour of delay lets the incident spread to more machines, files and people.</text></g>
     </svg>
@@ -1679,24 +1814,27 @@
   </figure>
 
 {% elif key == "containment" %}
-  <figure class="cy-diagram cy-td" role="img"
-          aria-label="Containment on a network. One infected computer is cut off from the switch, shown by a broken red link, while the other three machines stay connected and safe.">
-    <svg viewBox="0 0 660 316" xmlns="http://www.w3.org/2000/svg" class="cy-td__svg">
-      <!-- switch -->
-      <g><rect x="270" y="40" width="120" height="46" rx="9" fill="#12202b" stroke="#33465f" stroke-width="2"/><text x="330" y="68" class="cy-td__router">SWITCH</text></g>
-      <!-- safe links to the two healthy devices -->
-      <g stroke="#9c8579" stroke-width="2" fill="none" opacity="0.75"><path d="M330 86 L330 208"/><path d="M362 86 L508 208"/></g>
-      <!-- cut link to the infected machine -->
-      <path d="M298 86 L214 150" stroke="#ff4d4d" stroke-width="2" fill="none"/>
-      <path d="M198 168 L152 208" stroke="#ff4d4d" stroke-width="2" fill="none" stroke-dasharray="4 5" opacity="0.45"/>
-      <g stroke="#ff4d4d" stroke-width="2.6"><line x1="238" y1="150" x2="258" y2="170"/><line x1="258" y1="150" x2="238" y2="170"/></g>
-      <text x="268" y="150" class="cy-td__red" style="text-anchor:start">unplugged</text>
-      <!-- devices -->
-      <g class="cy-td__dev cy-td__dev--risk"><rect x="90" y="210" width="120" height="56" rx="8"/><text x="150" y="234">Infected PC</text><text x="150" y="252" class="cy-td__sub" style="fill:#ff9a9a">isolated first</text></g>
-      <g class="cy-td__dev cy-td__dev--safe"><rect x="270" y="210" width="120" height="56" rx="8"/><text x="330" y="234">Reception PC</text><text x="330" y="252" class="cy-td__sub" style="fill:#ff8a5c">safe</text></g>
-      <g class="cy-td__dev cy-td__dev--safe"><rect x="450" y="210" width="120" height="56" rx="8"/><text x="510" y="234">Server</text><text x="510" y="252" class="cy-td__sub" style="fill:#ff8a5c">safe</text></g>
-    </svg>
-    <figcaption class="cy-diagram__cap cy-diagram__cap--single">Contain first: get the infected machine off the network so the trouble cannot spread, then clean up. The rest of the clinic keeps working.</figcaption>
+  <figure class="cy-diagram" role="img"
+          aria-label="A Monday-morning containment diagram for a small centre's network. A switch sits at the centre. One infected office PC has its link cut, shown broken and crossed out, and is isolated first. Two other machines, the admin PC and the enrolment server, stay connected and keep working normally. A separate backup drive is shown deliberately unplugged and kept well clear of the infected machine, so the clean backup cannot be encrypted too.">
+    <div class="cy-seg2">
+      <svg class="cy-seg2__svg" viewBox="0 0 780 300" xmlns="http://www.w3.org/2000/svg">
+        <g class="cy-seg2__dev" transform="translate(310,16)"><rect x="0" y="0" width="160" height="44" rx="9" style="fill:#16283f;stroke:var(--cy-violet);stroke-width:1.8;"/><text x="80" y="27" class="cy-seg2__devname">SWITCH</text></g>
+
+        <path d="M390 60 L390 110" class="cy-seg2__path cy-seg2__path--ok"/>
+        <path d="M390 60 L590 110" class="cy-seg2__path cy-seg2__path--ok"/>
+        <path d="M390 60 L190 130" class="cy-seg2__path cy-seg2__path--bad" stroke-dasharray="5 4"/>
+        <g stroke="#f5495f" stroke-width="2.6"><line x1="270" y1="82" x2="290" y2="100"/><line x1="290" y1="82" x2="270" y2="100"/></g>
+
+        <g class="cy-seg2__dev cy-seg2__dev--bad" transform="translate(90,130)"><rect x="0" y="0" width="180" height="56" rx="9"/><text x="90" y="24" class="cy-seg2__devname">Infected office PC</text><text x="90" y="40" class="cy-seg2__devflag" style="fill:#f5495f">unplugged, isolated first</text></g>
+        <g class="cy-seg2__dev" transform="translate(310,110)"><rect x="0" y="0" width="160" height="56" rx="9"/><text x="80" y="24" class="cy-seg2__devname">Admin PC</text><text x="80" y="40" class="cy-seg2__devflag" style="fill:#7bc474">connected, working</text></g>
+        <g class="cy-seg2__dev" transform="translate(510,110)"><rect x="0" y="0" width="180" height="56" rx="9"/><text x="90" y="24" class="cy-seg2__devname">Enrolment server</text><text x="90" y="40" class="cy-seg2__devflag" style="fill:#7bc474">connected, working</text></g>
+
+        <g class="cy-seg2__dev" transform="translate(300,220)"><rect x="0" y="0" width="180" height="56" rx="9" style="stroke-dasharray:5 4;"/><text x="90" y="24" class="cy-seg2__devname">Backup drive</text><text x="90" y="40" class="cy-seg2__devflag" style="fill:#7ff0ff">kept unplugged, kept clear</text></g>
+      </svg>
+    </div>
+    <figcaption class="cy-diagram__cap cy-diagram__cap--single">
+      Contain first: the infected machine loses its link so the trouble cannot spread, everything else keeps working, and the backup stays unplugged the whole time &mdash; the one copy that must never touch an infected machine.
+    </figcaption>
   </figure>
 
 {% elif key == "ransom-lock-full" %}
